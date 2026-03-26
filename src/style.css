@@ -1,0 +1,16 @@
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Press Start 2P',monospace;overflow:hidden}
+#wrap{position:relative;display:inline-block}
+canvas{display:block;image-rendering:pixelated;border:3px solid #444}
+#hud{width:800px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:11px;padding:7px 14px;background:linear-gradient(to bottom,#1a1a2e,#111);border-bottom:2px solid #333;letter-spacing:1px}
+#hud span{display:flex;flex-direction:column;align-items:center;gap:2px}
+#hud label{color:#aaa;font-size:8px}
+#hud b{color:#fff;font-size:13px}
+#controls{width:800px;display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:linear-gradient(to bottom,#111,#0a0a0a);border-top:2px solid #333}
+.btn-group{display:flex;gap:12px}
+.ctrl-btn{width:60px;height:60px;border-radius:10px;border:2px solid #444;background:linear-gradient(145deg,#2c2c2c,#1a1a1a);color:#fff;font-size:22px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;transition:all .08s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 0 #000}
+.ctrl-btn:active,.ctrl-btn.pressed{background:linear-gradient(145deg,#c0392b,#922b21);border-color:#e74c3c;transform:translateY(3px);box-shadow:0 1px 0 #000}
+#btn-jump{width:70px;height:70px;border-radius:50%;background:linear-gradient(145deg,#c0392b,#922b21);border-color:#e74c3c;font-size:26px;box-shadow:0 5px 0 #6b1f1f}
+#btn-jump:active,#btn-jump.pressed{transform:translateY(4px);box-shadow:0 1px 0 #6b1f1f}
+#lives-icons{display:flex;gap:4px;align-items:center}
+.hint{color:#444;font-size:8px;text-align:center;line-height:2}

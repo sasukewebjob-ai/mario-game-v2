@@ -1,0 +1,114 @@
+import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
+  particles,scorePopups,blockAnims,movingPlats,springs,hammers,
+  cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
+  chainChomps,jumpBlocks,pipos,
+  yoshi,peach,bowser,G,H,TILE,LW} from '../globals.js';
+import {addB,addRow,addStair,addStairD} from '../builders.js';
+
+export function buildLevel4(){
+[platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,particles,scorePopups,blockAnims,movingPlats,springs,cannons,bulletBills,yoshiEggs,yoshiItems].forEach(a=>a.length=0);
+hammers.length=0;bowserFire.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;peach.alive=false;G.peachChase=null;
+if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
+yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
+// Ground with lava pits
+const gaps=[{s:1800,e:2010},{s:3200,e:3420},{s:5050,e:5270}];
+for(let x=0;x<LW;x+=TILE)if(!gaps.some(g=>x>=g.s&&x<g.e))platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+// Castle brick walls and blocks
+addRow(0,H-5*TILE,3,'brick');
+addRow(350,H-5*TILE,4,'brick');addRow(450,H-9*TILE,3,'q');
+addRow(800,H-7*TILE,3,'brick');
+addRow(1100,H-5*TILE,5,'brick');
+addRow(1500,H-7*TILE,3,'brick');
+addRow(2050,H-5*TILE,4,'brick');addRow(2050,H-9*TILE,3,'q');
+addRow(2450,H-7*TILE,3,'brick');
+addRow(2750,H-5*TILE,5,'brick');
+addRow(3500,H-5*TILE,4,'brick');addRow(3500,H-9*TILE,3,'q');
+addRow(3900,H-7*TILE,3,'brick');
+addRow(4250,H-5*TILE,4,'brick');
+addRow(4650,H-7*TILE,3,'brick');
+addRow(5350,H-5*TILE,4,'brick');addRow(5350,H-9*TILE,3,'q');
+addRow(5750,H-7*TILE,3,'brick');
+addRow(6050,H-5*TILE,4,'brick');
+// Staircase to boss arena
+addStair(6300,5);
+// Castle gate wall (passage at y=192-255 so Mario can jump through from staircase top)
+[0,32,64,96,128,160,256,288,320,352,384].forEach(wy=>{addB(6560,wy,'brick');addB(6592,wy,'brick');});
+// Coins
+for(let i=0;i<18;i++)coinItems.push({x:350+i*320,y:H-9*TILE,collected:false});
+// Enemies
+[{x:620,t:'goomba'},{x:880,t:'koopa'},
+{x:1100,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},{x:1600,t:'goomba'},
+{x:2050,t:'koopa'},{x:2180,t:'goomba'},{x:2300,t:'goomba'},{x:2600,t:'koopa'},{x:2700,t:'goomba'},
+{x:3500,t:'koopa'},{x:3620,t:'goomba'},{x:3740,t:'koopa'},
+{x:4100,t:'goomba'},{x:4200,t:'goomba'},{x:4600,t:'goomba'},{x:4720,t:'koopa'},
+{x:5350,t:'koopa'},{x:5480,t:'goomba'},{x:5600,t:'goomba'},
+{x:5900,t:'koopa'},{x:6050,t:'goomba'}
+].forEach(({x,t})=>{
+let e;
+if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
+else if(t==='koopa')e={x,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1};
+else if(t==='hammerBro')e={x,y:H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5+Math.random(),vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:60+Math.floor(Math.random()*60),jumpTimer:120+Math.floor(Math.random()*80),onGround:false};
+if(e)enemies.push(e);
+});
+// Moving platforms over lava pits
+movingPlats.push(
+{x:1860,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:1860,range:80,spd:1.2},
+{x:3270,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3270,range:90,spd:1.4},
+{x:5110,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5110,range:90,spd:1.5}
+);
+// Cannons
+cannons.push(
+{x:580,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:140,timer:70},
+{x:1550,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:125,timer:50},
+{x:2800,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:130,timer:90},
+{x:4300,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:115,timer:40},
+{x:5680,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:105,timer:60}
+);
+// Checkpoint
+G.checkpoint={x:3700,y:H-TILE,reached:false};
+// Special blocks (push only – no addRow at same coordinates)
+platforms.push({x:200,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+platforms.push({x:600,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:1000,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:2400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:3050,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:3700,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:4950,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:5450,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:5800,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:1380,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+platforms.push({x:4800,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+platforms.push({x:2752,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+platforms.push({x:4672,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
+// Lava flames: geysers (in pits) and floor jets (on solid ground)
+// {x, w, maxH, period, phase, curH}
+[
+  // Geysers inside lava pits (tall, dangerous for moving platform crossings)
+  {x:1875,w:22,maxH:210,period:170,phase:0},
+  {x:1940,w:18,maxH:170,period:170,phase:55},
+  {x:3305,w:22,maxH:210,period:155,phase:0},
+  {x:3375,w:18,maxH:170,period:155,phase:70},
+  {x:5120,w:22,maxH:210,period:145,phase:0},
+  {x:5200,w:18,maxH:170,period:145,phase:45},
+  // Floor jets on solid ground (shorter, duck/jump to avoid)
+  {x:450,w:16,maxH:80,period:220,phase:70},
+  {x:700,w:16,maxH:90,period:210,phase:40},
+  {x:950,w:16,maxH:75,period:200,phase:130},
+  {x:1280,w:16,maxH:80,period:190,phase:0},
+  {x:1680,w:16,maxH:85,period:215,phase:90},
+  {x:2150,w:16,maxH:90,period:205,phase:50},
+  {x:2560,w:16,maxH:90,period:200,phase:80},
+  {x:2950,w:16,maxH:80,period:185,phase:160},
+  {x:3600,w:16,maxH:85,period:195,phase:30},
+  {x:4020,w:16,maxH:85,period:180,phase:110},
+  {x:4180,w:16,maxH:75,period:210,phase:170},
+  {x:4550,w:16,maxH:85,period:190,phase:60},
+  {x:4870,w:16,maxH:90,period:175,phase:20},
+  {x:5480,w:16,maxH:80,period:200,phase:100},
+  {x:5620,w:16,maxH:85,period:195,phase:150},
+  {x:5800,w:16,maxH:75,period:185,phase:40}
+].forEach(f=>lavaFlames.push({...f,curH:0}));
+// Bowser
+Object.assign(bowser,{alive:true,x:7000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:130,jumpTimer:220,onGround:false,state:'walk',deadTimer:0});
+}
