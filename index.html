@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Mario Bros - Enhanced</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/mario-game-v2/assets/index-Du6Ybyyf.js"></script>
+  <link rel="stylesheet" crossorigin href="/mario-game-v2/assets/index-BmoyZHLv.css">
+</head>
+<body>
+<div id="wrap">
+<div id="hud">
+<span><label>MARIO</label><b id="hScore">000000</b></span>
+<span><label>COIN</label><b id="hCoins">x00</b></span>
+<span><label>WORLD</label><b id="hWorld">1-1</b></span>
+<span><label>TIME</label><b id="hTime">400</b></span>
+<div id="lives-icons"></div>
+</div>
+<canvas id="game" width="800" height="450"></canvas>
+<div id="controls">
+<div class="btn-group">
+<button class="ctrl-btn" id="btn-left">&#9664;</button>
+<button class="ctrl-btn" id="btn-right">&#9654;</button>
+<button class="ctrl-btn" id="btn-down" style="font-size:14px">&#9660;</button>
+</div>
+<div class="hint">Arrows:Move Shift:Dash<br>Space/Up:Jump Z:Tongue/Fire</div>
+<div class="btn-group">
+<button class="ctrl-btn" id="btn-dash" style="font-size:13px">&#128168;</button>
+<button class="ctrl-btn" id="btn-fire" style="font-size:18px">&#128293;</button>
+<button class="ctrl-btn" id="btn-jump">&#8593;</button>
+</div>
+</div>
+</div>
+</body>
+</html>
