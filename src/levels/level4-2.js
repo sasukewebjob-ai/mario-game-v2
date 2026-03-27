@@ -1,0 +1,130 @@
+import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
+  particles,scorePopups,blockAnims,movingPlats,springs,hammers,
+  cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
+  chainChomps,jumpBlocks,pipos,
+  yoshi,peach,bowser,flagPole,G,H,TILE,LW} from '../globals.js';
+import {addB,addRow,addStair,addStairD} from '../builders.js';
+
+export function buildLevel_4_2(){
+  [platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
+   particles,scorePopups,blockAnims,movingPlats,springs,cannons,
+   bulletBills,yoshiEggs,yoshiItems].forEach(a=>a.length=0);
+  hammers.length=0;bowserFire.length=0;lavaFlames.length=0;
+  chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
+  G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
+  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;
+  peach.alive=false;G.peachChase=null;
+  if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
+  yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
+  G.autoScroll=1.2;
+
+  // 地面（ギャップ6か所 / 半分サイズ）
+  // Z1=0-350, Z2=630-800, Z3=1080-1250, Z4=1600-1850, Z5=2200-2450, Z6=2800-3050, Z7=3450+
+  const gaps=[
+    {s:350, e:630},
+    {s:800, e:1080},
+    {s:1250,e:1600},
+    {s:1850,e:2200},
+    {s:2450,e:2800},
+    {s:3050,e:3450},
+  ];
+  for(let x=0;x<LW;x+=TILE)
+    if(!gaps.some(g=>x>=g.s&&x<g.e))
+      platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+
+  // 空中レンガ足場（各ゾーン交互高度）
+  addRow(150, H-5*TILE, 2,'brick');
+  addRow(650, H-7*TILE, 2,'brick');
+  addRow(1100,H-5*TILE, 2,'brick');
+  addRow(1650,H-7*TILE, 2,'brick');
+  addRow(2200,H-5*TILE, 2,'brick');
+  addRow(2800,H-7*TILE, 2,'brick');
+  addRow(3450,H-5*TILE, 2,'brick');
+  addStair(3700,6);
+  flagPole.x=3920;
+
+  // 特殊ブロック（addRow座標と必ず異なるx/yに配置）
+  // addRow位置: Z1@150(H-5T), Z2@650(H-7T), Z3@1100(H-5T), Z4@1650(H-7T),
+  //             Z5@2200(H-5T), Z6@2800(H-7T), Z7@3450(H-5T)
+  // → Q/hiddenブロックは全て +90〜110px ずらして配置
+  platforms.push({x:270, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z1
+  platforms.push({x:300, y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:750, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z2
+  platforms.push({x:770, y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:1190,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z3
+  platforms.push({x:1210,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:1750,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z4
+  platforms.push({x:1780,y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:2310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z5
+  platforms.push({x:2340,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:2910,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z6
+  platforms.push({x:2940,y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:3560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0}); // Z7
+
+  // コイン（4ライン + ギャップアーチ）
+  for(let i=0;i<32;i++) coinItems.push({x:100+i*115,y:H-7*TILE, collected:false});
+  for(let i=0;i<25;i++) coinItems.push({x:150+i*145,y:H-9*TILE, collected:false});
+  for(let i=0;i<18;i++) coinItems.push({x:200+i*200,y:H-11*TILE,collected:false});
+  for(let i=0;i<10;i++) coinItems.push({x:600+i*340,y:H-8*TILE, collected:false});
+  gaps.forEach(({s,e})=>{
+    const m=Math.round((s+e)/2);
+    [-80,-48,-16,16,48,80].forEach(dx=>coinItems.push({x:m+dx,y:H-5*TILE,collected:false}));
+    [-96,-64,-32,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-7*TILE,collected:false}));
+  });
+
+  // 動く足場（各ギャップに2個・速め）
+  movingPlats.push({x:360, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:360, range:100,spd:1.6,prevX:360});
+  movingPlats.push({x:490, y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:490, range:80, spd:2.0,prevX:490});
+  movingPlats.push({x:820, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:820, range:110,spd:1.8,prevX:820});
+  movingPlats.push({x:950, y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:950, range:80, spd:2.2,prevX:950});
+  movingPlats.push({x:1270,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1270,range:110,spd:1.8,prevX:1270});
+  movingPlats.push({x:1430,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:1430,range:90, spd:2.2,prevX:1430});
+  movingPlats.push({x:1870,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1870,range:110,spd:2.0,prevX:1870});
+  movingPlats.push({x:2040,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:2040,range:90, spd:2.4,prevX:2040});
+  movingPlats.push({x:2470,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:2470,range:110,spd:2.0,prevX:2470});
+  movingPlats.push({x:2630,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:2630,range:90, spd:2.4,prevX:2630});
+  movingPlats.push({x:3070,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:3070,range:120,spd:2.0,prevX:3070});
+  movingPlats.push({x:3250,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:3250,range:90, spd:2.6,prevX:3250});
+
+  // 敵（スタート直後 x<600 は安全）
+  // クリボー ×5
+  [700,1150,1720,2300,2900].forEach(x=>{
+    enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
+      type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
+  });
+  // メット（buzzy）×15（地面10 + ブロック上5）
+  [760,1200,1780,2370,2970, 720,1150,1700,2250,2850].forEach(x=>{
+    enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
+      type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
+  });
+  // ブロック上メット×5
+  [
+    {x:182, y:H-6*TILE},  // addRow(150,H-5T)上
+    {x:682, y:H-8*TILE},  // addRow(650,H-7T)上
+    {x:1682,y:H-8*TILE},  // addRow(1650,H-7T)上
+    {x:2232,y:H-6*TILE},  // addRow(2200,H-5T)上
+    {x:2832,y:H-8*TILE},  // addRow(2800,H-7T)上
+  ].forEach(({x,y})=>{
+    enemies.push({x,y,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
+      type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
+  });
+  // 飛びノコノコ（parakoopa）×9（ギャップ6か所 + ゾーン上空カバー3）
+  [
+    {x:490, baseY:H-4*TILE,phase:0  },  // gap1
+    {x:940, baseY:H-5*TILE,phase:1.0},  // gap2
+    {x:1420,baseY:H-4*TILE,phase:0.5},  // gap3
+    {x:2025,baseY:H-5*TILE,phase:1.5},  // gap4
+    {x:2625,baseY:H-4*TILE,phase:0.8},  // gap5
+    {x:3250,baseY:H-6*TILE,phase:0.3},  // gap6
+    {x:1720,baseY:H-5*TILE,phase:0.6},  // Z4上空
+    {x:2310,baseY:H-4*TILE,phase:1.2},  // Z5上空
+    {x:2900,baseY:H-5*TILE,phase:0.4},  // Z6上空
+  ].forEach(({x,baseY,phase})=>{
+    enemies.push({x,y:baseY,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,
+      type:'parakoopa',flying:true,baseY,phase,
+      state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+  });
+
+  // チェックポイント（Z4地面上）
+  G.checkpoint={x:1800,y:H-TILE,reached:false};
+}

@@ -12,7 +12,7 @@ export function buildLevel_2_2(){
   hammers.length=0;bowserFire.length=0;lavaFlames.length=0;
   chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
   G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
-  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;
+  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;
   peach.alive=false;G.peachChase=null;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
@@ -94,9 +94,10 @@ export function buildLevel_2_2(){
     else enemies.push({x,y:H-2*TILE,w:TILE,h:t==='koopa'?TILE*1.2:TILE,vx:-1.5,vy:0,alive:true,type:t,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
   });
 
-  // パラクーパ（上空から）
-  [{x:2200},{x:3100},{x:4100},{x:5100},{x:6100},{x:6800}].forEach(({x})=>{
-    const by=H-5*TILE;
+  // パラクーパ（26体、ランダムな高さ）
+  [200,500,850,1150,1450,1800,2200,2500,2800,3100,3400,3700,
+   4000,4300,4600,4900,5200,5500,5800,6100,6300,6500,6600,6700,6800,6950].forEach(x=>{
+    const by=H-(4+Math.floor(Math.random()*4))*TILE;
     enemies.push({x,y:by,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:by,phase:Math.random()*Math.PI*2,shellTimer:0,walkFrame:0,walkTimer:0});
   });
 
@@ -110,8 +111,8 @@ export function buildLevel_2_2(){
     pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy:-6,alive:true,bounceCount:0});
   });
 
-  // ワンワン（5体、2-1より多め）
-  [{x:3100},{x:4300},{x:5350},{x:6050},{x:6650}].forEach(({x})=>{
+  // ワンワン（2体）
+  [{x:1800},{x:5300}].forEach(({x})=>{
     chainChomps.push({x,y:H-TILE-36,w:36,h:36,postX:x,postY:H-TILE-36,
       vx:0,vy:0,phase:Math.random()*Math.PI*2,state:'idle',lungeTimer:0,alive:true});
   });

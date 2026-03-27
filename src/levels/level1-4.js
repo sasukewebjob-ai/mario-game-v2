@@ -7,7 +7,7 @@ import {addB,addRow,addStair,addStairD} from '../builders.js';
 
 export function buildLevel4(){
 [platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,particles,scorePopups,blockAnims,movingPlats,springs,cannons,bulletBills,yoshiEggs,yoshiItems].forEach(a=>a.length=0);
-hammers.length=0;bowserFire.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;peach.alive=false;G.peachChase=null;
+hammers.length=0;bowserFire.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;peach.alive=false;G.peachChase=null;
 if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
 yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
 // Ground with lava pits
@@ -33,6 +33,8 @@ addRow(6050,H-5*TILE,4,'brick');
 addStair(6300,5);
 // Castle gate wall (passage at y=192-255 so Mario can jump through from staircase top)
 [0,32,64,96,128,160,256,288,320,352,384].forEach(wy=>{addB(6560,wy,'brick');addB(6592,wy,'brick');});
+// Descending staircase inside gate — Mario must climb up then come DOWN before reaching Bowser
+addStairD(6624,5);
 // Coins
 for(let i=0;i<18;i++)coinItems.push({x:350+i*320,y:H-9*TILE,collected:false});
 // Enemies
@@ -109,6 +111,11 @@ platforms.push({x:4672,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBl
   {x:5620,w:16,maxH:85,period:195,phase:150},
   {x:5800,w:16,maxH:75,period:185,phase:40}
 ].forEach(f=>lavaFlames.push({...f,curH:0}));
-// Bowser
-Object.assign(bowser,{alive:true,x:7000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:130,jumpTimer:220,onGround:false,state:'walk',deadTimer:0});
+// クッパ戦直前キノコ（アリーナ入口バッファゾーン）
+platforms.push({x:6790,y:H-3*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+// 制高点階段（アリーナ内・Mario が高い位置から戦える・Bowser はジャンプ力的に届かない高さ）
+addStair(7100,6);
+// Bowser — offscreen 登場: Mario が x=7000 に達したとき画面右端から歩いて入ってくる
+G.bowserArenaX=7000;
+Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:130,jumpTimer:220,onGround:false,state:'offscreen',deadTimer:0});
 }

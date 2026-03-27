@@ -12,7 +12,7 @@ export function buildLevel_2_1(){
   hammers.length=0;bowserFire.length=0;lavaFlames.length=0;
   chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
   G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
-  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;
+  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;
   peach.alive=false;G.peachChase=null;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;

@@ -12,7 +12,7 @@ export function buildLevel_2_3(){
   hammers.length=0;bowserFire.length=0;lavaFlames.length=0;
   chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
   G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
-  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;
+  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;
   peach.alive=false;G.peachChase=null;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
@@ -54,6 +54,8 @@ export function buildLevel_2_3(){
   [0,32,64,96,128,160,256,288,320,352,384].forEach(wy=>{
     addB(6560,wy,'brick');addB(6592,wy,'brick');
   });
+  // 城門内の下り階段 — 上って → くぐって → 降りて → 戦う動線
+  addStairD(6624,5);
 
   // 特殊ブロック（pushのみ、addRowと座標重複なし）
   platforms.push({x:200,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
@@ -65,6 +67,7 @@ export function buildLevel_2_3(){
   platforms.push({x:4200,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   platforms.push({x:4750,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:5300,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:6100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 
   // パイプ（すべて通常、ワープなし）
   [[600,2,false],[2300,3,false],[4600,2,false]].forEach(([px,ph,warp])=>{
@@ -150,8 +153,13 @@ export function buildLevel_2_3(){
     {x:5400,w:16,maxH:85,period:195,phase:120}
   ].forEach(f=>lavaFlames.push({...f,curH:0}));
 
-  // クッパ（fireTimer=100 で1-4より0.5秒早く最初の炎を吐く）
-  Object.assign(bowser,{alive:true,x:7000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,
+  // クッパ戦直前キノコ
+  platforms.push({x:6790,y:H-3*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  // 制高点階段
+  addStair(7100,6);
+  // クッパ — offscreen 登場: Mario が x=7000 に達したとき画面右端から歩いて入ってくる
+  G.bowserArenaX=7000;
+  Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,
     vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:100,jumpTimer:220,
-    onGround:false,state:'walk',deadTimer:0});
+    onGround:false,state:'offscreen',deadTimer:0});
 }

@@ -21,5 +21,7 @@ export const G={
   currentWorld:1,currentLevel:1,introTimer:0,goalSlide:null,
   lastFireFrame:-999,ugMode:false,savedOW:null,starTimer:0,
   combo:0,comboTimer:0,checkpoint:null,checkpointReached:false,
-  selectedStage:1,peachChase:null
+  selectedStage:1,peachChase:null,
+  bowserArenaX:0,
+  autoScroll:0
 };

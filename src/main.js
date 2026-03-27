@@ -5,14 +5,8 @@ import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   chainChomps,jumpBlocks,pipos,
   mario,yoshi,bowser,peach,flagPole,G,W,H,TILE,GRAVITY,LW} from './globals.js';
 import {addB,addRow,addStair,addStairD} from './builders.js';
-import {buildLevel} from './levels/level1-1.js';
-import {buildLevel2} from './levels/level1-2.js';
-import {buildLevel3} from './levels/level1-3.js';
-import {buildLevel4} from './levels/level1-4.js';
 import {buildUnderground} from './levels/underground.js';
-import {buildLevel_2_1} from './levels/level2-1.js';
-import {buildLevel_2_2} from './levels/level2-2.js';
-import {buildLevel_2_3} from './levels/level2-3.js';
+import {STAGES,getStage,getNextStage,getStageById,getWorlds,getWorldStages} from './stages.js';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 
 // === AUDIO ===
@@ -26,7 +20,7 @@ g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.
 function sfx(n){try{
 if(n==='jump'){beep(220,.05,'square',.1);beep(440,.08,'square',.12,.04);beep(660,.06,'sine',.1,.1)}
 if(n==='coin'){beep(988,.05,'sine',.18);beep(1319,.14,'sine',.18,.05)}
-if(n==='stomp'){beep(180,.04,'sawtooth',.15);beep(120,.1,'sawtooth',.1,.04)}
+if(n==='stomp'){if(G.starTimer>0){[523,659,784,1047,1319].forEach((f,i)=>beep(f,.06,'square',.18,i*.05))}else{beep(180,.04,'sawtooth',.15);beep(120,.1,'sawtooth',.1,.04)}}
 if(n==='die'){beep(494,.07,'square',.15);beep(370,.07,'square',.12,.1);beep(277,.07,'square',.1,.2);beep(196,.4,'square',.1,.3)}
 if(n==='break'){beep(320,.04,'sawtooth',.12);beep(220,.06,'sawtooth',.1,.04);beep(160,.08,'sawtooth',.08,.08)}
 if(n==='qblock'){beep(660,.06,'sine',.18);beep(784,.06,'sine',.16,.06);beep(988,.12,'sine',.15,.12)}
@@ -45,7 +39,7 @@ const UG_NOTES=[[131,2],[0,1],[131,1],[0,1],[165,2],[0,1],[131,1],[175,2],[165,2
 const STAR_NOTES=[[523,1],[659,1],[784,1],[1047,1],[784,1],[659,1],[523,1],[0,1],[587,1],[740,1],[880,1],[1175,1],[880,1],[740,1],[587,1],[0,1],[659,1],[831,1],[988,1],[1319,1],[988,1],[831,1],[659,1],[0,1],[784,1],[988,1],[1175,1],[1568,1],[1175,1],[988,1],[784,1],[0,1]];
 const CASTLE_NOTES=[[220,2],[0,1],[220,1],[208,2],[0,1],[196,1],[208,2],[220,1],[0,1],[220,4],[175,2],[0,1],[175,1],[165,2],[0,1],[155,1],[165,2],[175,1],[0,1],[196,4],[220,2],[247,2],[196,2],[220,2],[175,3],[0,1],[165,3],[0,1],[155,2],[165,2],[0,2]];
 let bgmStep=0,bgmTime=0;const BEAT=0.09;
-function scheduleBGM(){const notes=G.ugMode?UG_NOTES:(G.starTimer>0?STAR_NOTES:((G.currentLevel===4||(G.currentWorld===2&&G.currentLevel===3))?CASTLE_NOTES:THEME_NOTES));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
+function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const notes=G.ugMode?UG_NOTES:(G.starTimer>0?STAR_NOTES:(_bgmS?.bgmTheme==='castle'?CASTLE_NOTES:THEME_NOTES));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
 function startBGM(){stopBGM();bgmGain=AC.createGain();bgmGain.gain.value=1;bgmGain.connect(AC.destination);bgmStep=0;bgmTime=AC.currentTime;scheduleBGM()}
 function stopBGM(){if(bgmGain){bgmGain.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.2);bgmGain=null}}
 
@@ -73,10 +67,11 @@ function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=partic
 // === INPUT ===
 const keys={},btn={left:false,right:false,jump:false,dash:false,down:false};
 document.addEventListener('keydown',e=>{keys[e.code]=true;
-if(G.state==='start'){if(e.code==='ArrowLeft'&&G.selectedStage>1){G.selectedStage--;e.preventDefault();}if(e.code==='ArrowRight'&&G.selectedStage<7){G.selectedStage++;e.preventDefault();}if(e.code==='Digit1')G.selectedStage=1;if(e.code==='Digit2')G.selectedStage=2;if(e.code==='Digit3')G.selectedStage=3;if(e.code==='Digit4')G.selectedStage=4;if(e.code==='Digit5')G.selectedStage=5;if(e.code==='Digit6')G.selectedStage=6;if(e.code==='Digit7')G.selectedStage=7;if(e.code==='Space'||e.code==='Enter')startFromStage(G.selectedStage);}
+if(G.state==='start'){if(e.code==='ArrowLeft'&&G.selectedStage>1){G.selectedStage--;e.preventDefault();}if(e.code==='ArrowRight'&&G.selectedStage<STAGES.length){G.selectedStage++;e.preventDefault();}const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];if(e.code==='Space'||e.code==='Enter')startFromStage(G.selectedStage);}
 if((G.state==='dead'||G.state==='over'||G.state==='win')&&(e.code==='Space'||e.code==='Enter')){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}
 if(G.state==='play'&&(e.code==='Space'||e.code==='ArrowUp')&&mario.onGround&&!mario.dead)doJump();
-if(G.state==='play'&&e.code==='KeyZ'&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction();else if(mario.power==='fire')shootFireball()}
+if(G.state==='play'&&e.code==='KeyZ'&&!mario.dead){if(mario.power==='fire')shootFireball()}
+if(G.state==='play'&&e.code==='KeyX'&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction()}
 if(G.state==='play'&&e.code==='ArrowDown'&&mario.onGround&&!mario.dead)checkPipeEntry();
 e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.code]=false});
@@ -93,10 +88,16 @@ function checkPipeEntry(){
 if(G.ugMode){for(const p of pipes){if(!p.isExit)continue;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+4;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){exitUnderground();return}}return}
 for(const p of pipes){if(!p.isWarp||p.used)continue;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+4;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){p.used=true;enterUnderground(p);return}}
 }
-function enterUnderground(p){G.savedOW={platforms:[...platforms],pipes:[...pipes],coinItems:[...coinItems],enemies:[...enemies],mushrooms:[...mushrooms],piranhas:[...piranhas],movingPlats:[...movingPlats],springs:[...springs],cannons:[...cannons],cam:G.cam,mx:mario.x,my:mario.y};
+function enterUnderground(p){G.savedOW={platforms:[...platforms],pipes:[...pipes],coinItems:[...coinItems],enemies:[...enemies],mushrooms:[...mushrooms],piranhas:[...piranhas],movingPlats:[...movingPlats],springs:[...springs],cannons:[...cannons],chainChomps:[...chainChomps],jumpBlocks:[...jumpBlocks],pipos:[...pipos],cam:G.cam,mx:mario.x,my:mario.y};
 platforms.length=0;pipes.length=0;coinItems.length=0;enemies.length=0;mushrooms.length=0;piranhas.length=0;movingPlats.length=0;springs.length=0;cannons.length=0;bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
-buildUnderground(p.variant||'coin');G.cam=0;mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;G.ugMode=true;G.score+=500;sfx('flag');stopBGM();try{startBGM()}catch(ex){}}
-function exitUnderground(){if(!G.savedOW)return;platforms.length=0;platforms.push(...G.savedOW.platforms);pipes.length=0;pipes.push(...G.savedOW.pipes);coinItems.length=0;coinItems.push(...G.savedOW.coinItems);enemies.length=0;enemies.push(...G.savedOW.enemies);mushrooms.length=0;mushrooms.push(...G.savedOW.mushrooms);piranhas.length=0;piranhas.push(...G.savedOW.piranhas);movingPlats.length=0;movingPlats.push(...(G.savedOW.movingPlats||[]));springs.length=0;springs.push(...(G.savedOW.springs||[]));cannons.length=0;cannons.push(...(G.savedOW.cannons||[]));bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;mario.y=G.savedOW.my-TILE*2;mario.vy=-10;G.ugMode=false;G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}}
+buildUnderground(p.variant||'coin');
+// 地下スポーン(x=60)周辺200px以内の敵を除去（即死防止）
+for(let i=enemies.length-1;i>=0;i--){if(enemies[i].x<260)enemies.splice(i,1);}
+G.cam=0;mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;G.ugMode=true;G.score+=500;sfx('flag');stopBGM();try{startBGM()}catch(ex){}}
+function exitUnderground(){if(!G.savedOW)return;platforms.length=0;platforms.push(...G.savedOW.platforms);pipes.length=0;pipes.push(...G.savedOW.pipes);coinItems.length=0;coinItems.push(...G.savedOW.coinItems);enemies.length=0;enemies.push(...G.savedOW.enemies);mushrooms.length=0;mushrooms.push(...G.savedOW.mushrooms);piranhas.length=0;piranhas.push(...G.savedOW.piranhas);movingPlats.length=0;movingPlats.push(...(G.savedOW.movingPlats||[]));springs.length=0;springs.push(...(G.savedOW.springs||[]));cannons.length=0;cannons.push(...(G.savedOW.cannons||[]));bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;chainChomps.push(...(G.savedOW.chainChomps||[]));jumpBlocks.length=0;jumpBlocks.push(...(G.savedOW.jumpBlocks||[]));pipos.length=0;pipos.push(...(G.savedOW.pipos||[]));
+// 出口(元のパイプ位置)周辺200px以内の敵を除去（即死防止）
+const _exitX=G.savedOW.mx;for(let i=enemies.length-1;i>=0;i--){if(Math.abs(enemies[i].x-_exitX)<200)enemies.splice(i,1);}
+G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;mario.y=G.savedOW.my-TILE*2;mario.vy=-10;G.ugMode=false;G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}}
 
 function shootFireball(){if(G.frame-G.lastFireFrame<18||fireballs.length>=2)return;G.lastFireFrame=G.frame;fireballs.push({x:mario.x+(mario.facing===1?mario.w-4:0),y:mario.y+mario.h/2-6,w:12,h:12,vx:mario.facing*9,vy:-3,bounces:0,alive:true});try{beep(880,.04,'square',.12);beep(1100,.06,'square',.1,.04)}catch(e){}}
 
@@ -127,7 +128,7 @@ const press=e=>{e.preventDefault();if(G.state==='play'&&!mario.dead){if(yoshi.mo
 el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false})})();
 document.getElementById('btn-down').addEventListener('mousedown',e=>{e.preventDefault();if(G.state==='play'&&mario.onGround&&!mario.dead)checkPipeEntry()});
 document.getElementById('btn-down').addEventListener('touchstart',e=>{e.preventDefault();if(G.state==='play'&&mario.onGround&&!mario.dead)checkPipeEntry()},{passive:false});
-canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),sx=W/r.width,sy=H/r.height,cx=(ev.clientX-r.left)*sx,cy=(ev.clientY-r.top)*sy;const bw=130,bh=60,gap=20,bx0=(W-(4*bw+3*gap))/2,by=248;for(let i=0;i<4;i++){if(cx>=bx0+i*(bw+gap)&&cx<=bx0+i*(bw+gap)+bw&&cy>=by&&cy<=by+bh){startFromStage(i+1);return;}}const bw2=130,bh2=60,gap2=18,row2lbl=[5,6,7],row2bx0=(W-(3*bw2+2*gap2))/2,by21=315;for(let i=0;i<3;i++){const bx2=row2bx0+i*(bw2+gap2);if(cx>=bx2&&cx<=bx2+bw2&&cy>=by21&&cy<=by21+bh2){startFromStage(row2lbl[i]);return;}}return;}if(G.state!=='play'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else if(G.state==='dead'){restartCurrentLevel()}}});
+canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),sx=W/r.width,sy=H/r.height,cx=(ev.clientX-r.left)*sx,cy=(ev.clientY-r.top)*sy;const _bw=120,_bh=56,_gap=14,_rowH=72,_startY=195;const _ws=getWorlds();for(let _wi=0;_wi<_ws.length;_wi++){const _wSt=getWorldStages(_ws[_wi]);const _tot=_wSt.length*(_bw+_gap)-_gap;const _bx0=(W-_tot)/2;const _by=_startY+_wi*_rowH;for(let _si=0;_si<_wSt.length;_si++){const _bx=_bx0+_si*(_bw+_gap);if(cx>=_bx&&cx<=_bx+_bw&&cy>=_by&&cy<=_by+_bh){startFromStage(_wSt[_si].id);return;}}}return;}if(G.state!=='play'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else if(G.state==='dead'){restartCurrentLevel()}}});
 
 // === HIT BLOCK ===
 function hitBlock(p){
@@ -143,9 +144,9 @@ else{spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700'
 else if(p.type==='brick'){if(mario.big){sfx('break');G.score+=50;updateHUD();spawnParticle(p.x+16,p.y,'brick');spawnScorePopup(p.x+16,p.y-8,50,'#e67e22');const idx=platforms.indexOf(p);if(idx!==-1)platforms.splice(idx,1)}else{blockAnims.push({p,t:0})}}}
 
 // === GAME MANAGEMENT ===
-function startFromStage(n){yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;if(n===5){G.currentWorld=2;G.currentLevel=1;buildLevel_2_1();}else if(n===6){G.currentWorld=2;G.currentLevel=2;buildLevel_2_2();}else if(n===7){G.currentWorld=2;G.currentLevel=3;buildLevel_2_3();}else{G.currentLevel=n;G.currentWorld=1;if(n===1)buildLevel();else if(n===2)buildLevel2();else if(n===3)buildLevel3();else buildLevel4();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
-function startGame(){G.currentLevel=1;buildLevel();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
-function restartCurrentLevel(){yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;if(G.currentWorld===2&&G.currentLevel===1)buildLevel_2_1();else if(G.currentWorld===2&&G.currentLevel===2)buildLevel_2_2();else if(G.currentWorld===2&&G.currentLevel===3)buildLevel_2_3();else if(G.currentLevel===1)buildLevel();else if(G.currentLevel===2)buildLevel2();else if(G.currentLevel===3)buildLevel3();else buildLevel4();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function startFromStage(id){yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function startGame(){G.currentWorld=1;G.currentLevel=1;const _sg=getStage(1,1);if(_sg)_sg.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function restartCurrentLevel(){yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function killMario(force=false){
 if(!force&&(G.starTimer>0||mario.inv>0))return;
 if(!force&&yoshi.mounted&&yoshi.alive){dismountYoshi(true);mario.inv=120;return}
@@ -163,16 +164,16 @@ if(bgmGain)try{scheduleBGM()}catch(e){bgmGain=null}
 G.shakeX*=0.8;G.shakeY*=0.8;if(Math.abs(G.shakeX)<0.1)G.shakeX=0;if(Math.abs(G.shakeY)<0.1)G.shakeY=0;
 for(let i=blockAnims.length-1;i>=0;i--){const b=blockAnims[i];b.t+=0.2;b.p.bounceOffset=Math.sin(b.t)*8*Math.max(0,1-b.t/Math.PI);if(b.t>Math.PI){b.p.bounceOffset=0;blockAnims.splice(i,1)}}
 if(G.state==='intro'){G.introTimer--;updateParticles();if(G.introTimer<=0){G.state='play';G.timerTick=setInterval(()=>{if(G.state==='play'){G.timeLeft--;if(G.timeLeft<=0)killMario();updateHUD()}},1000);try{startBGM()}catch(e2){}}return}
-if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario.x=flagPole.x-4;if(mario.y>=H-TILE-mario.h){mario.y=H-TILE-mario.h;G.goalSlide.phase='walk'}}else if(G.goalSlide.phase==='walk'){mario.x+=2;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}if(G.goalSlide.t>120){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();if(G.currentWorld===1&&G.currentLevel===1){G.currentLevel=2;buildLevel2();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;try{startBGM()}catch(e){}updateHUD()}else if(G.currentWorld===1&&G.currentLevel===2){G.currentLevel=3;buildLevel3();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;try{startBGM()}catch(e){}updateHUD()}else if(G.currentWorld===1&&G.currentLevel===3){G.currentLevel=4;buildLevel4();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;try{startBGM()}catch(e){}updateHUD()}else if(G.currentLevel===4&&G.currentWorld===1){G.currentLevel=1;G.currentWorld=2;buildLevel_2_1();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;try{startBGM()}catch(e){}updateHUD()}else if(G.currentWorld===2&&G.currentLevel===1){G.currentLevel=2;buildLevel_2_2();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;try{startBGM()}catch(e){}updateHUD()}else if(G.currentWorld===2&&G.currentLevel===2){G.currentLevel=3;buildLevel_2_3();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;try{startBGM()}catch(e){}updateHUD()}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}updateParticles();return}
+if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario.x=flagPole.x-4;if(mario.y>=H-TILE-mario.h){mario.y=H-TILE-mario.h;G.goalSlide.phase='walk'}}else if(G.goalSlide.phase==='walk'){mario.x+=2;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}if(G.goalSlide.t>120){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.currentWorld=_ns.world;G.currentLevel=_ns.level;flagPole.x=LW-500;_ns.build();fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);stopBGM();try{startBGM()}catch(e){}updateHUD()}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}updateParticles();return}
 // Moving platforms
-for(const mp of movingPlats){if(mp.type==='h')mp.x=mp.ox+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='v')mp.y=mp.oy+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='fall'){if(mp.falling){mp.vy+=0.3;mp.y+=mp.vy;if(mp.y>H+100){mp.y=mp.oy;mp.vy=0;mp.falling=false;mp.fallTimer=0}}}}
+for(const mp of movingPlats){mp.prevX=mp.x;mp.prevY=mp.y;if(mp.type==='h')mp.x=mp.ox+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='v')mp.y=mp.oy+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='fall'){if(mp.falling){mp.vy+=0.3;mp.y+=mp.vy;if(mp.y>H+100){mp.y=mp.oy;mp.vy=0;mp.falling=false;mp.fallTimer=0}}}}
 if(G.starTimer>0){G.starTimer--;if(G.frame%3===0)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');if(G.starTimer<=0){mario.inv=0;stopBGM();try{startBGM()}catch(e){}}}
 if(G.comboTimer>0){G.comboTimer--;if(G.comboTimer<=0)G.combo=0}
 // Bullet Bill Cannons
 for(const cn of cannons){cn.timer--;if(cn.timer<=0){cn.timer=cn.fireRate;if(Math.abs(mario.x-cn.x)<600){const dir=mario.x>cn.x?1:-1;bulletBills.push({x:cn.x+(dir>0?cn.w:-20),y:cn.y+4,w:20,h:16,vx:dir*4,alive:true});try{beep(80,.15,'sawtooth',.15);beep(60,.2,'sawtooth',.1,.1)}catch(ex){}}}}
 // Bullet Bills
 for(let i=bulletBills.length-1;i>=0;i--){const bb=bulletBills[i];if(!bb.alive){bulletBills.splice(i,1);continue}bb.x+=bb.vx;if(bb.x<G.cam-100||bb.x>G.cam+W+100){bulletBills.splice(i,1);continue}
-if((mario.inv===0||G.starTimer>0)&&!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,bb.x,bb.y,bb.w,bb.h)){if(G.starTimer>0){bb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'star')}else if(mario.y+mario.h-mario.vy<=bb.y+4){bb.alive=false;mario.vy=-9;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'dust');spawnScorePopup(bb.x+10,bb.y-8,200,'#e74c3c')}else killMario()}
+if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,bb.x,bb.y,bb.w,bb.h)){if(G.starTimer>0){bb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'star')}else if(mario.y+mario.h-mario.vy<=bb.y+4){bb.alive=false;mario.vy=-9;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'dust');spawnScorePopup(bb.x+10,bb.y-8,200,'#e74c3c')}else if(mario.inv===0)killMario()}
 for(const fb of fireballs){if(!fb.alive)continue;if(overlap(fb.x,fb.y,fb.w,fb.h,bb.x,bb.y,bb.w,bb.h)){bb.alive=false;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'star')}}}
 // Hammer Bros AI
 for(const e of enemies){if(!e.alive||e.type!=='hammerBro'||e.state==='dead')continue;
@@ -259,7 +260,7 @@ if(G.ugMode&&mario.x<0)mario.x=0;if(G.ugMode&&mario.x+mario.w>W)mario.x=W-mario.
 // Flutter jump (Yoshi)
 if(yoshi.mounted&&yoshi.alive&&yoshi.flutterTimer>0&&(keys['Space']||keys['ArrowUp']||btn.jump)&&mario.vy>0){mario.vy*=0.6;yoshi.flutterTimer--;if(G.frame%2===0)spawnParticle(mario.x+13,mario.y+mario.h,'dust')}
 if(!(keys['Space']||keys['ArrowUp']||btn.jump)&&mario.vy<-4)mario.vy+=1.2;
-mario.x+=mario.vx;if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));
+mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else{if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;cX(mario,p)}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cX(mario,p)}
 mario.vy+=GRAVITY;if(mario.vy>15)mario.vy=15;mario.y+=mario.vy;mario.onGround=false;
@@ -268,7 +269,7 @@ if(p.type==='hidden'&&!p.hit){const bo=p.bounceOffset||0,py=p.y-bo;if(overlap(ma
 cY(mario,p,hitBlock)}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cY(mario,p,null)}
 // Moving platform collision
-for(const mp of movingPlats){if(mp.falling&&mp.y>H)continue;if(overlap(mario.x+1,mario.y,mario.w-2,mario.h,mp.x,mp.y,mp.w,mp.h)){if(mario.y+mario.h/2<mp.y+mp.h/2){mario.y=mp.y-mario.h;mario.vy=0;mario.onGround=true;if(mp.type==='fall'&&!mp.falling){mp.fallTimer++;if(mp.fallTimer>30)mp.falling=true}}}}
+for(const mp of movingPlats){if(mp.falling&&mp.y>H)continue;if(overlap(mario.x+1,mario.y,mario.w-2,mario.h,mp.x,mp.y,mp.w,mp.h)){if(mario.y+mario.h/2<mp.y+mp.h/2){mario.y=mp.y-mario.h;mario.vy=0;mario.onGround=true;mario.x+=mp.x-(mp.prevX??mp.x);if(mp.type==='fall'&&!mp.falling){mp.fallTimer++;if(mp.fallTimer>30)mp.falling=true}}}}
 // Springs
 for(const sp of springs){if(sp.compressed>0){sp.compressed--;continue}if(overlap(mario.x,mario.y,mario.w,mario.h,sp.x,sp.y,sp.w,sp.h)){if(mario.y+mario.h-mario.vy<=sp.y+4){mario.vy=-20;mario.onGround=false;sp.compressed=15;sfx('jump');for(let i=0;i<6;i++)spawnParticle(sp.x+12,sp.y,'star')}}}
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
@@ -320,19 +321,41 @@ if(m.type==='1up'){G.lives++;sfx('1up');updateHUD();spawnScorePopup(mario.x+13,m
 else{upgradeMario('mushroom');G.score+=1000;updateHUD();spawnScorePopup(mario.x+13,mario.y-10,'1000','#2ecc71')}}}
 // Enemies
 for(const e of enemies){if(!e.alive)continue;if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
+// 休眠スポーン: カメラ右端+8タイル先に入るまで physics をスキップ（parakoopa/lakitu は自前ロジックで動くので除外）
+if(e.type!=='parakoopa'&&e.type!=='lakitu'&&!e.activated){if(G.cam+W+TILE*8<e.x)continue;e.activated=true;}
 if(e.type==='parakoopa'&&e.flying){e.x+=e.vx;if(e.x+e.w<-100){e.alive=false;continue}e.y=e.baseY+Math.sin(G.frame*0.05+(e.phase||0))*22;if((mario.inv===0||G.starTimer>0)&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue}if(mario.y+mario.h-mario.vy<=e.y+e.h*0.4){e.flying=false;e.type='koopa';e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300;mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;G.score+=200;updateHUD();spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c')}else killMario()}continue}
+// ラキチュウ AI (空中追跡 + ノコノコ投下)
+if(e.type==='lakitu'){
+  if(e.baseY===undefined)e.baseY=e.y;
+  const _ldx=mario.x-e.x;if(Math.abs(_ldx)>50){e.vx+=(_ldx>0?0.07:-0.07);e.vx=Math.max(-2.8,Math.min(2.8,e.vx));}else e.vx*=0.88;
+  e.x+=e.vx;e.y=e.baseY+Math.sin(G.frame*0.04+(e.phase||0))*12;
+  if(e.dropTimer===undefined)e.dropTimer=120+Math.floor(Math.random()*80);
+  e.dropTimer--;
+  if(e.dropTimer<=0&&Math.abs(mario.x-e.x)<500){
+    e.dropTimer=100+Math.floor(Math.random()*80);
+    enemies.push({x:e.x+4,y:e.y+TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
+    try{beep(500,.04,'square',.1)}catch(ex){}
+  }
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.state='dead';e.squishT=20;G.score+=400;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y,'star');spawnScorePopup(e.x+8,e.y-8,400,'#FFD700');}
+    else if(mario.y+mario.h-mario.vy<=e.y+e.h*0.4&&mario.vy>0){e.state='dead';e.squishT=28;mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;G.score+=400;updateHUD();spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,400,'#e74c3c');}
+    else if(mario.inv===0)killMario();
+  }
+  continue;
+}
 e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p)}
 e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null)}
 if(e.y>H+100){e.alive=false;continue}
 if(e.onGround&&e.state==='walk'){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2}}
+if(e.type==='buzzy'&&e.onGround&&e.state==='walk'){const _ax=e.vx>0?e.x+e.w+2:e.x-2;const _ay=e.y+e.h+2;if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h))e.vx=-e.vx;}
 if(e.state==='shell'&&Math.abs(e.vx)>1){for(const o of enemies){if(o===e||!o.alive||o.state==='dead')continue;if(overlap(e.x,e.y,e.w,e.h,o.x,o.y,o.w,o.h)){o.state='dead';o.squishT=20;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(o.x+8,o.y-8,200,'#e74c3c')}}}
-if((mario.inv===0||G.starTimer>0)&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+if(overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
 if(G.starTimer>0){e.state='dead';e.squishT=20;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue}
 const mBot=mario.y+mario.h;if(mBot-mario.vy<=e.y+e.h*0.4){G.combo++;G.comboTimer=60;const cs=G.combo<=1?200:G.combo===2?400:G.combo===3?800:G.combo===4?1600:0;if(G.combo>=5){G.lives++;sfx('1up');spawnScorePopup(e.x+8,e.y-8,'1UP!','#2ecc71')}else{G.score+=cs;spawnScorePopup(e.x+8,e.y-8,cs,'#e74c3c')}
 mario.vy=-9;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'dust');
-if(e.type==='goomba'||e.type==='hammerBro'){e.state='dead';e.squishT=28}
+if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'){e.state='dead';e.squishT=28}
 else if(e.type==='koopa'||e.type==='buzzy'){if(e.state==='walk'){e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300}else if(e.state==='shell'&&Math.abs(e.vx)<0.5)e.vx=mario.facing*8;else{e.vx=0;e.shellTimer=300}}}
-else if(e.state==='shell'&&Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10}else killMario()}
+else if(e.state==='shell'&&Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10}else if(mario.inv===0)killMario()}
 if(e.state==='shell'){e.shellTimer--;if(e.shellTimer<=0){e.state='walk';e.vx=e.type==='buzzy'?-1.6:-1.3;e.h=e.type==='koopa'?TILE*1.2:e.type==='buzzy'?TILE*0.85:TILE}}}
 // Piranhas
 for(const pr of piranhas){if(!pr.alive)continue;const t=G.frame*0.03+pr.phase;pr.y=pr.baseY-Math.max(0,Math.sin(t))*pr.maxUp;
@@ -340,17 +363,18 @@ if(overlap(mario.x,mario.y,mario.w,mario.h,pr.x,pr.y,pr.w,pr.h)){if(G.starTimer>
 for(const fb of fireballs){if(!fb.alive)continue;if(overlap(fb.x,fb.y,fb.w,fb.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#27ae60')}}}
 // Bowser boss
 if(bowser.alive){
-if(bowser.state!=='dead'){
+if(bowser.state==='offscreen'){if(mario.x>G.bowserArenaX){bowser.state='walk';bowser.x=G.cam+W+150;bowser.vx=-1.5;try{beep(120,.4,'sawtooth',.3);beep(80,.5,'sawtooth',.25,.15)}catch(ex){}}}
+else if(bowser.state!=='dead'){
 if(bowser.hurtTimer>0)bowser.hurtTimer--;
 bowser.vy+=GRAVITY;bowser.x+=bowser.vx;bowser.y+=bowser.vy;
 bowser.onGround=false;
 for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(bowser.x,bowser.y,bowser.w,bowser.h,p.x,py,p.w,p.h)&&bowser.vy>=0&&bowser.y+bowser.h/2<py+p.h/2){bowser.y=py-bowser.h;bowser.vy=0;bowser.onGround=true;break}}
 if(bowser.y>H+50){bowser.y=H-TILE-bowser.h;bowser.vy=0;bowser.onGround=true}
-if(bowser.x<6700){bowser.x=6700;bowser.vx=Math.abs(bowser.vx)}
+if(bowser.x<6900){bowser.x=6900;bowser.vx=Math.abs(bowser.vx)}
 if(bowser.x+bowser.w>7750){bowser.x=7750-bowser.w;bowser.vx=-Math.abs(bowser.vx)}
 bowser.facing=bowser.vx>=0?1:-1;
 bowser.jumpTimer--;if(bowser.jumpTimer<=0&&bowser.onGround){bowser.vy=-12;bowser.onGround=false;bowser.jumpTimer=200+Math.floor(Math.random()*80)}
-bowser.fireTimer--;if(bowser.fireTimer<=0){bowser.fireTimer=(G.currentWorld===2?60:90)+Math.floor(Math.random()*50);const dir=mario.x<bowser.x+bowser.w/2?-1:1;const bfx=bowser.x+(dir>0?bowser.w:0),bfy=bowser.y+24;for(let bi=0;bi<3;bi++){bowserFire.push({x:bfx,y:bfy,w:18,h:18,vx:dir*(5.5+bi*0.4),vy:-3.5,bounces:0,alive:true,delay:bi*8,armed:bi===0});}try{beep(180,.12,'sawtooth',.18);beep(140,.1,'sawtooth',.12,.06);}catch(ex){}}
+bowser.fireTimer--;if(bowser.fireTimer<=0){bowser.fireTimer=(G.currentWorld===4?60:G.currentWorld>=3?65:G.currentWorld===2?60:90)+Math.floor(Math.random()*50);const dir=mario.x<bowser.x+bowser.w/2?-1:1;const bfx=bowser.x+(dir>0?bowser.w:0),bfy=bowser.y+24;for(let bi=0;bi<3;bi++){bowserFire.push({x:bfx,y:bfy,w:18,h:18,vx:dir*(5.5+bi*0.4),vy:-3.5,bounces:0,alive:true,delay:bi*8,armed:bi===0});}try{beep(180,.12,'sawtooth',.18);beep(140,.1,'sawtooth',.12,.06);}catch(ex){}}
 if(mario.inv===0&&G.starTimer===0&&overlap(mario.x,mario.y,mario.w,mario.h,bowser.x,bowser.y,bowser.w,bowser.h)){
 const mBot=mario.y+mario.h;
 if(mBot-mario.vy<=bowser.y+bowser.h*0.35&&bowser.hurtTimer===0){bowser.hurtTimer=70;bowser.hp--;mario.vy=-11;sfx('stomp');spawnScorePopup(bowser.x+32,bowser.y-8,500,'#e74c3c');if(bowser.hp<=0){bowser.state='dead';bowser.deadTimer=160;stopBGM();G.score+=5000;updateHUD();for(let pi=0;pi<20;pi++)spawnParticle(bowser.x+Math.random()*64,bowser.y+Math.random()*72,'star')}}
@@ -358,7 +382,7 @@ else killMario()}
 for(let i=fireballs.length-1;i>=0;i--){const fb=fireballs[i];if(!fb.alive)continue;if(bowser.hurtTimer===0&&overlap(fb.x,fb.y,fb.w,fb.h,bowser.x,bowser.y,bowser.w,bowser.h)){fb.alive=false;bowser.hurtTimer=70;bowser.hp--;sfx('stomp');spawnScorePopup(bowser.x+32,bowser.y-8,500,'#ff9944');spawnParticle(bowser.x+32,bowser.y+20,'star');if(bowser.hp<=0){bowser.state='dead';bowser.deadTimer=160;stopBGM();G.score+=5000;updateHUD();for(let pi=0;pi<20;pi++)spawnParticle(bowser.x+Math.random()*64,bowser.y+Math.random()*72,'star')}}}
 }else{
 bowser.deadTimer--;if(G.frame%4===0)spawnParticle(bowser.x+Math.random()*64,bowser.y+Math.random()*72,'star');
-if(bowser.deadTimer<=0){bowser.alive=false;peach.alive=true;peach.x=bowser.x+bowser.w+40;peach.y=H-TILE-peach.h;peach.vx=3.5;peach.caught=false;peach.walkFrame=0;peach.walkTimer=0;G.peachChase={t:0};}
+if(bowser.deadTimer<=0){bowser.alive=false;peach.alive=true;peach.x=bowser.x+bowser.w+40;peach.y=H-TILE-peach.h;peach.vx=-2.5;peach.caught=false;peach.walkFrame=0;peach.walkTimer=0;G.peachChase={t:0};}
 }
 }
 // Bowser fire projectiles
@@ -379,21 +403,21 @@ if(mario.x+mario.w>=peach.x){peach.caught=true;peach.vx=0;G.peachChase.catchT=0;
 }else{
 G.peachChase.catchT++;
 if(G.peachChase.catchT===1){G.score+=10000;updateHUD();}
-if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.state='win';for(let wi=0;wi<30;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*200-100,H-TILE-100+Math.random()*80,'star'),wi*60);}
+if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.currentWorld=_ns.world;G.currentLevel=_ns.level;_ns.build();fireballs.length=0;bowserFire.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);stopBGM();try{startBGM()}catch(e){}updateHUD();}else{G.state='win';for(let wi=0;wi<30;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*200-100,H-TILE-100+Math.random()*80,'star'),wi*60);}}
 }
 }
 // Lava flames
 for(const f of lavaFlames){f.phase++;const cyc=f.phase%f.period,rise=Math.floor(f.period*0.28),stay=Math.floor(f.period*0.18);if(cyc<rise){f.curH=Math.min(f.maxH,(cyc/rise)*f.maxH*1.1)}else if(cyc<rise+stay){f.curH=f.maxH}else{f.curH=Math.max(0,f.curH-f.maxH/(rise*0.7))}if(f.curH>12){const ft=H-TILE-f.curH;if(mario.inv===0&&G.starTimer===0&&mario.x+mario.w>f.x-2&&mario.x<f.x+f.w+2&&mario.y+mario.h>ft&&mario.y<H-TILE)killMario()}}
 if(G.ugMode&&mario.x>W-1.5*TILE&&mario.onGround)exitUnderground();
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
-if(G.currentLevel!==4&&!(G.currentWorld===2&&G.currentLevel===3)&&!G.ugMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+20){sfx('flag');stopBGM();G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
+if(G.currentLevel!==4&&!(G.currentWorld===2&&G.currentLevel===3)&&!(G.currentWorld===3&&G.currentLevel===3)&&!(G.currentWorld===4&&G.currentLevel===3)&&!G.ugMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+20){sfx('flag');stopBGM();G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
 // Fireballs
 for(let i=fireballs.length-1;i>=0;i--){const fb=fireballs[i];if(!fb.alive){fireballs.splice(i,1);continue}
 fb.vy+=0.55;fb.x+=fb.vx;fb.y+=fb.vy;
 for(const p of[...platforms,...pipes]){const bo=p.bounceOffset||0,py=p.y-bo;if(!overlap(fb.x,fb.y,fb.w,fb.h,p.x,py,p.w,p.h))continue;if(fb.y+fb.h/2<py+p.h/2){fb.y=py-fb.h;fb.vy=-8;fb.bounces++}else fb.alive=false;break}
 if(fb.bounces>4||fb.x<G.cam-80||fb.x>G.cam+W+80||fb.y>H+50)fb.alive=false;
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(!overlap(fb.x,fb.y,fb.w,fb.h,e.x,e.y,e.w,e.h))continue;
-if(e.type==='buzzy'){fb.alive=false;spawnParticle(e.x+16,e.y+16,'dust');continue}
+if(e.type==='buzzy'||e.type==='cactus'){fb.alive=false;spawnParticle(e.x+16,e.y+16,'dust');continue}
 e.state='dead';e.vx=0;e.squishT=28;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');spawnParticle(e.x+16,e.y+16,'star')}}
 }else{mario.vy+=GRAVITY;mario.y+=mario.vy}
 updateParticles();
@@ -404,6 +428,69 @@ updateParticles();
 // ================================================================
 function drawBG(){
 if(G.ugMode){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);ctx.fillStyle='#1a1a2e';for(let x=0;x<W;x+=TILE*3){ctx.fillRect(x,TILE,8,8);ctx.fillRect(x+16,TILE+16,8,8)}return}
+// bgTheme ベース背景
+{const _bgS=getStage(G.currentWorld,G.currentLevel);
+if(_bgS?.bgTheme==='beach'){
+  // 海辺：明るい青空 + ヤシの木 + 海面
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0077cc');bg.addColorStop(0.55,'#44aaee');bg.addColorStop(0.85,'#88ccff');bg.addColorStop(1,'#c0e8ff');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,160,0.45)';ctx.beginPath();ctx.arc(690,52,48,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fffde0';ctx.beginPath();ctx.arc(690,52,34,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffe866';ctx.beginPath();ctx.arc(690,52,24,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(0,120,200,0.16)';
+  for(let wx=0;wx<W;wx+=44){const wy=H-TILE*1.1+Math.sin(wx*0.04+G.frame*0.04)*5;ctx.fillRect(wx,wy,38,5);}
+  ctx.fillStyle='rgba(255,255,255,0.86)';
+  [80,340,620,920,1250].forEach((cx,i)=>{const dx=cx-(G.cam%1500)*0.22;if(dx<-160||dx>W+160)return;const cy=22+(i%3)*24;ctx.beginPath();ctx.arc(dx+18,cy+18,14,0,Math.PI*2);ctx.arc(dx+38,cy+10,20,0,Math.PI*2);ctx.arc(dx+60,cy+18,14,0,Math.PI*2);ctx.fill();ctx.fillRect(dx+5,cy+18,66,14);});
+  ctx.fillStyle='#2a4a12';
+  [200,680,1500,2800,4000,5500,6800].forEach((px,i)=>{const dx=px-(G.cam*0.18)%7500;if(dx<-90||dx>W+90)return;const ph=52+(i%2)*18;ctx.fillRect(dx+14,H-TILE-ph,7,ph);ctx.beginPath();ctx.moveTo(dx+17,H-TILE-ph);ctx.lineTo(dx-20,H-TILE-ph-16);ctx.lineTo(dx+10,H-TILE-ph-4);ctx.fill();ctx.beginPath();ctx.moveTo(dx+17,H-TILE-ph);ctx.lineTo(dx+54,H-TILE-ph-16);ctx.lineTo(dx+24,H-TILE-ph-4);ctx.fill();ctx.beginPath();ctx.moveTo(dx+17,H-TILE-ph);ctx.lineTo(dx+18,H-TILE-ph-26);ctx.lineTo(dx+22,H-TILE-ph-4);ctx.fill();});
+  return;
+}
+if(_bgS?.bgTheme==='castle3'){
+  // 海辺要塞：暗夜 + 溶岩光
+  const cg3=ctx.createLinearGradient(0,0,0,H);
+  cg3.addColorStop(0,'#020a0a');cg3.addColorStop(0.5,'#071218');cg3.addColorStop(1,'#10200a');
+  ctx.fillStyle=cg3;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ff3300';ctx.globalAlpha=0.09+0.05*Math.abs(Math.sin(G.frame*0.025));ctx.fillRect(0,H-TILE*2,W,TILE*2);ctx.globalAlpha=1;
+  const _c3x=G.cam*0.15;ctx.fillStyle='rgba(48,18,8,0.42)';
+  for(let bx=0;bx<W+64;bx+=64){const ox=(bx-_c3x%64);for(let by2=0;by2<H-TILE*3;by2+=32){if((Math.floor((bx+G.cam*0.15)/64)+Math.floor(by2/32))%2===0)ctx.fillRect(ox-32,by2,62,30)}}
+  return;
+}
+if(_bgS?.bgTheme==='mountain'){
+  // 山脈：青白い空 + 雪山シルエット
+  const mg=ctx.createLinearGradient(0,0,0,H);
+  mg.addColorStop(0,'#a8d8f0');mg.addColorStop(0.5,'#cce8ff');mg.addColorStop(1,'#e8f4ff');
+  ctx.fillStyle=mg;ctx.fillRect(0,0,W,H);
+  // 遠景の山（白い雪山・パララックス弱め）
+  ctx.fillStyle='#e8eef4';
+  [0,500,1100,1800,2600,3500,4500,5600,6700].forEach((mx,i)=>{const dx=mx-G.cam*0.05;if(dx<-400||dx>W+400)return;const mh=120+(i%4)*40;ctx.beginPath();ctx.moveTo(dx,H-TILE);ctx.lineTo(dx+mh*0.7,H-TILE-mh);ctx.lineTo(dx+mh*1.4,H-TILE);ctx.fill();});
+  // 雪のキャップ
+  ctx.fillStyle='#ffffff';
+  [0,500,1100,1800,2600,3500,4500,5600,6700].forEach((mx,i)=>{const dx=mx-G.cam*0.05;if(dx<-400||dx>W+400)return;const mh=120+(i%4)*40;ctx.beginPath();ctx.moveTo(dx+mh*0.55,H-TILE-mh*0.6);ctx.lineTo(dx+mh*0.7,H-TILE-mh);ctx.lineTo(dx+mh*0.85,H-TILE-mh*0.6);ctx.fill();});
+  // 中景の山（灰青・パララックス中）
+  ctx.fillStyle='#8ab4cc';
+  [200,900,1700,2700,3900,5100,6300].forEach((mx,i)=>{const dx=mx-G.cam*0.12;if(dx<-300||dx>W+300)return;const mh=90+(i%3)*30;ctx.beginPath();ctx.moveTo(dx,H-TILE);ctx.lineTo(dx+mh*0.8,H-TILE-mh);ctx.lineTo(dx+mh*1.6,H-TILE);ctx.fill();});
+  // 雲
+  ctx.fillStyle='rgba(255,255,255,0.88)';
+  [100,550,1000,1600,2200,3000,3900,4800,5800,6700].forEach((cx,i)=>{const dx=cx-G.cam*0.25;if(dx<-140||dx>W+140)return;const cy=20+(i%4)*22;ctx.beginPath();ctx.arc(dx+25,cy+18,16,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(dx+48,cy+12,22,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(dx+72,cy+18,16,0,Math.PI*2);ctx.fill();ctx.fillRect(dx+10,cy+18,68,12);});
+  return;
+}
+if(_bgS?.bgTheme==='mountain_castle'){
+  // 山の城：夕暮れ雪山 + 城の影
+  const mcg=ctx.createLinearGradient(0,0,0,H);
+  mcg.addColorStop(0,'#0d0015');mcg.addColorStop(0.4,'#2a0a2e');mcg.addColorStop(0.75,'#4a1040');mcg.addColorStop(1,'#1a0a0a');
+  ctx.fillStyle=mcg;ctx.fillRect(0,0,W,H);
+  // 星
+  ctx.fillStyle='#fff';for(let i=0;i<40;i++){const sx=(i*317)%W,sy=(i*211)%(H*0.6);ctx.globalAlpha=0.3+Math.abs(Math.sin(G.frame*0.05+i))*0.7;ctx.fillRect(sx,sy,1,1);}ctx.globalAlpha=1;
+  // 暗い山シルエット
+  ctx.fillStyle='#1a0a20';
+  [0,600,1400,2400,3500,4700,6000].forEach((mx,i)=>{const dx=mx-G.cam*0.08;if(dx<-400||dx>W+400)return;const mh=130+(i%3)*35;ctx.beginPath();ctx.moveTo(dx,H-TILE);ctx.lineTo(dx+mh*0.7,H-TILE-mh);ctx.lineTo(dx+mh*1.4,H-TILE);ctx.fill();});
+  // 溶岩グロー
+  ctx.fillStyle='rgba(255,40,0,0.07)';ctx.fillRect(0,H-TILE*3,W,TILE*3);
+  const _cx4=G.cam*0.15;ctx.fillStyle='rgba(60,10,20,0.4)';
+  for(let bx=0;bx<W+64;bx+=64){const ox=(bx-_cx4%64);for(let by=0;by<H-TILE*3;by+=32){if((Math.floor((bx+G.cam*0.15)/64)+Math.floor(by/32))%2===0)ctx.fillRect(ox-32,by,62,30)}}
+  return;
+}}
 if(G.currentWorld===2&&G.currentLevel===3){
   // 城（暗い赤〜黒グラデーション）
   const cg=ctx.createLinearGradient(0,0,0,H);
@@ -766,6 +853,44 @@ const fo=e.walkFrame===0?[-2,2]:[2,-2];
 ctx.fillStyle='#556b2f';ctx.fillRect(x+4+fo[0],y+e.h-8,10,8);ctx.fillRect(x+18+fo[1],y+e.h-8,10,8);
 ctx.fillStyle='#8fbc8f';ctx.fillRect(x+22,y-6,6,10);ctx.fillStyle='#666';ctx.fillRect(x+20,y-12,10,6);ctx.fillStyle='#888';ctx.fillRect(x+21,y-11,8,4)}
 
+function drawCactus(e){
+const x=e.x,y=e.y;
+if(e.state==='dead'){ctx.globalAlpha=0.45;ctx.fillStyle='#2d7a2d';ctx.fillRect(x+8,y+12,16,20);ctx.globalAlpha=1;return;}
+const af=e.walkFrame===0?0:2;
+// Arms
+ctx.fillStyle='#2d7a2d';ctx.fillRect(x,y+10+af,12,8);ctx.fillRect(x+20,y+12-af,12,8);
+// Body
+ctx.fillRect(x+8,y+4,16,28);
+// Spikes
+ctx.fillStyle='#1a5c1a';
+ctx.beginPath();ctx.moveTo(x+14,y-2);ctx.lineTo(x+18,y+6);ctx.lineTo(x+10,y+6);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(x,y+10+af);ctx.lineTo(x-4,y+14+af);ctx.lineTo(x,y+18+af);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(x+32,y+12-af);ctx.lineTo(x+36,y+16-af);ctx.lineTo(x+32,y+20-af);ctx.closePath();ctx.fill();
+// Stripe
+ctx.fillStyle='#1f6e1f';ctx.fillRect(x+10,y+8,4,20);
+// Eyes
+ctx.fillStyle='#000';ctx.fillRect(x+10,y+10,4,4);ctx.fillRect(x+19,y+10,4,4);}
+
+function drawLakitu(e){
+const x=e.x,y=e.y;
+if(e.state==='dead'){ctx.globalAlpha=0.4;ctx.fillStyle='#dde';ctx.beginPath();ctx.arc(x+18,y+26,12,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;return;}
+// Cloud
+ctx.fillStyle='#e8e8f8';
+ctx.beginPath();ctx.arc(x+8,y+28,9,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(x+20,y+22,13,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(x+32,y+28,9,0,Math.PI*2);ctx.fill();
+ctx.fillRect(x+2,y+28,36,10);
+// Shell
+ctx.fillStyle='#4a7c2f';ctx.fillRect(x+9,y+14,18,12);
+// Head
+ctx.fillStyle='#c8a050';ctx.fillRect(x+11,y+4,16,12);
+// Glasses
+ctx.fillStyle='#222';ctx.fillRect(x+12,y+6,5,5);ctx.fillRect(x+19,y+6,5,5);ctx.fillRect(x+17,y+8,2,2);
+// Fishing rod
+ctx.fillStyle='#8b6914';ctx.fillRect(x+24,y+8,3,20);ctx.fillRect(x+24,y+8,18,3);
+// Dangling koopa shell
+ctx.fillStyle='#d4a020';ctx.fillRect(x+37,y+6,9,7);ctx.fillStyle='#4a7c2f';ctx.fillRect(x+36,y+10,11,5);}
+
 function drawParticles(){for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)}ctx.globalAlpha=1}
 function drawScorePopups(){for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y)}ctx.globalAlpha=1;ctx.textAlign='left'}
 
@@ -872,9 +997,9 @@ for(const eg of yoshiEggs)if(eg.alive)drawYoshiEggProj(eg);
 for(const c of coinItems){if(c.collected)continue;if(c.pop){drawCoinItem(c.x,c.popY);continue}if(c.x+TILE<G.cam||c.x>G.cam+W)continue;drawCoinItem(c.x,c.y)}
 // Enemies
 for(const e of enemies){if(!e.alive||e.x+e.w<G.cam-10||e.x>G.cam+W+10)continue;
-if(e.type==='koopa'||e.type==='parakoopa')drawKoopa(e);else if(e.type==='buzzy')drawBuzzy(e);else if(e.type==='hammerBro')drawHammerBro(e);
+if(e.type==='koopa'||e.type==='parakoopa')drawKoopa(e);else if(e.type==='buzzy')drawBuzzy(e);else if(e.type==='hammerBro')drawHammerBro(e);else if(e.type==='cactus')drawCactus(e);else if(e.type==='lakitu')drawLakitu(e);
 else drawGoomba(e.x,e.y,e.state==='dead',e.walkFrame)}
-if(G.currentLevel!==4&&!(G.currentWorld===2&&G.currentLevel===3)&&!G.ugMode&&flagPole.x-G.cam>-200&&flagPole.x-G.cam<W+200)drawFlag();
+if(G.currentLevel!==4&&!(G.currentWorld===2&&G.currentLevel===3)&&!(G.currentWorld===3&&G.currentLevel===3)&&!(G.currentWorld===4&&G.currentLevel===3)&&!G.ugMode&&flagPole.x-G.cam>-200&&flagPole.x-G.cam<W+200)drawFlag();
 // Bowser
 if(bowser.alive&&bowser.x+bowser.w>G.cam-10&&bowser.x<G.cam+W+10){
 const bx=Math.round(bowser.x),by=Math.round(bowser.y);
@@ -977,29 +1102,32 @@ ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(0,0,W,H);
 ctx.textAlign='center';
 ctx.fillStyle='#FFD700';ctx.font='bold 22px "Press Start 2P",monospace';ctx.fillText('SUPER MARIO',W/2,100);
 ctx.fillStyle='#ff9944';ctx.font='9px "Press Start 2P",monospace';ctx.fillText('▶  TEST MODE — STAGE SELECT  ◀',W/2,130);
-const bw=130,bh=62,gap=18,bx0=(W-(4*bw+3*gap))/2,by=230;
-const bgC=['#1a3a1a','#1a2a3a','#2a1a3a','#3a1a1a'],selC=['#27ae60','#2980b9','#8e44ad','#c0392b'],lbl=['1-1','1-2','1-3','1-4'];
-for(let i=0;i<4;i++){const bx=bx0+i*(bw+gap),sel=G.selectedStage===i+1;
-ctx.fillStyle=sel?selC[i]:bgC[i];ctx.fillRect(bx,by,bw,bh);
-ctx.strokeStyle=sel?'#fff':'#444';ctx.lineWidth=sel?3:1;ctx.strokeRect(bx,by,bw,bh);
-if(sel){ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(bx,by,bw,bh/2);}
-ctx.fillStyle=sel?'#fff':'#888';ctx.font=`bold ${sel?17:15}px "Press Start 2P",monospace`;ctx.fillText(lbl[i],bx+bw/2,by+bh/2+7);
-if(sel){ctx.fillStyle='#FFD700';ctx.font='14px monospace';ctx.fillText('▼',bx+bw/2,by+bh+18);}}
-{const bw2=130,bh2=62,gap2=18,by2=315,bx2_0=(W-(3*bw2+2*gap2))/2;
-const bgC2=['#3a1800','#1a0a3a','#1a2a0a'],selC2=['#d35400','#7b2fbe','#1a7a2a'],lbl2=['2-1','2-2','2-3'];
-for(let i=0;i<3;i++){const bx2=bx2_0+i*(bw2+gap2),sel2=G.selectedStage===i+5;
-ctx.fillStyle=sel2?selC2[i]:bgC2[i];ctx.fillRect(bx2,by2,bw2,bh2);
-ctx.strokeStyle=sel2?'#fff':'#444';ctx.lineWidth=sel2?3:1;ctx.strokeRect(bx2,by2,bw2,bh2);
-if(sel2){ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(bx2,by2,bw2,bh2/2);}
-ctx.fillStyle=sel2?'#fff':'#888';ctx.font=`bold ${sel2?17:15}px "Press Start 2P",monospace`;ctx.fillText(lbl2[i],bx2+bw2/2,by2+bh2/2+7);
-if(sel2){ctx.fillStyle='#FFD700';ctx.font='14px monospace';ctx.fillText('▼',bx2+bw2/2,by2+bh2+18);}}}
+const _bw=120,_bh=56,_gap=14,_rowH=72,_startY=195;
+const _ws2=getWorlds();
+_ws2.forEach((_w,_wi)=>{
+  const _wSt=getWorldStages(_w);
+  const _rowW=_wSt.length*(_bw+_gap)-_gap;
+  const _bx0=(W-_rowW)/2;
+  const _by=_startY+_wi*_rowH;
+  _wSt.forEach((_st,_si)=>{
+    const _bx=_bx0+_si*(_bw+_gap);
+    const _sel=G.selectedStage===_st.id;
+    ctx.fillStyle=_sel?_st.selFg:_st.selBg;ctx.fillRect(_bx,_by,_bw,_bh);
+    ctx.strokeStyle=_sel?'#fff':'#444';ctx.lineWidth=_sel?3:1;ctx.strokeRect(_bx,_by,_bw,_bh);
+    if(_sel){ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(_bx,_by,_bw,_bh/2);}
+    ctx.fillStyle=_sel?'#fff':'#888';ctx.font=`bold ${_sel?17:15}px "Press Start 2P",monospace`;
+    ctx.fillText(`${_w}-${_st.level}`,_bx+_bw/2,_by+_bh/2+7);
+    if(_sel){ctx.fillStyle='#FFD700';ctx.font='14px monospace';ctx.fillText('▼',_bx+_bw/2,_by+_bh+18);}
+  });
+});
+const _hintY=_startY+_ws2.length*_rowH+16;
 ctx.fillStyle='#aaa';ctx.font='8px "Press Start 2P",monospace';
-ctx.fillText('← → or 1-7 key : SELECT',W/2,420);
-ctx.fillText('SPACE / ENTER / CLICK : START',W/2,436);
+ctx.fillText(`← → or 1-${STAGES.length} key : SELECT`,W/2,_hintY);
+ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+16);
 ctx.textAlign='left';}
 if(G.state==='dead')drawOverlay('MISS!',`${G.lives} LEFT\nCLICK or SPACE to CONTINUE`,'#4a1a1a');
 if(G.state==='over')drawOverlay('GAME OVER','CLICK or SPACE to RESTART','#2d0000');
-if(G.state==='win')drawOverlay(G.currentLevel===4?'THANK YOU!':'COURSE CLEAR!',G.currentLevel===4?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');
+if(G.state==='win'){const _isBoss=(G.currentLevel===4)||(G.currentWorld===3&&G.currentLevel===3);drawOverlay(_isBoss?'THANK YOU!':'COURSE CLEAR!',_isBoss?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');}
 }
 
 (function loop(){update();draw();requestAnimationFrame(loop)})();

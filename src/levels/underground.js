@@ -23,11 +23,12 @@ for(let i=0;i<22;i++)coinItems.push({x:55+i*29,y:H-9*TILE,collected:false});
 platforms.push({x:210,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 platforms.push({x:480,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 }else if(variant==='mushroom'){
-// ★パワーアップの部屋★ きのこ×3 ＋ かくしスター
+// ★パワーアップの部屋★ きのこ×3 ＋ かくし1UP ＋ かくしスター
 addRow(80,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(490,H-4*TILE,2,'brick');
 platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 platforms.push({x:340,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 platforms.push({x:540,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:230,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 platforms.push({x:390,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
 [{x:200},{x:420},{x:620}].forEach(({x})=>enemies.push(K(x,H-2*TILE)));
 for(let i=0;i<16;i++)coinItems.push({x:65+i*40,y:H-8*TILE,collected:false});
@@ -58,11 +59,12 @@ for(let i=0;i<30;i++)coinItems.push({x:55+i*22,y:H-7*TILE,collected:false});
 [{x:200},{x:450}].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0}));
 jumpBlocks.push({x:550,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true});
 }else if(variant==='desert2'){
-// ★砂漠のコイン洞窟★ コイン大量 + コインブロック×3 + パイポ×2
+// ★砂漠のコイン洞窟★ コイン大量 + コインブロック×3 + かくし1UP + パイポ×2
 addRow(80,H-4*TILE,3,'brick');addRow(300,H-6*TILE,3,'brick');addRow(520,H-4*TILE,3,'brick');
 platforms.push({x:130,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
 platforms.push({x:350,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
 platforms.push({x:570,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
+platforms.push({x:200,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 platforms.push({x:300,y:H-10*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
 for(let i=0;i<50;i++)coinItems.push({x:55+i*13,y:H-9*TILE,collected:false});
 [{x:200,vy:-6},{x:450,vy:-7}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
@@ -76,16 +78,68 @@ for(let i=0;i<35;i++)coinItems.push({x:55+i*18,y:H-8*TILE,collected:false});
 [{x:180,vy:-6},{x:350,vy:-7},{x:550,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
 [{x:260},{x:470}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true}));
 }else if(variant==='desert4'){
-// ★2-2：ワンワンの地下★ ワンワン×1 + パイポ×2 + 火柱×2 + 隠し1UP
+// ★2-2：パイポと火柱の地下★ パイポ×2 + 火柱×2 + 隠し1UP
 addRow(80,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(520,H-4*TILE,2,'brick');
 platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 platforms.push({x:420,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
 for(let i=0;i<28;i++)coinItems.push({x:55+i*24,y:H-7*TILE,collected:false});
-chainChomps.push({x:420,y:H-TILE-28,w:28,h:28,postX:420,postY:H-TILE-28,vx:0,vy:0,phase:0,state:'idle',lungeTimer:0,alive:true});
 [{x:180,vy:-7},{x:560,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
 [{x:130,ph:0},{x:340,ph:50}].forEach(({x,ph})=>lavaFlames.push({x,y:H-TILE,w:22,maxH:80,curH:0,phase:ph,period:130}));
+}else if(variant==='river1'){
+// ★3-1：川底の宝の間★ コイン大量 + パイポ×3(魚) + きのこ + かくし1UP + かくしスター
+addRow(80,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
+platforms.push({x:150,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:340,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
+platforms.push({x:240,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+platforms.push({x:520,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
+for(let i=0;i<42;i++)coinItems.push({x:55+i*16,y:H-8*TILE,collected:false});
+[{x:160,vy:-6},{x:350,vy:-7},{x:540,vy:-5}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+}else if(variant==='river2'){
+// ★3-1：橋の下★ jumpBlock×3 + 1UP + パイポ×2
+addRow(80,H-4*TILE,3,'brick');addRow(320,H-5*TILE,2,'brick');addRow(530,H-4*TILE,2,'brick');
+platforms.push({x:220,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+platforms.push({x:380,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+for(let i=0;i<25;i++)coinItems.push({x:55+i*24,y:H-7*TILE,collected:false});
+[{x:130},{x:310},{x:510}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true}));
+[{x:260,vy:-7},{x:480,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+}else if(variant==='forest1'){
+// ★3-2：森の洞窟★ メット×3 + コイン + かくし1UP + かくしスター
+addRow(80,H-4*TILE,2,'brick');addRow(290,H-5*TILE,3,'brick');addRow(510,H-4*TILE,2,'brick');
+platforms.push({x:130,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:200,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+platforms.push({x:340,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
+platforms.push({x:540,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:6,bounceOffset:0});
+for(let i=0;i<30;i++)coinItems.push({x:55+i*22,y:H-8*TILE,collected:false});
+[{x:180},{x:350},{x:530}].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0}));
+}else if(variant==='forest2'){
+// ★3-2：暗闇の宝庫★ きのこ×2 + 1UP + jumpBlock×2 + ノコノコ×2
+addRow(80,H-4*TILE,2,'brick');addRow(300,H-6*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
+platforms.push({x:130,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:350,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:500,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+for(let i=0;i<28;i++)coinItems.push({x:55+i*23,y:H-8*TILE,collected:false});
+[{x:200},{x:450}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60+Math.floor(Math.random()*40),alive:true}));
+[{x:280},{x:490}].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0}));
+}else if(variant==='storm1'){
+// ★3-3：嵐の回廊★ 火柱×3 + ワンワン×1 + パイポ×2 + 1UP
+addRow(80,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
+platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+platforms.push({x:370,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+for(let i=0;i<22;i++)coinItems.push({x:55+i*30,y:H-7*TILE,collected:false});
+chainChomps.push({x:410,y:H-TILE-28,w:28,h:28,postX:410,postY:H-TILE-28,vx:0,vy:0,phase:0,state:'idle',lungeTimer:0,alive:true});
+[{x:180,vy:-7},{x:550,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+[{x:120,ph:0},{x:280,ph:40},{x:470,ph:80}].forEach(({x,ph})=>lavaFlames.push({x,y:H-TILE,w:20,maxH:85,curH:0,phase:ph,period:130}));
+}else if(variant==='storm2'){
+// ★3-3：地下砦★ jumpBlock×2 + パイポ×3 + 火柱×2 + スター + 1UP
+addRow(80,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
+platforms.push({x:160,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+platforms.push({x:420,y:H-5*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+for(let i=0;i<25;i++)coinItems.push({x:55+i*25,y:H-7*TILE,collected:false});
+[{x:200},{x:450}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true}));
+[{x:160,vy:-6},{x:340,vy:-7},{x:530,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+[{x:130,ph:0},{x:390,ph:55}].forEach(({x,ph})=>lavaFlames.push({x,y:H-TILE,w:20,maxH:75,curH:0,phase:ph,period:130}));
 }else{
-// ★コインの楽園★ (default/'coin') コイン大量＋コインブロック×3
+// ★コインの楽園★ (default/'coin') コイン大量＋コインブロック×3＋かくし1UP
 addRow(100,H-4*TILE,3,'brick');addRow(300,H-6*TILE,3,'brick');addRow(490,H-4*TILE,3,'brick');
 for(let i=0;i<27;i++)coinItems.push({x:55+i*23,y:H-7*TILE,collected:false});
 for(let i=0;i<19;i++)coinItems.push({x:95+i*29,y:H-9*TILE,collected:false});
@@ -94,5 +148,6 @@ platforms.push({x:165,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlo
 platforms.push({x:385,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:12,bounceOffset:0});
 platforms.push({x:565,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:12,bounceOffset:0});
 platforms.push({x:280,y:H-4*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:220,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 platforms.push({x:450,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
 }}
