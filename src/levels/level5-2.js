@@ -1,0 +1,131 @@
+import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
+  particles,scorePopups,blockAnims,movingPlats,springs,hammers,
+  cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
+  yoshi,peach,bowser,flagPole,G,H,TILE,LW} from '../globals.js';
+import {addB,addRow} from '../builders.js';
+
+export function buildLevel_5_2(){
+  [platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
+   particles,scorePopups,blockAnims,movingPlats,springs,cannons,
+   bulletBills,yoshiEggs,yoshiItems].forEach(a=>a.length=0);
+  hammers.length=0;bowserFire.length=0;lavaFlames.length=0;
+  chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
+  G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
+  G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;
+  G.autoScroll=0;G.waterMode=true;G.swimCooldown=0;
+  peach.alive=false;G.peachChase=null;
+  yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;
+  yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
+
+  // 床（全面）
+  for(let x=0;x<LW;x+=TILE)
+    platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+  // 天井（上限）
+  for(let x=0;x<LW;x+=TILE)
+    platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+
+  // 岩礁（水中プラットフォーム）— 5-1より多め・高低差も大きい
+  addRow(250,  H-5*TILE, 4, 'ground');
+  addRow(700,  H-7*TILE, 3, 'ground');
+  addRow(1200, H-4*TILE, 5, 'ground');
+  addRow(1800, H-8*TILE, 3, 'ground');
+  addRow(2500, H-5*TILE, 5, 'ground');
+  addRow(3100, H-7*TILE, 4, 'ground');
+  addRow(3800, H-4*TILE, 5, 'ground');
+  addRow(4500, H-6*TILE, 4, 'ground');
+  addRow(5100, H-8*TILE, 3, 'ground');
+  addRow(5700, H-5*TILE, 5, 'ground');
+  addRow(6400, H-7*TILE, 4, 'ground');
+
+  // 土管3本
+  // 土管1: warp→water3
+  pipes.push({x:2000,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water3'});
+  // 土管2: warp→water4
+  pipes.push({x:4800,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water4'});
+  // 土管3: ★ゴールパイプ★
+  pipes.push({x:7200,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isGoalPipe:true});
+
+  // 移動足場（難易度UP）
+  movingPlats.push({x:550, y:H-6*TILE,w:TILE*2,h:12,type:'h',ox:550, range:80, spd:1.4,prevX:550});
+  movingPlats.push({x:1500,y:H-7*TILE,w:TILE*2,h:12,type:'v',ox:1500,range:70, spd:1.5,prevX:1500,oy:H-7*TILE});
+  movingPlats.push({x:2700,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:2700,range:90, spd:1.6,prevX:2700});
+  movingPlats.push({x:3500,y:H-8*TILE,w:TILE*2,h:12,type:'v',ox:3500,range:80, spd:1.8,prevX:3500,oy:H-8*TILE});
+  movingPlats.push({x:4200,y:H-6*TILE,w:TILE*2,h:12,type:'h',ox:4200,range:75, spd:1.7,prevX:4200});
+  movingPlats.push({x:5500,y:H-7*TILE,w:TILE*2,h:12,type:'h',ox:5500,range:100,spd:2.0,prevX:5500});
+  movingPlats.push({x:6200,y:H-5*TILE,w:TILE*2,h:12,type:'v',ox:6200,range:90, spd:1.9,prevX:6200,oy:H-5*TILE});
+
+  // コイン（横ライン）
+  for(let x=150; x<1950;x+=64)  coinItems.push({x,y:H-6*TILE,collected:false,pop:false});
+  for(let x=2250;x<4750;x+=64)  coinItems.push({x,y:H-8*TILE,collected:false,pop:false});
+  for(let x=5050;x<7150;x+=64)  coinItems.push({x,y:H-7*TILE,collected:false,pop:false});
+  // 土管アーチ
+  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:2016+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
+  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:4816+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
+  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:7216+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
+
+  // はてなブロック
+  platforms.push({x:500, y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:1400,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,bounceOffset:0});
+  platforms.push({x:2600,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:3700,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  platforms.push({x:5000,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:6300,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // かくし1UP
+  platforms.push({x:900, y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:4000,y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:6700,y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+
+  // キノコブロック追加
+  platforms.push({x:350, y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:1900,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:4100,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:6500,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+
+  // チェックポイント
+  G.checkpoint={x:3800,y:H-TILE,reached:false};
+
+  // ぷくぷく横（速度を半分に）
+  [{x:300, y:H-3*TILE,vx:-1.5},{x:600, y:H-5*TILE,vx:-1.75},
+   {x:900, y:H-4*TILE,vx:-1.4},{x:1300,y:H-6*TILE,vx:-1.6},
+   {x:1900,y:H-3*TILE,vx:-1.75},{x:2400,y:H-5*TILE,vx:-1.5},
+   {x:2900,y:H-4*TILE,vx:-1.9},{x:3400,y:H-6*TILE,vx:-1.5},
+   {x:4000,y:H-3*TILE,vx:-1.75},{x:4600,y:H-5*TILE,vx:-1.6},
+   {x:5200,y:H-4*TILE,vx:-1.9},{x:5800,y:H-6*TILE,vx:-1.5},
+   {x:6300,y:H-3*TILE,vx:-1.75},{x:6800,y:H-5*TILE,vx:-1.6}
+  ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:d.vx,type:'cheepH',alive:true,activated:true}));
+
+  // クリボー（水底を歩く）
+  [{x:400},{x:1000},{x:1700},{x:2600},{x:3300},{x:4100},{x:4900},{x:5600},{x:6500},{x:7000}
+  ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false}));
+
+  // ぷくぷく縦（振れ幅大きい）
+  [{x:800, baseY:H-6*TILE,range:90,phase:0},
+   {x:1600,baseY:H-7*TILE,range:100,phase:1.0},
+   {x:2300,baseY:H-5*TILE,range:80, phase:2.0},
+   {x:3200,baseY:H-7*TILE,range:110,phase:0.5},
+   {x:4100,baseY:H-6*TILE,range:90, phase:1.5},
+   {x:5000,baseY:H-7*TILE,range:100,phase:2.5},
+   {x:5900,baseY:H-5*TILE,range:85, phase:0.3},
+   {x:6700,baseY:H-7*TILE,range:95, phase:1.8},
+  ].forEach(d=>enemies.push({x:d.x,y:d.baseY,baseY:d.baseY,range:d.range,phase:d.phase,w:24,h:20,type:'cheepV',alive:true,activated:true}));
+
+  // ファイアフラワー（固定設置・一定間隔でファイア）
+  [{x:450, y:H-6*TILE},{x:1100,y:H-5*TILE},
+   {x:2200,y:H-9*TILE},{x:3000,y:H-8*TILE},
+   {x:3900,y:H-5*TILE},{x:4700,y:H-7*TILE},
+   {x:5400,y:H-9*TILE},{x:6100,y:H-6*TILE},
+   {x:7000,y:H-5*TILE}
+  ].forEach(d=>enemies.push({
+    x:d.x,y:d.y,w:20,h:20,
+    type:'firePlant',alive:true,activated:true,
+    fireTimer:Math.floor(80+Math.random()*60),
+    maxFireTimer:Math.floor(80+Math.random()*60)
+  }));
+// ★ ハンマースーツ・巨大キノコ
+platforms.push({x:3500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:4500,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
+// ★ 装飾土管
+pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+pipes.push({x:4000,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
+}

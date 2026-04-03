@@ -1,7 +1,7 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
   yoshi,peach,bowser,flagPole,G,H,TILE,LW} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
@@ -33,8 +33,11 @@ export function buildLevel_4_1(){
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // 空中レンガ足場 と ？ブロック（addRow と push の座標重複なし）
+  // Yoshi egg (early)
+  platforms.push({x:224,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+
   // Zone 1 (0-380): レンガ@160-224, Q@280(H-7T), hidden@350(H-9T)
-  addRow(160, H-5*TILE, 3,'brick');
+  addRow(160, H-5*TILE, 2,'brick');
   platforms.push({x:280, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:350, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
 
@@ -141,4 +144,14 @@ export function buildLevel_4_1(){
   // チェックポイント（Z4地面上）
   // チェックポイント（Z4地面上 / パイプx=1830+64=1894の外）
   G.checkpoint={x:1920,y:H-TILE,reached:false};
+
+  // ★ 風ゾーン（山岳の強風）
+  windZones.push({x:560,y:0,w:310,h:H,force:2.5});   // Z2: 右風（軽め）
+  windZones.push({x:1660,y:0,w:300,h:H,force:-3.5});  // Z4: 左風（強め）
+  windZones.push({x:2880,y:0,w:300,h:H,force:4});     // Z6: 右風（かなり強い）
+  // ★ ハンマースーツ
+  platforms.push({x:2400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  // ★ 装飾土管
+  pipes.push({x:200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+  pipes.push({x:2500,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }

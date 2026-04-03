@@ -1,7 +1,7 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
   yoshi,peach,bowser,G,H,TILE,LW} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
@@ -100,4 +100,14 @@ export function buildLevel_3_1(){
   movingPlats.push({x:6750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:6750,range:75,spd:2.2});
 
   G.checkpoint={x:4200,y:H-TILE,reached:false};
+
+  // ★ 重力反転ゾーン（海辺の不思議空間）※ワープ土管(x=700,2600)を避ける
+  gravityZones.push({x:1200,y:0,w:350,h:H});  // Z1後半（土管なし）
+  gravityZones.push({x:5000,y:0,w:300,h:H});   // Z3後半（土管x=4700から十分離れる）
+  // ★ ハンマースーツ・巨大キノコ
+  platforms.push({x:5200,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  platforms.push({x:1500,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
+  // ★ 装飾土管
+  pipes.push({x:3500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+  pipes.push({x:5800,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }

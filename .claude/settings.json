@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const c=[];process.stdin.on('data',d=>c.push(d));process.stdin.on('end',()=>{try{const d=JSON.parse(Buffer.concat(c));const f=d.tool_input&&(d.tool_input.file_path||d.tool_input.new_path);if(f&&f.indexOf('mario-game-v2')>=0&&f.indexOf('src')>=0&&f.slice(-3)==='.js'&&f.indexOf('node_modules')<0){const {execSync}=require('child_process');try{execSync('npm run build',{cwd:'C:/Users/hanim/Documents/Claude/mario-game-v2',stdio:'pipe'});}catch(e){const out=((e.stderr||Buffer.alloc(0)).toString('utf8')||e.message||'').slice(0,2000);console.log(JSON.stringify({systemMessage:'❌ ビルドエラー:\\n'+out}));}}}catch(e){}});\"",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}

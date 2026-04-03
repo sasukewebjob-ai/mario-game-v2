@@ -1,8 +1,8 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
-  yoshi,peach,bowser,G,H,TILE,LW} from '../globals.js';
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
+  yoshi,peach,bowser,G,H,TILE,LW,BOWSER_STATS} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
 export function buildLevel_2_3(){
@@ -48,14 +48,8 @@ export function buildLevel_2_3(){
   addRow(5050,H-9*TILE,3,'q');
   addRow(5450,H-7*TILE,3,'brick');
   addRow(5750,H-5*TILE,4,'brick');
-  // ボスへの階段
-  addStair(6300,5);
-  // 城門（y=192-255 の2マス分が通路）
-  [0,32,64,96,128,160,256,288,320,352,384].forEach(wy=>{
-    addB(6560,wy,'brick');addB(6592,wy,'brick');
-  });
-  // 城門内の下り階段 — 上って → くぐって → 降りて → 戦う動線
-  addStairD(6624,5);
+  // 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
+  addStair(6000,10);
 
   // 特殊ブロック（pushのみ、addRowと座標重複なし）
   platforms.push({x:200,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
@@ -67,7 +61,7 @@ export function buildLevel_2_3(){
   platforms.push({x:4200,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   platforms.push({x:4750,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:5300,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:6100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:5950,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 
   // パイプ（すべて通常、ワープなし）
   [[600,2,false],[2300,3,false],[4600,2,false]].forEach(([px,ph,warp])=>{
@@ -115,12 +109,12 @@ export function buildLevel_2_3(){
 
   // 大砲（6門、1-4より多め）
   cannons.push(
-    {x:500,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:130,timer:65},
-    {x:1350,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:120,timer:40},
-    {x:2600,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:125,timer:80},
-    {x:4100,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:110,timer:35},
-    {x:5650,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:100,timer:55},
-    {x:5900,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:100,timer:75}
+    {x:500,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:20},
+    {x:1350,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:60},
+    {x:2600,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:100},
+    {x:4100,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:140},
+    {x:5650,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:30},
+    {x:5900,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:90}
   );
 
   // チェックポイント
@@ -153,13 +147,20 @@ export function buildLevel_2_3(){
     {x:5400,w:16,maxH:85,period:195,phase:120}
   ].forEach(f=>lavaFlames.push({...f,curH:0}));
 
-  // クッパ戦直前キノコ
-  platforms.push({x:6790,y:H-3*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  // 制高点階段
-  addStair(7100,6);
-  // クッパ — offscreen 登場: Mario が x=7000 に達したとき画面右端から歩いて入ってくる
-  G.bowserArenaX=7000;
-  Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,
-    vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:100,jumpTimer:220,
-    onGround:false,state:'offscreen',deadTimer:0});
+  // アリーナ壁（7ブロック高・Bowserジャンプ144px < 壁高224px）
+  for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6320,wy,'brick');addB(6352,wy,'brick');}
+  // アリーナ内 ? ブロック
+  platforms.push({x:6480,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:6720,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // クッパ — 階段頂上をマリオが越えたとき画面右端から登場
+  G.bowserArenaX=6255;G.checkpoint2={x:5850,y:H-TILE,reached:false};
+  G.bowserLeftX=6386;
+  const _bs=BOWSER_STATS[2];Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:64,h:72,hp:_bs.hp,maxHp:_bs.hp,
+    vx:-_bs.speed,vy:0,facing:-1,hurtTimer:0,fireTimer:_bs.fireTimer,jumpTimer:_bs.jumpTimer,
+    onGround:false,state:'offscreen',deadTimer:0,fireImmune:_bs.fireImmune,phase:1,phaseTransition:0});
+  // ★ ハンマースーツ
+  platforms.push({x:4700,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  // ★ 装飾土管
+  pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+  pipes.push({x:4200,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }

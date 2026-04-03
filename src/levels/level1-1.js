@@ -1,7 +1,7 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
   yoshi,peach,bowser,G,H,TILE,LW} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
@@ -81,4 +81,10 @@ platforms.push({x:352,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlo
 platforms.push({x:3100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
 // Yoshi egg (early)
 platforms.push({x:224,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+// ★ 新パワーアップテスト用
+platforms.push({x:700,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0}); // 巨大キノコ
+platforms.push({x:950,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0}); // ハンマースーツ
+// ★ 装飾土管
+pipes.push({x:1800,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+pipes.push({x:4400,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }

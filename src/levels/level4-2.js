@@ -1,7 +1,7 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
   yoshi,peach,bowser,flagPole,G,H,TILE,LW} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
@@ -31,6 +31,9 @@ export function buildLevel_4_2(){
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+
+  // Yoshi egg (early)
+  platforms.push({x:214,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // 空中レンガ足場（各ゾーン交互高度）
   addRow(150, H-5*TILE, 2,'brick');
@@ -127,4 +130,9 @@ export function buildLevel_4_2(){
 
   // チェックポイント（Z4地面上）
   G.checkpoint={x:1800,y:H-TILE,reached:false};
+  // ★ ハンマースーツ
+  platforms.push({x:1200,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  // ★ 装飾土管
+  pipes.push({x:200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+  pipes.push({x:2300,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }

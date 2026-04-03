@@ -26,11 +26,11 @@ Plan サブエージェントで実装計画を立ててください：
 src/
 ├── globals.js    ← 定数・配列・G オブジェクト・ゲームオブジェクト
 ├── builders.js   ← addB, addRow, addStair, addStairD
+├── stages.js     ← ステージ一覧（新ステージはここに登録）
 ├── main.js       ← ゲームループ・update・draw・audio
 └── levels/
-    ├── level1-1.js 〜 level1-4.js
-    ├── underground.js
-    └── level2-1.js（追加時）
+    ├── level1-1.js 〜 levelX-Y.js
+    └── underground.js
 ```
 
 ### 変数の書き方（重要）
@@ -58,8 +58,7 @@ src/
 
 2. 使用するすべてのファイルの import 文に追加
 
-3. **全レベルファイル**（level1-1〜level1-4, underground, level2-x...）の
-   リセット行に `newArray.length=0` または `G.newVar=0` を追加
+3. **全レベルファイル**のリセット行に `newArray.length=0` または `G.newVar=0` を追加
 
 ### 座標系（重要）
 - `ctx.translate(-G.cam, 0)` の内側 → **ワールド座標**（cam を引かない）
@@ -76,14 +75,15 @@ if(mBot - mario.vy <= bowser.y + bowser.h*0.35)
 
 ### BGM 優先順位
 ```javascript
-G.ugMode > G.starTimer > (G.currentLevel===4 && G.currentWorld===1) > THEME_NOTES
+G.ugMode > G.starTimer > (castle bgm) > THEME_NOTES
 ```
 
 ### クッパ offscreen 登場（城ステージ）
 城ステージでクッパを最初から配置せず、Mario が奥まで進んだときに画面右端から歩いて入場させるパターン：
 ```javascript
 // レベルファイル末尾
-G.bowserArenaX = 7000;  // トリガーX座標
+G.bowserArenaX = XXXX;  // トリガーX座標
+G.bowserLeftX  = XXXX;  // クッパ左端制限
 Object.assign(bowser, { alive:true, x:9000, state:'offscreen', ... });
 ```
 `main.js` では `bowser.state==='offscreen'` のとき物理演算をスキップし、
@@ -94,32 +94,81 @@ Object.assign(bowser, { alive:true, x:9000, state:'offscreen', ... });
 現在 `chainChomps`・`jumpBlocks`・`pipos` は保存・復元済み。
 新たな敵配列を追加した場合は `enterUnderground` の savedOW と `exitUnderground` の復元処理の**両方**に追記すること。
 
-### 移動足場でマリオを運ぶ（バグ修正済み）
-移動足場に乗ったときマリオが横移動しないバグは修正済み（`mp.prevX` 差分を `mario.x` に加算）。
-新たに垂直移動足場（type:'v'）を追加する場合は同様に `prevY` 差分を `mario.y` に加算すること。
+### 移動足場（ワンウェイプラットフォーム）
+移動足場はすり抜け床方式。下からジャンプすると貫通し、上から落下したときだけ着地。
+判定条件: `mario.vy>=0`（落下中）かつ前フレームでマリオ底辺が足場上端より上。
+横移動追従は `mp.prevX` 差分を `mario.x` に加算。
 
 ### キーバインド（現在）
 | キー | 動作 |
 |---|---|
 | ← → / A D | 移動 |
 | ↑ / W / Space | ジャンプ |
-| Z | ファイアボール（fire パワー時・ヨッシー搭乗中も使用可） |
+| Z | ファイアボール/アイスボール/ハンマー（パワー状態による） |
 | X | ヨッシーの舌（ヨッシー搭乗中のみ） |
 | Shift | ダッシュ |
 
-> **Z と X は独立している** — ヨッシー搭乗中でも Z はファイアボール。X でヨッシーの舌。
-> キーバインドを変更するときは keydown ハンドラの行 73 付近を編集する。
-
 ### スター効果中の当たり判定ルール
-- スター取得中（G.starTimer>0）は全敵に触れるだけで撃破（starTimer確認は `e.squishT=20` で処理）
-- スター撃破 SE：`sfx('stomp')` を呼ぶと G.starTimer>0 のとき自動的に上昇アルペジオ（5音）に切り替わる
-- 通常踏みつけ SE：`sfx('stomp')` → 低いサワウトゥース2音
-- 敵撃破でスター専用音を出したい場合は **`sfx('stomp')` をそのまま呼べばよい**（sfx内で分岐）
+- スター取得中（G.starTimer>0）は全敵に触れるだけで撃破
+- テレサ・ドッスン・ブンブン・クッパもスターで撃破可能
 
 ### 無敵時間中の踏みつけ
 - `mario.inv > 0` 中でも踏みつけ（上から着地）は有効
 - 敵の横接触・正面衝突は無効（mario.inv===0 の場合のみ killMario 呼び出し）
-- 敵の外側衝突チェックから `mario.inv===0` を除去し、内側の `killMario()` に `if(mario.inv===0)` を残す形で実装
+
+### 敵タイプ一覧（現在実装済み）
+| タイプ | 説明 | 撃破方法 |
+|---|---|---|
+| `goomba` | クリボー（基本敵） | 踏む / ファイアボール / アイスボール(凍結) / ハンマー / スター |
+| `koopa` | ノコノコ | 踏む(甲羅) / ファイアボール / アイスボール(凍結) / ハンマー / スター |
+| `buzzy` | メット | 踏む(甲羅) / **ハンマー** / スター（ファイア・アイス免疫） |
+| `penguin` | ペンギン（氷ワールド） | 踏む / ファイアボール / アイスボール(凍結) / ハンマー / スター |
+| `cactus` | サボテン（砂漠） | ファイアボール / **ハンマー** / スター（踏めない） |
+| `parakoopa` | パラノコノコ | 踏む(2回) / ファイアボール / アイスボール(凍結) / ハンマー / スター |
+| `piranha` | パックンフラワー | ファイアボール / スター（踏めない） |
+| `hammerBro` | ハンマーブロス | 踏む / ファイアボール / アイスボール(凍結) / ハンマー / スター |
+| `lakitu` | ジュゲム | ファイアボール / **ハンマー** / スター（踏めない） |
+| `teresa` | テレサ（砦・城） | **ハンマー** / スターのみ（ファイア・アイス免疫・踏み不可）|
+| `thwomp` | ドッスン（砦・城） | **ハンマー** / スターのみ（ファイア・アイス免疫・踏み不可）|
+
+**テレサ配置時の注意: `activated:true` 必須**（設定しないとカメラ外で追跡しない）
+
+### パワーアップ一覧
+| mario.power | 取得 | Zキー攻撃 |
+|---|---|---|
+| `'none'` | 初期 | なし |
+| `'big'` | キノコ | なし |
+| `'fire'` | ファイアフラワー | ファイアボール（vx=9） |
+| `'ice'` | アイスフラワー（G.iceMode時） | アイスボール（vx=7、敵凍結240f）|
+| `'hammer'` | ハンマースーツ（hasHammer） | 放物線ハンマー（全敵撃破可能）|
+
+### 新ステージギミック
+| ギミック | 設定 | 効果 |
+|---|---|---|
+| 暗闇 | `G.darkMode=true` | マリオ周囲のみスポットライト |
+| 重力反転 | `gravityZones.push({x,y,w,h})` | ゾーン内で重力反転 |
+| 風ゾーン | `windZones.push({x,y,w,h,force})` | 横風で押される（正=右、負=左）|
+| 追いかけ壁 | `G.chasingWall={x,speed,triggerX,active:false}` | 左から壁が迫る（触れたら即死）|
+| 巨大キノコ | `hasMega:true` ブロック | 8秒間巨大化・全破壊 |
+| ハンマースーツ | `hasHammer:true` ブロック | 放物線ハンマー・全敵タイプ撃破 |
+
+### チェックポイント復帰時の挙動
+死亡→チェックポイント復帰時に**レベル全体が再構築**される（build()再呼び出し）。
+ブロック・敵・アイテムがすべて復活する。checkpoint/checkpoint2の到達状態は復元される。
+
+### クッパ前チェックポイント（G.checkpoint2）
+城ステージでは bowserArenaX の ~400px 手前に第2チェックポイントを配置する。
+```javascript
+G.checkpoint2={x:bowserArenaX-400, y:H-TILE, reached:false};
+```
+到達時に G.checkpoint が自動更新され、以降の死亡はクッパ手前から復帰。
+
+### コインショップ価格（主要）
+MUSHROOM:30, FIRE:60, 1UP:50, 1UP SET:120, **MAGNET:200**, STAR10:100, STAR30:250, W-JUMP:150, GOLD:200, RETRY:300
+
+### savedOW に保存が必要な配列（ワープ土管）
+新たな配列を追加した場合は `enterUnderground` の savedOW と `exitUnderground` の復元処理に追記すること。
+現在保存済み: platforms, pipes, coinItems, enemies, mushrooms, piranhas, movingPlats, springs, cannons, chainChomps, jumpBlocks, pipos, gravityZones, windZones, chasingWall, darkMode
 
 ### 実装後の確認
 - `npm run build` でエラーなし

@@ -1,8 +1,8 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
-  yoshi,peach,bowser,G,H,TILE,LW} from '../globals.js';
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
+  yoshi,peach,bowser,G,H,TILE,LW,BOWSER_STATS} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
 export function buildUnderground(variant){
@@ -13,141 +13,298 @@ for(let x=0;x<W;x+=TILE){platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',
 if(x>0&&x<W-TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0})}
 pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
 for(let wy=TILE;wy<H-4*TILE;wy+=TILE)platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
-const Goomba=(x,y,w,h,alive=true)=>({x,y,w:w||TILE,h:h||TILE,vx:-1.3,vy:0,alive,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
-const K=(x,y)=>({x,y,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
-if(variant==='goomba'){
-// ★クリボーまつり★ クリボー10体 倒すと報酬
-addRow(80,H-4*TILE,2,'brick');addRow(280,H-5*TILE,3,'brick');addRow(500,H-6*TILE,2,'brick');
-for(let i=0;i<10;i++)enemies.push(Goomba(70+i*64,H-2*TILE));
-for(let i=0;i<22;i++)coinItems.push({x:55+i*29,y:H-9*TILE,collected:false});
-platforms.push({x:210,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:480,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+
+// ── ヘルパー関数 ──
+const gm=(x,y)=>({x,y:y??H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
+const kp=(x,y)=>({x,y:y??H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
+const bz=(x,y)=>({x,y:y??H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.3,vy:0,alive:true,type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
+const pg=(x,y)=>({x,y:y??H-2*TILE,w:TILE,h:TILE,vx:-2.0,vy:0,alive:true,type:'penguin',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+const te=(x,y)=>({x,y:y??H-6*TILE,w:28,h:28,vx:-0.5,vy:0.2,alive:true,type:'teresa',hiding:false,activated:true});
+const tw=(x,y)=>({x,y:y??TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+const hb=(x,y)=>({x,y:y??H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5+Math.random(),vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:60+Math.floor(Math.random()*60),jumpTimer:120+Math.floor(Math.random()*80),onGround:false});
+const cc=(x)=>({x,y:H-TILE-36,w:36,h:36,postX:x,postY:H-TILE-36,vx:0,vy:0,phase:0,state:'idle',lungeTimer:0,alive:true});
+const jb=(x)=>({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60+Math.floor(Math.random()*40),alive:true});
+const pp=(x,vy)=>({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy:vy||-6,alive:true,bounceCount:0});
+const lf=(x,ph)=>({x,y:H-TILE,w:22,maxH:85,curH:0,phase:ph??0,period:130});
+const qM=(x,y)=>({x,y,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+const h1=(x,y)=>({x,y,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+const qC=(x,y,n)=>({x,y,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:n||8,bounceOffset:0});
+const ci=(sx,y,n,sp)=>{for(let i=0;i<n;i++)coinItems.push({x:sx+i*(sp||24),y,collected:false})};
+
+// ════════════════════════════════════════
+// World 1
+// ════════════════════════════════════════
+
+if(variant==='coin'){
+// ★ コインの楽園 ★ 1-1: コインざくざくのご褒美部屋
+addRow(150,H-4*TILE,3,'brick');addRow(380,H-6*TILE,3,'brick');addRow(560,H-4*TILE,2,'brick');
+platforms.push(qM(280,H-5*TILE));
+platforms.push(h1(460,H-9*TILE));
+platforms.push(qC(510,H-7*TILE,8));
+ci(55,H-7*TILE,18,34);ci(55,H-9*TILE,15,40);
+enemies.push(gm(300));enemies.push(gm(500));
+
+}else if(variant==='goomba'){
+// ★ クリボーの小部屋 ★ 1-2: クリボーが少しいるコイン部屋
+addRow(100,H-5*TILE,2,'brick');addRow(300,H-4*TILE,4,'brick');addRow(560,H-6*TILE,2,'brick');
+platforms.push(qM(230,H-4*TILE));
+platforms.push(h1(500,H-8*TILE));
+ci(55,H-7*TILE,16,38);ci(60,H-9*TILE,14,42);
+enemies.push(gm(300));enemies.push(gm(480));enemies.push(gm(600));
+
 }else if(variant==='mushroom'){
-// ★パワーアップの部屋★ きのこ×3 ＋ かくし1UP ＋ かくしスター
-addRow(80,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(490,H-4*TILE,2,'brick');
-platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:340,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:540,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:230,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:390,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
-[{x:200},{x:420},{x:620}].forEach(({x})=>enemies.push(K(x,H-2*TILE)));
-for(let i=0;i<16;i++)coinItems.push({x:65+i*40,y:H-8*TILE,collected:false});
-}else if(variant==='danger1up'){
-// ★1UPトリプルチャレンジ★ 1UPはてなブロック×3 ＋ 火柱4本（火柱のみ）
-addRow(80,H-4*TILE,2,'brick');addRow(310,H-4*TILE,2,'brick');addRow(540,H-4*TILE,2,'brick');
-platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:370,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:600,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
-[{x:120,ph:0},{x:215,ph:65},{x:360,ph:30},{x:570,ph:50}].forEach(
-({x,ph})=>lavaFlames.push({x,y:H-TILE,w:22,maxH:85,curH:0,phase:ph,period:130}));
-}else if(variant==='star'){
-// ★スターフェスティバル★ スター取って11体一斉倒し！
-addRow(90,H-4*TILE,2,'brick');addRow(300,H-5*TILE,3,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push({x:370,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-platforms.push({x:220,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-[80,155,230,310,450,525,600,660].forEach(x=>enemies.push(Goomba(x,H-2*TILE)));
-[{x:190},{x:400},{x:590}].forEach(({x})=>enemies.push(K(x,H-2*TILE)));
-for(let i=0;i<26;i++)coinItems.push({x:55+i*25,y:H-8*TILE,collected:false});
-platforms.push({x:480,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
+// ★ ノコノコの甲羅通路 ★ 1-2: ノコノコがうろつくボーナス通路
+addRow(120,H-4*TILE,2,'brick');addRow(350,H-5*TILE,2,'brick');addRow(540,H-4*TILE,3,'brick');
+platforms.push(qM(260,H-6*TILE));
+platforms.push(h1(440,H-9*TILE));
+ci(55,H-8*TILE,20,30);ci(80,H-6*TILE,12,35);
+enemies.push(kp(300));enemies.push(gm(500));
+
+// ════════════════════════════════════════
+// World 2 — 砂漠
+// ════════════════════════════════════════
+
 }else if(variant==='desert1'){
-// ★砂漠の宝箱部屋★ きのこブロック×2 + コイン30枚 + ノコノコ×2 + かくし1UP
-addRow(80,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(490,H-4*TILE,2,'brick');
-platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:350,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:400,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-for(let i=0;i<30;i++)coinItems.push({x:55+i*22,y:H-7*TILE,collected:false});
-[{x:200},{x:450}].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0}));
-jumpBlocks.push({x:550,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true});
+// ★ 砂漠の宝箱部屋 ★ 2-1: ジャンプブロックがちょっと邪魔なコイン部屋
+addRow(130,H-4*TILE,2,'brick');addRow(310,H-5*TILE,3,'brick');addRow(550,H-4*TILE,2,'brick');
+platforms.push(qM(240,H-6*TILE));
+platforms.push(h1(470,H-9*TILE));
+ci(55,H-7*TILE,20,30);ci(80,H-9*TILE,12,45);
+enemies.push(gm(300));enemies.push(gm(500));
+jumpBlocks.push(jb(620));
+
 }else if(variant==='desert2'){
-// ★砂漠のコイン洞窟★ コイン大量 + コインブロック×3 + かくし1UP + パイポ×2
-addRow(80,H-4*TILE,3,'brick');addRow(300,H-6*TILE,3,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push({x:130,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-platforms.push({x:350,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-platforms.push({x:570,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-platforms.push({x:200,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:300,y:H-10*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
-for(let i=0;i<50;i++)coinItems.push({x:55+i*13,y:H-9*TILE,collected:false});
-[{x:200,vy:-6},{x:450,vy:-7}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+// ★ パイポの洞窟 ★ 2-1: パイポが1匹跳ねてるコイン洞窟
+addRow(100,H-5*TILE,3,'brick');addRow(370,H-4*TILE,2,'brick');addRow(540,H-6*TILE,2,'brick');
+platforms.push(qM(260,H-4*TILE));
+platforms.push(h1(460,H-8*TILE));
+ci(55,H-7*TILE,22,28);ci(60,H-9*TILE,10,55);
+enemies.push(gm(400));
+pipos.push(pp(550,-6));
+
 }else if(variant==='desert3'){
-// ★2-2：パイポの洞窟★ パイポ×3 + jumpBlock×2 + コインブロック + 隠しきのこ
-addRow(80,H-4*TILE,2,'brick');addRow(310,H-5*TILE,3,'brick');addRow(530,H-4*TILE,2,'brick');
-platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:380,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
-platforms.push({x:500,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-for(let i=0;i<35;i++)coinItems.push({x:55+i*18,y:H-8*TILE,collected:false});
-[{x:180,vy:-6},{x:350,vy:-7},{x:550,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
-[{x:260},{x:470}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true}));
+// ★ ジャンプブロックの部屋 ★ 2-2: ジャンプブロックが跳ねるコイン部屋
+addRow(130,H-4*TILE,2,'brick');addRow(340,H-6*TILE,2,'brick');addRow(530,H-4*TILE,2,'brick');
+platforms.push(qM(250,H-5*TILE));
+platforms.push(h1(450,H-9*TILE));
+ci(55,H-7*TILE,18,34);ci(70,H-9*TILE,12,48);
+enemies.push(gm(400));
+jumpBlocks.push(jb(250));pipos.push(pp(550,-6));
+
 }else if(variant==='desert4'){
-// ★2-2：パイポと火柱の地下★ パイポ×2 + 火柱×2 + 隠し1UP
-addRow(80,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(520,H-4*TILE,2,'brick');
-platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:420,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-for(let i=0;i<28;i++)coinItems.push({x:55+i*24,y:H-7*TILE,collected:false});
-[{x:180,vy:-7},{x:560,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
-[{x:130,ph:0},{x:340,ph:50}].forEach(({x,ph})=>lavaFlames.push({x,y:H-TILE,w:22,maxH:80,curH:0,phase:ph,period:130}));
+// ★ 砂漠のコイン洞窟 ★ 2-2: 小さな火柱がアクセントのコイン部屋
+addRow(100,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
+platforms.push(qM(230,H-6*TILE));
+platforms.push(h1(430,H-8*TILE));
+ci(55,H-7*TILE,16,38);ci(80,H-9*TILE,14,40);
+enemies.push(gm(300));enemies.push(gm(550));
+lavaFlames.push(lf(420,0));
+
+// ════════════════════════════════════════
+// World 3 — 川・森
+// ════════════════════════════════════════
+
 }else if(variant==='river1'){
-// ★3-1：川底の宝の間★ コイン大量 + パイポ×3(魚) + きのこ + かくし1UP + かくしスター
-addRow(80,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
-platforms.push({x:150,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:340,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
-platforms.push({x:240,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:520,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
-for(let i=0;i<42;i++)coinItems.push({x:55+i*16,y:H-8*TILE,collected:false});
-[{x:160,vy:-6},{x:350,vy:-7},{x:540,vy:-5}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+// ★ 川底の秘密部屋 ★ 3-1: 静かな川の下のコイン部屋
+addRow(130,H-5*TILE,3,'brick');addRow(390,H-4*TILE,2,'brick');addRow(560,H-6*TILE,2,'brick');
+platforms.push(qM(280,H-4*TILE));
+platforms.push(h1(480,H-9*TILE));
+ci(55,H-7*TILE,18,34);ci(65,H-9*TILE,15,38);
+enemies.push(gm(300));enemies.push(kp(500));
+
 }else if(variant==='river2'){
-// ★3-1：橋の下★ jumpBlock×3 + 1UP + パイポ×2
-addRow(80,H-4*TILE,3,'brick');addRow(320,H-5*TILE,2,'brick');addRow(530,H-4*TILE,2,'brick');
-platforms.push({x:220,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:380,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-for(let i=0;i<25;i++)coinItems.push({x:55+i*24,y:H-7*TILE,collected:false});
-[{x:130},{x:310},{x:510}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true}));
-[{x:260,vy:-7},{x:480,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
+// ★ 橋の下の宝庫 ★ 3-1: ひっそり隠れた宝の間
+addRow(120,H-4*TILE,2,'brick');addRow(310,H-6*TILE,3,'brick');addRow(560,H-5*TILE,2,'brick');
+platforms.push(qM(240,H-5*TILE));
+platforms.push(h1(460,H-8*TILE));
+ci(55,H-7*TILE,20,30);ci(70,H-9*TILE,10,55);
+enemies.push(kp(300));enemies.push(gm(500));
+
 }else if(variant==='forest1'){
-// ★3-2：森の洞窟★ メット×3 + コイン + かくし1UP + かくしスター
-addRow(80,H-4*TILE,2,'brick');addRow(290,H-5*TILE,3,'brick');addRow(510,H-4*TILE,2,'brick');
-platforms.push({x:130,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:200,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:340,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
-platforms.push({x:540,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:6,bounceOffset:0});
-for(let i=0;i<30;i++)coinItems.push({x:55+i*22,y:H-8*TILE,collected:false});
-[{x:180},{x:350},{x:530}].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0}));
+// ★ 森の地下室 ★ 3-2: メットが1匹うろつくコイン部屋
+addRow(100,H-4*TILE,2,'brick');addRow(290,H-5*TILE,3,'brick');addRow(530,H-4*TILE,2,'brick');
+platforms.push(qM(220,H-6*TILE));
+platforms.push(h1(450,H-9*TILE));
+ci(55,H-7*TILE,18,34);ci(60,H-9*TILE,12,48);
+enemies.push(bz(350));enemies.push(gm(550));
+
 }else if(variant==='forest2'){
-// ★3-2：暗闇の宝庫★ きのこ×2 + 1UP + jumpBlock×2 + ノコノコ×2
-addRow(80,H-4*TILE,2,'brick');addRow(300,H-6*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
-platforms.push({x:130,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:350,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:500,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-for(let i=0;i<28;i++)coinItems.push({x:55+i*23,y:H-8*TILE,collected:false});
-[{x:200},{x:450}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60+Math.floor(Math.random()*40),alive:true}));
-[{x:280},{x:490}].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0}));
-}else if(variant==='storm1'){
-// ★3-3：嵐の回廊★ 火柱×3 + ワンワン×1 + パイポ×2 + 1UP
-addRow(80,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
+// ★ 暗闘の倉庫 ★ 3-2: ノコノコとクリボーのコイン倉庫
+addRow(130,H-5*TILE,2,'brick');addRow(350,H-4*TILE,3,'brick');addRow(570,H-6*TILE,2,'brick');
+platforms.push(qM(260,H-4*TILE));
+platforms.push(h1(500,H-8*TILE));
+ci(55,H-7*TILE,22,27);ci(80,H-9*TILE,10,52);
+enemies.push(kp(300));enemies.push(gm(480));enemies.push(gm(620));
+
+// ════════════════════════════════════════
+// World 5 — 水辺
+// ════════════════════════════════════════
+
+}else if(variant==='water1'){
+// ★ 海底の隠れ家 ★ 5-1: コインブロック付きのご褒美部屋
+addRow(100,H-4*TILE,3,'brick');addRow(360,H-6*TILE,2,'brick');addRow(540,H-4*TILE,2,'brick');
+platforms.push(qM(260,H-5*TILE));
+platforms.push(h1(470,H-9*TILE));
+platforms.push(qC(400,H-5*TILE,10));
+ci(55,H-7*TILE,22,27);ci(60,H-9*TILE,16,36);
+enemies.push(gm(300));enemies.push(gm(500));
+
+}else if(variant==='water2'){
+// ★ 潮溜まりの宝箱 ★ 5-1: コンパクトな宝箱部屋
+addRow(120,H-5*TILE,2,'brick');addRow(330,H-4*TILE,3,'brick');addRow(570,H-6*TILE,2,'brick');
+platforms.push(qM(250,H-4*TILE));
+platforms.push(h1(490,H-8*TILE));
+ci(55,H-7*TILE,20,30);ci(80,H-9*TILE,12,46);
+enemies.push(gm(300));enemies.push(kp(500));
+
+}else if(variant==='water3'){
+// ★ 深海のコイン洞窟 ★ 5-2: ノコノコがうろつくコイン洞窟
+addRow(130,H-4*TILE,2,'brick');addRow(340,H-5*TILE,3,'brick');addRow(570,H-4*TILE,2,'brick');
+platforms.push(qM(260,H-6*TILE));
+platforms.push(h1(490,H-9*TILE));
+ci(55,H-7*TILE,18,34);ci(60,H-9*TILE,15,38);
+enemies.push(kp(300));enemies.push(gm(500));
+
+}else if(variant==='water4'){
+// ★ 海底の秘密基地 ★ 5-2: メットがちょっといる海底基地
+addRow(100,H-5*TILE,2,'brick');addRow(320,H-4*TILE,2,'brick');addRow(510,H-6*TILE,3,'brick');
+platforms.push(qM(230,H-4*TILE));
+platforms.push(h1(440,H-8*TILE));
+ci(55,H-7*TILE,16,38);ci(80,H-9*TILE,14,40);
+enemies.push(bz(350));enemies.push(gm(550));
+
+// ════════════════════════════════════════
+// World 6 — 氷
+// ════════════════════════════════════════
+
+}else if(variant==='ice1'){
+// ★ 氷穴のペンギン ★ 6-1: ペンギンがちょっといる氷の洞窟
+addRow(120,H-4*TILE,3,'brick');addRow(380,H-5*TILE,2,'brick');addRow(560,H-4*TILE,2,'brick');
+platforms.push(qM(280,H-6*TILE));
+platforms.push(h1(470,H-9*TILE));
+ci(55,H-7*TILE,20,30);ci(60,H-9*TILE,12,48);
+enemies.push(pg(350));enemies.push(gm(550));
+
+}else if(variant==='ice2'){
+// ★ ペンギンのコイン部屋 ★ 6-1: ペンギン2匹のコイン部屋
+addRow(100,H-5*TILE,2,'brick');addRow(310,H-4*TILE,3,'brick');addRow(560,H-6*TILE,2,'brick');
+platforms.push(qM(230,H-4*TILE));
+platforms.push(h1(480,H-8*TILE));
+ci(55,H-7*TILE,20,30);ci(80,H-9*TILE,12,46);
+enemies.push(pg(300));enemies.push(pg(520));
+
+}else if(variant==='ice3'){
+// ★ 凍りついたコイン部屋 ★ 6-2: コインブロック付き氷のご褒美部屋
+addRow(130,H-4*TILE,2,'brick');addRow(350,H-6*TILE,3,'brick');addRow(570,H-5*TILE,2,'brick');
+platforms.push(qM(260,H-5*TILE));
+platforms.push(h1(480,H-9*TILE));
+platforms.push(qC(460,H-7*TILE,10));
+ci(55,H-7*TILE,18,34);ci(60,H-9*TILE,16,36);
+enemies.push(pg(300));enemies.push(gm(530));
+
+}else if(variant==='ice4'){
+// ★ 氷のコイン倉庫 ★ 6-2: ペンギンとジャンプブロックのコイン倉庫
+addRow(100,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
+platforms.push(qM(220,H-6*TILE));
+platforms.push(h1(440,H-8*TILE));
+ci(55,H-7*TILE,18,34);ci(80,H-9*TILE,12,46);
+enemies.push(pg(350));enemies.push(gm(550));
+jumpBlocks.push(jb(460));
+
+// ════════════════════════════════════════
+// World 7 — 砦
+// ════════════════════════════════════════
+
+}else if(variant==='fortress1'){
+// ★ テレサの部屋 ★ 7-1: テレサが1匹漂うちょっと不気味な部屋
+addRow(130,H-5*TILE,3,'brick');addRow(400,H-4*TILE,2,'brick');addRow(580,H-6*TILE,2,'brick');
+platforms.push(qM(290,H-4*TILE));
+platforms.push(h1(500,H-9*TILE));
+ci(55,H-7*TILE,18,34);ci(70,H-9*TILE,12,46);
+enemies.push(te(400,H-6*TILE));enemies.push(gm(550));
+
+}else if(variant==='fortress2'){
+// ★ ドッスンの通路 ★ 7-1: ドッスンが1体いるスリルのある通路
+// ※ ドッスン x=320〜384 の真下にブロック禁止
+addRow(100,H-4*TILE,2,'brick');addRow(420,H-5*TILE,2,'brick');addRow(580,H-4*TILE,2,'brick');
+platforms.push(qM(240,H-6*TILE));
+platforms.push(h1(550,H-8*TILE));
+ci(55,H-7*TILE,16,38);ci(80,H-9*TILE,14,40);
+enemies.push(tw(320));enemies.push(gm(500));
+
+}else if(variant==='fortress3'){
+// ★ 亡霊の回廊 ★ 7-2: テレサとクリボーの回廊
+addRow(120,H-4*TILE,2,'brick');addRow(340,H-6*TILE,3,'brick');addRow(570,H-4*TILE,2,'brick');
+platforms.push(qM(260,H-5*TILE));
+platforms.push(h1(480,H-9*TILE));
+ci(55,H-7*TILE,20,30);ci(60,H-9*TILE,12,48);
+enemies.push(te(400,H-5*TILE));enemies.push(gm(300));enemies.push(gm(550));
+
+}else if(variant==='fortress4'){
+// ★ ハンマーブロスの部屋 ★ 7-2: ハンマーブロスが1匹いるコイン部屋
+addRow(100,H-5*TILE,2,'brick');addRow(310,H-4*TILE,2,'brick');addRow(520,H-6*TILE,3,'brick');
+platforms.push(qM(230,H-4*TILE));
+platforms.push(h1(440,H-8*TILE));
+ci(55,H-7*TILE,18,34);ci(80,H-9*TILE,12,46);
+enemies.push(hb(400));enemies.push(gm(580));
+
+// ════════════════════════════════════════
+// World 8 — 飛行船
+// ════════════════════════════════════════
+
+}else if(variant==='airship_goal1'){
+// ★ 飛行船脱出口 ★ 8-1: コイン回収してゴールパイプへ
+for(let i=pipes.length-1;i>=0;i--){if(pipes[i].isExit)pipes.splice(i,1);}
+pipes.push({x:600,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isGoalPipe:true});
+addRow(150,H-4*TILE,3,'brick');addRow(380,H-5*TILE,2,'brick');
+platforms.push(qM(300,H-6*TILE));
+platforms.push(h1(500,H-8*TILE));
+ci(55,H-7*TILE,15,34);ci(80,H-9*TILE,10,48);
+enemies.push(gm(300));enemies.push(gm(480));
+
+}else if(variant==='airship_goal2'){
+// ★ 飛行船最終出口 ★ 8-2: メットが1匹いるゴール部屋
+for(let i=pipes.length-1;i>=0;i--){if(pipes[i].isExit)pipes.splice(i,1);}
+pipes.push({x:600,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isGoalPipe:true});
+addRow(130,H-5*TILE,2,'brick');addRow(350,H-4*TILE,2,'brick');
+platforms.push(qM(250,H-4*TILE));
+platforms.push(h1(500,H-9*TILE));
+ci(55,H-7*TILE,15,34);ci(80,H-9*TILE,10,48);
+enemies.push(bz(300));enemies.push(gm(480));
+
+// ════════════════════════════════════════
+// 8-3 クッパ最終決戦（変更なし）
+// ════════════════════════════════════════
+
+}else if(variant==='bowser_final'){
+// ★8-3 クッパ最終決戦★ クッパHP=7 + ピーチ救出
+for(let i=pipes.length-1;i>=0;i--){if(pipes[i].isExit)pipes.splice(i,1);}
+addRow(80,H-4*TILE,2,'brick');addRow(250,H-6*TILE,2,'brick');addRow(420,H-4*TILE,2,'brick');
+platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:330,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+platforms.push({x:490,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:370,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-for(let i=0;i<22;i++)coinItems.push({x:55+i*30,y:H-7*TILE,collected:false});
-chainChomps.push({x:410,y:H-TILE-28,w:28,h:28,postX:410,postY:H-TILE-28,vx:0,vy:0,phase:0,state:'idle',lungeTimer:0,alive:true});
-[{x:180,vy:-7},{x:550,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
-[{x:120,ph:0},{x:280,ph:40},{x:470,ph:80}].forEach(({x,ph})=>lavaFlames.push({x,y:H-TILE,w:20,maxH:85,curH:0,phase:ph,period:130}));
-}else if(variant==='storm2'){
-// ★3-3：地下砦★ jumpBlock×2 + パイポ×3 + 火柱×2 + スター + 1UP
-addRow(80,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(510,H-4*TILE,2,'brick');
-platforms.push({x:160,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-platforms.push({x:420,y:H-5*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-for(let i=0;i<25;i++)coinItems.push({x:55+i*25,y:H-7*TILE,collected:false});
-[{x:200},{x:450}].forEach(({x})=>jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60,alive:true}));
-[{x:160,vy:-6},{x:340,vy:-7},{x:530,vy:-6}].forEach(({x,vy})=>pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy,alive:true,bounceCount:0}));
-[{x:130,ph:0},{x:390,ph:55}].forEach(({x,ph})=>lavaFlames.push({x,y:H-TILE,w:20,maxH:75,curH:0,phase:ph,period:130}));
+for(let i=0;i<20;i++)coinItems.push({x:55+i*30,y:H-7*TILE,collected:false});
+G.bowserArenaX=-1;
+G.bowserLeftX=TILE*2;
+G.bowserRightX=W-TILE*3;
+const _bs=BOWSER_STATS[8];Object.assign(bowser,{
+  alive:true,x:W-TILE*5,y:H-TILE-72,w:64,h:72,
+  hp:_bs.hp,maxHp:_bs.hp,vx:-_bs.speed,vy:0,facing:-1,
+  hurtTimer:0,fireTimer:_bs.fireTimer,jumpTimer:_bs.jumpTimer,
+  onGround:false,state:'walk',deadTimer:0,fireImmune:_bs.fireImmune,phase:1,phaseTransition:0
+});
+peach.alive=true;
+peach.x=W-TILE*2;peach.y=H-TILE-peach.h;
+peach.vx=0;peach.caught=true;
+peach.walkFrame=0;peach.walkTimer=0;
+
 }else{
-// ★コインの楽園★ (default/'coin') コイン大量＋コインブロック×3＋かくし1UP
-addRow(100,H-4*TILE,3,'brick');addRow(300,H-6*TILE,3,'brick');addRow(490,H-4*TILE,3,'brick');
-for(let i=0;i<27;i++)coinItems.push({x:55+i*23,y:H-7*TILE,collected:false});
-for(let i=0;i<19;i++)coinItems.push({x:95+i*29,y:H-9*TILE,collected:false});
-for(let i=0;i<11;i++)coinItems.push({x:195+i*31,y:H-11*TILE,collected:false});
-platforms.push({x:165,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:12,bounceOffset:0});
-platforms.push({x:385,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:12,bounceOffset:0});
-platforms.push({x:565,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:12,bounceOffset:0});
-platforms.push({x:280,y:H-4*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:220,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:450,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,hasStar:true,bounceOffset:0});
+// ★ デフォルト ★ coin と同じレイアウト
+addRow(150,H-4*TILE,3,'brick');addRow(380,H-6*TILE,3,'brick');addRow(560,H-4*TILE,2,'brick');
+platforms.push(qM(280,H-5*TILE));
+platforms.push(h1(460,H-9*TILE));
+platforms.push(qC(510,H-7*TILE,8));
+ci(55,H-7*TILE,18,34);ci(55,H-9*TILE,15,40);
+enemies.push(gm(300));enemies.push(gm(500));
 }}

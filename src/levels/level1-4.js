@@ -1,8 +1,8 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,
-  yoshi,peach,bowser,G,H,TILE,LW} from '../globals.js';
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
+  yoshi,peach,bowser,G,H,TILE,LW,BOWSER_STATS} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
 export function buildLevel4(){
@@ -29,12 +29,8 @@ addRow(4650,H-7*TILE,3,'brick');
 addRow(5350,H-5*TILE,4,'brick');addRow(5350,H-9*TILE,3,'q');
 addRow(5750,H-7*TILE,3,'brick');
 addRow(6050,H-5*TILE,4,'brick');
-// Staircase to boss arena
-addStair(6300,5);
-// Castle gate wall (passage at y=192-255 so Mario can jump through from staircase top)
-[0,32,64,96,128,160,256,288,320,352,384].forEach(wy=>{addB(6560,wy,'brick');addB(6592,wy,'brick');});
-// Descending staircase inside gate — Mario must climb up then come DOWN before reaching Bowser
-addStairD(6624,5);
+// 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
+addStair(6200,10);
 // Coins
 for(let i=0;i<18;i++)coinItems.push({x:350+i*320,y:H-9*TILE,collected:false});
 // Enemies
@@ -60,11 +56,11 @@ movingPlats.push(
 );
 // Cannons
 cannons.push(
-{x:580,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:140,timer:70},
-{x:1550,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:125,timer:50},
-{x:2800,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:130,timer:90},
-{x:4300,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:115,timer:40},
-{x:5680,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:105,timer:60}
+{x:580,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:20},
+{x:1550,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:60},
+{x:2800,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:100},
+{x:4300,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:140},
+{x:5680,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:40}
 );
 // Checkpoint
 G.checkpoint={x:3700,y:H-TILE,reached:false};
@@ -111,11 +107,18 @@ platforms.push({x:4672,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBl
   {x:5620,w:16,maxH:85,period:195,phase:150},
   {x:5800,w:16,maxH:75,period:185,phase:40}
 ].forEach(f=>lavaFlames.push({...f,curH:0}));
-// クッパ戦直前キノコ（アリーナ入口バッファゾーン）
-platforms.push({x:6790,y:H-3*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-// 制高点階段（アリーナ内・Mario が高い位置から戦える・Bowser はジャンプ力的に届かない高さ）
-addStair(7100,6);
-// Bowser — offscreen 登場: Mario が x=7000 に達したとき画面右端から歩いて入ってくる
-G.bowserArenaX=7000;
-Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:64,h:72,hp:3,maxHp:3,vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:130,jumpTimer:220,onGround:false,state:'offscreen',deadTimer:0});
+// アリーナ壁（7ブロック高・Bowserジャンプ144px < 壁高224px）
+for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6520,wy,'brick');addB(6552,wy,'brick');}
+// アリーナ内 ? ブロック（壁右側の平地）
+platforms.push({x:6660,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:6900,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+// Bowser — 階段頂上(x=6488)をマリオが越えたとき画面右端から登場
+G.bowserArenaX=6455;G.checkpoint2={x:6050,y:H-TILE,reached:false};
+G.bowserLeftX=6586;
+const _bs=BOWSER_STATS[1];Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:64,h:72,hp:_bs.hp,maxHp:_bs.hp,vx:-_bs.speed,vy:0,facing:-1,hurtTimer:0,fireTimer:_bs.fireTimer,jumpTimer:_bs.jumpTimer,onGround:false,state:'offscreen',deadTimer:0,fireImmune:_bs.fireImmune,phase:1,phaseTransition:0});
+// ★ ハンマースーツ
+platforms.push({x:4500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+// ★ 装飾土管
+pipes.push({x:2700,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
+pipes.push({x:4400,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }
