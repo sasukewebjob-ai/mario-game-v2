@@ -551,7 +551,7 @@ if(eg.bounces>3||eg.x<G.cam-80||eg.x>G.cam+W+80||eg.y>H+50){eg.alive=false;conti
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(overlap(eg.x,eg.y,eg.w,eg.h,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=20;eg.alive=false;G.score+=300;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,300,'#2ecc71')}}}
 
 // Coins
-for(const c of coinItems){if(c.collected)continue;if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
+for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
 if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins++;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
@@ -646,7 +646,7 @@ if(overlap(mario.x,mario.y,mario.w,mario.h,pr.x,pr.y,pr.w,pr.h)){if(G.starTimer>
 for(const fb of fireballs){if(!fb.alive)continue;if(overlap(fb.x,fb.y,fb.w,fb.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#27ae60')}}}
 // Bowser boss
 if(bowser.alive){
-if(bowser.state==='offscreen'){const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];if(mario.x>G.bowserArenaX){bowser.state='walk';bowser.x=G.cam+W+150;bowser.vx=-_bs.speed;try{beep(120,.4,'sawtooth',.3);beep(80,.5,'sawtooth',.25,.15)}catch(ex){}}}
+if(bowser.state==='offscreen'){const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];if(mario.x>G.bowserArenaX&&mario.onGround&&mario.y+mario.h>=H-TILE*2){bowser.state='walk';bowser.x=G.cam+W+150;bowser.vx=-_bs.speed;try{beep(120,.4,'sawtooth',.3);beep(80,.5,'sawtooth',.25,.15)}catch(ex){}}}
 else if(bowser.state!=='dead'){
 const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];
 const _p2=bowser.phase===2;
@@ -770,9 +770,9 @@ if(bowser.hp<=0){bowser.state='dead';bowser.deadTimer=160;stopBGM();G.score+=500
 for(const e of enemies){if(!e.alive||!e.frozen)continue;e.frozenTimer--;if(e.frozenTimer<=0){e.frozen=false;e.vx=e.frozenVx||0;e.frozenVx=0;}
 // 凍結敵を踏むと粉砕
 if(overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){const mBot=mario.y+mario.h;
-if(mBot-mario.vy<=e.y+e.h*0.5){e.alive=false;e.frozen=false;mario.vy=-9;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star')}
+if(mBot-mario.vy<=e.y+e.h*0.5){e.alive=false;e.frozen=false;mario.vy=-9;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<3;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-1)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.5,vx:(c-1)*2,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}
 else if(mario.inv===0&&G.starTimer===0){// 横から蹴ると粉砕
-if(Math.abs(mario.vx)>2){e.alive=false;e.frozen=false;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star')}}}
+if(Math.abs(mario.vx)>2){e.alive=false;e.frozen=false;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<3;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-1)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.5,vx:(c-1)*2,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}}}
 // 凍結敵を足場として使う
 if(e.frozen&&mario.vy>=0&&!mario.onGround){const prevBot=mario.y-mario.vy+mario.h;if(prevBot<=e.y+4&&overlap(mario.x+2,mario.y,mario.w-4,mario.h,e.x,e.y,e.w,e.h)){mario.y=e.y-mario.h;mario.vy=0;mario.onGround=true;}}}
 // === Mega Timer ===

@@ -187,9 +187,13 @@ Object.assign(bowser, {
 
 ## クッパ offscreen 登場パターン（城ステージ共通）
 
-城ステージは大型上り階段の頂上をマリオが越えたとき、クッパが画面右端から入場するデザイン。
-`main.js` の Bowser 更新ループで `state==='offscreen'` のとき `mario.x > G.bowserArenaX` をチェックし、
+城ステージはマリオが階段を完全に降りて地面に着地したとき、クッパが画面右端から入場するデザイン。
+`main.js` の Bowser 更新ループで `state==='offscreen'` のとき以下の3条件すべてをチェック：
+1. `mario.x > G.bowserArenaX`（アリーナ範囲に到達）
+2. `mario.onGround`（着地している）
+3. `mario.y + mario.h >= H - TILE*2`（地面レベルまで降りている）
 満たされたら `bowser.x = G.cam + W + 150` にセットして `state='walk'` に遷移（画面右端から入場）。
+※ 階段の上からファイアを撃って一方的に倒す戦法を防止。
 Bowser の左 x 制限は `G.bowserLeftX`（旧ハードコード `6900` から変更済み）。
 
 ## 城ステージのレイアウト（登り→高台→アリーナ）
@@ -797,7 +801,8 @@ Phase2遷移時に `stopBGM(); startBGM();` でBGMを再起動。
 
 ### アイスフラワー（G.iceMode時にファイアフラワー→自動変換）
 - アイスボール: vx=7, バウンス5回, 敵を凍結（240f=4秒）
-- 凍結敵: 動かない、足場として使える、踏みor横蹴りで粉砕（400pts）
+- 凍結敵: 動かない、足場として使える、踏みor横蹴りで粉砕（400pts + コイン3枚散乱）
+  - 散乱コインは放物線で飛び、触れると+100pts/枚。45f後に消滅。type='frozendrop'
 - クッパにも有効（fireImmuneでない場合）: 1HP + 90f hurtTimer（通常より長い）
 - `iceBalls[]` 配列で管理、最大2発
 
