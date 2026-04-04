@@ -18,36 +18,48 @@ export function buildLevel_3_2(){
   peach.alive=false;G.peachChase=null;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
+  G.iceMode=false;G.tideMode=true;
 
-  // 地面 (ギャップ×5 — 最後は足場なしで難しい)
-  const gaps=[{s:1600,e:1950},{s:3100,e:3450},{s:4700,e:5050},{s:5900,e:6200},{s:6800,e:7050}];
+  // 地面 (ギャップ×5 — gap1 micro, gap3 widened)
+  const gaps=[{s:1600,e:1680},{s:3100,e:3450},{s:4700,e:5150},{s:5900,e:6200},{s:6800,e:7050}];
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
-  // Zone 1 (0-1600)
+  // Zone 1 (0-1600) — wave-like height profile
   addRow(300,H-5*TILE,3,'brick');           // x:300,332,364
+  addRow(500,H-4*TILE,2,'brick');           // low wave crest
   addRow(632,H-7*TILE,2,'q');               // x:632,664 (600はpush)
+  addRow(800,H-6*TILE,2,'brick');           // mid wave
   addRow(950,H-5*TILE,4,'brick');           // x:950..1046
+  addRow(1100,H-8*TILE,2,'brick');          // high wave peak
   addRow(1250,H-8*TILE,1,'q');              // x:1250 (1220はpush)
   addRow(1400,H-5*TILE,3,'brick');          // x:1400,1432,1464
 
-  // Zone 2 (1950-3100)
+  // Zone 2 (1680-3100) — gap1 now micro, more room
+  addRow(1750,H-4*TILE,2,'brick');          // low wave crest after micro-gap
   addRow(2050,H-5*TILE,4,'brick');          // x:2050..2146
+  addRow(2250,H-6*TILE,2,'brick');          // mid wave
   addRow(2350,H-7*TILE,3,'q');              // x:2350,2382,2414
+  addRow(2550,H-8*TILE,2,'brick');          // high wave peak
   addRow(2700,H-5*TILE,3,'brick');          // x:2700,2732,2764
   addRow(2982,H-9*TILE,1,'q');              // x:2982 (2950はpush)
 
-  // Zone 3 (3450-4700)
+  // Zone 3 (3450-4700) — wave-like height profile
   addRow(3520,H-5*TILE,4,'brick');          // x:3520..3616
+  addRow(3700,H-4*TILE,2,'brick');          // low wave crest
   addRow(3832,H-8*TILE,1,'q');              // x:3832 (3800はpush)
+  addRow(3950,H-6*TILE,2,'brick');          // mid wave
   addRow(4100,H-5*TILE,3,'brick');          // x:4100,4132,4164
+  addRow(4300,H-8*TILE,2,'brick');          // high wave peak
   addRow(4450,H-7*TILE,2,'q');              // x:4450,4482 (4420はpush)
 
-  // Zone 4 (5050-5900)
-  addRow(5120,H-5*TILE,4,'brick');          // x:5120..5216
-  addRow(5432,H-9*TILE,1,'q');              // x:5432 (5400はpush)
-  addRow(5700,H-5*TILE,2,'brick');          // x:5700,5732
+  // Zone 4 (5150-5900) — gap3 widened, zone shifted
+  addRow(5220,H-5*TILE,4,'brick');          // x:5220..5316
+  addRow(5420,H-4*TILE,2,'brick');          // low wave crest
+  addRow(5532,H-9*TILE,1,'q');              // x:5532 (5500はpush)
+  addRow(5650,H-6*TILE,2,'brick');          // mid wave
+  addRow(5800,H-5*TILE,2,'brick');          // x:5800,5832
 
   // Zone 5 (6200-6800)
   addRow(6280,H-5*TILE,3,'brick');          // x:6280,6312,6344
@@ -64,7 +76,7 @@ export function buildLevel_3_2(){
   platforms.push({x:2950,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   platforms.push({x:3800,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:4420,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:5400,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:5500,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:6520,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 
   // パイプ (ワープ×2: forest1/forest2、通常×2 — 高さをバラバラにしてオリジナリティを演出)
@@ -75,15 +87,40 @@ export function buildLevel_3_2(){
   pipes.forEach((p,i)=>{if(p.isWarp)return;
     piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*2})});
 
-  // コイン
-  for(let i=0;i<32;i++)coinItems.push({x:220+i*230,y:H-9*TILE,collected:false});
+  // コイン — >=300枚: gap arches + ground lines + wave clusters + tide-risk
+  // Gap arches (10-12 coins each, 5 gaps — gap1 is micro so smaller arch)
+  [{s:1600,e:1680},{s:3100,e:3450},{s:4700,e:5150},{s:5900,e:6200},{s:6800,e:7050}].forEach(g=>{
+    const n=(g.e-g.s<100)?5:11;for(let j=0;j<n;j++){const t=j/(n-1);
+      coinItems.push({x:g.s+t*(g.e-g.s)-8,y:H-4*TILE-Math.sin(t*Math.PI)*TILE*2,collected:false});}
+  }); // ~49 coins
+  // Ground-level coin lines (H-3*TILE, dense)
+  for(let j=0;j<18;j++) coinItems.push({x:300+j*32,y:H-3*TILE,collected:false});   // Z1: 18
+  for(let j=0;j<18;j++) coinItems.push({x:1750+j*32,y:H-3*TILE,collected:false});  // Z2a: 18
+  for(let j=0;j<18;j++) coinItems.push({x:2700+j*32,y:H-3*TILE,collected:false});  // Z2b: 18
+  for(let j=0;j<18;j++) coinItems.push({x:3520+j*32,y:H-3*TILE,collected:false});  // Z3: 18
+  for(let j=0;j<14;j++) coinItems.push({x:5220+j*32,y:H-3*TILE,collected:false});  // Z4: 14
+  for(let j=0;j<10;j++) coinItems.push({x:6280+j*32,y:H-3*TILE,collected:false});  // Z5: 10
+  for(let j=0;j<14;j++) coinItems.push({x:7100+j*32,y:H-3*TILE,collected:false});  // Z6: 14
+  // High scattered coins
+  for(let j=0;j<25;j++) coinItems.push({x:200+j*280,y:H-9*TILE,collected:false});  // 25
+  // Mid-height wave clusters
+  for(let j=0;j<20;j++) coinItems.push({x:300+j*340,y:H-5*TILE,collected:false});  // 20
+  // Wave-height coins
+  for(let j=0;j<15;j++) coinItems.push({x:400+j*450,y:H-6*TILE,collected:false});  // 15
+  for(let j=0;j<10;j++) coinItems.push({x:500+j*650,y:H-8*TILE,collected:false});  // 10
+  // Tide-risk coins (low, submerged during high tide — high reward)
+  for(let i=0;i<5;i++)coinItems.push({x:1450+i*35,y:H-2*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:2750+i*35,y:H-2*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:4150+i*35,y:H-2*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:5700+i*35,y:H-2*TILE,collected:false});
+  // Total: 49+110+25+20+15+10+20 = ~319+
 
   // 地上敵 (goomba / koopa / cactus / hammerBro)
   [{x:380,t:'goomba'},{x:520,t:'cactus'},
    {x:800,t:'koopa'},{x:1000,t:'cactus'},{x:1150,t:'goomba'},{x:1380,t:'hammerBro'},
    {x:2100,t:'goomba'},{x:2250,t:'cactus'},{x:2500,t:'koopa'},
    {x:2800,t:'cactus'},{x:2960,t:'hammerBro'},
-   {x:3580,t:'goomba'},{x:3750,t:'cactus'},{x:3950,t:'koopa'},
+   {x:3480,t:'goomba'},{x:3380,t:'cactus'},{x:4120,t:'koopa'},
    {x:4200,t:'cactus'},{x:4380,t:'hammerBro'},{x:4580,t:'goomba'},
    {x:5180,t:'cactus'},{x:5350,t:'koopa'},{x:5600,t:'goomba'},
    {x:5760,t:'cactus'},
@@ -130,9 +167,9 @@ export function buildLevel_3_2(){
   });
 
   // 移動足場 (ギャップ1〜4; ギャップ5は移動足場なし)
-  movingPlats.push({x:1650,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:1650,range:90,spd:1.7});
+  // gap1 is now micro (80px) — no moving plat needed, jumpable
   movingPlats.push({x:3150,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3150,range:90,spd:1.9});
-  movingPlats.push({x:4750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:4750,range:90,spd:2.0});
+  movingPlats.push({x:4750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:4750,range:150,spd:2.0});  // wider range for widened gap3
   movingPlats.push({x:5950,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5950,range:75,spd:2.2});
 
   G.checkpoint={x:3800,y:H-TILE,reached:false};

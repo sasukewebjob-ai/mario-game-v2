@@ -24,7 +24,7 @@ export function buildLevel_6_1(){
   G.iceMode=true;
 
   // 地面（氷の割れ目×5）
-  const gaps=[{s:600,e:870},{s:1500,e:1800},{s:2350,e:2446},{s:2600,e:2920},{s:3200,e:3296},{s:3800,e:4120},{s:5100,e:5420},{s:5800,e:5896}];
+  const gaps=[{s:600,e:870},{s:1060,e:1130},{s:1500,e:1800},{s:2350,e:2446},{s:2600,e:2920},{s:3200,e:3296},{s:3800,e:4250},{s:5100,e:5420},{s:5800,e:5896}]; // ★ added micro-gap 1060-1130, widened 3800-4120→4250
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -46,6 +46,13 @@ export function buildLevel_6_1(){
   addRow(6300,H-5*TILE, 5,'brick'); // 6300,6332,6364,6396,6428 → 末端6460
   addRow(6700,H-7*TILE, 3,'brick'); // 6700,6732,6764 → 末端6796
   addRow(7050,H-5*TILE, 3,'brick'); // 7050,7082,7114 → 末端7146
+
+  // ★ Block Height Variety
+  addRow(500, H-4*TILE, 3,'brick');   // Z1 低空 (500,532,564)
+  addRow(1400,H-8*TILE, 3,'brick');   // Z2 高空 (1400,1432,1464)
+  addRow(2500,H-10*TILE,2,'brick');   // Z3 超高空 (2500,2532)
+  addRow(4700,H-4*TILE, 3,'brick');   // Z5 低空 (4700,4732,4764)
+
   addStair(7200, 6);
 
   // ── ? ブロック（addRowと (x,y) 重複なし確認済み）──
@@ -62,8 +69,8 @@ export function buildLevel_6_1(){
   platforms.push({x:2950,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2950<3000 ✓
   platforms.push({x:3160,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3160>3128 ✓
   platforms.push({x:3420,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3420>3396 ✓
-  // Z5 (4120-5100)
-  platforms.push({x:4140,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4140<4200 ✓
+  // Z5 (4250-5100) — gap widened to 4250
+  platforms.push({x:4340,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4340>4328 ✓
   platforms.push({x:4660,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4660>4646 ✓
   // Z6 (5420-8000)
   platforms.push({x:5620,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5620>5608 ✓
@@ -121,7 +128,7 @@ export function buildLevel_6_1(){
 
   // ── コイン（300枚以上）──
   // ① ギャップアーチ（各10枚 × 5 = 50枚）
-  [{s:600,e:870},{s:1500,e:1800},{s:2350,e:2446},{s:2600,e:2920},{s:3200,e:3296},{s:3800,e:4120},{s:5100,e:5420},{s:5800,e:5896}].forEach(({s,e})=>{
+  [{s:600,e:870},{s:1060,e:1130},{s:1500,e:1800},{s:2350,e:2446},{s:2600,e:2920},{s:3200,e:3296},{s:3800,e:4250},{s:5100,e:5420},{s:5800,e:5896}].forEach(({s,e})=>{
     for(let j=0;j<10;j++){
       const t=j/9;
       coinItems.push({x:s+t*(e-s)-8,y:H-4*TILE-Math.sin(t*Math.PI)*TILE*2,collected:false});
@@ -131,12 +138,20 @@ export function buildLevel_6_1(){
   [[200,H-7*TILE,3],[920,H-7*TILE,4],[1860,H-7*TILE,4],[3000,H-7*TILE,4],
    [4200,H-7*TILE,4],[5480,H-7*TILE,4],[6300,H-7*TILE,5]
   ].forEach(([cx,cy,n])=>{for(let j=0;j<n;j++) coinItems.push({x:cx+j*32,y:cy,collected:false});});
-  // ③ 地面ライン（各グラウンドゾーン）
-  for(let j=0;j<15;j++) coinItems.push({x:100 +j*32,y:H-3*TILE,collected:false}); // Z1
-  for(let j=0;j<17;j++) coinItems.push({x:900 +j*32,y:H-3*TILE,collected:false}); // Z2
+  // ③ 地面ライン（各グラウンドゾーン）— ★ Z1,Z2をクラスターに置換
+  // Z1 clusters (gap edge + vertical columns)
+  [100,130,165,200,240].forEach(cx=>coinItems.push({x:cx,y:H-4*TILE,collected:false}));
+  [380,420,460,500,540].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:300,y:cy,collected:false}));
+  // Z2 clusters
+  [880,920,960,1000,1040].forEach(cx=>coinItems.push({x:cx,y:H-4*TILE,collected:false}));
+  [1200,1250,1300,1350,1400].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:1100,y:cy,collected:false}));
+  // Risk coins at unusual heights
+  [600,1500,2500,3500,4500,5500,6500].forEach(cx=>coinItems.push({x:cx,y:H-11*TILE,collected:false}));
   for(let j=0;j<22;j++) coinItems.push({x:1860+j*32,y:H-3*TILE,collected:false}); // Z3
   for(let j=0;j<25;j++) coinItems.push({x:2960+j*32,y:H-3*TILE,collected:false}); // Z4
-  for(let j=0;j<28;j++) coinItems.push({x:4150+j*32,y:H-3*TILE,collected:false}); // Z5
+  for(let j=0;j<24;j++) coinItems.push({x:4260+j*32,y:H-3*TILE,collected:false}); // Z5 (starts 4250)
   for(let j=0;j<13;j++) coinItems.push({x:5450+j*32,y:H-3*TILE,collected:false}); // Z6前半
   for(let j=0;j<10;j++) coinItems.push({x:6000+j*32,y:H-3*TILE,collected:false}); // Z6中
   for(let j=0;j<12;j++) coinItems.push({x:6360+j*32,y:H-3*TILE,collected:false}); // Z6後半

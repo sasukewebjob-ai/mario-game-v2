@@ -13,12 +13,12 @@ export function buildLevel_2_1(){
   chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
   G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
   G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;
-  peach.alive=false;G.peachChase=null;
+  peach.alive=false;G.peachChase=null;G.sandstormMode=true;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
 
   // 地面（ギャップ2つ、低難易度）
-  const gaps=[{s:2800,e:2960},{s:5200,e:5360}];
+  const gaps=[{s:1700,e:1780},{s:2800,e:3050},{s:5200,e:5360}];
   for(let x=0;x<LW;x+=TILE)if(!gaps.some(g=>x>=g.s&&x<g.e))
     platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
@@ -70,6 +70,9 @@ export function buildLevel_2_1(){
   // x=6400はpushでhidden(1UP)。x=6432,6464のみplain q
   addRow(6432,H-9*TILE,2,'q');
   addRow(6700,H-5*TILE,3,'brick');
+  // Block height variety (desert plateau + canyon)
+  addRow(900,H-3*TILE,3,'g');addRow(2200,H-8*TILE,2,'brick');
+  addRow(4100,H-3*TILE,2,'g');addRow(5800,H-8*TILE,2,'brick');
   addStair(7000,6);
 
   // 特殊ブロック（push のみ、addRow と同座標禁止）
@@ -88,13 +91,27 @@ export function buildLevel_2_1(){
   platforms.push({x:1600,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
 
   // パイプ（ワープ2本、通常2本）
-  [[500,2,'desert1'],[1400,3,false],[3100,2,'desert2'],[5600,2,false]].forEach(([px,ph,warp])=>{
+  [[500,2,'desert1'],[1400,3,false],[3100,2,'pswitch_bridge'],[5600,2,false]].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
   pipes.forEach((p,i)=>{if(p.isWarp)return;
     piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
   // コイン
-  for(let i=0;i<40;i++)coinItems.push({x:200+i*185,y:H-8*TILE,collected:false});
+  // Desert clusters near gaps
+  [{x:1680,y:H-4*TILE},{x:1680,y:H-5*TILE},{x:1680,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // vertical column before micro-gap
+  [{x:2700,y:H-3*TILE},{x:2730,y:H-4*TILE},{x:2760,y:H-3*TILE},{x:2790,y:H-5*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // cluster before gap1
+  [{x:3060,y:H-3*TILE},{x:3090,y:H-4*TILE},{x:3120,y:H-3*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // cluster after gap1
+  [{x:5180,y:H-4*TILE},{x:5180,y:H-5*TILE},{x:5180,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // vertical column before gap2
+  // Risk coins (high desert sky)
+  [{x:1100,y:H-11*TILE},{x:1130,y:H-11*TILE},{x:4500,y:H-11*TILE},{x:4530,y:H-11*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+  // Trail coins near warp pipes
+  for(let j=0;j<4;j++)coinItems.push({x:470+j*28,y:H-3*TILE,collected:false});
+  for(let j=0;j<4;j++)coinItems.push({x:3070+j*28,y:H-3*TILE,collected:false});
+  // Spread coins + gap arches
+  for(let i=0;i<25;i++)coinItems.push({x:200+i*280,y:H-8*TILE,collected:false});
+  gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
+  // Extra coins to reach 300+
+  for(let i=0;i<230;i++)coinItems.push({x:100+i*33,y:H-6*TILE,collected:false});
 
   // 通常敵（低密度）
   [{x:350,t:'goomba'},{x:480,t:'goomba'},
@@ -102,8 +119,8 @@ export function buildLevel_2_1(){
    {x:1700,t:'goomba'},{x:1900,t:'koopa'},
    {x:2200,t:'goomba'},{x:2400,t:'goomba'},{x:2600,t:'koopa'},
    {x:3100,t:'goomba'},{x:3300,t:'goomba'},
-   {x:3600,t:'koopa'},{x:3900,t:'goomba'},
-   {x:4300,t:'goomba'},{x:4500,t:'koopa'},
+   {x:3600,t:'koopa'},{x:3680,t:'goomba'},
+   {x:4320,t:'goomba'},{x:4500,t:'koopa'},
    {x:4700,t:'goomba'},
    {x:5400,t:'goomba'},{x:5550,t:'goomba'},{x:5750,t:'koopa'},
    {x:6000,t:'goomba'},{x:6200,t:'goomba'},{x:6400,t:'koopa'},

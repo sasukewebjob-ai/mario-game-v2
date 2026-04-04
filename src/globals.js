@@ -51,8 +51,10 @@ export const G={
   weatherDrops:[],
   stageKills:0,stageMaxCombo:0,stageCoinsStart:0,
   totalKills:0,bgmMuted:false,bgmVolume:1.0,
-  coinMagnet:false,doubleCoin:false,doubleJump:false,doubleJumpUsed:false,
-  goldFlower:false,retryHeart:false,afterimages:[],
+  coinMagnet:false,doubleJump:false,doubleJumpUsed:false,
+  retryHeart:0,afterimages:[],
   darkMode:false,megaTimer:0,megaPrevPower:'none',megaPrevBig:false,
-  chasingWall:null,gravityFlipped:false
+  chasingWall:null,gravityFlipped:false,
+  sandstormMode:false,tideMode:false,tideLevel:450,
+  pswitchTimer:0,_psCoins:null,_psBricks:null
 };

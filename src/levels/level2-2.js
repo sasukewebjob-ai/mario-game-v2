@@ -13,12 +13,12 @@ export function buildLevel_2_2(){
   chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
   G.starTimer=0;G.combo=0;G.comboTimer=0;G.checkpointReached=false;
   G.checkpoint=null;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.autoScroll=0;
-  peach.alive=false;G.peachChase=null;
+  peach.alive=false;G.peachChase=null;G.sandstormMode=true;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
 
   // 地面（ギャップ3つ、2-1より難しめ）
-  const gaps=[{s:2400,e:2600},{s:4200,e:4400},{s:5900,e:6100}];
+  const gaps=[{s:2400,e:2480},{s:4200,e:4400},{s:5900,e:6200}];
   for(let x=0;x<LW;x+=TILE)if(!gaps.some(g=>x>=g.s&&x<g.e))
     platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
@@ -62,6 +62,9 @@ export function buildLevel_2_2(){
   // x=6400: hasMush（pushのみ）, x=6432-6464: addRow
   addRow(6432,H-8*TILE,2,'q');
   addRow(6700,H-5*TILE,4,'brick');
+  // Block height variety (desert)
+  addRow(500,H-3*TILE,2,'g');addRow(1400,H-8*TILE,2,'brick');
+  addRow(3100,H-3*TILE,3,'g');addRow(4900,H-8*TILE,2,'brick');
   addStair(7100,7);
 
   // 特殊ブロック（pushのみ、addRowと座標重複なし）
@@ -80,13 +83,27 @@ export function buildLevel_2_2(){
     piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
   // コイン
-  for(let i=0;i<45;i++)coinItems.push({x:180+i*168,y:H-8*TILE,collected:false});
+  // Desert clusters near gap edges
+  [{x:2300,y:H-3*TILE},{x:2330,y:H-4*TILE},{x:2360,y:H-3*TILE},{x:2390,y:H-5*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // cluster before gap1
+  [{x:4100,y:H-4*TILE},{x:4100,y:H-5*TILE},{x:4100,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // vertical column before gap2
+  [{x:4410,y:H-3*TILE},{x:4440,y:H-4*TILE},{x:4470,y:H-3*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // cluster after gap2
+  [{x:5880,y:H-4*TILE},{x:5880,y:H-5*TILE},{x:5880,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // vertical column before gap3
+  // Risk coins
+  [{x:1600,y:H-11*TILE},{x:1630,y:H-11*TILE},{x:3600,y:H-2*TILE},{x:3630,y:H-2*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+  // Trail coins near warp pipes
+  for(let j=0;j<4;j++)coinItems.push({x:770+j*28,y:H-3*TILE,collected:false});
+  for(let j=0;j<4;j++)coinItems.push({x:3770+j*28,y:H-3*TILE,collected:false});
+  // Spread coins + gap arches
+  for(let i=0;i<30;i++)coinItems.push({x:180+i*240,y:H-8*TILE,collected:false});
+  gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
+  // Extra coins to reach 300+
+  for(let i=0;i<230;i++)coinItems.push({x:100+i*34,y:H-6*TILE,collected:false});
 
   // 通常敵（2-1より密度高め）
   [{x:350,t:'goomba'},{x:500,t:'goomba'},{x:750,t:'koopa'},
    {x:1000,t:'goomba'},{x:1100,t:'goomba'},{x:1350,t:'koopa'},
    {x:1550,t:'goomba'},{x:1650,t:'goomba'},{x:1850,t:'koopa'},{x:2050,t:'goomba'},{x:2250,t:'goomba'},
-   {x:2700,t:'goomba'},{x:2800,t:'goomba'},{x:3000,t:'koopa'},{x:3250,t:'goomba'},{x:3300,t:'goomba'},{x:3550,t:'koopa'},{x:3900,t:'goomba'},{x:4050,t:'goomba'},
+   {x:2700,t:'goomba'},{x:2800,t:'goomba'},{x:3000,t:'koopa'},{x:3250,t:'goomba'},{x:3300,t:'goomba'},{x:3550,t:'koopa'},{x:3680,t:'goomba'},{x:4320,t:'goomba'},
    {x:4500,t:'goomba'},{x:4650,t:'goomba'},{x:4750,t:'koopa'},{x:5050,t:'goomba'},{x:5150,t:'goomba'},{x:5300,t:'koopa'},{x:5650,t:'goomba'},{x:5800,t:'goomba'},
    {x:6200,t:'goomba'},{x:6350,t:'goomba'},{x:6500,t:'koopa'},{x:6600,t:'goomba'},{x:6750,t:'goomba'},{x:6900,t:'koopa'},{x:7050,t:'goomba'}
   ].forEach(({x,t})=>{
@@ -95,8 +112,8 @@ export function buildLevel_2_2(){
   });
 
   // パラクーパ（26体、ランダムな高さ）
-  [200,500,850,1150,1450,1800,2200,2500,2800,3100,3400,3700,
-   4000,4300,4600,4900,5200,5500,5800,6100,6300,6500,6600,6700,6800,6950].forEach(x=>{
+  [200,500,850,1150,1450,1800,2200,2500,2800,3100,3400,3680,
+   4320,4500,4600,4900,5200,5500,5800,6100,6300,6500,6600,6700,6800,6950].forEach(x=>{
     const by=H-(4+Math.floor(Math.random()*4))*TILE;
     enemies.push({x,y:by,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:by,phase:Math.random()*Math.PI*2,shellTimer:0,walkFrame:0,walkTimer:0});
   });

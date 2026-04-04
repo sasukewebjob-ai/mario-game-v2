@@ -12,7 +12,7 @@ if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
 yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
 
 // Ground - 3 gaps (medium)
-const gaps=[{s:1800,e:1900},{s:3300,e:3460},{s:4300,e:4420},{s:5050,e:5210},{s:6500,e:6660}];
+const gaps=[{s:1800,e:1900},{s:2500,e:2580},{s:3300,e:3460},{s:4300,e:4520},{s:5050,e:5210},{s:6500,e:6660}];
 for(let x=0;x<LW;x+=TILE)if(!gaps.some(g=>x>=g.s&&x<g.e))platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
 // Zone 1
@@ -41,6 +41,9 @@ addRow(5600,H-8*TILE,2,'q');addRow(5700,H-5*TILE,2,'brick');
 addRow(5900,H-5*TILE,2,'q',true);addRow(6050,H-9*TILE,2,'brick');
 addRow(6200,H-5*TILE,3,'brick');addRow(6300,H-9*TILE,2,'q');
 addStair(6700,8);addRow(7000,H-5*TILE,2,'q');
+// Block height variety
+addRow(400,H-4*TILE,2,'brick');addRow(1800,H-6*TILE,3,'brick');
+addRow(3800,H-8*TILE,2,'q');addRow(5000,H-6*TILE,2,'brick');
 
 // Pipes
 [[700,2,false],[1400,3,'goomba'],[2200,2,false],[4050,3,'mushroom'],[5700,2,false],[6300,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
@@ -48,7 +51,21 @@ pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!war
 // Piranhas
 pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 // Coins
-for(let i=0;i<50;i++)coinItems.push({x:200+i*140,y:H-10*TILE,collected:false});
+// Clusters near gap edges
+[{x:1700,y:H-4*TILE},{x:1730,y:H-5*TILE},{x:1760,y:H-4*TILE},{x:1790,y:H-3*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+[{x:1910,y:H-3*TILE},{x:1940,y:H-4*TILE},{x:1970,y:H-3*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+// Vertical columns
+[{x:3200,y:H-4*TILE},{x:3200,y:H-5*TILE},{x:3200,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+[{x:5000,y:H-3*TILE},{x:5000,y:H-4*TILE},{x:5000,y:H-5*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+// Risk coins
+[{x:6000,y:H-2*TILE},{x:6050,y:H-2*TILE},{x:6100,y:H-11*TILE},{x:6150,y:H-11*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+// Trail coins near pipe
+for(let j=0;j<4;j++)coinItems.push({x:670+j*30,y:H-3*TILE,collected:false});
+// Spread coins + gap arches
+for(let i=0;i<30;i++)coinItems.push({x:200+i*230,y:H-10*TILE,collected:false});
+gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
+// Extra coins to reach 300+
+for(let i=0;i<220;i++)coinItems.push({x:120+i*34,y:H-6*TILE,collected:false});
 // Enemies
 [{x:300,t:'goomba'},{x:380,t:'goomba'},{x:420,t:'goomba'},{x:480,t:'koopa'},
 {x:550,t:'goomba'},{x:600,t:'buzzy'},{x:680,t:'koopa'},{x:780,t:'goomba'},{x:820,t:'goomba'},
@@ -58,10 +75,10 @@ for(let i=0;i<50;i++)coinItems.push({x:200+i*140,y:H-10*TILE,collected:false});
 {x:2050,t:'goomba'},{x:2100,t:'buzzy'},{x:2150,t:'koopa'},{x:2250,t:'goomba'},{x:2350,t:'koopa'},
 {x:2450,t:'buzzy'},{x:2550,t:'goomba'},{x:2650,t:'koopa'},{x:2750,t:'goomba'},{x:2800,t:'buzzy'},
 {x:2900,t:'koopa'},{x:3000,t:'goomba'},{x:3050,t:'goomba'},{x:3100,t:'buzzy'},
-{x:3200,t:'hammerBro'},{x:3500,t:'goomba'},{x:3550,t:'koopa'},
-{x:3600,t:'goomba'},{x:3700,t:'koopa'},{x:3800,t:'buzzy'},
-{x:3900,t:'goomba'},{x:3950,t:'goomba'},{x:4000,t:'koopa'},
-{x:4100,t:'buzzy'},{x:4150,t:'goomba'},{x:4250,t:'goomba'},
+{x:3200,t:'hammerBro'},{x:3480,t:'goomba'},{x:3400,t:'koopa'},
+{x:4120,t:'goomba'},{x:4220,t:'koopa'},{x:4320,t:'buzzy'},
+{x:4420,t:'goomba'},{x:4520,t:'goomba'},{x:4620,t:'koopa'},
+{x:4720,t:'buzzy'},{x:4150,t:'goomba'},{x:4250,t:'goomba'},
 {x:4500,t:'hammerBro'},{x:4600,t:'koopa'},{x:4650,t:'goomba'},{x:4750,t:'buzzy'},{x:4800,t:'koopa'},
 {x:4900,t:'goomba'},{x:4950,t:'goomba'},{x:5300,t:'buzzy'},{x:5350,t:'koopa'},{x:5400,t:'goomba'},
 {x:5500,t:'koopa'},{x:5550,t:'buzzy'},{x:5600,t:'goomba'},

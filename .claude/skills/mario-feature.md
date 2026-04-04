@@ -146,10 +146,12 @@ Object.assign(bowser, { alive:true, x:9000, state:'offscreen', ... });
 | ギミック | 設定 | 効果 |
 |---|---|---|
 | 暗闇 | `G.darkMode=true` | マリオ周囲のみスポットライト |
+| 砂嵐 | `G.sandstormMode=true` | 視界制限＋右風（W2用）|
+| 潮の満ち引き | `G.tideMode=true` | 水面が周期的に昇降（W3用）|
 | 重力反転 | `gravityZones.push({x,y,w,h})` | ゾーン内で重力反転 |
 | 風ゾーン | `windZones.push({x,y,w,h,force})` | 横風で押される（正=右、負=左）|
 | 追いかけ壁 | `G.chasingWall={x,speed,triggerX,active:false}` | 左から壁が迫る（触れたら即死）|
-| 巨大キノコ | `hasMega:true` ブロック | 8秒間巨大化・全破壊 |
+| 巨大キノコ | `hasMega:true` ブロック | 20秒巨大化・全破壊 |
 | ハンマースーツ | `hasHammer:true` ブロック | 放物線ハンマー・全敵タイプ撃破 |
 
 ### チェックポイント復帰時の挙動

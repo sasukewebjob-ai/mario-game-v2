@@ -33,8 +33,8 @@ export function buildLevel_8_2(){
   G.autoScroll=1.0;
   flagPole.x=LW+1000; // flagPole無効化
 
-  // 地面（船の甲板）
-  const gaps=[{s:900,e:1100},{s:2100,e:2350},{s:3500,e:3700},{s:4500,e:4700}];
+  // 地面（船の甲板：micro-gap at x=400、gap2拡大）
+  const gaps=[{s:400,e:480},{s:900,e:1100},{s:2100,e:2450},{s:3500,e:3700},{s:4500,e:4700}];
   for(let x=0;x<5500;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -60,6 +60,12 @@ export function buildLevel_8_2(){
   addRow(3750,H-5*TILE, 4,'brick'); // 3750-3878
   addRow(4000,H-7*TILE, 3,'brick'); // 4000-4096
   addRow(4200,H-5*TILE, 4,'brick'); // 4200-4328
+
+  // ── 甲板追加構造物（高度バリエーション）──
+  addRow(500, H-3*TILE, 2,'brick'); // 500-564（Ship A低層・micro-gap後）
+  addRow(1300,H-6*TILE, 2,'brick'); // 1300-1364（Ship B上層）
+  addRow(2500,H-6*TILE, 2,'brick'); // 2500-2564（Ship C上層）
+  addRow(3800,H-3*TILE, 2,'brick'); // 3800-3864（Ship D低層）
 
   // ── Landing (4700-5500): 着陸甲板 ──
   addRow(4750,H-5*TILE, 3,'brick'); // 4750-4846
@@ -97,7 +103,7 @@ export function buildLevel_8_2(){
 
   // ── 移動足場（ギャップ越え）──
   movingPlats.push({x: 950,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox: 950,range:55, spd:1.6,prevX: 950});
-  movingPlats.push({x:2150,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:2150,range:65, spd:1.8,prevX:2150});
+  movingPlats.push({x:2220,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:2220,range:80, spd:1.8,prevX:2220});
   movingPlats.push({x:3550,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:3550,range:55, spd:2.0,prevX:3550});
   movingPlats.push({x:4550,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:4550,range:60, spd:1.8,prevX:4550});
 
@@ -158,22 +164,31 @@ export function buildLevel_8_2(){
   });
 
   // ── コイン ──
-  // ① ギャップアーチ（各10枚 × 4 = 40枚）
-  [{s:900,e:1100},{s:2100,e:2350},{s:3500,e:3700},{s:4500,e:4700}].forEach(({s,e})=>{
+  // ① ギャップアーチ（micro-gap + gap2拡大に対応 = 5ギャップ）
+  [{s:400,e:480},{s:900,e:1100},{s:2100,e:2450},{s:3500,e:3700},{s:4500,e:4700}].forEach(({s,e})=>{
     for(let j=0;j<10;j++){const t=j/9;coinItems.push({x:s+t*(e-s)-8,y:H-4*TILE-Math.sin(t*Math.PI)*TILE*2,collected:false});}
   });
-  // ② 甲板上コイン
-  for(let j=0;j<10;j++) coinItems.push({x:100+j*80,  y:H-3*TILE,collected:false});  // Ship A
+  // ② 甲板上コイン（micro-gap分割を考慮）
+  for(let j=0;j<4;j++)  coinItems.push({x:100+j*70,  y:H-3*TILE,collected:false});  // Ship A前半(0-400)
+  for(let j=0;j<5;j++)  coinItems.push({x:500+j*76,  y:H-3*TILE,collected:false});  // Ship A後半(480-900)
   for(let j=0;j<12;j++) coinItems.push({x:1120+j*80, y:H-3*TILE,collected:false}); // Ship B
-  for(let j=0;j<14;j++) coinItems.push({x:2370+j*80, y:H-3*TILE,collected:false}); // Ship C
+  for(let j=0;j<13;j++) coinItems.push({x:2470+j*78, y:H-3*TILE,collected:false}); // Ship C(gap2拡大→開始位置調整)
   for(let j=0;j<10;j++) coinItems.push({x:3720+j*76, y:H-3*TILE,collected:false}); // Ship D
   for(let j=0;j<8;j++)  coinItems.push({x:4720+j*70, y:H-3*TILE,collected:false}); // Landing
-  // ③ ブロック上ライン
+  // ③ クラスター：ギャップ際コイン群（旧③の退屈ラインを一部置換）
+  // gap2(2100-2450)際：左端縦列
+  [2060,2070,2080].forEach(cx=>[H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 9枚
+  // gap3(3500-3700)際：右端クラスター
+  [3710,3720,3730].forEach(cx=>[H-2*TILE,H-3*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 6枚
+  // ③-b ブロック上ライン（残り）
   for(let j=0;j<8;j++)  coinItems.push({x:380+j*60,  y:H-7*TILE,collected:false});
   for(let j=0;j<10;j++) coinItems.push({x:1200+j*90, y:H-7*TILE,collected:false});
-  for(let j=0;j<12;j++) coinItems.push({x:2450+j*85, y:H-7*TILE,collected:false});
+  for(let j=0;j<12;j++) coinItems.push({x:2500+j*85, y:H-7*TILE,collected:false});
   for(let j=0;j<8;j++)  coinItems.push({x:3780+j*85, y:H-7*TILE,collected:false});
-  // ④ 高空コイン
+  // ④ 新ブロック層コイン
+  for(let j=0;j<2;j++) coinItems.push({x:1300+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
+  for(let j=0;j<2;j++) coinItems.push({x:2500+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
+  // ⑤ 高空コイン
   for(let j=0;j<6;j++)  coinItems.push({x:400+j*120, y:H-9*TILE,collected:false});
   for(let j=0;j<8;j++)  coinItems.push({x:1300+j*100,y:H-9*TILE,collected:false});
   for(let j=0;j<10;j++) coinItems.push({x:2500+j*100,y:H-9*TILE,collected:false});

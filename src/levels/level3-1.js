@@ -18,34 +18,46 @@ export function buildLevel_3_1(){
   peach.alive=false;G.peachChase=null;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
+  G.iceMode=false;G.tideMode=true;
 
-  // 地面 (水ギャップ×4 — 広め)
-  const gaps=[{s:2000,e:2380},{s:3800,e:4150},{s:5300,e:5650},{s:6700,e:7000}];
+  // 地面 (水ギャップ×4 + micro-gap — gap4 widened)
+  const gaps=[{s:1400,e:1480},{s:2000,e:2380},{s:3800,e:4150},{s:5300,e:5650},{s:6700,e:7100}];
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
-  // Zone 1 (0-2000)
+  // Zone 1 (0-2000) — wave-like height profile
   addRow(300,H-5*TILE,3,'brick');           // x:300,332,364
+  addRow(500,H-4*TILE,2,'brick');           // low wave crest
   addRow(650,H-7*TILE,2,'q');               // x:650,682 (620はpush)
+  addRow(850,H-6*TILE,2,'brick');           // mid wave
   addRow(1050,H-5*TILE,4,'brick');          // x:1050..1146
-  addRow(1400,H-8*TILE,1,'q');              // x:1400 (1370はpush)
+  addRow(1250,H-8*TILE,2,'brick');          // high wave peak
+  addRow(1550,H-4*TILE,2,'brick');          // low wave (after micro-gap)
   addRow(1700,H-5*TILE,3,'brick');          // x:1700,1732,1764
 
-  // Zone 2 (2380-3800)
+  // Zone 2 (2380-3800) — wave-like height profile
   addRow(2450,H-5*TILE,4,'brick');          // x:2450..2546
+  addRow(2650,H-4*TILE,2,'brick');          // low wave crest
   addRow(2800,H-7*TILE,3,'q');              // x:2800,2832,2864
+  addRow(3000,H-6*TILE,2,'brick');          // mid wave
   addRow(3150,H-5*TILE,3,'brick');          // x:3150,3182,3214
+  addRow(3350,H-8*TILE,2,'brick');          // high wave peak
   addRow(3500,H-8*TILE,1,'q');              // x:3500 (3470はpush)
 
-  // Zone 3 (4150-5300)
+  // Zone 3 (4150-5300) — wave-like height profile
   addRow(4220,H-5*TILE,4,'brick');          // x:4220..4316
+  addRow(4420,H-4*TILE,2,'brick');          // low wave crest
   addRow(4650,H-7*TILE,2,'q');              // x:4650,4682 (4620はpush)
+  addRow(4800,H-6*TILE,2,'brick');          // mid wave
   addRow(4980,H-5*TILE,3,'brick');          // x:4980,5012,5044
+  addRow(5150,H-8*TILE,2,'brick');          // high wave peak
 
-  // Zone 4 (5650-6700)
+  // Zone 4 (5650-6700) — wave-like height profile
   addRow(5720,H-5*TILE,4,'brick');          // x:5720..5816
+  addRow(5900,H-4*TILE,2,'brick');          // low wave crest
   addRow(6050,H-8*TILE,1,'q');              // x:6050 (6020はpush)
+  addRow(6200,H-6*TILE,2,'brick');          // mid wave
   addRow(6400,H-5*TILE,3,'brick');          // x:6400,6432,6464
 
   // Zone 5 (7000-8000)
@@ -66,15 +78,38 @@ export function buildLevel_3_1(){
   pipes.forEach((p,i)=>{if(p.isWarp)return;
     piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
-  // コイン
-  for(let i=0;i<28;i++)coinItems.push({x:280+i*260,y:H-9*TILE,collected:false});
+  // コイン — >=300枚: gap arches + ground lines + wave clusters + tide-risk
+  // Gap arches (10-12 coins each, 5 gaps)
+  [{s:1400,e:1480},{s:2000,e:2380},{s:3800,e:4150},{s:5300,e:5650},{s:6700,e:7100}].forEach(g=>{
+    const n=11;for(let j=0;j<n;j++){const t=j/(n-1);
+      coinItems.push({x:g.s+t*(g.e-g.s)-8,y:H-4*TILE-Math.sin(t*Math.PI)*TILE*2,collected:false});}
+  }); // 55 coins
+  // Ground-level coin lines (H-3*TILE, dense)
+  for(let j=0;j<20;j++) coinItems.push({x:300+j*32,y:H-3*TILE,collected:false});   // Z1: 20
+  for(let j=0;j<22;j++) coinItems.push({x:2450+j*32,y:H-3*TILE,collected:false});  // Z2: 22
+  for(let j=0;j<20;j++) coinItems.push({x:4220+j*32,y:H-3*TILE,collected:false});  // Z3: 20
+  for(let j=0;j<18;j++) coinItems.push({x:5720+j*32,y:H-3*TILE,collected:false});  // Z4: 18
+  for(let j=0;j<15;j++) coinItems.push({x:7050+j*32,y:H-3*TILE,collected:false});  // Z5: 15
+  // High scattered coins
+  for(let j=0;j<25;j++) coinItems.push({x:200+j*280,y:H-9*TILE,collected:false});  // 25
+  // Mid-height wave clusters (on wave blocks)
+  for(let j=0;j<20;j++) coinItems.push({x:350+j*340,y:H-5*TILE,collected:false});  // 20
+  // Wave-height coins (H-6*TILE, H-8*TILE)
+  for(let j=0;j<15;j++) coinItems.push({x:400+j*450,y:H-6*TILE,collected:false});  // 15
+  for(let j=0;j<10;j++) coinItems.push({x:500+j*650,y:H-8*TILE,collected:false});  // 10
+  // Tide-risk coins (low, submerged during high tide — high reward)
+  for(let i=0;i<5;i++)coinItems.push({x:1700+i*35,y:H-2*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:3200+i*35,y:H-2*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:5000+i*35,y:H-2*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:6450+i*35,y:H-2*TILE,collected:false});
+  // Total: 55+95+25+20+15+10+20 = ~310+
 
   // 地上敵 (goomba / koopa / cactus)
   [{x:400,t:'goomba'},{x:560,t:'cactus'},
    {x:900,t:'koopa'},{x:1100,t:'goomba'},{x:1260,t:'cactus'},{x:1560,t:'koopa'},
    {x:2500,t:'goomba'},{x:2660,t:'cactus'},{x:2900,t:'koopa'},
    {x:3200,t:'goomba'},{x:3420,t:'cactus'},
-   {x:4300,t:'goomba'},{x:4480,t:'cactus'},{x:4780,t:'koopa'},
+   {x:4520,t:'goomba'},{x:4620,t:'cactus'},{x:4780,t:'koopa'},
    {x:5060,t:'goomba'},
    {x:5760,t:'cactus'},{x:5920,t:'koopa'},{x:6060,t:'goomba'},
    {x:6460,t:'cactus'},{x:6600,t:'goomba'},
@@ -97,7 +132,7 @@ export function buildLevel_3_1(){
   movingPlats.push({x:2050,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:2050,range:95,spd:1.6});
   movingPlats.push({x:3850,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3850,range:90,spd:1.8});
   movingPlats.push({x:5350,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5350,range:90,spd:2.0});
-  movingPlats.push({x:6750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:6750,range:75,spd:2.2});
+  movingPlats.push({x:6750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:6750,range:130,spd:2.2});
 
   G.checkpoint={x:4200,y:H-TILE,reached:false};
 

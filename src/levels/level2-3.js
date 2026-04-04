@@ -16,9 +16,10 @@ export function buildLevel_2_3(){
   peach.alive=false;G.peachChase=null;
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
+  G.iceMode=false;G.sandstormMode=true;
 
-  // 地面（溶岩ピット3つ）
-  const gaps=[{s:1600,e:1820},{s:3000,e:3220},{s:4800,e:5020}];
+  // 地面（溶岩ピット3つ — gap2を100px拡大）
+  const gaps=[{s:1600,e:1820},{s:3000,e:3320},{s:4800,e:5020}];
   for(let x=0;x<LW;x+=TILE)if(!gaps.some(g=>x>=g.s&&x<g.e))
     platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
@@ -30,23 +31,29 @@ export function buildLevel_2_3(){
   addRow(1100,H-5*TILE,5,'brick');
   addRow(1400,H-7*TILE,3,'brick');
 
-  // Zone 2 (1820-3000)
+  // Zone 2 (1820-3000) — castle variety blocks at H-4*TILE, H-6*TILE
   addRow(1870,H-5*TILE,4,'brick');
   addRow(1870,H-9*TILE,3,'q');
+  addRow(2100,H-4*TILE,3,'brick');          // low stepping stones
   addRow(2250,H-7*TILE,3,'brick');
   addRow(2550,H-5*TILE,5,'brick');
+  addRow(2750,H-6*TILE,2,'brick');          // mid-height perch
 
-  // Zone 3 (3220-4800)
-  addRow(3270,H-5*TILE,4,'brick');
-  addRow(3270,H-9*TILE,3,'q');
+  // Zone 3 (3320-4800) — gap2 widened, zone shifted
+  addRow(3370,H-5*TILE,4,'brick');
+  addRow(3370,H-9*TILE,3,'q');
   addRow(3700,H-7*TILE,3,'brick');
+  addRow(3900,H-4*TILE,2,'brick');          // low castle ledge
   addRow(4050,H-5*TILE,4,'brick');
+  addRow(4250,H-6*TILE,3,'brick');          // mid-height castle ledge
   addRow(4450,H-7*TILE,3,'brick');
 
   // Zone 4 (5020-7500)
   addRow(5050,H-5*TILE,4,'brick');
   addRow(5050,H-9*TILE,3,'q');
+  addRow(5250,H-6*TILE,2,'brick');          // mid-height castle ledge
   addRow(5450,H-7*TILE,3,'brick');
+  addRow(5600,H-4*TILE,2,'brick');          // low stepping stones
   addRow(5750,H-5*TILE,4,'brick');
   // 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
   addStair(6000,10);
@@ -69,18 +76,24 @@ export function buildLevel_2_3(){
   pipes.forEach((p,i)=>{
     piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
-  // コイン
-  for(let i=0;i<18;i++)coinItems.push({x:350+i*330,y:H-9*TILE,collected:false});
+  // コイン — risk coins near lava pits + safe arches
+  // Safe coin lines
+  for(let i=0;i<8;i++)coinItems.push({x:350+i*180,y:H-9*TILE,collected:false});
+  for(let i=0;i<6;i++)coinItems.push({x:3400+i*200,y:H-9*TILE,collected:false});
+  // Risk coins hovering over lava pit edges (high reward, near flames)
+  for(let i=0;i<4;i++)coinItems.push({x:1620+i*50,y:H-3*TILE,collected:false});
+  for(let i=0;i<5;i++)coinItems.push({x:3020+i*55,y:H-3*TILE,collected:false});
+  for(let i=0;i<4;i++)coinItems.push({x:4820+i*50,y:H-3*TILE,collected:false});
 
   // 通常敵
   [{x:620,t:'goomba'},{x:880,t:'koopa'},
    {x:1100,t:'goomba'},{x:1250,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},
    {x:1900,t:'koopa'},{x:2050,t:'goomba'},{x:2200,t:'goomba'},{x:2400,t:'koopa'},
    {x:2600,t:'goomba'},{x:2700,t:'hammerBro'},
-   {x:3350,t:'koopa'},{x:3500,t:'goomba'},{x:3650,t:'goomba'},
+   {x:3180,t:'koopa'},{x:3820,t:'goomba'},{x:3920,t:'goomba'},
    {x:4100,t:'goomba'},{x:4200,t:'koopa'},{x:4350,t:'hammerBro'},{x:4600,t:'goomba'},
    {x:5100,t:'koopa'},{x:5250,t:'goomba'},{x:5400,t:'goomba'},
-   {x:5950,t:'koopa'},{x:6100,t:'goomba'}
+   {x:5530,t:'koopa'},{x:6170,t:'goomba'}
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -103,7 +116,7 @@ export function buildLevel_2_3(){
   // 移動足場（溶岩ピット越え）
   movingPlats.push(
     {x:1660,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:1660,range:80,spd:1.5},
-    {x:3060,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3060,range:90,spd:1.7},
+    {x:3060,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3060,range:130,spd:1.7},
     {x:4860,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:4860,range:90,spd:1.9}
   );
 

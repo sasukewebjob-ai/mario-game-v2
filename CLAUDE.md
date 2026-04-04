@@ -244,9 +244,9 @@ G.bowserLeftX  = wallX + 64 + 2;       // 壁右端+余裕
 | ワールド | バリアント名 |
 |---|---|
 | 1 | `coin`, `goomba`, `mushroom` |
-| 2 | `desert1`〜`desert4` |
+| 2 | `desert1`〜`desert4`, `pswitch_bridge` |
 | 3 | `river1`, `river2`, `forest1`, `forest2` |
-| 5 | `water1`〜`water4` |
+| 5 | `water1`〜`water4`, `pswitch_wall` |
 | 6 | `ice1`〜`ice4` |
 | 7 | `fortress1`〜`fortress4` |
 | 8 | `airship_goal1`, `airship_goal2`, `bowser_final` |
@@ -276,18 +276,20 @@ G.checkpoint2={x:bowserArenaX-400, y:H-TILE, reached:false};
 
 ## コインショップ価格
 
-| アイテム | 価格 | 効果 |
-|---------|------|------|
-| MUSHROOM | 30 | デカマリオ |
-| FIRE | 60 | ファイアマリオ |
-| 1UP | 50 | 残機+1 |
-| 1UP SET | 120 | 残機+3 |
-| **MAGNET** | **200** | コイン吸引 |
-| STAR 10s | 100 | 10秒無敵 |
-| STAR 30s | 250 | 30秒無敵 |
-| W-JUMP | 150 | 空中2段ジャンプ |
-| GOLD | 200 | 敵→コイン化 |
-| RETRY | 300 | 死亡時その場復活 |
+| アイテム | 価格 | 効果 | 複数購入 |
+|---------|------|------|---------|
+| MUSHROOM | 30 | デカマリオ | × |
+| FIRE | 60 | ファイアマリオ | × |
+| ICE | 60 | アイスマリオ | × |
+| HAMMER | 80 | ハンマーマリオ | × |
+| 1UP | 100 | 残機+1 | ○ |
+| 1UP x3 | 200 | 残機+3 | ○ |
+| STAR 10s | 50 | 10秒無敵（重ね可） | ○ |
+| STAR 30s | 500 | 30秒無敵（重ね可） | ○ |
+| W-JUMP | 150 | 2段ジャンプ（死ぬまで継続） | ○ |
+| MAGNET | 300 | コイン吸引（死ぬまで継続） | ○ |
+| RETRY | 100 | 死亡時復活（重ね可） | ○ |
+| 1UP x6 | 280 | 残機+6 お得! | ○ |
 
 ---
 
@@ -308,6 +310,16 @@ pipos.length=0;       pipos.push(...(G.savedOW.pipos||[]));
 ```
 
 **新しく `G.savedOW` に保存が必要な配列を追加したときも同様に対応すること。**
+
+## タイムアウトで残機全滅するバグ（修正済み）
+
+タイムアウト（TIME=0）時に `killMario()` (force=false) を使っていたため、
+star/inv/パワーアップの保護チェーンで死なず、タイマーがマイナスになっても毎秒 killMario が呼ばれ続けて
+保護が切れた瞬間に全ライフ分の死亡が発生していた。
+
+**修正内容：**
+- `clearInterval(G.timerTick)` でタイマー停止 → `killMario(true)` で確実に1回だけ死亡
+- 全てのtimerTick生成箇所（intro開始時 + チェックポイント復帰時）を修正
 
 ## 移動足場（ワンウェイプラットフォーム）
 
@@ -581,11 +593,13 @@ enemies.push({
   activated: true   // ← 必須！設定しないとカメラ外で即活性にならない
 });
 ```
-- **動作**: マリオが**背を向けている**方向にテレサがいると追跡。正面を向くと隠れる（透明化）。重力なし、浮遊移動
+- **動作**: マリオが**背を向けている**とテレサが背後から追跡。マリオが**正面を向く**とテレサは隠れて停止
 - **速度**: 追跡速度 `_ts=1.05`（※旧1.5から30%減済み）
-- **撃破条件**: スターのみ（踏みつけ不可・ファイアボール免疫）
-- **隠れ判定**: `!_mFacingBoo` のとき hiding=true → 衝突無効（マリオが背を向けているとき隠れる）
+- **撃破条件**: スター / ハンマーのみ（踏みつけ不可・ファイアボール・アイスボール免疫）
+- **隠れ判定**: `_mFacingBoo` = `(facing===1&&_tdx<0)||(facing===-1&&_tdx>0)` → マリオがテレサの方を向いている → hiding=true、衝突無効
+- **隠れ/追跡距離**: 両方500px（旧: 隠れ320/追跡500でギャップがあり向きに関係なく追ってくるバグがあった）
 - **配置**: ギャップ内でも配置可（浮遊するため落下しない）
+- **⚠️ 過去バグ**: `_tdx=mario.x-teresa.x`なのでテレサが右なら_tdx<0。facing===1のとき`_tdx>0`で判定すると符号が逆になる
 
 ### ドッスン（type:'thwomp'）仕様
 ```javascript
@@ -672,18 +686,12 @@ underground.js の `bowser_final` バリアントで:
 
 ## コイン消費ショップ
 
-ステージクリア後（flagPole / pipeGoal）にショップ画面（`G.state='shop'`）が表示される。
+ステージクリア後（flagPole / pipeGoal / **ボス撃破後**）にショップ画面（`G.state='shop'`）が表示される。
 
-| アイテム | 価格 | 効果 |
-|---------|------|------|
-| きのこ | 50コイン | 次ステージをデカマリオで開始 |
-| スター | 100コイン | 次ステージ開始時10秒間無敵（starTimer=600） |
-| 1UP | 30コイン | 残機+1（何度でも購入可） |
-
-- **操作**: ←→選択、Space購入、Enter次ステージ
-- きのこ/スターは1回のショップで各1個まで（SOLDと表示）
-- ボス撃破後（peachChase）はショップを経由しない
-- `G.shopBought` で購入状態を管理、ステージロード時に適用
+- **操作**: ←→↑↓選択、A/Space購入、B/ESCキャンセル、START/Enter次ステージ
+- ゲームパッド接続時は「A:購入 B:キャンセル START:次へ」と表示
+- `_SHOP_ITEMS` 配列と `_SINGLE_ONLY` セットで購入ロジックを管理
+- `_gpShopBuy()` / `_gpShopNext()` が共通関数（キーボード・ゲームパッド両対応）
 
 ---
 
@@ -751,22 +759,28 @@ Phase2遷移時に `stopBGM(); startBGM();` でBGMを再起動。
 
 | アイテム | 価格 | key | 効果 | 複数購入 |
 |---------|------|-----|------|---------|
-| きのこ | 30 | mushroom | デカマリオで開始 | × |
-| ファイア | 60 | fire | ファイアマリオで開始 | × |
-| 1UP | 50 | 1up | 残機+1 | ○ |
-| 1UPセット | 120 | 1upSet | 残機+3（お得） | ○ |
-| コイン磁石 | 40 | magnet | 半径150px内のコイン吸引 | × |
-| スター10秒 | 100 | star10 | 10秒無敵（starTimer=600） | × |
-| スター30秒 | 250 | star30 | 30秒無敵（starTimer=1800） | × |
-| ダブルジャンプ | 150 | doubleJump | 空中で2段ジャンプ可能 | × |
-| ゴールドフラワー | 200 | goldFlower | 敵を倒すとコイン+5 | × |
-| リトライハート | 300 | retryHeart | 死亡時その場で1回復活 | × |
+| きのこ | 30 | mushroom | デカマリオで開始 | × (SOLD) |
+| ファイア | 60 | fire | ファイアマリオで開始 | × (SOLD) |
+| アイス | 60 | ice | アイスマリオで開始 | × (SOLD) |
+| ハンマー | 80 | hammer | ハンマーマリオで開始 | × (SOLD) |
+| 1UP | 100 | 1up | 残機+1 | ○ |
+| 1UP x3 | 200 | 1upSet | 残機+3 | ○ |
+| スター10秒 | 50 | star10 | 10秒無敵（重ね可） | ○ |
+| スター30秒 | 500 | star30 | 30秒無敵（重ね可） | ○ |
+| W-JUMP | 150 | doubleJump | 空中2段ジャンプ（死ぬまで） | ○ |
+| MAGNET | 300 | magnet | コイン吸引（死ぬまで） | ○ |
+| RETRY | 100 | retryHeart | 死亡時復活（重ね可） | ○ |
+| 1UP x6 | 280 | 1upSet6 | 残機+6 お得! | ○ |
 
-- **2段5列レイアウト**、↑↓←→で選択、Space購入、Enter次ステージ
-- fire > mushroom の優先度（両方買った場合fireが適用）
-- **死亡時に特殊効果は全てリセット**（coinMagnet, doubleJump, goldFlower, retryHeart）
-- リトライハートは `killMario()` 内で消費（死亡回避→inv=180で復活）
-- アクティブ効果は画面右下にアイコンで表示
+- **2段6列レイアウト**、↑↓←→で選択
+- `_SINGLE_ONLY` = mushroom, fire, ice, hammer のみ1回購入制限
+- それ以外は何度でも購入可能（カウント表示）
+- fire > ice > mushroom の優先度（複数買った場合上位が適用）
+- **効果の持続**: W-JUMP, MAGNET, RETRY はステージ跨ぎで継続、**死亡時にリセット**
+- **スター**: 購入数 × 秒数を加算（star10を2個買えば20秒）
+- **リトライ**: G.retryHeart は数値（購入数=復活回数）、`killMario()` で1消費
+- アクティブ効果（W-JUMP/MAGNET/RETRY）は画面右下にテキスト表示
+- ショップ画面内にもアクティブ効果を「ACTIVE:」行で表示
 
 ---
 
@@ -839,9 +853,171 @@ platforms.push({x, y, w:TILE, h:TILE, type:'question', hit:false, hasMega:true, 
 platforms.push({x, y, w:TILE, h:TILE, type:'question', hit:false, hasHammer:true, bounceOffset:0});
 ```
 
+## killMario(force) の仕様
+
+```javascript
+killMario()        // 通常: star/inv/ヨッシー/パワーアップ/リトライハート保護あり
+killMario(true)    // 強制: 全保護スキップ（穴落下・タイムアウト・追いかけ壁）
+```
+
+### 保護チェーン（force=false のとき順にチェック）
+1. `starTimer>0 || mario.inv>0` → 何もしない
+2. `yoshi.mounted` → ヨッシー逃走（dismountYoshi）、mario.inv=120
+3. `megaTimer>0` → メガ解除、mario.inv=120
+4. `power==='fire'|'ice'|'hammer'` → power='big'、mario.inv=120
+5. `power==='big'` → power='none'、big=false、mario.inv=120
+6. `retryHeart>0` → retryHeart--、その場復活（mario.inv=180）
+7. 上記すべて不成立 → **実際の死亡**（lives--）
+
+### タイムアウト（TIME=0）
+- `clearInterval(G.timerTick)` → `killMario(true)` で**確実に1回死亡**
+- パワーアップ/スター/リトライハートの保護を全スキップ
+- 死亡後はチェックポイント or ステージ最初から再開（通常死亡と同じ）
+- タイムは復帰時に400にリセット
+- ⚠️ `killMario()` (force=false) をタイムアウトに使うと、inv>0 で弾かれて死なないバグが再発する
+
+### 死亡時のリセット
+- 特殊効果: `G.coinMagnet=false; G.doubleJump=false; G.retryHeart=0;`
+- ステージ跨ぎで継続する効果も**死亡で全リセット**
+
+---
+
+## 砂嵐モード（G.sandstormMode）- W2専用
+
+W2（砂漠）の全ステージで有効。レベルファイルで `G.sandstormMode=true` を設定。
+- **視覚**: 茶色半透明オーバーレイ（脈動）+ 砂パーティクル40個（右方向）+ 突風時の砂煙帯
+- **物理**: 毎フレーム微小な右方向の力 `mario.vx += sin(frame*0.01)*0.5+0.3 * 0.04`
+- リセット: 全リセットポイントで `G.sandstormMode=false`
+
+## 潮モード（G.tideMode）- W3専用
+
+W3（海辺）の通常ステージで有効（城ステージは室内なのでなし）。`G.tideMode=true` を設定。
+- **潮位**: `G.tideLevel = H-TILE + (cos(frame*0.005)-1)*TILE*2` → H-TILE（干潮）〜H-5*TILE（満潮）を約21秒周期で往復
+- **物理**: マリオが水面下のとき落下速度×0.88、最大落下4、微浮力-0.08
+- **視覚**: 青半透明オーバーレイ（水面下）+ 波線アニメ + 泡パーティクル
+- リセット: `G.tideMode=false;G.tideLevel=H`
+
+## Pスイッチ（G.pswitchTimer）
+
+ステージ内に配置された青い「P」ブロックを叩く/踏むと発動。10秒間、レンガ↔コイン変換が起こる。
+
+### 基本仕様
+- **発動**: hitBlock（下から叩く）または踏みつけ（上から着地）で起動
+- **持続時間**: 600フレーム（10秒）
+- **効果**: レンガブロック（未ヒット）→ 回収可能なコインに変化、未回収コイン → 固い足場ブロック（pswitch_block）に変化
+- **終了時**: 未回収のコインレンガは元のレンガに復帰、固まったコインは元のコインに復帰
+- **BGM**: 発動中は専用BGM（PSWITCH_NOTES）に切り替わる（starTimer より低優先、waterMode より高優先）
+- **残り3秒**: ティック音（pswitch_tick）が30フレーム毎に鳴る
+- **タイマーUI**: 画面上部中央に青いバー + 残り秒数表示。残り3秒で赤点滅
+
+### 実装構造
+```javascript
+// globals.js
+G.pswitchTimer: 0,   // 残りフレーム数（0=非アクティブ）
+G._psCoins: null,    // レンガから変化したコインアイテム配列
+G._psBricks: null,   // コインから変化した元コイン参照配列
+
+// main.js
+activatePSwitch(p)   // Pスイッチ起動（レンガ除去→_psCoins化、コイン非表示→pswitch_block足場追加）
+deactivatePSwitch()  // Pスイッチ終了（_psCoins→レンガ復帰、pswitch_block除去→コイン復帰）
+```
+
+### ブロックタイプ
+| type | 説明 |
+|------|------|
+| `pswitch` | Pスイッチブロック。青い「P」表示。hit=true で押下状態（薄くなる） |
+| `pswitch_block` | Pスイッチ中にコインから変化した一時足場。青い半透明ブロック。`_psTemp:true` マーク付き |
+| `pswitch_used` | 使用済みPスイッチ（activatePSwitch内でtypeを変更） |
+
+### レベルファイルでの配置
+```javascript
+// Pスイッチブロックを配置（?ブロックのように1個ずつpushで）
+platforms.push({x:128, y:H-5*TILE, w:TILE, h:TILE, type:'pswitch', hit:false, bounceOffset:0});
+```
+
+### 地下Pスイッチパズルバリアント
+
+| variant | 名前 | パズル内容 |
+|---------|------|-----------|
+| `pswitch_bridge` | ブリッジ | ギャップの上にコインが並ぶ → Pスイッチで足場化 → 渡って出口へ |
+| `pswitch_wall` | ウォール | レンガ壁が出口を塞ぐ → Pスイッチでコイン化 → 回収して通過 |
+
+### リセット・遷移時の処理
+- `startFromStage()` / `restartCurrentLevel()`: `G.pswitchTimer=0; G._psCoins=null; G._psBricks=null;`
+- `enterUnderground()`: Pスイッチ発動中なら `deactivatePSwitch()` してから savedOW 保存
+- `exitUnderground()`: Pスイッチ状態をクリア（地下のPスイッチ効果は地上に持ち込まない）
+
+### scheduleBGM 優先順位（更新後）
+```
+G.ugMode > G.starTimer > G.pswitchTimer > G.waterMode > castle > THEME_NOTES
+```
+
+### 配置済みステージ
+| ステージ | パイプvariant | パズル |
+|---------|-------------|--------|
+| 2-1 | `pswitch_bridge` | コイン橋渡し |
+| 5-1 | `pswitch_wall` | レンガ壁突破 |
+
+## レベルデザイン改善（v2大規模改修）
+
+### ブロック高さバリエーション
+全24ステージで H-5*TILE / H-7*TILE の2パターンだけでなく、
+H-3*TILE, H-4*TILE, H-6*TILE, H-8*TILE, H-10*TILE を使用。
+各ワールドで「地形プロファイル」が異なる：
+- W1: 緩やかな丘（H-4T, H-6T）
+- W2: 砂漠台地と渓谷（H-3T, H-8T）
+- W3: 波のような高低差（H-4T, H-6T, H-8T）
+- W4: 山岳の極端な高低差（H-3T, H-8T）
+- W5: 水中棚（H-4T, H-6T, H-8T）
+- W6: 氷棚（H-4T, H-8T, H-10T）
+- W7: ダンジョン層（H-4T, H-6T, H-8T）
+- W8: 船甲板（H-3T, H-6T, H-8T）
+
+### ギャップサイズの緩急
+- 各ステージにマイクロギャップ（60-96px）を1つ追加
+- 既存ギャップの1つを80-150px拡張
+- 隣接するギャップのサイズが異なるよう配慮
+
+### コイン配置の多様化
+従来の一直線パターン（`for(j) push({x:START+j*SPACING, y:固定})`）を廃止し：
+- **クラスター**: ギャップ際に3-5枚（リスク/リワード）
+- **縦列**: 同x座標にy=H-3T〜H-5Tの3枚スタック
+- **リスクコイン**: H-2*TILE（超低空）やH-10T/H-11*TILE（超高空）
+- **ご褒美コイン**: 新ブロック層の上に少数配置
+- ギャップアーチ（sin()パターン）は維持
+
+## ゲームパッド対応（実装済み）
+
+iBUFFALO Classic USB Gamepad 等のSNES型USBコントローラーに対応。
+`main.js` の `pollGamepad()` でGamepad APIをフレーム毎にポーリング。
+
+### ボタンマッピング
+| ボタン | ゲーム操作 | gpad プロパティ |
+|--------|-----------|----------------|
+| 十字キー | 移動/ヒップドロップ(↓) | gpad.left/right/up/down |
+| B (底面) | ダッシュ | gpad.b (buttons[0]) |
+| A (右) | ジャンプ | gpad.a (buttons[1]) |
+| Y (左) | ファイア/アイス/ハンマー | gpad.y (buttons[2]) |
+| X (上) | ヨッシーの舌/卵 | gpad.x (buttons[3]) |
+| START | 開始/ポーズ/次ステージ | gpad.start (buttons[7]) |
+| SELECT | - | gpad.select (buttons[6]) |
+| L | 音量ダウン | gpad.l (buttons[4]) |
+| R | 音量アップ | gpad.r (buttons[5]) |
+
+### 実装構造
+- `gpad` オブジェクト: ゲームパッドのボタン状態（毎フレーム更新）
+- `_gpPrev` オブジェクト: 前フレームの状態（just-pressed検出用）
+- 継続入力: `btn.left||gpad.left` 等で既存チェックにOR追加
+- イベント入力: `pollGamepad()` 内で `jp()` ヘルパーでjust-pressed検出、各stateごとにアクション発火
+- ショップロジック: `_gpShopBuy()`, `_gpShopNext()` に共通化（キーボードも同関数を使用）
+
+### ボタンマッピング変更方法
+`main.js` の `pollGamepad()` 内で `gp.buttons[N]` のインデックスを変更する。
+iBUFFALOが別のマッピングで認識された場合、buttons[0]〜[3] の割り当てを入れ替える。
+
 ## 実装予定（TODO）
 
-- **ゲームパッド対応**: Gamepad API (`navigator.getGamepads()`) を使い、USB/Bluetooth コントローラー（Xbox/PS/Switch Pro等）での操作に対応する。`main.js` の入力処理にポーリングを追加する形で実装予定。
+- なし（現時点）
 
 ---
 

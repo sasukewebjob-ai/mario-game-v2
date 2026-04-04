@@ -19,7 +19,7 @@ export function buildLevel_5_3(){
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
 
   // 地面（溶岩穴3か所）
-  const gaps=[{s:2000,e:2220},{s:3700,e:3920},{s:5400,e:5630}];
+  const gaps=[{s:2000,e:2320},{s:3700,e:3920},{s:5400,e:5630}]; // ★ gap1 widened by 100px
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -45,6 +45,12 @@ export function buildLevel_5_3(){
   addRow(6100,H-7*TILE, 3,'brick');
   addRow(6400,H-5*TILE, 4,'brick');
 
+  // ★ Block Height Variety
+  addRow(500, H-4*TILE, 3,'brick');   // 前半 低空
+  addRow(1500,H-6*TILE, 3,'brick');   // 前半 中空
+  addRow(3500,H-4*TILE, 3,'brick');   // 中盤 低空
+  addRow(5000,H-6*TILE, 3,'brick');   // 後半 中空
+
   // 大型上り階段（10段）— クッパアリーナへ
   addStair(6600,10);
 
@@ -65,9 +71,9 @@ export function buildLevel_5_3(){
   // 敵
   [{x:700, t:'koopa'},{x:950, t:'goomba'},{x:1300,t:'koopa'},
    {x:1550,t:'goomba'},{x:2350,t:'koopa'},{x:2600,t:'goomba'},
-   {x:2850,t:'koopa'},{x:3150,t:'goomba'},{x:4050,t:'koopa'},
+   {x:2850,t:'koopa'},{x:3150,t:'goomba'},{x:4320,t:'koopa'},
    {x:4350,t:'goomba'},{x:4600,t:'koopa'},{x:4850,t:'goomba'},
-   {x:5750,t:'koopa'},{x:6000,t:'goomba'},{x:6250,t:'koopa'}
+   {x:5750,t:'koopa'},{x:6000,t:'goomba'},{x:6770,t:'koopa'}
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba') e={x,y:H-2*TILE,w:TILE,h:TILE,       vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -112,8 +118,16 @@ export function buildLevel_5_3(){
   // ワンワン（1体）
   chainChomps.push({x:5000,y:H-TILE-36,w:36,h:36,postX:5000,postY:H-TILE-36,vx:0,vy:0,phase:0,state:'idle',lungeTimer:0,alive:true});
 
-  // コイン
-  for(let i=0;i<20;i++) coinItems.push({x:350+i*320,y:H-9*TILE,collected:false});
+  // コイン（クラスター + 縦列 + リスクコイン）
+  // ★ Coin Clusters near gap edges
+  [2010,2040,2080,2120,2160].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  [3710,3740,3770,3810,3850].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  [5410,5450,5490,5530,5570].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  // Vertical columns
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:800,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:2600,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:4300,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:5900,y:cy,collected:false}));
 
   // チェックポイント
   G.checkpoint={x:4000,y:H-TILE,reached:false};

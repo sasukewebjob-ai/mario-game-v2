@@ -8,7 +8,7 @@ import {addB,addRow,addStair} from '../builders.js';
 // 8-3: 氷の魔王城 (Frozen Demon Castle)
 // 氷ブロック城・テレサ×4・ドッスン×3・ハンマーブロス×2・キャノン×4
 // ワープパイプ→クッパHP=7最終決戦
-// Ground zones: Z1=0-2000, Z2=2300-3800, Z3=4100-5600, Z4=5900-LW
+// Ground zones: Z1=0-2000, Z2=2300-3800, Z3=4100-5600, Z4=6000-LW
 export function buildLevel_8_3(){
   [platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
    particles,scorePopups,blockAnims,movingPlats,springs,cannons,
@@ -25,8 +25,8 @@ export function buildLevel_8_3(){
   G.iceMode=true;  // 氷モード ON
   flagPole.x=LW+1000; // flagPole無効化（ワープパイプ→クッパ部屋）
 
-  // 地面（氷の城床）
-  const gaps=[{s:2000,e:2300},{s:3800,e:4100},{s:5600,e:5900}];
+  // 地面（氷の城床：gap3を拡大=最終チャレンジ）
+  const gaps=[{s:2000,e:2300},{s:3800,e:4100},{s:5600,e:6000}];
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -62,12 +62,18 @@ export function buildLevel_8_3(){
   addRow(5100,H-7*TILE, 3,'brick'); // 5100-5196
   addRow(5350,H-5*TILE, 3,'brick'); // 5350-5446
 
+  // ── 氷城追加構造物（高度バリエーション）──
+  addRow(1300, H-4*TILE, 3,'brick'); // 1300-1396（Z1内・低層）
+  addRow(2700, H-6*TILE, 2,'brick'); // 2700-2764（Z2内・中層。既存2600 H-7Tと干渉なし）
+  addRow(4700, H-8*TILE, 2,'brick'); // 4700-4764（Z3内・上層）
+  addRow(5300, H-4*TILE, 3,'brick'); // 5300-5396（Z3内・低層）
+
   // ══════════════════════════════════════
-  // Z4 (5900-LW): 最終エリア + ワープパイプ
+  // Z4 (6000-LW): 最終エリア + ワープパイプ（gap3拡大→Z4開始は6000）
   // ══════════════════════════════════════
-  addRow(5950,H-5*TILE, 4,'brick'); // 5950-6078
-  addRow(6200,H-7*TILE, 3,'brick'); // 6200-6296
-  addRow(6500,H-5*TILE, 3,'brick'); // 6500-6596
+  addRow(6050,H-5*TILE, 4,'brick'); // 6050-6178
+  addRow(6300,H-7*TILE, 3,'brick'); // 6300-6396
+  addRow(6550,H-5*TILE, 3,'brick'); // 6550-6646
 
   // ── ヨッシーブロック ──
   platforms.push({x:200, y:H-5*TILE, w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
@@ -95,14 +101,14 @@ export function buildLevel_8_3(){
   platforms.push({x:5210,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5210>5196 ✓
   platforms.push({x:5460,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5460>5446 ✓
   // Z4
-  platforms.push({x:6090,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6090>6078 ✓
-  platforms.push({x:6310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 6310>6296 ✓
+  platforms.push({x:6190,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6190>6178 ✓
+  platforms.push({x:6410,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 6410>6396 ✓
 
   // 隠し1UP
   platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:2400, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:4450, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:6100, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:6200, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 
   // ══════════════════════════════════════
   // 土管（パックン付き）
@@ -129,14 +135,14 @@ export function buildLevel_8_3(){
   // ══════════════════════════════════════
   movingPlats.push({x:2060,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:2060,range:80, spd:1.6,prevX:2060});
   movingPlats.push({x:3860,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3860,range:85, spd:1.8,prevX:3860});
-  movingPlats.push({x:5660,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5660,range:80, spd:2.0,prevX:5660});
+  movingPlats.push({x:5750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5750,range:100,spd:2.0,prevX:5750});
 
   // ══════════════════════════════════════
   // 溶岩炎（全ギャップ）
   // ══════════════════════════════════════
   for(let fx=2010;fx<2290;fx+=38) lavaFlames.push({x:fx,y:H-TILE,w:12,maxH:52+((fx-2010)%3)*14,curH:0,phase:Math.floor((fx-2010)/38)*9,period:75+fx%22});
   for(let fx=3810;fx<4090;fx+=38) lavaFlames.push({x:fx,y:H-TILE,w:12,maxH:54+((fx-3810)%3)*14,curH:0,phase:Math.floor((fx-3810)/38)*9,period:78+fx%20});
-  for(let fx=5610;fx<5890;fx+=38) lavaFlames.push({x:fx,y:H-TILE,w:12,maxH:56+((fx-5610)%3)*14,curH:0,phase:Math.floor((fx-5610)/38)*9,period:80+fx%22});
+  for(let fx=5610;fx<5990;fx+=38) lavaFlames.push({x:fx,y:H-TILE,w:12,maxH:56+((fx-5610)%3)*14,curH:0,phase:Math.floor((fx-5610)/38)*9,period:80+fx%22});
 
   // ══════════════════════════════════════
   // 敵配置
@@ -193,24 +199,35 @@ export function buildLevel_8_3(){
   // ══════════════════════════════════════
   // コイン（300枚以上）
   // ══════════════════════════════════════
-  // ① ギャップアーチ（各10枚 × 3 = 30枚）
-  [{s:2000,e:2300},{s:3800,e:4100},{s:5600,e:5900}].forEach(({s,e})=>{
+  // ① ギャップアーチ（gap3拡大に対応）
+  [{s:2000,e:2300},{s:3800,e:4100},{s:5600,e:6000}].forEach(({s,e})=>{
     for(let j=0;j<10;j++){const t=j/9;coinItems.push({x:s+t*(e-s)-8,y:H-4*TILE-Math.sin(t*Math.PI)*TILE*2,collected:false});}
   });
   // ② 城内コイン（ブロック上）
   [[100,H-7*TILE,4],[400,H-9*TILE,3],[1050,H-7*TILE,5],[2350,H-7*TILE,4],
-   [4150,H-7*TILE,4],[5950,H-7*TILE,4]].forEach(([cx,cy,n])=>{
+   [4150,H-7*TILE,4],[6050,H-7*TILE,4]].forEach(([cx,cy,n])=>{
     for(let j=0;j<n;j++) coinItems.push({x:cx+j*32,y:cy,collected:false});});
   // ③ 地面ライン
   for(let j=0;j<18;j++) coinItems.push({x:200+j*100, y:H-3*TILE,collected:false}); // Z1
   for(let j=0;j<16;j++) coinItems.push({x:2350+j*90, y:H-3*TILE,collected:false}); // Z2
   for(let j=0;j<18;j++) coinItems.push({x:4150+j*80, y:H-3*TILE,collected:false}); // Z3
-  for(let j=0;j<16;j++) coinItems.push({x:5950+j*50, y:H-3*TILE,collected:false}); // Z4
-  // ④ 高空コイン
+  for(let j=0;j<14;j++) coinItems.push({x:6050+j*55, y:H-3*TILE,collected:false}); // Z4(gap3拡大→Z4開始6000)
+  // ④ クラスター：ギャップ際コイン群（旧④の退屈ラインを一部置換）
+  // gap1(2000-2300)際：左端縦列クラスター
+  [1960,1970,1980].forEach(cx=>[H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 9枚
+  // gap3(5600-6000)際：両端リスクコイン（最終チャレンジ）
+  [5560,5570,5580].forEach(cx=>[H-2*TILE,H-3*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 6枚 低空
+  [6010,6020,6030].forEach(cx=>[H-10*TILE,H-11*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 6枚 超高空
+  // ⑤ 新ブロック層コイン
+  for(let j=0;j<3;j++) coinItems.push({x:1300+j*32,y:H-6*TILE,collected:false}); // H-4T addRow上
+  for(let j=0;j<2;j++) coinItems.push({x:2700+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
+  for(let j=0;j<2;j++) coinItems.push({x:4700+j*32,y:H-10*TILE,collected:false}); // H-8T addRow上
+  for(let j=0;j<3;j++) coinItems.push({x:5300+j*32,y:H-6*TILE,collected:false}); // H-4T addRow上
+  // ⑥ 高空コイン
   for(let j=0;j<10;j++) coinItems.push({x:500+j*150,  y:H-9*TILE,collected:false});
   for(let j=0;j<10;j++) coinItems.push({x:2500+j*130, y:H-9*TILE,collected:false});
   for(let j=0;j<10;j++) coinItems.push({x:4300+j*130, y:H-9*TILE,collected:false});
-  for(let j=0;j<8;j++)  coinItems.push({x:6000+j*90,  y:H-9*TILE,collected:false});
+  for(let j=0;j<6;j++)  coinItems.push({x:6100+j*90,  y:H-9*TILE,collected:false});
 
   // チェックポイント（Z2後半・周辺300px: 3200〜3800禁止済み ✓）
   G.checkpoint={x:3500,y:H-TILE,reached:false};

@@ -23,6 +23,7 @@ export function buildLevel_4_2(){
   const gaps=[
     {s:350, e:630},
     {s:800, e:1080},
+    {s:1180,e:1240},  // ★ micro-gap (60px)
     {s:1250,e:1600},
     {s:1850,e:2200},
     {s:2450,e:2800},
@@ -43,6 +44,11 @@ export function buildLevel_4_2(){
   addRow(2200,H-5*TILE, 2,'brick');
   addRow(2800,H-7*TILE, 2,'brick');
   addRow(3450,H-5*TILE, 2,'brick');
+
+  // ★ Block Height Variety（安全な地面ゾーンに配置）
+  addRow(750, H-3*TILE, 2,'brick');   // Z2 (630-800) 低空
+  addRow(1700, H-8*TILE, 2,'brick');  // Z4 (1600-1850) 高空
+
   addStair(3700,6);
   flagPole.x=3920;
 
@@ -64,11 +70,20 @@ export function buildLevel_4_2(){
   platforms.push({x:2940,y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
   platforms.push({x:3560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0}); // Z7
 
-  // コイン（4ライン + ギャップアーチ）
-  for(let i=0;i<32;i++) coinItems.push({x:100+i*115,y:H-7*TILE, collected:false});
+  // コイン（3ライン + クラスター + ギャップアーチ）
   for(let i=0;i<25;i++) coinItems.push({x:150+i*145,y:H-9*TILE, collected:false});
   for(let i=0;i<18;i++) coinItems.push({x:200+i*200,y:H-11*TILE,collected:false});
   for(let i=0;i<10;i++) coinItems.push({x:600+i*340,y:H-8*TILE, collected:false});
+  // ★ Coin Clusters（ギャップ端に集中配置 + 縦列）
+  [355,375,395,420,445].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  [620,605,585,565,545].forEach(cx=>coinItems.push({x:cx,y:H-5*TILE,collected:false}));
+  // Vertical columns
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:1120,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:2250,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:3480,y:cy,collected:false}));
+  // Risk coins at unusual heights
+  [700,1300,1900,2500,3100].forEach(cx=>coinItems.push({x:cx,y:H-2*TILE,collected:false}));
+  [650,1200,1800,2400,3000].forEach(cx=>coinItems.push({x:cx,y:H-10*TILE,collected:false}));
   gaps.forEach(({s,e})=>{
     const m=Math.round((s+e)/2);
     [-80,-48,-16,16,48,80].forEach(dx=>coinItems.push({x:m+dx,y:H-5*TILE,collected:false}));
@@ -91,12 +106,12 @@ export function buildLevel_4_2(){
 
   // 敵（スタート直後 x<600 は安全）
   // クリボー ×5
-  [700,1150,1720,2300,2900].forEach(x=>{
+  [700,1150,1480,2300,2900].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });
   // メット（buzzy）×15（地面10 + ブロック上5）
-  [760,1200,1780,2370,2970, 720,1150,1700,2250,2850].forEach(x=>{
+  [760,1200,2120,2370,2970, 720,1150,1480,2250,2850].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
@@ -104,7 +119,7 @@ export function buildLevel_4_2(){
   [
     {x:182, y:H-6*TILE},  // addRow(150,H-5T)上
     {x:682, y:H-8*TILE},  // addRow(650,H-7T)上
-    {x:1682,y:H-8*TILE},  // addRow(1650,H-7T)上
+    {x:1480,y:H-8*TILE},  // addRow(1650,H-7T)上 ← moved outside checkpoint zone
     {x:2232,y:H-6*TILE},  // addRow(2200,H-5T)上
     {x:2832,y:H-8*TILE},  // addRow(2800,H-7T)上
   ].forEach(({x,y})=>{
@@ -116,10 +131,10 @@ export function buildLevel_4_2(){
     {x:490, baseY:H-4*TILE,phase:0  },  // gap1
     {x:940, baseY:H-5*TILE,phase:1.0},  // gap2
     {x:1420,baseY:H-4*TILE,phase:0.5},  // gap3
-    {x:2025,baseY:H-5*TILE,phase:1.5},  // gap4
+    {x:2120,baseY:H-5*TILE,phase:1.5},  // gap4
     {x:2625,baseY:H-4*TILE,phase:0.8},  // gap5
     {x:3250,baseY:H-6*TILE,phase:0.3},  // gap6
-    {x:1720,baseY:H-5*TILE,phase:0.6},  // Z4上空
+    {x:1480,baseY:H-5*TILE,phase:0.6},  // Z4上空
     {x:2310,baseY:H-4*TILE,phase:1.2},  // Z5上空
     {x:2900,baseY:H-5*TILE,phase:0.4},  // Z6上空
   ].forEach(({x,baseY,phase})=>{

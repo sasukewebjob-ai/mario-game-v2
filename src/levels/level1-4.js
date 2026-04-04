@@ -29,18 +29,29 @@ addRow(4650,H-7*TILE,3,'brick');
 addRow(5350,H-5*TILE,4,'brick');addRow(5350,H-9*TILE,3,'q');
 addRow(5750,H-7*TILE,3,'brick');
 addRow(6050,H-5*TILE,4,'brick');
+// Block height variety (castle - confined)
+addRow(650,H-4*TILE,2,'brick');addRow(1350,H-6*TILE,3,'brick');
+addRow(3000,H-4*TILE,2,'brick');addRow(4000,H-6*TILE,2,'brick');
 // 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
 addStair(6200,10);
 // Coins
-for(let i=0;i<18;i++)coinItems.push({x:350+i*320,y:H-9*TILE,collected:false});
+// Risk coins near lava pits + varied placement
+[{x:1780,y:H-2*TILE},{x:1810,y:H-2*TILE},{x:1840,y:H-2*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // risk coins at lava edge
+[{x:3180,y:H-2*TILE},{x:3210,y:H-2*TILE},{x:3240,y:H-2*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // risk coins at lava edge
+[{x:5030,y:H-2*TILE},{x:5060,y:H-2*TILE},{x:5090,y:H-2*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // risk coins at lava edge
+// Vertical columns near castle walls
+[{x:850,y:H-4*TILE},{x:850,y:H-5*TILE},{x:850,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+[{x:4550,y:H-4*TILE},{x:4550,y:H-5*TILE},{x:4550,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
+// Remaining spread coins
+for(let i=0;i<14;i++)coinItems.push({x:350+i*400,y:H-9*TILE,collected:false});
 // Enemies
 [{x:620,t:'goomba'},{x:880,t:'koopa'},
 {x:1100,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},{x:1600,t:'goomba'},
 {x:2050,t:'koopa'},{x:2180,t:'goomba'},{x:2300,t:'goomba'},{x:2600,t:'koopa'},{x:2700,t:'goomba'},
-{x:3500,t:'koopa'},{x:3620,t:'goomba'},{x:3740,t:'koopa'},
+{x:3380,t:'koopa'},{x:4020,t:'goomba'},{x:4140,t:'koopa'},
 {x:4100,t:'goomba'},{x:4200,t:'goomba'},{x:4600,t:'goomba'},{x:4720,t:'koopa'},
 {x:5350,t:'koopa'},{x:5480,t:'goomba'},{x:5600,t:'goomba'},
-{x:5900,t:'koopa'},{x:6050,t:'goomba'}
+{x:5730,t:'koopa'},{x:6370,t:'goomba'}
 ].forEach(({x,t})=>{
 let e;
 if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};

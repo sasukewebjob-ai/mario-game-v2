@@ -299,6 +299,43 @@ peach.x=W-TILE*2;peach.y=H-TILE-peach.h;
 peach.vx=0;peach.caught=true;
 peach.walkFrame=0;peach.walkTimer=0;
 
+// ════════════════════════════════════════
+// P-Switch パズル部屋
+// ════════════════════════════════════════
+
+}else if(variant==='pswitch_bridge'){
+// ★ Pスイッチ・ブリッジ ★ コインが足場に変わる橋渡しパズル
+// 地面にギャップを作る（x=224〜544）
+for(let i=platforms.length-1;i>=0;i--){const pl=platforms[i];if(pl.type==='ground'&&pl.y===H-TILE&&pl.x>=224&&pl.x<544)platforms.splice(i,1);}
+// Pスイッチブロック（左の安全地帯に配置）
+platforms.push({x:128,y:H-5*TILE,w:TILE,h:TILE,type:'pswitch',hit:false,bounceOffset:0});
+// ギャップ上にコイン（Pスイッチで足場化する）
+for(let cx=224;cx<544;cx+=TILE)coinItems.push({x:cx,y:H-TILE,collected:false});
+// ヒント用のレンガ足場（ギャップ上空に短い足場）
+addRow(320,H-5*TILE,3,'brick');
+// アイテム
+platforms.push(qM(64,H-5*TILE));
+platforms.push(h1(400,H-8*TILE));
+ci(64,H-8*TILE,5,32);ci(560,H-4*TILE,4,32);
+// 軽い敵（安全地帯のみ）
+enemies.push(gm(580));
+
+}else if(variant==='pswitch_wall'){
+// ★ Pスイッチ・ウォール ★ レンガ壁がコインに変わる突破パズル
+// レンガ壁（出口パイプの手前を塞ぐ: x=480,512 × 4段）
+for(let wy=H-5*TILE;wy<H-TILE;wy+=TILE){addB(480,wy,'brick');addB(512,wy,'brick');}
+// Pスイッチブロック（壁の手前に配置）
+platforms.push({x:300,y:H-5*TILE,w:TILE,h:TILE,type:'pswitch',hit:false,bounceOffset:0});
+// 左側にコイン（Pスイッチで固まるボーナスエリア）
+ci(55,H-7*TILE,10,38);ci(55,H-4*TILE,6,45);
+// 高い位置にもレンガ（Pスイッチで大量コイン化）
+addRow(100,H-6*TILE,4,'brick');addRow(200,H-8*TILE,3,'brick');
+// アイテム
+platforms.push(qM(160,H-5*TILE));
+platforms.push(h1(250,H-9*TILE));
+// 軽い敵
+enemies.push(gm(400));enemies.push(kp(200));
+
 }else{
 // ★ デフォルト ★ coin と同じレイアウト
 addRow(150,H-4*TILE,3,'brick');addRow(380,H-6*TILE,3,'brick');addRow(560,H-4*TILE,2,'brick');

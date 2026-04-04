@@ -38,6 +38,12 @@ export function buildLevel_5_2(){
   addRow(5700, H-5*TILE, 5, 'ground');
   addRow(6400, H-7*TILE, 4, 'ground');
 
+  // ★ Block Height Variety（水中の追加岩礁）
+  addRow(450,  H-8*TILE, 3, 'ground');   // 高めの岩礁
+  addRow(1500, H-4*TILE, 4, 'ground');   // 低めの岩礁
+  addRow(3300, H-6*TILE, 3, 'ground');   // 中位の岩礁
+  addRow(5400, H-4*TILE, 4, 'ground');   // 低めの岩礁
+
   // 土管3本
   // 土管1: warp→water3
   pipes.push({x:2000,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water3'});
@@ -55,10 +61,27 @@ export function buildLevel_5_2(){
   movingPlats.push({x:5500,y:H-7*TILE,w:TILE*2,h:12,type:'h',ox:5500,range:100,spd:2.0,prevX:5500});
   movingPlats.push({x:6200,y:H-5*TILE,w:TILE*2,h:12,type:'v',ox:6200,range:90, spd:1.9,prevX:6200,oy:H-5*TILE});
 
-  // コイン（横ライン）
-  for(let x=150; x<1950;x+=64)  coinItems.push({x,y:H-6*TILE,collected:false,pop:false});
-  for(let x=2250;x<4750;x+=64)  coinItems.push({x,y:H-8*TILE,collected:false,pop:false});
+  // コイン（1ライン + クラスター + 縦列）
   for(let x=5050;x<7150;x+=64)  coinItems.push({x,y:H-7*TILE,collected:false,pop:false});
+  // ★ Underwater Coin Clusters（旧ライン2本をクラスターに置換）
+  // Cluster 1: 前半の散らばり
+  [180,250,340,440,550,670,790,920,1060,1200,1350,1500,1660,1820].forEach(cx=>
+    coinItems.push({x:cx,y:H-3*TILE,collected:false,pop:false}));
+  [200,350,500,700,900,1100,1300,1500,1700,1900].forEach(cx=>
+    coinItems.push({x:cx,y:H-9*TILE,collected:false,pop:false}));
+  // Cluster 2: 中盤（高低差クラスター）
+  [2300,2500,2700,2900,3100,3300,3500,3700,3900,4100,4300,4500,4700].forEach(cx=>
+    coinItems.push({x:cx,y:H-4*TILE,collected:false,pop:false}));
+  [2400,2600,2800,3000,3200,3400,3600,3800,4000,4200,4400,4600].forEach(cx=>
+    coinItems.push({x:cx,y:H-10*TILE,collected:false,pop:false}));
+  // Vertical columns (水中の縦コイン)
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:800,y:cy,collected:false,pop:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:2100,y:cy,collected:false,pop:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:4000,y:cy,collected:false,pop:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:6000,y:cy,collected:false,pop:false}));
+  // Risk coins near ceiling
+  [600,1600,2600,3600,4600,5600,6600].forEach(cx=>
+    coinItems.push({x:cx,y:H-11*TILE,collected:false,pop:false}));
   // 土管アーチ
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:2016+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:4816+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
@@ -90,20 +113,20 @@ export function buildLevel_5_2(){
    {x:900, y:H-4*TILE,vx:-1.4},{x:1300,y:H-6*TILE,vx:-1.6},
    {x:1900,y:H-3*TILE,vx:-1.75},{x:2400,y:H-5*TILE,vx:-1.5},
    {x:2900,y:H-4*TILE,vx:-1.9},{x:3400,y:H-6*TILE,vx:-1.5},
-   {x:4000,y:H-3*TILE,vx:-1.75},{x:4600,y:H-5*TILE,vx:-1.6},
+   {x:4120,y:H-3*TILE,vx:-1.75},{x:4600,y:H-5*TILE,vx:-1.6},
    {x:5200,y:H-4*TILE,vx:-1.9},{x:5800,y:H-6*TILE,vx:-1.5},
    {x:6300,y:H-3*TILE,vx:-1.75},{x:6800,y:H-5*TILE,vx:-1.6}
   ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:d.vx,type:'cheepH',alive:true,activated:true}));
 
   // クリボー（水底を歩く）
-  [{x:400},{x:1000},{x:1700},{x:2600},{x:3300},{x:4100},{x:4900},{x:5600},{x:6500},{x:7000}
+  [{x:400},{x:1000},{x:1700},{x:2600},{x:3300},{x:4120},{x:4900},{x:5600},{x:6500},{x:7000}
   ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false}));
 
   // ぷくぷく縦（振れ幅大きい）
   [{x:800, baseY:H-6*TILE,range:90,phase:0},
    {x:1600,baseY:H-7*TILE,range:100,phase:1.0},
    {x:2300,baseY:H-5*TILE,range:80, phase:2.0},
-   {x:3200,baseY:H-7*TILE,range:110,phase:0.5},
+   {x:3480,baseY:H-7*TILE,range:110,phase:0.5},
    {x:4100,baseY:H-6*TILE,range:90, phase:1.5},
    {x:5000,baseY:H-7*TILE,range:100,phase:2.5},
    {x:5900,baseY:H-5*TILE,range:85, phase:0.3},
@@ -113,7 +136,7 @@ export function buildLevel_5_2(){
   // ファイアフラワー（固定設置・一定間隔でファイア）
   [{x:450, y:H-6*TILE},{x:1100,y:H-5*TILE},
    {x:2200,y:H-9*TILE},{x:3000,y:H-8*TILE},
-   {x:3900,y:H-5*TILE},{x:4700,y:H-7*TILE},
+   {x:4120,y:H-5*TILE},{x:4700,y:H-7*TILE},
    {x:5400,y:H-9*TILE},{x:6100,y:H-6*TILE},
    {x:7000,y:H-5*TILE}
   ].forEach(d=>enemies.push({

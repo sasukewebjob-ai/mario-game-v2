@@ -31,8 +31,8 @@ export function buildLevel_8_1(){
   G.autoScroll=0.8;
   flagPole.x=LW+1000; // flagPole無効化（ゴールパイプ使用）
 
-  // 地面（船の甲板）
-  const gaps=[{s:1200,e:1450},{s:2900,e:3150},{s:4400,e:4600}];
+  // 地面（船の甲板：micro-gap追加 at x=700）
+  const gaps=[{s:700,e:780},{s:1200,e:1450},{s:2900,e:3150},{s:4400,e:4600}];
   for(let x=0;x<5200;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -55,6 +55,13 @@ export function buildLevel_8_1(){
   addRow(3500,H-7*TILE, 3,'brick'); // 3500-3596
   addRow(3800,H-5*TILE, 5,'brick'); // 3800-3960
   addRow(4100,H-7*TILE, 3,'brick'); // 4100-4196
+
+  // ── 甲板追加構造物（高度バリエーション）──
+  addRow(450, H-3*TILE, 2,'brick'); // 450-514（Ship A低層・micro-gap前）
+  addRow(1600,H-6*TILE, 2,'brick'); // 1600-1664（Ship B上層）
+  addRow(2300,H-8*TILE, 2,'brick'); // 2300-2364（Ship B高層）
+  addRow(3400,H-3*TILE, 2,'brick'); // 3400-3464（Ship C低層）
+  addRow(3700,H-6*TILE, 2,'brick'); // 3700-3764（Ship C上層）
 
   // ── Landing (4600-5200): 最終甲板 ──
   addRow(4650,H-5*TILE, 3,'brick'); // 4650-4746
@@ -129,7 +136,7 @@ export function buildLevel_8_1(){
   });
 
   // メット（buzzy）×4
-  [850, 1900, 3200, 4050].forEach(ex=>{
+  [850, 1880, 3200, 4050].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
@@ -142,20 +149,29 @@ export function buildLevel_8_1(){
   });
 
   // ── コイン ──
-  // ① ギャップアーチ（各10枚 × 3 = 30枚）
-  [{s:1200,e:1450},{s:2900,e:3150},{s:4400,e:4600}].forEach(({s,e})=>{
+  // ① ギャップアーチ（micro-gap + 既存3ギャップ = 4つ）
+  [{s:700,e:780},{s:1200,e:1450},{s:2900,e:3150},{s:4400,e:4600}].forEach(({s,e})=>{
     for(let j=0;j<10;j++){const t=j/9;coinItems.push({x:s+t*(e-s)-8,y:H-4*TILE-Math.sin(t*Math.PI)*TILE*2,collected:false});}
   });
   // ② 甲板上コイン
-  for(let j=0;j<14;j++) coinItems.push({x:100+j*80, y:H-3*TILE,collected:false});  // Ship A
+  for(let j=0;j<8;j++)  coinItems.push({x:100+j*72,  y:H-3*TILE,collected:false});  // Ship A前半(0-700)
+  for(let j=0;j<5;j++)  coinItems.push({x:800+j*76,  y:H-3*TILE,collected:false});  // Ship A後半(780-1200)
   for(let j=0;j<18;j++) coinItems.push({x:1470+j*78, y:H-3*TILE,collected:false}); // Ship B
   for(let j=0;j<16;j++) coinItems.push({x:3170+j*76, y:H-3*TILE,collected:false}); // Ship C
   for(let j=0;j<8;j++)  coinItems.push({x:4620+j*70, y:H-3*TILE,collected:false}); // Landing
-  // ③ ブロック上ライン
+  // ③ クラスター：ギャップ際コイン群（旧③の退屈ラインを一部置換）
+  // gap1(1200-1450)際：左端縦列
+  [1160,1170,1180].forEach(cx=>[H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 9枚
+  // gap2(2900-3150)際：右端クラスター
+  [3160,3170,3180].forEach(cx=>[H-2*TILE,H-3*TILE,H-4*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 9枚
+  // ③-b ブロック上ライン（一部残す）
   for(let j=0;j<10;j++) coinItems.push({x:400+j*80,  y:H-7*TILE,collected:false});
-  for(let j=0;j<12;j++) coinItems.push({x:1600+j*100,y:H-7*TILE,collected:false});
   for(let j=0;j<12;j++) coinItems.push({x:3250+j*90, y:H-7*TILE,collected:false});
-  // ④ 高空コイン
+  // ④ 新ブロック層コイン
+  for(let j=0;j<2;j++) coinItems.push({x:1600+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
+  for(let j=0;j<2;j++) coinItems.push({x:2300+j*32,y:H-10*TILE,collected:false}); // H-8T addRow上
+  for(let j=0;j<2;j++) coinItems.push({x:3700+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
+  // ⑤ 高空コイン
   for(let j=0;j<8;j++) coinItems.push({x:500+j*130, y:H-9*TILE,collected:false});
   for(let j=0;j<10;j++) coinItems.push({x:1700+j*120,y:H-9*TILE,collected:false});
   for(let j=0;j<10;j++) coinItems.push({x:3300+j*110,y:H-9*TILE,collected:false});

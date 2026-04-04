@@ -25,7 +25,7 @@ export function buildLevel_6_3(){
   G.iceMode=true;
 
   // 地面（氷の深淵×3）
-  const gaps=[{s:1100,e:1196},{s:2000,e:2300},{s:3000,e:3096},{s:3700,e:4000},{s:4800,e:4896},{s:5500,e:5800}];
+  const gaps=[{s:1100,e:1196},{s:2000,e:2400},{s:3000,e:3096},{s:3700,e:4000},{s:4800,e:4896},{s:5500,e:5800}]; // ★ gap2 widened by 100px
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -55,6 +55,13 @@ export function buildLevel_6_3(){
   addRow(5860,H-5*TILE, 4,'brick'); // 5860,5892,5924,5956 → 末端5988
   addRow(6200,H-7*TILE, 3,'brick'); // 6200,6232,6264 → 末端6296
   addRow(6450,H-5*TILE, 4,'brick'); // 6450,6482,6514,6546 → 末端6578
+
+  // ★ Block Height Variety
+  addRow(400, H-4*TILE, 3,'brick');   // Z1 低空 (400,432,464)
+  addRow(1500,H-6*TILE, 3,'brick');   // Z1 中空 (1500,1532,1564)
+  addRow(3200,H-4*TILE, 3,'brick');   // Z2 低空 (3200,3232,3264)
+  addRow(5000,H-6*TILE, 3,'brick');   // Z3 中空 — wait 5100 at H-7T, 5000 at H-6T ok
+
   // 大型上り階段（クッパアリーナへ）
   addStair(6700, 10);
 
@@ -117,14 +124,14 @@ export function buildLevel_6_3(){
   // ペンギン（グラウンドゾーンのみ）
   // チェックポイント x=3500 から±300px: 3200〜3800 には敵を置かない
   [750,1250,1350,1700,2400,2700,2950,3150,
-   4300,4550,4950,5200,5950,6250,6550
+   4300,4550,4950,5200,5950,6230,6870
   ].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE,vx:-2.0,vy:0,alive:true,
       type:'penguin',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // コンバット（ノコノコ）
-  [{x:600},{x:1200},{x:2500},{x:2900},{x:4400},{x:5100},{x:6300}].forEach(({x})=>{
+  [{x:600},{x:1200},{x:2500},{x:2900},{x:4400},{x:5100},{x:6230}].forEach(({x})=>{
     enemies.push({x,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
@@ -148,8 +155,15 @@ export function buildLevel_6_3(){
   // ② 城内コイン（高台上）
   [[0,H-7*TILE,3],[300,H-7*TILE,4],[1200,H-7*TILE,5],[2380,H-7*TILE,4],[4060,H-7*TILE,4],[5860,H-7*TILE,4]
   ].forEach(([cx,cy,n])=>{for(let j=0;j<n;j++) coinItems.push({x:cx+j*32,y:cy,collected:false});});
-  // ③ 地面ライン
-  for(let j=0;j<20;j++) coinItems.push({x:150 +j*80, y:H-3*TILE,collected:false}); // Z1 前半
+  // ③ 地面ライン — ★ Z1前半をクラスターに置換
+  // Z1 clusters (gap edge + vertical columns)
+  [160,200,250,300,350].forEach(cx=>coinItems.push({x:cx,y:H-4*TILE,collected:false}));
+  [500,550,600,660,720].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
+  [900,960,1020,1050].forEach(cx=>coinItems.push({x:cx,y:H-4*TILE,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:450,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:850,y:cy,collected:false}));
+  // Risk coins at unusual heights
+  [400,1200,2500,3500,4500,5500,6300].forEach(cx=>coinItems.push({x:cx,y:H-11*TILE,collected:false})); // Z1 前半
   for(let j=0;j<18;j++) coinItems.push({x:2400+j*70, y:H-3*TILE,collected:false}); // Z2
   for(let j=0;j<20;j++) coinItems.push({x:4100+j*70, y:H-3*TILE,collected:false}); // Z3
   for(let j=0;j<18;j++) coinItems.push({x:5900+j*35, y:H-3*TILE,collected:false}); // Z4

@@ -180,8 +180,9 @@ platforms.push({x:490, y:H-5*TILE, ...}); // 490>478 ✓
 ### 実装
 - [ ] import ヘッダーに chainChomps/jumpBlocks/pipos/gravityZones/windZones が含まれているか
 - [ ] リセット行に chainChomps.length=0 等が含まれているか
-- [ ] G.autoScroll=0; G.iceMode=false; G.waterMode=false; が入っているか
-- [ ] 新ギミック使用時: G.darkMode/gravityZones/windZones/G.chasingWall を適切に設定したか
+- [ ] G.autoScroll=0; G.iceMode=false; G.waterMode=false; G.pswitchTimer=0; が入っているか
+- [ ] 新ギミック使用時: G.darkMode/gravityZones/windZones/G.chasingWall/Pスイッチ を適切に設定したか
+- [ ] Pスイッチパイプ使用時: variant に 'pswitch_bridge' or 'pswitch_wall' を設定したか
 - [ ] 城ステージ: G.checkpoint2 をクッパアリーナ~400px手前に配置したか
 - [ ] テレサに activated:true を設定したか
 - [ ] ドッスンを y=TILE 付近の天井に配置したか
@@ -190,6 +191,39 @@ platforms.push({x:490, y:H-5*TILE, ...}); // 490>478 ✓
 
 ### ビルド
 - [ ] `npm run build` でエラーなし
+
+## ブロック高さバリエーション（全ステージ必須）
+H-5*TILE, H-7*TILE だけでなく、以下の高さも使うこと：
+- H-3*TILE（低い台地）, H-4*TILE, H-6*TILE, H-8*TILE, H-10*TILE
+- 1ステージにつき最低4種の高さを使用
+
+## ギャップサイズのルール（全ステージ必須）
+- マイクロギャップ（60-96px）を1つ以上含める
+- 隣接するギャップは異なるサイズにする
+- 1つは300px以上の大ギャップを入れる（W1-1除く）
+
+## コイン配置ルール（全ステージ必須）
+一直線パターン（`for(j) push({x:X+j*SP, y:固定})` ）の使用は最小限に。代わりに：
+- ギャップ際クラスター（3-5枚、リスク/リワード）
+- 縦列コイン（3枚スタック）
+- リスクコイン（H-2T, H-10T, H-11T）
+- 新ブロック層上のご褒美コイン
+合計300枚以上（城除く）
+
+## 砂漠ワールド追加時の注意（G.sandstormMode）
+```javascript
+G.sandstormMode=true;
+// bgTheme: 'desert' / 'desert2'
+// 砂嵐の視覚エフェクト＋右方向の微風が自動適用
+```
+
+## 海辺ワールド追加時の注意（G.tideMode）
+```javascript
+G.tideMode=true;
+// 潮の満ち引きが自動適用（約21秒周期）
+// 城ステージでは使わない（室内）
+// 水面下のコインをリスクコインとして配置可能
+```
 
 ## 氷ワールド追加時の注意（G.iceMode）
 
@@ -215,9 +249,11 @@ G.iceMode=true;
 ```
 
 ### テレサの挙動（重要）
-- マリオが**背を向けている**とき → 追跡（hiding=false）
-- マリオが**正面を向いている**とき → 隠れる（hiding=true・衝突無効）
+- マリオが**背を向けている**とき → 背後から追跡（hiding=false）
+- マリオが**正面を向いている**とき → 隠れて停止（hiding=true・衝突無効）
 - 追跡速度: `_ts=1.05`（旧1.5から30%減）
+- 隠れ/追跡距離: 両方500px
+- `_mFacingBoo = (facing===1&&_tdx<0)||(facing===-1&&_tdx>0)` — _tdxはmario-teresaなので符号注意
 
 ### ドッスン下ブロック禁止ルール
 ドッスンの x〜x+64 の垂直ライン上には **いかなるブロックも置かない**こと。
