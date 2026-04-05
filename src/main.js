@@ -1948,4 +1948,5 @@ if(G.state==='win'){const _curStage=getStage(G.currentWorld,G.currentLevel);cons
 if(G.paused&&G.state==='play'){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 20px "Press Start 2P"';ctx.textAlign='center';ctx.fillText('PAUSED',W/2,H/2-10);ctx.font='11px "Press Start 2P"';ctx.fillText(_gpConnected?'START / P : RESUME':'P : RESUME',W/2,H/2+24);ctx.textAlign='left';}
 }
 
-(function loop(){pollGamepad();if(!(G.state==='play'&&G.paused))update();draw();requestAnimationFrame(loop)})();
+let _prevT=performance.now(),_acc=0;const _STEP=1000/60;
+(function _loop(){const _now=performance.now();_acc+=Math.min(_now-_prevT,200);_prevT=_now;while(_acc>=_STEP){pollGamepad();if(!(G.state==='play'&&G.paused))update();_acc-=_STEP;}draw();requestAnimationFrame(_loop)})();
