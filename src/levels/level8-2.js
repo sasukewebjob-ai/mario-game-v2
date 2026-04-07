@@ -120,10 +120,10 @@ export function buildLevel_8_2(){
   pipes.push({x:1800, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:3100, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:4100, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
-  piranhas.push({x:pipes[0].x+8,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
-  piranhas.push({x:pipes[1].x+8,baseY:pipes[1].y,y:pipes[1].y,w:16,h:TILE,phase:1.5,alive:true,maxUp:TILE*1.5});
-  piranhas.push({x:pipes[2].x+8,baseY:pipes[2].y,y:pipes[2].y,w:16,h:TILE,phase:3.0,alive:true,maxUp:TILE*1.5});
-  piranhas.push({x:pipes[3].x+8,baseY:pipes[3].y,y:pipes[3].y,w:16,h:TILE,phase:4.5,alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[0].x+24,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[1].x+24,baseY:pipes[1].y,y:pipes[1].y,w:16,h:TILE,phase:1.5,alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[2].x+24,baseY:pipes[2].y,y:pipes[2].y,w:16,h:TILE,phase:3.0,alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[3].x+24,baseY:pipes[3].y,y:pipes[3].y,w:16,h:TILE,phase:4.5,alive:true,maxUp:TILE*1.5});
 
   // ── ワープパイプ手前のブロック壁（落下防止）──
   for(let wy=H-6*TILE;wy<H-TILE;wy+=TILE){addB(5120,wy,'brick');addB(5152,wy,'brick');}

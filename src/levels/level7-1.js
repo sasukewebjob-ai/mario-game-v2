@@ -93,7 +93,7 @@ export function buildLevel_7_1(){
   pipes.push({x:1500, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fortress1'});
   pipes.push({x:3200, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fortress2'});
   // パックンフラワー（ワープ土管以外）
-  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
+  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
 
 
   // 移動足場（ギャップ上・gap1はマイクロなので不要→gap3拡大分を補強）

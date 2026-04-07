@@ -42,7 +42,7 @@ addRow(6810,H-5*TILE,2,'q');addRow(6970,H-7*TILE,2,'brick');addStair(7050,8);
 // Pipes
 [[680,2,false],[1350,3,'danger1up'],[2150,2,false],[3380,2,false],[4350,3,'star'],[5600,2,false],[6200,3,false],[7150,4,false]].forEach(([px,ph,warp])=>{
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
-pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
+pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
 // Coins
 for(let i=0;i<50;i++)coinItems.push({x:180+i*150,y:H-10*TILE,collected:false});

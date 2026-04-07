@@ -80,7 +80,7 @@ export function buildLevel_2_2(){
   [[800,2,'desert3'],[2100,3,false],[3800,2,'desert4'],[5700,2,false]].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
   pipes.forEach((p,i)=>{if(p.isWarp)return;
-    piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
+    piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
   // コイン
   // Desert clusters near gap edges

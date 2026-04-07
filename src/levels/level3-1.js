@@ -76,7 +76,7 @@ export function buildLevel_3_1(){
   [[700,2,'river1'],[2600,2,'river2'],[4700,2,false]].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
   pipes.forEach((p,i)=>{if(p.isWarp)return;
-    piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
+    piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
   // コイン — >=300枚: gap arches + ground lines + wave clusters + tide-risk
   // Gap arches (10-12 coins each, 5 gaps)

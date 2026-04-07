@@ -98,7 +98,7 @@ export function buildLevel_6_1(){
   pipes.push({x:1100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice1'});
   pipes.push({x:3400,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice2'});
   // パックンフラワー
-  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
+  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
 
   // 移動足場（ギャップ上）
   movingPlats.push({x:700, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:700, range:80, spd:1.3,prevX:700});

@@ -106,8 +106,8 @@ export function buildLevel_6_3(){
   pipes.push({x:3600,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:5200,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   // 城はパックン2本のみ（難度調整）
-  piranhas.push({x:pipes[0].x+8,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
-  piranhas.push({x:pipes[2].x+8,baseY:pipes[2].y,y:pipes[2].y,w:16,h:TILE,phase:1.8,alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[0].x+24,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[2].x+24,baseY:pipes[2].y,y:pipes[2].y,w:16,h:TILE,phase:1.8,alive:true,maxUp:TILE*1.5});
 
   // キャノン（4基）
   cannons.push({x:500, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:320,timer:20});

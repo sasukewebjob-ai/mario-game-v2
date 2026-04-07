@@ -118,7 +118,7 @@ export function buildLevel_6_2(){
   // ワープ土管（地下へ）
   pipes.push({x:950, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice3'});
   pipes.push({x:3100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice4'});
-  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
+  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
 
   // キャノン（2基）
   cannons.push({x:1900,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:280,timer:40});

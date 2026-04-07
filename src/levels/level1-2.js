@@ -49,7 +49,7 @@ addRow(3800,H-8*TILE,2,'q');addRow(5000,H-6*TILE,2,'brick');
 [[700,2,false],[1400,3,'goomba'],[2200,2,false],[4050,3,'mushroom'],[5700,2,false],[6300,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
 // Piranhas
-pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
+pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 // Coins
 // Clusters near gap edges
 [{x:1700,y:H-4*TILE},{x:1730,y:H-5*TILE},{x:1760,y:H-4*TILE},{x:1790,y:H-3*TILE}].forEach(c=>coinItems.push({...c,collected:false}));

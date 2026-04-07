@@ -74,7 +74,7 @@ export function buildLevel_2_3(){
   [[600,2,false],[2300,3,false],[4600,2,false]].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:false,variant:null})});
   pipes.forEach((p,i)=>{
-    piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
+    piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
   // コイン — risk coins near lava pits + safe arches
   // Safe coin lines

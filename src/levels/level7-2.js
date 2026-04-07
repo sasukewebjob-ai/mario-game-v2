@@ -102,7 +102,7 @@ export function buildLevel_7_2(){
   pipes.push({x:1400, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fortress3'});
   pipes.push({x:2700, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fortress4'});
   // パックンフラワー（ワープ土管以外）
-  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+8,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
+  pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
 
   // キャノン（4基・砦の壁）
   cannons.push({x:750,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:20});

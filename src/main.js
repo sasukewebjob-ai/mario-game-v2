@@ -1147,7 +1147,7 @@ ctx.fillStyle=shoeC;ctx.fillRect(mx+2+lo[0],my+26,12,6);ctx.fillRect(mx+14+lo[1]
 ctx.restore();
 }
 
-function drawYoshi(yx,yy,facing,mounted){
+function drawYoshiBody(yx,yy,facing,mounted){
 ctx.save();
 if(facing===-1){ctx.translate(yx+30,0);ctx.scale(-1,1);yx=0}else{ctx.translate(yx,0);yx=0}
 // Boots
@@ -1163,6 +1163,12 @@ ctx.fillStyle='#ecf0f1';ctx.beginPath();ctx.arc(yx+12,yy+22,7,0,Math.PI*2);ctx.f
 if(mounted){ctx.fillStyle='#e74c3c';ctx.fillRect(yx+2,yy+9,26,8);ctx.fillStyle='#c0392b';ctx.fillRect(yx+4,yy+11,22,4);}
 // Back spike
 ctx.fillStyle='#1e8449';ctx.beginPath();ctx.arc(yx+9,yy+11,7,Math.PI,0);ctx.fill();ctx.fillStyle='#145a14';ctx.fillRect(yx+4,yy+11,10,3);
+ctx.restore();
+}
+
+function drawYoshiHead(yx,yy,facing){
+ctx.save();
+if(facing===-1){ctx.translate(yx+30,0);ctx.scale(-1,1);yx=0}else{ctx.translate(yx,0);yx=0}
 // Neck
 ctx.fillStyle='#2ecc71';ctx.fillRect(yx+17,yy+10,9,10);
 // Head
@@ -1549,6 +1555,8 @@ for(const mp of movingPlats)if(!(mp.falling&&mp.y>H))drawMovingPlat(mp);
 for(const sp of springs)drawSpring(sp);
 if(G.checkpoint)drawCheckpoint(G.checkpoint);
 if(G.checkpoint2)drawCheckpoint(G.checkpoint2);
+// Piranhas (drawn before pipes so pipe covers them when inside)
+for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
 for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling);
 if(p.isWarp&&!p.used){ctx.fillStyle='rgba(255,255,255,'+(0.5+Math.sin(G.frame*0.08)*0.3)+')';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('▼',p.x+p.w/2,p.y-6);ctx.textAlign='left'}
 if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
@@ -1570,7 +1578,6 @@ const cwg=ctx.createLinearGradient(cw.x-40,0,cw.x,0);cwg.addColorStop(0,'rgba(0,
 ctx.fillStyle=cwg;ctx.fillRect(cw.x-W*2,0,W*2,H);
 // 先端の炎エフェクト
 for(let fy=0;fy<H;fy+=12){const fw=6+Math.random()*10;ctx.fillStyle=`rgba(255,${100+Math.random()*155},0,${0.5+Math.random()*0.5})`;ctx.fillRect(cw.x-2,fy,fw,8+Math.random()*6);}}
-for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
 // Cannons
 for(const cn of cannons){if(cn.x+cn.w<G.cam-10||cn.x>G.cam+W+10)continue;ctx.fillStyle='#1a1a1a';ctx.fillRect(cn.x,cn.y,cn.w,cn.h);ctx.fillStyle='#333';ctx.fillRect(cn.x+2,cn.y+2,cn.w-4,cn.h-4);ctx.fillStyle='#888';ctx.beginPath();ctx.arc(cn.x+cn.w/2,cn.y+14,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#333';ctx.fillRect(cn.x+cn.w/2-4,cn.y+10,3,3);ctx.fillRect(cn.x+cn.w/2+1,cn.y+10,3,3);if(cn.timer<10){ctx.fillStyle=`rgba(255,${150+Math.random()*100},0,${0.5+Math.random()*0.5})`;ctx.beginPath();ctx.arc(cn.x+cn.w/2,cn.y-4,8+Math.random()*4,0,Math.PI*2);ctx.fill()}}
 // Bullet Bills
@@ -1756,8 +1763,8 @@ ctx.fillText('♥',px+peach.w/2,py-18);ctx.textAlign='left';}
 }
 // Star aura
 if(G.starTimer>0){const hue=(G.frame*12)%360;ctx.fillStyle=`hsla(${hue},100%,60%,0.3)`;ctx.beginPath();ctx.arc(mario.x+13,mario.y+mario.h/2,22,0,Math.PI*2);ctx.fill()}
-// Yoshi (behind Mario if mounted)
-if(yoshi.alive){if(yoshi.mounted)drawYoshi(yoshi.x,yoshi.y,yoshi.facing,true);else drawYoshi(yoshi.x,yoshi.y,yoshi.facing,false)}
+// Yoshi body (behind Mario)
+if(yoshi.alive)drawYoshiBody(yoshi.x,yoshi.y,yoshi.facing,yoshi.mounted)
 // 残像エフェクト
 {const _my=yoshi.mounted&&yoshi.alive?mario.y-12:mario.y;
 const _isDash2=(keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b)&&Math.abs(mario.vx)>4;
@@ -1769,6 +1776,8 @@ if(G.megaTimer>0&&!mario.dead){const _megaHue=(G.frame*6)%360;ctx.fillStyle=`hsl
 ctx.save();const _mcx=mario.x+mario.w/2,_mcy=_my2+mario.h;ctx.translate(_mcx,_mcy);ctx.scale(1.6,1.6);ctx.translate(-_mcx,-_mcy);
 drawMario(mario.x,_my2,mario.facing,mario.walkFrame,mario.dead,mario.big);ctx.restore();}else{
 drawMario(mario.x,yoshi.mounted&&yoshi.alive?mario.y-12:mario.y,mario.facing,mario.walkFrame,mario.dead,mario.big);}
+// Yoshi head (in front of Mario)
+if(yoshi.alive)drawYoshiHead(yoshi.x,yoshi.y,yoshi.facing);
 drawParticles();ctx.restore();
 // === Dark Mode Spotlight ===
 if(G.darkMode&&G.state==='play'&&!mario.dead){
