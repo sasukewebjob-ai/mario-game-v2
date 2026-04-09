@@ -67,7 +67,7 @@ export function buildLevel_7_1(){
   platforms.push({x:3060, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3060>3046 ✓
   platforms.push({x:3472, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3472>3460 ✓
   // Z4
-  platforms.push({x:4100, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4100<4200 ✓
+  platforms.push({x:3700, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3700<3800(gap) ✓
   platforms.push({x:4340, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4340>4328 ✓
   platforms.push({x:4760, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4760>4746 ✓
   platforms.push({x:5140, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 5140>5128 ✓

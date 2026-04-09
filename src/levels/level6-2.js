@@ -72,7 +72,7 @@ export function buildLevel_6_2(){
   // ── ? ブロック（各addRowと座標重複なし確認済み）──
   // Z1
   platforms.push({x:260, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 260>246 ✓
-  platforms.push({x:480, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 480>478 ✓ (ギャップ直前)
+  platforms.push({x:460, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 460>446 ✓ (ギャップ直前)
   // Z2
   platforms.push({x:748, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 748<780 ✓
   platforms.push({x:920, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 920>908 ✓
@@ -92,7 +92,7 @@ export function buildLevel_6_2(){
   platforms.push({x:4810,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4810>4796 ✓
   platforms.push({x:5140,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5140>5128 ✓
   // Z6
-  platforms.push({x:5610,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5610<5660 ✓
+  platforms.push({x:5770,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5770>5756(addRow末端)・5770>5720(gap終端) ✓
   platforms.push({x:5800,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 5800<5900 ✓
   platforms.push({x:6010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6010>5996 ✓
   // Z7
@@ -201,7 +201,7 @@ export function buildLevel_6_2(){
   // フラッグポール: デフォルト LW-500=7500
 // ★ ハンマースーツ・巨大キノコ
 platforms.push({x:3500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
-platforms.push({x:2700,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
+platforms.push({x:2860,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
 // ★ 装飾土管
 pipes.push({x:1900,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4800,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});

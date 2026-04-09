@@ -31,7 +31,7 @@ addRow(3300,H-5*TILE,2,'g');addRow(3400,H-7*TILE,2,'g');addRow(3550,H-5*TILE,2,'
 addRow(3750,H-5*TILE,1,'q');addRow(3900,H-5*TILE,2,'brick');addRow(4050,H-7*TILE,2,'q',true);
 addRow(4250,H-5*TILE,2,'brick');
 // Zone 6 (after gap 2)
-addRow(4950,H-5*TILE,2,'q');addRow(5100,H-5*TILE,3,'brick');addRow(5250,H-7*TILE,2,'q',true);
+addRow(5050,H-5*TILE,2,'q');addRow(5100,H-5*TILE,3,'brick');addRow(5250,H-7*TILE,2,'q',true);
 addRow(5450,H-5*TILE,2,'brick');addRow(5650,H-5*TILE,3,'brick');addRow(5800,H-7*TILE,2,'q');
 // Zone 7 - final
 addRow(6000,H-5*TILE,2,'q',true);addRow(6150,H-5*TILE,3,'brick');

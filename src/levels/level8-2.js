@@ -76,7 +76,7 @@ export function buildLevel_8_2(){
 
   // ── ? ブロック ──
   // Ship A
-  platforms.push({x:460, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 460>446 ✓
+  platforms.push({x:490, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 490>=480(gap終端) ✓
   platforms.push({x:680, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 680>664 ✓
   // Ship B
   platforms.push({x:1290,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1290>1278 ✓

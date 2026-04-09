@@ -119,7 +119,7 @@ platforms.push({x:2000,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasSta
 platforms.push({x:1600,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 // Coin blocks
 platforms.push({x:800,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
-platforms.push({x:4400,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:6,bounceOffset:0});
+platforms.push({x:4280,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:6,bounceOffset:0});
 
 // === YOSHI EGG BLOCKS (green ? blocks) ===
 platforms.push({x:500,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
