@@ -36,8 +36,6 @@ export function buildLevel_4_2(){
   platforms.push({x:432,y:H-4*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // 空中レンガ足場（各ゾーン交互高度）
-  addRow(150, H-5*TILE, 2,'brick');
-  addRow(650, H-7*TILE, 2,'brick');
   addRow(1100,H-5*TILE, 2,'brick');
   addRow(1650,H-7*TILE, 2,'brick');
   addRow(2200,H-5*TILE, 2,'brick');
@@ -52,15 +50,15 @@ export function buildLevel_4_2(){
   flagPole.x=3920;
 
   // 特殊ブロック（addRow座標と必ず異なるx/yに配置）
-  // addRow位置: Z1@150(H-5T), Z2@650(H-7T), Z3@1100(H-5T), Z4@1650(H-7T),
+  // addRow位置: Z3@1100(H-5T), Z4@1650(H-7T),
   //             Z5@2200(H-5T), Z6@2800(H-7T), Z7@3450(H-5T)
   // → Q/hiddenブロックは全て +90〜110px ずらして配置
   platforms.push({x:270, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z1
   platforms.push({x:300, y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
   platforms.push({x:720, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z2 ★ was 750 (addRow750と同x) → 720へ
   platforms.push({x:770, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden（到達不可→到達可能な隠しブロックに）
-  platforms.push({x:1150,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z2後半 ★ was 1190(micro-gap内) → 地面あるx=1150へ
-  platforms.push({x:1150,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0}); // ★ was 1210(micro-gap内) → H-7Tの上でジャンプで取れるx=1150,H-9Tへ
+  platforms.push({x:1115,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z2後半（x=1115: ブロック左寄り、敵x=1150と分離）
+  platforms.push({x:1158,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // Z2後半（x=1158: 隠し、縦積み解消）
   platforms.push({x:1750,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z4
   platforms.push({x:1780,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden
   platforms.push({x:2310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z5
@@ -107,15 +105,13 @@ export function buildLevel_4_2(){
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // メット（buzzy）×15（地面10 + ブロック上5）
+  // メット（buzzy）×13（地面10 + ブロック上3）
   [760,1200,2120,2370,2970, 720,1150,1480,2250,2850].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // ブロック上メット×5
+  // ブロック上メット×3（Z1@150/Z2@650の2行を削除済み）
   [
-    {x:182, y:H-6*TILE},  // addRow(150,H-5T)上
-    {x:682, y:H-8*TILE},  // addRow(650,H-7T)上
     {x:1480,y:H-8*TILE},  // addRow(1650,H-7T)上 ← moved outside checkpoint zone
     {x:2232,y:H-6*TILE},  // addRow(2200,H-5T)上
     {x:2832,y:H-8*TILE},  // addRow(2800,H-7T)上

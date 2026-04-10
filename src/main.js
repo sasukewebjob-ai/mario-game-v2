@@ -1951,9 +1951,10 @@ const _totalRows=Math.ceil(_shopItems.length/_cols);
 // アクティブ効果表示（ショップ内）
 let _aeShopY=_siY+_totalRows*(_siH+_rowGap)+6;
 const _activeEffects=[];
-if(G.doubleJump)_activeEffects.push('⬆️W-JUMP');
-if(G.coinMagnet)_activeEffects.push('🧲MAGNET');
-if(G.retryHeart>0)_activeEffects.push(`❤️RETRY x${G.retryHeart}`);
+if(G.doubleJump||(G.shopBought?.doubleJump||0)>0)_activeEffects.push('⬆️W-JUMP');
+if(G.coinMagnet||(G.shopBought?.magnet||0)>0)_activeEffects.push('🧲MAGNET');
+const _totalRetry=(G.retryHeart||0)+(G.shopBought?.retryHeart||0);
+if(_totalRetry>0)_activeEffects.push(`❤️RETRY x${_totalRetry}`);
 if(_activeEffects.length>0){ctx.fillStyle='#66ffaa';ctx.font='7px "Press Start 2P",monospace';ctx.fillText('ACTIVE: '+_activeEffects.join('  '),W/2,_aeShopY);_aeShopY+=14;}
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
 ctx.fillText(_gpConnected?'A:購入  B:キャンセル  START:次へ':'← → SELECT    SPACE:BUY    ENTER:NEXT',W/2,_aeShopY);
