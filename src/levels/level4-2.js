@@ -32,8 +32,9 @@ export function buildLevel_4_2(){
     if(!gaps.some(g=>x>=g.s&&x<g.e))
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
-  // Yoshi egg (early)
-  platforms.push({x:214,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+  // 旧1番目ピット跡（x=350-630）に低台ブロック＋ヨッシーエッグ
+  addRow(368, H-3*TILE, 5,'brick');  // bricks at x=368,400,432,464,496
+  platforms.push({x:432,y:H-4*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // 空中レンガ足場（各ゾーン交互高度）
   addRow(150, H-5*TILE, 2,'brick');

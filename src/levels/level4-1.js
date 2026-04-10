@@ -33,8 +33,9 @@ export function buildLevel_4_1(){
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // 空中レンガ足場 と ？ブロック（addRow と push の座標重複なし）
-  // Yoshi egg (early)
-  platforms.push({x:224,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+  // 旧1番目ピット跡（x=380-560）に低台ブロック＋ヨッシーエッグ
+  addRow(400, H-3*TILE, 5,'brick');  // bricks at x=400,432,464,496,528
+  platforms.push({x:464,y:H-4*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // Zone 1 (0-380): レンガ@160-224, Q@280(H-7T), hidden@350(H-9T)
   addRow(160, H-5*TILE, 2,'brick');
