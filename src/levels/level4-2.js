@@ -33,7 +33,7 @@ export function buildLevel_4_2(){
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // Yoshi egg (early)
-  platforms.push({x:480,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+  platforms.push({x:214,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // 空中レンガ足場（各ゾーン交互高度）
   addRow(150, H-5*TILE, 2,'brick');
