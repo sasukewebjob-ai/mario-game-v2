@@ -121,6 +121,11 @@ export function buildLevel_6_3(){
   movingPlats.push({x:5560,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5560,range:80, spd:1.9,prevX:5560});
 
   // ── 敵配置 ──
+  // カロン（氷城の守護者・チェックポイント±300外）
+  [600, 1200, 2000, 4000, 4700, 5500, 6300].forEach(ex=>{
+    enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
+  });
+
   // ペンギン（グラウンドゾーンのみ）
   // チェックポイント x=3500 から±300px: 3200〜3800 には敵を置かない
   [750,1250,1350,1700,2400,2700,2950,3150,

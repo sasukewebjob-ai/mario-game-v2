@@ -134,10 +134,6 @@ export function buildLevel_2_1(){
   [{x:800,y:TILE*2},{x:2500,y:TILE*2},{x:4600,y:TILE*2},{x:6000,y:TILE*2}
   ].forEach(d=>enemies.push({x:d.x,y:d.y,w:32,h:32,vx:0,vy:0,type:'angrySun',alive:true,state:'orbit'}));
 
-  // チャージングチャック（砂漠の兵士・チェックポイント±300外）
-  [{x:1600,facing:-1},{x:3200,facing:-1},{x:5000,facing:-1},{x:6500,facing:-1}
-  ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
-
   // 飛び跳ねるブロック（Zone 1-6、増量）
   [{x:700},{x:1100},{x:1800},{x:2300},{x:3400},{x:4200},{x:5000},{x:5650},{x:6500}].forEach(({x})=>{
     jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60+Math.floor(Math.random()*40),alive:true});

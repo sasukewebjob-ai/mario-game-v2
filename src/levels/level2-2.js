@@ -139,6 +139,10 @@ export function buildLevel_2_2(){
   movingPlats.push({x:4250,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:4250,range:70,spd:2.0});
   movingPlats.push({x:5950,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:5950,range:70,spd:2.2});
 
+  // おこりんぼ太陽（砂漠の空・チェックポイント±300外）
+  [{x:600,y:TILE*2},{x:2000,y:TILE*2},{x:5000,y:TILE*2},{x:6700,y:TILE*2}
+  ].forEach(d=>enemies.push({x:d.x,y:d.y,w:32,h:32,vx:0,vy:0,type:'angrySun',alive:true,state:'orbit'}));
+
   // チェックポイント
   G.checkpoint={x:4000,y:H-TILE,reached:false};
 // ★ ハンマースーツ・巨大キノコ

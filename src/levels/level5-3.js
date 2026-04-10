@@ -129,6 +129,11 @@ export function buildLevel_5_3(){
   [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:4300,y:cy,collected:false}));
   [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:5900,y:cy,collected:false}));
 
+  // カロン（城内守護者・チェックポイント±300外）
+  [600, 1200, 2000, 2800, 4500, 5200, 6000].forEach(ex=>{
+    enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
+  });
+
   // チェックポイント
   G.checkpoint={x:4000,y:H-TILE,reached:false};
 

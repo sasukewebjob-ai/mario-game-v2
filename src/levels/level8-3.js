@@ -149,6 +149,11 @@ export function buildLevel_8_3(){
   // チェックポイント x=3500 から±300px: 3200〜3800 には敵を置かない
   // ══════════════════════════════════════
 
+  // カロン（氷城の守護者・チェックポイント±300外）
+  [600, 1200, 2000, 2800, 4200, 5000, 5800, 6300].forEach(ex=>{
+    enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
+  });
+
   // ノコノコ（城内巡回）×8
   [550, 900, 1400, 1900, 2500, 3100, 4200, 5200].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
