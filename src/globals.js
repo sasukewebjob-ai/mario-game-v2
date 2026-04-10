@@ -24,10 +24,10 @@ export const BOWSER_STATS={
   2:{hp:3,fireImmune:false,speed:1.5,fireSpeed:5.0,fireVy:-3.0,fireTimer:110,jumpTimer:230},
   3:{hp:3,fireImmune:false,speed:1.8,fireSpeed:5.5,fireVy:-3.5,fireTimer:95,jumpTimer:220},
   4:{hp:4,fireImmune:false,speed:2.0,fireSpeed:6.0,fireVy:-3.5,fireTimer:80,jumpTimer:210},
-  5:{hp:4,fireImmune:true, speed:2.2,fireSpeed:6.5,fireVy:-4.0,fireTimer:70,jumpTimer:200},
-  6:{hp:4,fireImmune:true, speed:2.5,fireSpeed:7.0,fireVy:-4.0,fireTimer:60,jumpTimer:190},
-  7:{hp:5,fireImmune:true, speed:2.8,fireSpeed:7.5,fireVy:-4.5,fireTimer:55,jumpTimer:180},
-  8:{hp:5,fireImmune:true, speed:3.0,fireSpeed:8.0,fireVy:-5.0,fireTimer:50,jumpTimer:160}
+  5:{hp:4,fireImmune:false,speed:2.0,fireSpeed:6.5,fireVy:-4.0,fireTimer:85,jumpTimer:215},
+  6:{hp:4,fireImmune:false,speed:2.2,fireSpeed:7.0,fireVy:-4.0,fireTimer:75,jumpTimer:205},
+  7:{hp:5,fireImmune:false,speed:2.4,fireSpeed:7.5,fireVy:-4.5,fireTimer:65,jumpTimer:195},
+  8:{hp:5,fireImmune:false,speed:2.6,fireSpeed:8.0,fireVy:-5.0,fireTimer:60,jumpTimer:175}
 };
 export const peach={alive:false,x:0,y:0,w:30,h:52,vx:0,caught:false,walkFrame:0,walkTimer:0};
 export const flagPole={x:LW-500,h:320};

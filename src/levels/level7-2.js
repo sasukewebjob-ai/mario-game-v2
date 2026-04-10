@@ -143,6 +143,10 @@ export function buildLevel_7_2(){
     type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,
     hammerTimer:70+Math.floor(Math.random()*60),jumpTimer:110+Math.floor(Math.random()*80),onGround:false});
 
+  // カロン（砦の深部・チェックポイント±300外）
+  [{x:700},{x:1500},{x:2100},{x:2700},{x:4000},{x:5000},{x:6300},{x:7200}
+  ].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false}));
+
   // テレサ×5（砦内を漂う幽霊）
   [{x:1050,y:H-6*TILE},{x:2200,y:H-5*TILE},{x:3650,y:H-5*TILE},
    {x:5150,y:H-6*TILE},{x:6800,y:H-5*TILE}].forEach(({x,y})=>{

@@ -113,6 +113,11 @@ export function buildLevel_5_1(){
    {x:4950,baseY:H-6*TILE,range:65,phase:2.1},
    {x:5800,baseY:H-5*TILE,range:55,phase:0.4},
   ].forEach(d=>enemies.push({x:d.x,y:d.baseY,baseY:d.baseY,range:d.range,phase:d.phase,w:24,h:20,type:'cheepV',alive:true,activated:true}));
+  // ゲッソー（水中追跡・チェックポイント±300外）
+  [{x:1500,y:H-5*TILE},{x:2600,y:H-7*TILE},{x:3700,y:H-5*TILE},
+   {x:4700,y:H-8*TILE},{x:5600,y:H-6*TILE},{x:6400,y:H-4*TILE}
+  ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:0,vy:0,type:'blooper',alive:true}));
+
 // ★ ハンマースーツ・巨大キノコ
 platforms.push({x:2500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 platforms.push({x:4800,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});

@@ -133,6 +133,11 @@ export function buildLevel_5_2(){
    {x:6700,baseY:H-7*TILE,range:95, phase:1.8},
   ].forEach(d=>enemies.push({x:d.x,y:d.baseY,baseY:d.baseY,range:d.range,phase:d.phase,w:24,h:20,type:'cheepV',alive:true,activated:true}));
 
+  // ゲッソー（水中追跡）
+  [{x:700,y:H-5*TILE},{x:1900,y:H-7*TILE},{x:3100,y:H-5*TILE},
+   {x:4500,y:H-8*TILE},{x:5300,y:H-6*TILE},{x:6600,y:H-4*TILE}
+  ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:0,vy:0,type:'blooper',alive:true}));
+
   // ファイアフラワー（固定設置・一定間隔でファイア）
   [{x:450, y:H-6*TILE},{x:1100,y:H-5*TILE},
    {x:2200,y:H-9*TILE},{x:3000,y:H-8*TILE},
