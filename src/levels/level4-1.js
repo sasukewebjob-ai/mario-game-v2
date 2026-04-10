@@ -41,8 +41,8 @@ export function buildLevel_4_1(){
   platforms.push({x:280, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:350, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
 
-  // Zone 2 (560-870): レンガ@600-664, Q@720(H-5T), hidden@800(H-9T)
-  addRow(600, H-6*TILE, 3,'brick');
+  // Zone 2 (560-870): レンガ@670-734（パイプx=590-654の後），Q@720(H-5T), hidden@800(H-9T)
+  addRow(670, H-6*TILE, 2,'brick');  // ★ was 600 → moved after pipe ends at 654
   platforms.push({x:720, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:800, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
 
@@ -56,10 +56,11 @@ export function buildLevel_4_1(){
   platforms.push({x:1800, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:1900, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
 
-  // Zone 5 (2240-2580): レンガ@2260-2324, Q@2400(H-7T), hidden@2500(H-9T)
+  // Zone 5 (2240-2580): レンガ@2260-2324, Q@2370(H-7T), hidden@2540(H-9T)
+  // ★ Q was x=2400 (Hammer同x重なり) → 2370へ, hidden was x=2500 (パイプ2440-2504被り) → 2540へ
   addRow(2260, H-5*TILE, 3,'brick');
-  platforms.push({x:2400, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:2500, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:2370, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:2540, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
 
   // Zone 6 (2880-3180): レンガ@2900-2932, Q@3000(H-5T), hidden@3100(H-9T)
   addRow(2900, H-7*TILE, 2,'brick');
@@ -74,7 +75,7 @@ export function buildLevel_4_1(){
   // ★ Block Height Variety（安全な地面ゾーンに配置）
   addRow(700, H-3*TILE, 2,'brick');   // Z2 (560-870) 低空
   addRow(1700, H-8*TILE, 2,'brick');  // Z4 (1660-1960) 高空
-  addRow(2960, H-3*TILE, 2,'brick');  // Z6 (2880-3180) 低空
+  addRow(3040, H-3*TILE, 2,'brick');  // Z6 (2880-3180) 低空 ★ was 2960 (パイプx=2960-3024と重複) → 3040へ
   flagPole.x=3970;
 
   // 動く足場（ギャップ6か所 / 各1〜3台）

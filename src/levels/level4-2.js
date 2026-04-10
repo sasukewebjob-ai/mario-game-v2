@@ -57,16 +57,16 @@ export function buildLevel_4_2(){
   // → Q/hiddenブロックは全て +90〜110px ずらして配置
   platforms.push({x:270, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z1
   platforms.push({x:300, y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
-  platforms.push({x:750, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z2
-  platforms.push({x:770, y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
-  platforms.push({x:1190,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z3
-  platforms.push({x:1210,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:720, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z2 ★ was 750 (addRow750と同x) → 720へ
+  platforms.push({x:770, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden（到達不可→到達可能な隠しブロックに）
+  platforms.push({x:1150,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z2後半 ★ was 1190(micro-gap内) → 地面あるx=1150へ
+  platforms.push({x:1150,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0}); // ★ was 1210(micro-gap内) → H-7Tの上でジャンプで取れるx=1150,H-9Tへ
   platforms.push({x:1750,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z4
-  platforms.push({x:1780,y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:1780,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden
   platforms.push({x:2310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z5
   platforms.push({x:2340,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
   platforms.push({x:2910,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z6
-  platforms.push({x:2940,y:H-11*TILE,w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:2940,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden
   platforms.push({x:3560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0}); // Z7
 
   // コイン（3ライン + クラスター + ギャップアーチ）
@@ -146,8 +146,8 @@ export function buildLevel_4_2(){
 
   // チェックポイント（Z4地面上）
   G.checkpoint={x:1800,y:H-TILE,reached:false};
-  // ★ ハンマースーツ
-  platforms.push({x:1200,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  // ★ ハンマースーツ（★ was x=1200 micro-gap内で取れない → Z5地面x=2370へ移動）
+  platforms.push({x:2370,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管
   pipes.push({x:200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:2300,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
