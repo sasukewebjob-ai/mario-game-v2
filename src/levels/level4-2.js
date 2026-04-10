@@ -18,10 +18,9 @@ export function buildLevel_4_2(){
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
   G.autoScroll=1.2;
 
-  // 地面（ギャップ6か所 / 半分サイズ）
-  // Z1=0-350, Z2=630-800, Z3=1080-1250, Z4=1600-1850, Z5=2200-2450, Z6=2800-3050, Z7=3450+
+  // 地面（ギャップ5か所 / 最初の穴をブロックで埋めた）
+  // Z1=0-800, Z2=1080-1250(micro:1180-1240), Z3=1250-1600, Z4=1850-2200, Z5=2450-2800, Z6=3050-3450+
   const gaps=[
-    {s:350, e:630},
     {s:800, e:1080},
     {s:1180,e:1240},  // ★ micro-gap (60px)
     {s:1250,e:1600},
@@ -34,7 +33,7 @@ export function buildLevel_4_2(){
       platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // Yoshi egg (early)
-  platforms.push({x:214,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+  platforms.push({x:480,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // 空中レンガ足場（各ゾーン交互高度）
   addRow(150, H-5*TILE, 2,'brick');
@@ -91,8 +90,6 @@ export function buildLevel_4_2(){
   });
 
   // 動く足場（各ギャップに2個・速め）
-  movingPlats.push({x:360, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:360, range:100,spd:1.6,prevX:360});
-  movingPlats.push({x:490, y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:490, range:80, spd:2.0,prevX:490});
   movingPlats.push({x:820, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:820, range:110,spd:1.8,prevX:820});
   movingPlats.push({x:950, y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:950, range:80, spd:2.2,prevX:950});
   movingPlats.push({x:1270,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1270,range:110,spd:1.8,prevX:1270});

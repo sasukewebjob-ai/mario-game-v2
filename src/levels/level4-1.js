@@ -18,10 +18,9 @@ export function buildLevel_4_1(){
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
   G.autoScroll=0.8;
 
-  // 地面（ギャップ6か所 / 半分サイズ）
-  // Z1=0-380, Z2=560-870, Z3=1110-1380, Z4=1660-1960, Z5=2240-2580, Z6=2880-3180, Z7=3500+
+  // 地面（ギャップ5か所 / 最初の穴をブロックで埋めた）
+  // Z1=0-870, Z2=1110-1380(micro:1280-1360), Z3=1660-1960, Z4=2240-2580, Z5=2880-3180, Z6=3500+
   const gaps=[
-    {s:380, e:560},
     {s:870, e:1110},
     {s:1280,e:1360},  // ★ micro-gap (80px)
     {s:1380,e:1660},
@@ -35,7 +34,7 @@ export function buildLevel_4_1(){
 
   // 空中レンガ足場 と ？ブロック（addRow と push の座標重複なし）
   // Yoshi egg (early)
-  platforms.push({x:224,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+  platforms.push({x:448,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // Zone 1 (0-380): レンガ@160-224, Q@280(H-7T), hidden@350(H-9T)
   addRow(160, H-5*TILE, 2,'brick');
@@ -80,7 +79,6 @@ export function buildLevel_4_1(){
 
   // 動く足場（ギャップ6か所 / 各1〜3台）
   const mp=(x,y,w,range,spd)=>movingPlats.push({x,y,w,h:12,type:'h',ox:x,range,spd,prevX:x});
-  mp(400,  H-4*TILE, TILE*3, 55,  1.2);
   mp(890,  H-4*TILE, TILE*3, 80,  1.5);
   mp(1000, H-7*TILE, TILE*2, 45,  2.0);
   mp(1400, H-4*TILE, TILE*3, 100, 1.6);
@@ -165,10 +163,6 @@ export function buildLevel_4_1(){
   // チェックポイント（Z4地面上 / パイプx=1830+64=1894の外）
   G.checkpoint={x:1920,y:H-TILE,reached:false};
 
-  // ★ 風ゾーン（山岳の強風）
-  windZones.push({x:560,y:0,w:310,h:H,force:2.5});   // Z2: 右風（軽め）
-  windZones.push({x:1660,y:0,w:300,h:H,force:-3.5});  // Z4: 左風（強め）
-  windZones.push({x:2880,y:0,w:300,h:H,force:4});     // Z6: 右風（かなり強い）
   // ★ ハンマースーツ
   platforms.push({x:2400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管
