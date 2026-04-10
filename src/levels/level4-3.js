@@ -113,6 +113,10 @@ export function buildLevel_4_3(){
   [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:4200,y:cy,collected:false}));
   [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:5800,y:cy,collected:false}));
 
+  // チャージングチャック（チェックポイント±300外・アリーナ手前除外）
+  [{x:700,facing:-1},{x:1500,facing:-1},{x:2300,facing:-1},{x:4200,facing:-1},{x:5500,facing:-1}
+  ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
+
   // チェックポイント
   G.checkpoint={x:3800,y:H-TILE,reached:false};
 

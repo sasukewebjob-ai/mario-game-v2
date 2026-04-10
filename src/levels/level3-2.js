@@ -172,10 +172,6 @@ export function buildLevel_3_2(){
   movingPlats.push({x:4750,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:4750,range:150,spd:2.0});  // wider range for widened gap3
   movingPlats.push({x:5950,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5950,range:75,spd:2.2});
 
-  // チャージングチャック（チェックポイント±300外）
-  [{x:700,facing:-1},{x:1600,facing:-1},{x:2500,facing:-1},{x:4500,facing:-1},{x:5500,facing:-1},{x:6400,facing:-1}
-  ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
-
   G.checkpoint={x:3800,y:H-TILE,reached:false};
   // ★ ハンマースーツ・巨大キノコ
   platforms.push({x:4500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
