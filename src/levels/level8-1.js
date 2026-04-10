@@ -187,5 +187,5 @@ export function buildLevel_8_1(){
   pipes.push({x:3400,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 
   // ★ 追いかけ壁（飛行船の爆発が迫る）
-  G.chasingWall={x:-300,speed:1.2,triggerX:600,active:false};
+  G.chasingWall={x:-300,speed:0.6,triggerX:600,active:false};
 }
