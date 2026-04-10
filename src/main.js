@@ -1426,16 +1426,66 @@ ctx.lineWidth=1;
 ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.arc(x+8,y+8,3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+16,y+8,3,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x+8,y+8,1.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+16,y+8,1.5,0,Math.PI*2);ctx.fill();}
 
-function drawDryBones(e){const x=e.x,y=e.y;
-if(e.state==='collapsed'){ctx.fillStyle='#e8e8d0';ctx.fillRect(x+2,y+e.h-10,e.w-4,10);ctx.fillRect(x+5,y+e.h-16,e.w-10,7);ctx.fillRect(x+8,y+e.h-21,e.w-16,6);return}
-if(e.state==='dead'){ctx.globalAlpha=0.35;ctx.fillStyle='#e8e8d0';ctx.fillRect(x+4,y+4,e.w-8,e.h-8);ctx.globalAlpha=1;return}
-const dir=e.vx>=0?1:-1;
-ctx.fillStyle='#d8d8c0';ctx.beginPath();ctx.ellipse(x+e.w/2,y+e.h*0.68,e.w/2-2,e.h*0.33,0,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle='#b8b8a0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+6,y+e.h*0.48);ctx.lineTo(x+6,y+e.h*0.92);ctx.moveTo(x+e.w-6,y+e.h*0.48);ctx.lineTo(x+e.w-6,y+e.h*0.92);ctx.stroke();
-ctx.fillStyle='#f0f0e0';ctx.beginPath();ctx.arc(x+e.w/2,y+e.h*0.28,e.w/2-2,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#222';const _dex=dir>0?x+e.w*0.35:x+e.w*0.5;ctx.beginPath();ctx.arc(_dex,y+e.h*0.26,3.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+e.w/2+(dir>0?4:-4),y+e.h*0.26,2.5,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#e8e8d0';ctx.fillRect(x+e.w/2-6,y+e.h*0.4,4,4);ctx.fillRect(x+e.w/2+2,y+e.h*0.4,4,4);
-const _dwf=e.walkFrame||0;ctx.fillStyle='#d8d8c0';ctx.fillRect(x+3,y+e.h-8+(_dwf===0?2:0),8,8);ctx.fillRect(x+e.w-11,y+e.h-8+(_dwf===1?2:0),8,8);}
+function drawDryBones(e){
+const x=Math.round(e.x),y=Math.round(e.y);const w=e.w,h=e.h;
+// ── 崩れ状態：骨パイル＋復活シェイク ──
+if(e.state==='collapsed'){
+  const timer=e.collapseTimer||0;let sx=0,sy=0;
+  if(timer>0&&timer<60){const t=1-timer/60;sx=Math.round(Math.sin(G.frame*(1+t*2))*t*3);sy=Math.round(Math.abs(Math.sin(G.frame*2.2))*t);}
+  // 頭蓋骨（目の穴付き）
+  ctx.fillStyle='#f0ede0';ctx.fillRect(x+sx+6,y+sy+h-20,16,12);
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(x+sx+8,y+sy+h-18,5,6);ctx.fillRect(x+sx+14,y+sy+h-18,5,6);
+  // 歯
+  ctx.fillStyle='#fffff0';ctx.fillRect(x+sx+8,y+sy+h-10,2,3);ctx.fillRect(x+sx+11,y+sy+h-10,2,3);ctx.fillRect(x+sx+14,y+sy+h-10,2,3);
+  // 散らばった骨片
+  ctx.fillStyle='#e0ddc8';ctx.fillRect(x+2,y+h-7,9,5);ctx.fillRect(x+sx+18,y+sy+h-6,10,4);
+  return;
+}
+if(e.state==='dead'){ctx.globalAlpha=0.35;ctx.fillStyle='#e8e8d0';ctx.fillRect(x+4,y+4,w-8,h-8);ctx.globalAlpha=1;return;}
+const dir=e.vx>=0?1:-1;const wf=e.walkFrame||0;
+// ── 足 ──
+ctx.fillStyle='#d8d5c0';
+ctx.fillRect(x+5,   y+h-9+(wf===0?1:0),8,9);
+ctx.fillRect(x+w-13,y+h-9+(wf===1?1:0),8,9);
+// かかと
+ctx.fillStyle='#e8e5d0';
+ctx.fillRect(x+3+(wf===0?-1:0), y+h-4,11,4);
+ctx.fillRect(x+w-15+(wf===1?0:1),y+h-4,11,4);
+// ── 骨盤 ──
+ctx.fillStyle='#c8c5b0';ctx.fillRect(x+5,y+h-13,w-10,4);
+// ── 背骨 ──
+ctx.fillStyle='#c0bda8';ctx.fillRect(x+w/2-2,y+16,4,7);
+// ── 肋骨（2対） ──
+ctx.strokeStyle='#a8a598';ctx.lineWidth=1.5;
+ctx.beginPath();ctx.moveTo(x+w/2-2,y+17);ctx.lineTo(x+4, y+21);ctx.stroke();
+ctx.beginPath();ctx.moveTo(x+w/2+2,y+17);ctx.lineTo(x+w-4,y+21);ctx.stroke();
+ctx.beginPath();ctx.moveTo(x+w/2-2,y+22);ctx.lineTo(x+5, y+25);ctx.stroke();
+ctx.beginPath();ctx.moveTo(x+w/2+2,y+22);ctx.lineTo(x+w-5,y+25);ctx.stroke();
+// ── 腕（向いている方向のみ） ──
+ctx.fillStyle='#c8c5b0';
+if(dir>0){ctx.fillRect(x+w-6,y+14,5,12);ctx.fillRect(x+w-8,y+24,8,3);}
+else{ctx.fillRect(x+1,y+14,5,12);ctx.fillRect(x,y+24,8,3);}
+// ── 頭蓋骨（円形クラニアム） ──
+ctx.fillStyle='#f0ede0';
+ctx.beginPath();ctx.arc(x+w/2,y+8,w/2-2,0,Math.PI*2);ctx.fill();
+// あご（クラニアムより少し狭い）
+ctx.fillStyle='#e2dec8';ctx.fillRect(x+6,y+13,w-12,6);
+// 歯（4本）
+ctx.fillStyle='#fffff5';
+ctx.fillRect(x+7, y+14,3,4);ctx.fillRect(x+12,y+14,3,4);
+ctx.fillRect(x+17,y+14,3,4);ctx.fillRect(x+22,y+14,3,4);
+// ── 大きな目の穴（ドライボーンズの決め手） ──
+ctx.fillStyle='#111';
+ctx.fillRect(x+4, y+2,9,9);   // 左目ソケット
+ctx.fillRect(x+19,y+2,9,9);   // 右目ソケット
+// 奥行き感（少し薄い影）
+ctx.fillStyle='#2a2a2a';
+ctx.fillRect(x+5, y+3,5,5);
+ctx.fillRect(x+20,y+3,5,5);
+// 鼻の穴
+ctx.fillStyle='#555';ctx.fillRect(x+13,y+10,3,3);ctx.fillRect(x+17,y+10,3,3);
+ctx.lineWidth=1;
+}
 
 function drawAngrySun(e){const x=e.x,y=e.y;
 if(e.state==='dead'){ctx.globalAlpha=0.35;ctx.fillStyle='#FF8C00';ctx.beginPath();ctx.arc(x+16,y+16,14,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;return}
