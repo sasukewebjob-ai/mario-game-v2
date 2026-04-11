@@ -45,10 +45,13 @@ const CASTLE_NOTES=[[220,2],[0,1],[220,1],[208,2],[0,1],[196,1],[208,2],[220,1],
 const CASTLE_P2_NOTES=[[440,1],[0,1],[440,1],[415,1],[0,1],[392,1],[415,1],[440,1],[0,1],[440,2],[349,1],[0,1],[349,1],[330,1],[0,1],[311,1],[330,1],[349,1],[0,1],[392,2],[440,1],[494,1],[392,1],[440,1],[349,2],[330,2],[311,1],[330,1],[0,1]];
 const WATER_NOTES=[[196,3],[0,1],[220,3],[0,1],[247,3],[0,1],[262,4],[0,2],[196,3],[0,1],[175,3],[0,1],[165,4],[0,4],[220,3],[0,1],[196,3],[0,1],[175,2],[165,2],[196,4],[0,4]];
 const PSWITCH_NOTES=[[659,1],[784,1],[880,1],[784,1],[659,1],[587,1],[659,1],[784,1],[0,1],[659,1],[784,1],[880,1],[1047,1],[880,1],[784,1],[659,1],[587,1],[523,1],[587,1],[659,1],[0,1],[523,1],[659,1],[784,1],[880,1],[784,1],[659,1],[523,1],[587,1],[659,1],[784,1],[0,1]];
+const FINAL_BOSS_NOTES=[[440,2],[0,1],[415,1],[392,2],[370,2],[349,3],[0,1],[330,4],[0,2],[247,1],[262,1],[294,1],[330,1],[349,1],[392,1],[440,2],[494,2],[523,4],[0,2],[440,1],[0,1],[440,1],[0,1],[440,1],[415,1],[440,1],[0,1],[392,2],[349,2],[330,4],[0,2],[165,1],[0,1],[165,1],[0,1],[220,1],[0,1],[165,1],[196,2],[220,2],[247,2],[294,2],[330,2],[370,2],[415,2],[440,4],[0,4]];
 let bgmStep=0,bgmTime=0;const BEAT=0.09;
-function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const notes=G.ugMode?UG_NOTES:(G.starTimer>0?STAR_NOTES:(G.pswitchTimer>0?PSWITCH_NOTES:(G.waterMode?WATER_NOTES:(_bgmS?.bgmTheme==='castle'?(bowser.alive&&bowser.phase===2?CASTLE_P2_NOTES:CASTLE_NOTES):THEME_NOTES))));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
+function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const notes=G.ugMode?(_isFinal?FINAL_BOSS_NOTES:UG_NOTES):(G.starTimer>0?STAR_NOTES:(G.pswitchTimer>0?PSWITCH_NOTES:(G.waterMode?WATER_NOTES:(_bgmS?.bgmTheme==='castle'?(bowser.alive&&bowser.phase===2?CASTLE_P2_NOTES:CASTLE_NOTES):THEME_NOTES))));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
 function startBGM(){stopBGM();bgmGain=AC.createGain();bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;bgmGain.connect(AC.destination);bgmStep=0;bgmTime=AC.currentTime;scheduleBGM()}
 function stopBGM(){if(bgmGain){bgmGain.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.2);bgmGain=null}}
+function playGameOverJingle(){try{const _n=[[330,0.22],[294,0.22],[262,0.22],[220,0.55],[0,0.12],[196,0.95]];let _t=AC.currentTime+0.3;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(AC.destination);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.12,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.07;}}catch(ex){}}
+function playVictoryFanfare(){try{const _n=[[392,0.1],[440,0.1],[494,0.1],[523,0.2],[659,0.15],[784,0.2],[0,0.1],[659,0.1],[784,0.55],[0,0.2],[880,0.7]];let _t=AC.currentTime+0.5;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(AC.destination);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.15,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.05;}}catch(ex){}}
 
 // === GAME STATE ===
 
@@ -340,7 +343,7 @@ if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
 const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart;
 G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;
 G.lives--;G.combo=0;sfx('die');stopBGM();mario.dead=true;mario.vy=-11;G.shakeX=8;G.shakeY=8;updateHUD();
-setTimeout(()=>{if(G.lives<=0){G.state='over';clearInterval(G.timerTick)}else{if(G.checkpointReached&&G.checkpoint){
+setTimeout(()=>{if(G.lives<=0){G.state='over';clearInterval(G.timerTick);try{playGameOverJingle();}catch(ex){}}else{if(G.checkpointReached&&G.checkpoint){
 // チェックポイント位置とクッパCP到達状態を保存
 const _cpx=G.checkpoint.x,_cpy=G.checkpoint.y;const _cp2r=G.checkpoint2&&G.checkpoint2.reached;
 // レベル再構築（ブロック・敵を全復活）
@@ -675,6 +678,7 @@ bowser.vy+=GRAVITY;bowser.x+=bowser.vx;bowser.y+=bowser.vy;
 bowser.onGround=false;
 for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(bowser.x,bowser.y,bowser.w,bowser.h,p.x,py,p.w,p.h)&&bowser.vy>=0&&bowser.y+bowser.h/2<py+p.h/2){bowser.y=py-bowser.h;bowser.vy=0;bowser.onGround=true;break}}
 if(bowser.y>H+50){bowser.y=H-TILE-bowser.h;bowser.vy=0;bowser.onGround=true}
+if(G.ugMode&&G.currentWorld===8&&G.currentLevel===3&&bowser.y<H-6*TILE){bowser.y=H-6*TILE;if(bowser.vy<0)bowser.vy=0;}
 if(bowser.x<G.bowserLeftX){bowser.x=G.bowserLeftX;bowser.vx=_spd}
 const _bRx=G.bowserRightX||7750;if(bowser.x+bowser.w>_bRx){bowser.x=_bRx-bowser.w;bowser.vx=-_spd}
 bowser.facing=bowser.vx>=0?1:-1;
@@ -735,12 +739,12 @@ if(mario.x+mario.w>=peach.x){peach.caught=true;peach.vx=0;G.peachChase.catchT=0;
 }else{
 G.peachChase.catchT++;
 if(G.peachChase.catchT===1){G.score+=10000;updateHUD();}
-if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';for(let wi=0;wi<30;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*200-100,H-TILE-100+Math.random()*80,'star'),wi*60);}}
+if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';const _isFin=G.currentWorld===8&&G.currentLevel===3;const _wCnt=_isFin?80:30;for(let wi=0;wi<_wCnt;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*(_isFin?400:200)-(_isFin?200:100),H-TILE-(_isFin?200:100)+Math.random()*(_isFin?160:80),'star'),wi*(_isFin?40:60));if(_isFin){try{playVictoryFanfare();}catch(ex){}}}}
 }
 }
 // Lava flames
 for(const f of lavaFlames){f.phase++;const cyc=f.phase%f.period,rise=Math.floor(f.period*0.28),stay=Math.floor(f.period*0.18);if(cyc<rise){f.curH=Math.min(f.maxH,(cyc/rise)*f.maxH*1.1)}else if(cyc<rise+stay){f.curH=f.maxH}else{f.curH=Math.max(0,f.curH-f.maxH/(rise*0.7))}if(f.curH>12){const ft=H-TILE-f.curH;if(mario.inv===0&&G.starTimer===0&&mario.x+mario.w>f.x-2&&mario.x<f.x+f.w+2&&mario.y+mario.h>ft&&mario.y<H-TILE)killMario()}}
-if(G.ugMode&&G.state==='play'&&!G.peachChase&&mario.x>W-1.5*TILE&&mario.onGround)exitUnderground();
+if(G.ugMode&&G.state==='play'&&!G.peachChase&&!bowser.alive&&mario.x>W-1.5*TILE&&mario.onGround)exitUnderground();
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
 // クッパ前チェックポイント（2つ目）
 if(G.checkpoint2&&!G.checkpoint2.reached&&mario.x>G.checkpoint2.x){G.checkpoint2.reached=true;G.checkpointReached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint2.x,G.checkpoint2.y-TILE*3,'CHECK!','#ff4444');for(let i=0;i<10;i++)spawnParticle(G.checkpoint2.x+8,G.checkpoint2.y-TILE*2,'star')}
@@ -2067,8 +2071,8 @@ ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+14);
 if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→:SELECT',W/2,_hintY+30);}
 ctx.textAlign='left';}
 if(G.state==='dead')drawOverlay('MISS!',`${G.lives} LEFT\nCLICK or SPACE to CONTINUE`,'#4a1a1a');
-if(G.state==='over')drawOverlay('GAME OVER','CLICK or SPACE to RESTART','#2d0000');
-if(G.state==='win'){const _curStage=getStage(G.currentWorld,G.currentLevel);const _isBoss=_curStage?.bgmTheme==='castle';drawOverlay(_isBoss?'THANK YOU!':'COURSE CLEAR!',_isBoss?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');}
+if(G.state==='over'){ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,W,H);const _goa=0.25+0.18*Math.sin(G.frame*0.1);ctx.fillStyle=`rgba(200,0,0,${_goa})`;ctx.fillRect(0,0,W,H);if(G.frame%22<17){ctx.fillStyle='#ff2222';ctx.font='bold 38px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#ff0000';ctx.shadowBlur=28;ctx.fillText('GAME OVER',W/2,H/2-18);ctx.shadowBlur=0;}ctx.fillStyle='#fff';ctx.font='10px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+18);ctx.fillStyle='#bbb';ctx.fillText('CLICK or SPACE to RESTART',W/2,H/2+48);ctx.textAlign='left';}
+if(G.state==='win'){const _curStage=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const _isBoss=_curStage?.bgmTheme==='castle';if(_isFinal){ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(0,0,W,H);const _wh=((G.frame*1.5)%360);ctx.fillStyle=`hsla(${_wh},100%,55%,0.12)`;ctx.fillRect(0,0,W,H);if(G.frame%10===0){const _fx=60+Math.random()*(W-120),_fy=40+Math.random()*200;for(let _fp=0;_fp<14;_fp++)spawnParticle(_fx,_fy,'star');}const _pulse=0.82+0.18*Math.sin(G.frame*0.07);ctx.globalAlpha=_pulse;ctx.fillStyle='#FFD700';ctx.font='bold 24px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#FF8800';ctx.shadowBlur=22;ctx.fillText('CONGRATULATIONS!',W/2,H/2-58);ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.fillStyle='#ff99cc';ctx.font='13px "Press Start 2P",monospace';ctx.fillText('PEACH IS SAVED!',W/2,H/2-18);ctx.fillStyle='#FFD700';ctx.font='11px "Press Start 2P",monospace';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+16);ctx.fillStyle='#aaddff';ctx.font='8px "Press Start 2P",monospace';ctx.fillText('THANK YOU FOR PLAYING!',W/2,H/2+46);ctx.fillStyle='#888';ctx.fillText('CLICK or SPACE',W/2,H/2+72);ctx.textAlign='left';}else{drawOverlay(_isBoss?'THANK YOU!':'COURSE CLEAR!',_isBoss?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');}}
 if(G.paused&&G.state==='play'){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 20px "Press Start 2P"';ctx.textAlign='center';ctx.fillText('PAUSED',W/2,H/2-10);ctx.font='11px "Press Start 2P"';ctx.fillText(_gpConnected?'START / P : RESUME':'P : RESUME',W/2,H/2+24);ctx.textAlign='left';}
 }
 

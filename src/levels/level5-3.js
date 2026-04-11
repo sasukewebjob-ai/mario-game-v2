@@ -189,11 +189,7 @@ export function buildLevel_5_3(){
     onGround:false,state:'offscreen',deadTimer:0,fireImmune:_bs.fireImmune,phase:1,phaseTransition:0
   });
 
-  // ピーチ（アリーナ右端・クッパ撃破で合流）
-  peach.alive=true;
-  peach.x=7600;peach.y=H-TILE-peach.h;
-  peach.vx=0;peach.caught=true;
-  peach.walkFrame=0;peach.walkTimer=0;
+  // ピーチ（クッパ撃破後に自動スポーン）
 // ★ ハンマースーツ
 platforms.push({x:5200,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 // ★ 装飾土管

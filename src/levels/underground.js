@@ -279,11 +279,12 @@ enemies.push(bz(300));enemies.push(gm(480));
 }else if(variant==='bowser_final'){
 // ★8-3 クッパ最終決戦★ クッパHP=7 + ピーチ救出
 for(let i=pipes.length-1;i>=0;i--){if(pipes[i].isExit)pipes.splice(i,1);}
-addRow(80,H-4*TILE,2,'brick');addRow(250,H-6*TILE,2,'brick');addRow(420,H-4*TILE,2,'brick');
-platforms.push({x:140,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:330,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-platforms.push({x:490,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+addRow(80,H-8*TILE,2,'brick');addRow(250,H-8*TILE,2,'brick');addRow(420,H-8*TILE,2,'brick');
+platforms.push({x:80, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:314,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+platforms.push({x:484,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:150,y:H-11*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 for(let i=0;i<20;i++)coinItems.push({x:55+i*30,y:H-7*TILE,collected:false});
 G.bowserArenaX=-1;
 G.bowserLeftX=TILE*2;
@@ -294,10 +295,7 @@ const _bs=BOWSER_STATS[8];Object.assign(bowser,{
   hurtTimer:0,fireTimer:_bs.fireTimer,jumpTimer:_bs.jumpTimer,
   onGround:false,state:'walk',deadTimer:0,fireImmune:_bs.fireImmune,phase:1,phaseTransition:0
 });
-peach.alive=true;
-peach.x=W-TILE*2;peach.y=H-TILE-peach.h;
-peach.vx=0;peach.caught=true;
-peach.walkFrame=0;peach.walkTimer=0;
+// ピーチ（クッパ撃破後に自動スポーン）
 
 // ════════════════════════════════════════
 // P-Switch パズル部屋
