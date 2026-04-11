@@ -71,6 +71,13 @@ export function buildLevel_3_1(){
   platforms.push({x:3470,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   platforms.push({x:4620,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:6020,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  // チェックポイント(x=4200)周辺 — gap終端(x=4150)直後にきのこ×2、スター×1
+  // x=4155: gap end直後の地面上、addRow(4220,H-5T)とは別y
+  // x=4350: addRow(4220,H-5T)終端x=4316より右、addRow(4420,H-4T)のx=4420,4452とは別
+  // x=4250,H-8T: addRow(4220,H-5T)と異なるy、パイプ(x=4700)からも十分離れる
+  platforms.push({x:4155,y:H-4*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:4350,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:4250,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
 
   // パイプ (ワープ×2: river1/river2、通常×1)
   [[700,2,'river1'],[2600,2,'river2'],[4700,2,false]].forEach(([px,ph,warp])=>{

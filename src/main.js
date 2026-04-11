@@ -327,6 +327,7 @@ function startFromStage(id){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yo
 function startGame(){G.currentWorld=1;G.currentLevel=1;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;const _sg=getStage(1,1);if(_sg)_sg.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function killMario(force=false){
+if(mario.dead)return;
 if(!force&&(G.starTimer>0||mario.inv>0))return;
 if(!force&&yoshi.mounted&&yoshi.alive){dismountYoshi(true);mario.inv=120;return}
 if(!force&&G.megaTimer>0){G.megaTimer=0;mario.power=G.megaPrevPower;mario.big=G.megaPrevBig;mario.h=mario.big?48:32;mario.inv=120;sfx('break');return}
@@ -335,7 +336,8 @@ if(!force&&mario.power==='big'){mario.power='none';mario.big=false;mario.h=32;ma
 // リトライハート: 死亡回避、その場復活
 if(!force&&G.retryHeart>0){G.retryHeart--;mario.inv=180;mario.vy=-10;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');return;}
 if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
-// 死亡時に特殊効果リセット
+// 死亡時に特殊効果リセット（チェックポイント復帰用に保存）
+const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart;
 G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;
 G.lives--;G.combo=0;sfx('die');stopBGM();mario.dead=true;mario.vy=-11;G.shakeX=8;G.shakeY=8;updateHUD();
 setTimeout(()=>{if(G.lives<=0){G.state='over';clearInterval(G.timerTick)}else{if(G.checkpointReached&&G.checkpoint){
@@ -344,6 +346,8 @@ const _cpx=G.checkpoint.x,_cpy=G.checkpoint.y;const _cp2r=G.checkpoint2&&G.check
 // レベル再構築（ブロック・敵を全復活）
 const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}
 resetMario();mario.x=_cpx;mario.y=_cpy-mario.h;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));G.timeLeft=400;
+// ショップ購入効果を復元（チェックポイント復帰時は継続）
+G.coinMagnet=_svMagnet;G.doubleJump=_svJump;G.retryHeart=_svRetry;
 // チェックポイント到達状態を復元
 G.checkpointReached=true;G.checkpoint={x:_cpx,y:_cpy,reached:true};
 if(_cp2r&&G.checkpoint2){G.checkpoint2.reached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;mario.x=G.checkpoint2.x;mario.y=G.checkpoint2.y-mario.h;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
@@ -519,7 +523,7 @@ if(mario.hipDrop&&mario.onGround){mario.hipDrop=false;G.shakeX=5;G.shakeY=5;try{
   for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}}}
 }
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
-if(mario.y>H+40)killMario(true);
+if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}
 if(G.autoScroll>0&&mario.x<G.cam+10)killMario(true); // 強制スクロール挟まれ即死
 if(mario.inv>0)mario.inv--;
 
