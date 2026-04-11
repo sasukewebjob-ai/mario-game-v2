@@ -119,7 +119,10 @@ export function buildLevel_5_1(){
   ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:0,vy:0,type:'blooper',alive:true}));
 
 // ★ ハンマースーツ・巨大キノコ
+platforms.push({x:800, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 platforms.push({x:2500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:4000,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:6000,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 platforms.push({x:4800,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
 // ★ 装飾土管
 pipes.push({x:3000,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false});

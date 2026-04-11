@@ -108,22 +108,29 @@ export function buildLevel_5_2(){
   // チェックポイント
   G.checkpoint={x:3800,y:H-TILE,reached:false};
 
-  // ぷくぷく横（1/3に削減）
-  [{x:600, y:H-5*TILE,vx:-1.75},
-   {x:1900,y:H-3*TILE,vx:-1.75},
-   {x:3400,y:H-6*TILE,vx:-1.5},
-   {x:5200,y:H-4*TILE,vx:-1.9},
-   {x:6800,y:H-5*TILE,vx:-1.6}
+  // ぷくぷく横
+  [{x:300, y:H-3*TILE,vx:-1.5},{x:600, y:H-5*TILE,vx:-1.75},
+   {x:900, y:H-4*TILE,vx:-1.4},{x:1300,y:H-6*TILE,vx:-1.6},
+   {x:1900,y:H-3*TILE,vx:-1.75},{x:2400,y:H-5*TILE,vx:-1.5},
+   {x:2900,y:H-4*TILE,vx:-1.9},{x:3400,y:H-6*TILE,vx:-1.5},
+   {x:4120,y:H-3*TILE,vx:-1.75},{x:4600,y:H-5*TILE,vx:-1.6},
+   {x:5200,y:H-4*TILE,vx:-1.9},{x:5800,y:H-6*TILE,vx:-1.5},
+   {x:6300,y:H-3*TILE,vx:-1.75},{x:6800,y:H-5*TILE,vx:-1.6}
   ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:d.vx,type:'cheepH',alive:true,activated:true}));
 
   // クリボー（水底を歩く）
   [{x:400},{x:1000},{x:1700},{x:2600},{x:3300},{x:4120},{x:4900},{x:5600},{x:6500},{x:7000}
   ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false}));
 
-  // ぷくぷく縦（1/3に削減）
+  // ぷくぷく縦（振れ幅大きい）
   [{x:800, baseY:H-6*TILE,range:90,phase:0},
+   {x:1600,baseY:H-7*TILE,range:100,phase:1.0},
+   {x:2300,baseY:H-5*TILE,range:80, phase:2.0},
    {x:3480,baseY:H-7*TILE,range:110,phase:0.5},
+   {x:4100,baseY:H-6*TILE,range:90, phase:1.5},
+   {x:5000,baseY:H-7*TILE,range:100,phase:2.5},
    {x:5900,baseY:H-5*TILE,range:85, phase:0.3},
+   {x:6700,baseY:H-7*TILE,range:95, phase:1.8},
   ].forEach(d=>enemies.push({x:d.x,y:d.baseY,baseY:d.baseY,range:d.range,phase:d.phase,w:24,h:20,type:'cheepV',alive:true,activated:true}));
 
   // ゲッソー（水中追跡）
@@ -144,8 +151,11 @@ export function buildLevel_5_2(){
     maxFireTimer:Math.floor(80+Math.random()*60)
   }));
 // ★ ハンマースーツ・巨大キノコ
-platforms.push({x:3500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
-platforms.push({x:4500,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
+platforms.push({x:1000,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:2500,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:3500,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:5500,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+platforms.push({x:4500,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
 // ★ 装飾土管
 pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4000,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
