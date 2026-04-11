@@ -47,7 +47,6 @@ export function buildLevel_7_3(){
   addRow(5200,H-7*TILE, 3,'brick'); // 5200,5232,5264 → 末端5296
   addRow(5350,H-5*TILE, 3,'brick'); // 5350,5382,5414 → 末端5446
   // ── 砦追加層 ──
-  addRow(1300, H-4*TILE, 3,'brick'); // 1300,1332,1364 → 末端1396（Z1内・低層）
   addRow(3100, H-6*TILE, 3,'brick'); // 3100,3132,3164 → 末端3196（Z2内・中層。既存3050 H-5Tと干渉なし）
   // Z4: アリーナ手前〜大階段
   addRow(5860,H-5*TILE, 4,'brick'); // 5860,5892,5924,5956 → 末端5988
@@ -151,6 +150,7 @@ export function buildLevel_7_3(){
   // ドッスン×4（天井から落下）
   enemies.push({x: 650, y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
   enemies.push({x:1300, y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+  enemies.push({x:1364, y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
   enemies.push({x:2450, y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
   enemies.push({x:4150, y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
 
@@ -174,7 +174,6 @@ export function buildLevel_7_3(){
   // gap2(3700-4100)際：右端リスクコイン
   [4110,4120].forEach(cx=>[H-2*TILE,H-3*TILE,H-10*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 6枚
   // ③-c 新ブロック層コイン
-  for(let j=0;j<3;j++) coinItems.push({x:1300+j*32,y:H-6*TILE,collected:false}); // H-4T addRow上
   for(let j=0;j<3;j++) coinItems.push({x:3100+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
 
   // チェックポイント（Z2の安全地帯・周辺300px: 3300〜3900禁止済み ✓）
