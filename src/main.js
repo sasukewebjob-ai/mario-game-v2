@@ -789,7 +789,8 @@ if(bowser.hp<=0){bowser.state='dead';bowser.deadTimer=160;stopBGM();G.score+=500
 for(const e of enemies){if(!e.alive||!e.frozen)continue;e.frozenTimer--;if(e.frozenTimer<=0){e.frozen=false;e.vx=e.frozenVx||0;e.frozenVx=0;}
 // 凍結敵を踏むと粉砕
 if(overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){const mBot=mario.y+mario.h;
-if(mBot-mario.vy<=e.y+e.h*0.5){e.alive=false;e.frozen=false;mario.vy=-9;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<5;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-2)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.0,vx:(c-2)*2.5,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}
+if(mBot-mario.vy<=e.y+e.h*0.5&&mario.vy>=0){e.alive=false;e.frozen=false;mario.vy=-9;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<5;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-2)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.0,vx:(c-2)*2.5,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}
+else if(mario.vy<0){mario.y=e.y+e.h+1;mario.vy=0;}// 下から突き上げ: 天井扱いでダメージなし
 else if(mario.inv===0&&G.starTimer===0){// 横から蹴ると粉砕
 if(Math.abs(mario.vx)>2){e.alive=false;e.frozen=false;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<5;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-2)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.0,vx:(c-2)*2.5,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}}}
 // 凍結敵を足場として使う
