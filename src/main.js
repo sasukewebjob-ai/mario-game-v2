@@ -733,11 +733,11 @@ if(!peach.caught){
 peach.x+=peach.vx;peach.walkTimer++;if(peach.walkTimer>7){peach.walkTimer=0;peach.walkFrame=(peach.walkFrame+1)%2;}
 mario.vx=3;mario.x+=3;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3;}
 G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));
-if(mario.x+mario.w>=peach.x){peach.caught=true;peach.vx=0;G.peachChase.catchT=0;G.coinShower=false;sfx('power');for(let pi=0;pi<20;pi++)spawnParticle(peach.x+15,peach.y+20,'star');}
+if(mario.x+mario.w>=peach.x){peach.caught=true;peach.vx=0;G.peachChase.catchT=0;sfx('power');for(let pi=0;pi<20;pi++)spawnParticle(peach.x+15,peach.y+20,'star');}
 }else{
 G.peachChase.catchT++;
 if(G.peachChase.catchT===1){G.score+=10000;updateHUD();}
-if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';for(let wi=0;wi<30;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*200-100,H-TILE-100+Math.random()*80,'star'),wi*60);}}
+if(G.peachChase.catchT>120){G.coinShower=false;G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';for(let wi=0;wi<30;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*200-100,H-TILE-100+Math.random()*80,'star'),wi*60);}}
 }
 }
 // Lava flames
