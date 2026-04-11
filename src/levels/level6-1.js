@@ -104,6 +104,9 @@ export function buildLevel_6_1(){
   movingPlats.push({x:700, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:700, range:80, spd:1.3,prevX:700});
   movingPlats.push({x:1620,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1620,range:90, spd:1.5,prevX:1620});
   movingPlats.push({x:2730,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:2730,range:85, spd:1.4,prevX:2730});
+  // チェックポイント後の大ギャップ(3800-4250)と ワンワンギャップ(5100-5420) に縦移動床
+  movingPlats.push({x:4000,y:H-4*TILE,w:TILE*2,h:12,type:'v',ox:4000,range:85,spd:1.5,prevX:4000,oy:H-4*TILE});
+  movingPlats.push({x:5220,y:H-4*TILE,w:TILE*2,h:12,type:'v',ox:5220,range:85,spd:1.6,prevX:5220,oy:H-4*TILE});
 
   // ── 敵配置 ──
   // ペンギン（新敵・グラウンドゾーンのみ）
