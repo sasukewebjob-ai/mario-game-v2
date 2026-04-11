@@ -185,6 +185,7 @@ export function buildLevel_8_1(){
   // ★ 装飾土管
   pipes.push({x:600,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:3400,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
+  piranhas.push({x:3424,baseY:2*TILE,y:2*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 
   // ★ 追いかけ壁（飛行船の爆発が迫る）
   G.chasingWall={x:-300,speed:0.6,triggerX:2400,active:false}; // チェックポイント(x=2200)通過後に起動

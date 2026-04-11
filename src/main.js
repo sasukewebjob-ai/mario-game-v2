@@ -547,7 +547,8 @@ if(yoshi.alive&&yoshi.mounted){yoshi.x=mario.x-2;yoshi.y=mario.y+mario.h-yoshi.h
 // Tongue
 if(yoshi.tongueOut>0){yoshi.tongueOut--;yoshi.tongueLen=Math.min(yoshi.tongueLen+8,yoshi.tongueMaxLen);
 const tx=yoshi.x+(yoshi.facing===1?yoshi.w:0)+yoshi.facing*yoshi.tongueLen;const ty=yoshi.y+15;
-for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(overlap(tx-10,ty-90,20,110,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=1;e.alive=false;sfx('yoshi_eat');G.score+=200;yoshi.eatCount++;if(yoshi.eatCount>=10){yoshi.eatCount=0;G.starTimer=600;mario.inv=600;spawnScorePopup(mario.x,mario.y-30,'★STAR!','#FFD700');for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');sfx('power');stopBGM();try{startBGM()}catch(ex){}}updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,200,'#27ae60');break}}}}
+for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(overlap(tx-10,ty-90,20,110,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=1;e.alive=false;sfx('yoshi_eat');G.score+=200;yoshi.eatCount++;if(yoshi.eatCount>=10){yoshi.eatCount=0;G.starTimer=600;mario.inv=600;spawnScorePopup(mario.x,mario.y-30,'★STAR!','#FFD700');for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');sfx('power');stopBGM();try{startBGM()}catch(ex){}}updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,200,'#27ae60');break}}
+for(const pr of piranhas){if(!pr.alive)continue;if(overlap(tx-10,ty-90,20,110,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;sfx('yoshi_eat');G.score+=200;yoshi.eatCount++;if(yoshi.eatCount>=10){yoshi.eatCount=0;G.starTimer=600;mario.inv=600;spawnScorePopup(mario.x,mario.y-30,'★STAR!','#FFD700');for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');sfx('power');stopBGM();try{startBGM()}catch(ex){}}updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#27ae60');break}}}}
 // Yoshi thrown eggs
 for(let i=yoshiEggs.length-1;i>=0;i--){const eg=yoshiEggs[i];if(!eg.alive){yoshiEggs.splice(i,1);continue}
 eg.vy+=0.4;eg.x+=eg.vx;eg.y+=eg.vy;
@@ -654,9 +655,12 @@ else if(e.type==='koopa'||e.type==='buzzy'){if(e.state==='walk'){e.state='shell'
 else if(e.state==='shell'&&Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10}else if(mario.inv===0)killMario()}
 if(e.state==='shell'){e.shellTimer--;if(e.shellTimer<=0){e.state='walk';e.vx=e.type==='buzzy'?-1.6:-1.3;e.h=e.type==='koopa'?TILE*1.2:e.type==='buzzy'?TILE*0.85:TILE}}}
 // Piranhas
-for(const pr of piranhas){if(!pr.alive)continue;const t=G.frame*0.03+pr.phase;pr.y=pr.baseY-Math.max(0,Math.sin(t))*pr.maxUp;
+for(const pr of piranhas){if(!pr.alive)continue;const t=G.frame*0.03+pr.phase;
+pr.y=pr.ceiling?pr.baseY+Math.max(0,Math.sin(t))*pr.maxUp:pr.baseY-Math.max(0,Math.sin(t))*pr.maxUp;
 if(overlap(mario.x,mario.y,mario.w,mario.h,pr.x,pr.y,pr.w,pr.h)){if(G.starTimer>0){pr.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#FFD700')}else if(mario.inv===0)killMario();}
-for(const fb of fireballs){if(!fb.alive)continue;if(overlap(fb.x,fb.y,fb.w,fb.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#27ae60')}}}
+for(const fb of fireballs){if(!fb.alive)continue;if(overlap(fb.x,fb.y,fb.w,fb.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#27ae60')}}
+for(const ib of iceBalls){if(!ib.alive)continue;if(overlap(ib.x,ib.y,ib.w,ib.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;ib.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#44bbff')}}
+for(const mh of marioHammers){if(!mh.alive)continue;if(overlap(mh.x,mh.y,mh.w,mh.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;mh.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#888')}}}
 // Bowser boss
 if(bowser.alive){
 if(bowser.state==='offscreen'){const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];if(mario.x>G.bowserArenaX&&mario.onGround&&mario.y+mario.h>=H-TILE*2){bowser.state='walk';bowser.x=G.cam+W+150;bowser.vx=-_bs.speed;try{beep(120,.4,'sawtooth',.3);beep(80,.5,'sawtooth',.25,.15)}catch(ex){}}}
@@ -740,7 +744,7 @@ if(G.ugMode&&G.state==='play'&&!G.peachChase&&mario.x>W-1.5*TILE&&mario.onGround
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
 // クッパ前チェックポイント（2つ目）
 if(G.checkpoint2&&!G.checkpoint2.reached&&mario.x>G.checkpoint2.x){G.checkpoint2.reached=true;G.checkpointReached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint2.x,G.checkpoint2.y-TILE*3,'CHECK!','#ff4444');for(let i=0;i<10;i++)spawnParticle(G.checkpoint2.x+8,G.checkpoint2.y-TILE*2,'star')}
-if(G.currentLevel!==3&&!G.ugMode&&!G.waterMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+20){sfx('flag');stopBGM();G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
+if(G.currentLevel!==3&&!G.ugMode&&!G.waterMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+96){sfx('flag');stopBGM();G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
 // Fireballs
 for(let i=fireballs.length-1;i>=0;i--){const fb=fireballs[i];if(!fb.alive){fireballs.splice(i,1);continue}
 fb.vy+=(G.waterMode?0:0.55);fb.x+=fb.vx;fb.y+=fb.vy;
@@ -1270,6 +1274,7 @@ const fo=e.walkFrame===0?[-2,2]:[2,-2];ctx.fillStyle='#f5d76e';ctx.fillRect(x+4+
 
 function drawPiranha(pr){const x=pr.x,y=pr.y,cw=pr.w,ch=pr.h,cx=x+cw/2;
 const open=Math.sin(G.frame*0.12)>0;const gap=open?6:0;
+if(pr.ceiling){ctx.save();ctx.translate(cx,y+ch/2);ctx.scale(1,-1);ctx.translate(-cx,-(y+ch/2));}
 // Stem
 ctx.fillStyle='#1e8449';ctx.fillRect(cx-3,y+ch*0.52,6,ch*0.48);
 // Leaves
@@ -1289,7 +1294,8 @@ ctx.fillRect(x+1,y+ch*0.38-gap,4,4);ctx.fillRect(x+8,y+ch*0.38-gap,4,4);
 ctx.fillStyle='rgba(255,255,255,0.55)';
 ctx.beginPath();ctx.arc(x+3,y+ch*0.26-gap/2,3,0,Math.PI*2);ctx.fill();
 ctx.beginPath();ctx.arc(x+12,y+ch*0.22-gap/2,2,0,Math.PI*2);ctx.fill();
-ctx.beginPath();ctx.arc(x+4,y+ch*0.44-gap/2,1.5,0,Math.PI*2);ctx.fill();}
+ctx.beginPath();ctx.arc(x+4,y+ch*0.44-gap/2,1.5,0,Math.PI*2);ctx.fill();
+if(pr.ceiling)ctx.restore();}
 
 function drawMushroom(m){
 if(m.type==='iceFlower'){const bob=Math.sin(G.frame*0.1)*2;ctx.fillStyle='#27AE60';ctx.fillRect(m.x+10,m.y+14,4,10);

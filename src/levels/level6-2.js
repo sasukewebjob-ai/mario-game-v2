@@ -205,4 +205,5 @@ platforms.push({x:2860,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMeg
 // ★ 装飾土管
 pipes.push({x:1900,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4800,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
+piranhas.push({x:4824,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 }
