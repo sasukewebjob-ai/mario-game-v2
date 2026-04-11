@@ -176,7 +176,7 @@ const gpad={left:false,right:false,up:false,down:false,a:false,b:false,x:false,y
 const _gpPrev={};let _gpConnected=false,_gpName='';
 const _SHOP_ITEMS=[
   {key:'mushroom',cost:30},{key:'fire',cost:60},{key:'ice',cost:60},{key:'hammer',cost:80},{key:'1up',cost:100},{key:'1upSet',cost:200},
-  {key:'star10',cost:50},{key:'star30',cost:500},{key:'doubleJump',cost:150},{key:'magnet',cost:300},{key:'retryHeart',cost:100},{key:'1upSet6',cost:280}
+  {key:'star10',cost:50},{key:'star30',cost:500},{key:'doubleJump',cost:200},{key:'magnet',cost:250},{key:'retryHeart',cost:100},{key:'1upSet6',cost:280}
 ];
 const _SINGLE_ONLY=new Set(['mushroom','fire','ice','hammer']);
 function _gpShopBuy(idx){
@@ -748,7 +748,7 @@ if(G.ugMode&&G.state==='play'&&!G.peachChase&&!bowser.alive&&mario.x>W-1.5*TILE&
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
 // クッパ前チェックポイント（2つ目）
 if(G.checkpoint2&&!G.checkpoint2.reached&&mario.x>G.checkpoint2.x){G.checkpoint2.reached=true;G.checkpointReached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint2.x,G.checkpoint2.y-TILE*3,'CHECK!','#ff4444');for(let i=0;i<10;i++)spawnParticle(G.checkpoint2.x+8,G.checkpoint2.y-TILE*2,'star')}
-if(G.currentLevel!==3&&!G.ugMode&&!G.waterMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+96){sfx('flag');stopBGM();G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
+if(G.currentLevel!==3&&!G.ugMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+96){sfx('flag');stopBGM();G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
 // Fireballs
 for(let i=fireballs.length-1;i>=0;i--){const fb=fireballs[i];if(!fb.alive){fireballs.splice(i,1);continue}
 fb.vy+=(G.waterMode?0:0.55);fb.x+=fb.vx;fb.y+=fb.vy;
@@ -1776,7 +1776,7 @@ if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(pc.x+TILE
 for(const e of enemies){if(!e.alive||e.x+e.w<G.cam-10||e.x>G.cam+W+10)continue;
 if(e.type==='koopa'||e.type==='parakoopa')drawKoopa(e);else if(e.type==='buzzy')drawBuzzy(e);else if(e.type==='hammerBro')drawHammerBro(e);else if(e.type==='cactus')drawCactus(e);else if(e.type==='lakitu')drawLakitu(e);else if(e.type==='cheepH'||e.type==='cheepV')drawCheep(e);else if(e.type==='firePlant')drawFirePlant(e);else if(e.type==='plantFire')drawPlantFireball(e);else if(e.type==='penguin')drawPenguin(e);else if(e.type==='teresa')drawTeresa(e);else if(e.type==='thwomp')drawThwomp(e);else if(e.type==='blooper')drawBlooper(e);else if(e.type==='dryBones')drawDryBones(e);else if(e.type==='angrySun')drawAngrySun(e);else if(e.type==='chuck')drawChuck(e);
 else drawGoomba(e.x,e.y,e.state==='dead',e.walkFrame)}
-if(G.currentLevel!==3&&!G.ugMode&&!G.waterMode&&flagPole.x-G.cam>-200&&flagPole.x-G.cam<W+200)drawFlag();
+if(G.currentLevel!==3&&!G.ugMode&&flagPole.x-G.cam>-200&&flagPole.x-G.cam<W+200)drawFlag();
 // Bowser
 if(bowser.alive&&bowser.x+bowser.w>G.cam-10&&bowser.x<G.cam+W+10){
 const bx=Math.round(bowser.x),by=Math.round(bowser.y);
@@ -1987,12 +1987,12 @@ const _shopItems=[
   {name:'1UP x3',cost:200,key:'1upSet',icon:'💚x3',desc:'残機+3'},
   {name:'STAR 10s',cost:50,key:'star10',icon:'⭐',desc:'10秒無敵'},
   {name:'STAR 30s',cost:500,key:'star30',icon:'🌟',desc:'30秒無敵!'},
-  {name:'W-JUMP',cost:150,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ 死ぬまで'},
-  {name:'MAGNET',cost:300,key:'magnet',icon:'🧲',desc:'コイン吸引 死ぬまで'},
+  {name:'W-JUMP',cost:200,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ 死ぬまで'},
+  {name:'MAGNET',cost:250,key:'magnet',icon:'🧲',desc:'コイン吸引 死ぬまで'},
   {name:'RETRY',cost:100,key:'retryHeart',icon:'❤️',desc:'死亡時復活 重ね可'},
   {name:'1UP x6',cost:280,key:'1upSet6',icon:'💚x6',desc:'残機+6 お得!'}
 ];
-const _cols=6,_siW=104,_siH=90,_siGap=10,_rowGap=8;
+const _cols=6,_siW=104,_siH=100,_siGap=10,_rowGap=10;
 const _siX0=(W-(_siW*_cols+_siGap*(_cols-1)))/2,_siY=78;
 _shopItems.forEach((_si,_idx)=>{
   const _row=Math.floor(_idx/_cols),_col=_idx%_cols;
@@ -2004,12 +2004,12 @@ _shopItems.forEach((_si,_idx)=>{
   const _canBuy=G.coins>=_si.cost&&!_sold;
   ctx.fillStyle=_sel?'rgba(255,200,0,0.15)':'rgba(40,40,60,0.6)';ctx.fillRect(_sx,_sy,_siW,_siH);
   ctx.strokeStyle=_sel?'#FFD700':'#555';ctx.lineWidth=_sel?3:1;ctx.strokeRect(_sx,_sy,_siW,_siH);
-  ctx.font='16px monospace';ctx.fillStyle='#fff';ctx.fillText(_si.icon,_sx+_siW/2,_sy+22);
-  ctx.font='bold 7px "Press Start 2P",monospace';
-  if(_sold){ctx.fillStyle='#4a4';ctx.fillText('SOLD',_sx+_siW/2,_sy+40);}
-  else{ctx.fillStyle='#fff';ctx.fillText(_si.name,_sx+_siW/2,_sy+40);if(_boughtVal>0&&!_single){ctx.fillStyle='#2ecc71';ctx.fillText(`x${_boughtVal}`,_sx+_siW-8,_sy+14);}}
-  ctx.font='7px "Press Start 2P",monospace';ctx.fillStyle=_canBuy?'#FFD700':'#888';ctx.fillText(`${_si.cost}C`,_sx+_siW/2,_sy+56);
-  ctx.font='6px "Press Start 2P",monospace';ctx.fillStyle='#aaa';ctx.fillText(_si.desc,_sx+_siW/2,_sy+72);
+  ctx.font='18px monospace';ctx.fillStyle='#fff';ctx.fillText(_si.icon,_sx+_siW/2,_sy+24);
+  ctx.font='bold 8px "Press Start 2P",monospace';
+  if(_sold){ctx.fillStyle='#4a4';ctx.fillText('SOLD',_sx+_siW/2,_sy+44);}
+  else{ctx.fillStyle='#fff';ctx.fillText(_si.name,_sx+_siW/2,_sy+44);if(_boughtVal>0&&!_single){ctx.fillStyle='#2ecc71';ctx.fillText(`x${_boughtVal}`,_sx+_siW-8,_sy+14);}}
+  ctx.font='bold 8px "Press Start 2P",monospace';ctx.fillStyle=_canBuy?'#FFD700':'#888';ctx.fillText(`${_si.cost}C`,_sx+_siW/2,_sy+60);
+  ctx.font='10px sans-serif';ctx.fillStyle='#ddd';ctx.fillText(_si.desc,_sx+_siW/2,_sy+80);
   if(_sel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',_sx+_siW/2,_sy-4);}
 });
 const _totalRows=Math.ceil(_shopItems.length/_cols);
@@ -2071,7 +2071,7 @@ ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+14);
 if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→:SELECT',W/2,_hintY+30);}
 ctx.textAlign='left';}
 if(G.state==='dead')drawOverlay('MISS!',`${G.lives} LEFT\nCLICK or SPACE to CONTINUE`,'#4a1a1a');
-if(G.state==='over'){ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,W,H);const _goa=0.25+0.18*Math.sin(G.frame*0.1);ctx.fillStyle=`rgba(200,0,0,${_goa})`;ctx.fillRect(0,0,W,H);if(G.frame%22<17){ctx.fillStyle='#ff2222';ctx.font='bold 38px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#ff0000';ctx.shadowBlur=28;ctx.fillText('GAME OVER',W/2,H/2-18);ctx.shadowBlur=0;}ctx.fillStyle='#fff';ctx.font='10px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+18);ctx.fillStyle='#bbb';ctx.fillText('CLICK or SPACE to RESTART',W/2,H/2+48);ctx.textAlign='left';}
+if(G.state==='over'){ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff2222';ctx.font='bold 38px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#ff0000';ctx.shadowBlur=28;ctx.fillText('GAME OVER',W/2,H/2-18);ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='10px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+18);ctx.fillStyle='#bbb';ctx.fillText('CLICK or SPACE to RESTART',W/2,H/2+48);ctx.textAlign='left';}
 if(G.state==='win'){const _curStage=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const _isBoss=_curStage?.bgmTheme==='castle';if(_isFinal){ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(0,0,W,H);const _wh=((G.frame*1.5)%360);ctx.fillStyle=`hsla(${_wh},100%,55%,0.12)`;ctx.fillRect(0,0,W,H);if(G.frame%10===0){const _fx=60+Math.random()*(W-120),_fy=40+Math.random()*200;for(let _fp=0;_fp<14;_fp++)spawnParticle(_fx,_fy,'star');}const _pulse=0.82+0.18*Math.sin(G.frame*0.07);ctx.globalAlpha=_pulse;ctx.fillStyle='#FFD700';ctx.font='bold 24px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#FF8800';ctx.shadowBlur=22;ctx.fillText('CONGRATULATIONS!',W/2,H/2-58);ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.fillStyle='#ff99cc';ctx.font='13px "Press Start 2P",monospace';ctx.fillText('PEACH IS SAVED!',W/2,H/2-18);ctx.fillStyle='#FFD700';ctx.font='11px "Press Start 2P",monospace';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+16);ctx.fillStyle='#aaddff';ctx.font='8px "Press Start 2P",monospace';ctx.fillText('THANK YOU FOR PLAYING!',W/2,H/2+46);ctx.fillStyle='#888';ctx.fillText('CLICK or SPACE',W/2,H/2+72);ctx.textAlign='left';}else{drawOverlay(_isBoss?'THANK YOU!':'COURSE CLEAR!',_isBoss?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');}}
 if(G.paused&&G.state==='play'){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 20px "Press Start 2P"';ctx.textAlign='center';ctx.fillText('PAUSED',W/2,H/2-10);ctx.font='11px "Press Start 2P"';ctx.fillText(_gpConnected?'START / P : RESUME':'P : RESUME',W/2,H/2+24);ctx.textAlign='left';}
 }

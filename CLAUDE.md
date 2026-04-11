@@ -9,7 +9,13 @@ Vite + Vanilla JS によるモジュール分割版 Mario ゲーム。
 cd mario-game-v2
 npm run dev     # 開発サーバー起動（ホットリロードあり）
 npm run build   # 本番ビルド（エラーチェックに使う）
+npm run deploy  # ビルド＋GitHub Pages へデプロイ（gh-pages ブランチ更新）
 ```
+
+## デプロイ
+- 公開URL: https://sasukewebjob-ai.github.io/mario-game-v2/
+- コマンド: `npm run deploy`（vite build → gh-pages -d dist）
+- **コミット後は必ず `npm run deploy` を実行すること**（master に push しただけでは反映されない）
 
 ## ファイル構成
 ```

@@ -49,8 +49,8 @@ export function buildLevel_5_2(){
   pipes.push({x:2000,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water3'});
   // 土管2: warp→water4
   pipes.push({x:4800,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water4'});
-  // 土管3: ★ゴールパイプ★
-  pipes.push({x:7200,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isGoalPipe:true});
+  // ゴール（フラッグポール）
+  flagPole.x=7200;
 
   // 移動足場（難易度UP）
   movingPlats.push({x:550, y:H-6*TILE,w:TILE*2,h:12,type:'h',ox:550, range:80, spd:1.4,prevX:550});

@@ -37,7 +37,6 @@ export function buildLevel_5_1(){
   addRow(6300, H-5*TILE, 5, 'ground');   // x=6300〜6428
 
   // ★ Block Height Variety（水中の追加岩礁）
-  addRow(600,  H-8*TILE, 3, 'ground');   // 高めの岩礁
   addRow(2000, H-4*TILE, 4, 'ground');   // 低めの岩礁
   addRow(3800, H-8*TILE, 3, 'ground');   // 高めの岩礁
   addRow(5300, H-6*TILE, 4, 'ground');   // 中位の岩礁
@@ -47,8 +46,8 @@ export function buildLevel_5_1(){
   pipes.push({x:1800,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water1'});
   // 土管2: warp→water2 (1UP部屋)
   pipes.push({x:4400,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'pswitch_wall'});
-  // 土管3: ★ゴールパイプ★
-  pipes.push({x:6900,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isGoalPipe:true});
+  // ゴール（フラッグポール）
+  flagPole.x=6900;
 
   // コイン（1ライン + クラスター + 縦列）
   for(let x=4700;x<6850;x+=64) coinItems.push({x,y:H-6*TILE,collected:false,pop:false});
@@ -77,7 +76,8 @@ export function buildLevel_5_1(){
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:6916+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
 
   // はてなブロック（特殊ブロックはpushのみ）
-  platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,bounceOffset:0});
+  platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:700,  y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:2300, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:3600, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   platforms.push({x:5200, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});

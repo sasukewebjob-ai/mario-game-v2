@@ -31,7 +31,7 @@ export function buildLevel_8_2(){
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
   G.autoScroll=1.0;
-  flagPole.x=LW+1000; // flagPole無効化
+  flagPole.x=5232; // フラッグポール（階段ゴール）
 
   // 地面（船の甲板：micro-gap at x=400、gap2拡大）
   const gaps=[{s:400,e:480},{s:900,e:1100},{s:2100,e:2450},{s:3500,e:3700},{s:4500,e:4700}];
@@ -125,12 +125,8 @@ export function buildLevel_8_2(){
   piranhas.push({x:pipes[2].x+24,baseY:pipes[2].y,y:pipes[2].y,w:16,h:TILE,phase:3.0,alive:true,maxUp:TILE*1.5});
   piranhas.push({x:pipes[3].x+24,baseY:pipes[3].y,y:pipes[3].y,w:16,h:TILE,phase:4.5,alive:true,maxUp:TILE*1.5});
 
-  // ── ワープパイプ手前のブロック壁（落下防止）──
-  for(let wy=H-6*TILE;wy<H-TILE;wy+=TILE){addB(5120,wy,'brick');addB(5152,wy,'brick');}
-  for(let bx=5184;bx<=5264;bx+=TILE) addB(bx,H-2*TILE,'brick');
-
-  // ── ワープパイプ（ゴールへ）──
-  pipes.push({x:5200,y:H-TILE*2-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:true,variant:'airship_goal2'});
+  // ── 階段＋フラッグポール（ゴール）──
+  addStair(5024, 6); // 6段上り階段（x=5024〜5184, top=H-7*TILE）
 
   // ── 敵配置 ──
   // チェックポイント x=3000 から±300px: 2700〜3300 には敵を置かない
