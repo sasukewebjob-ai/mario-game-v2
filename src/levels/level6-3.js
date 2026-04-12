@@ -64,8 +64,7 @@ export function buildLevel_6_3(){
 
   // 大型上り階段（クッパアリーナへ）
   addStair(6700, 10);
-  // 引き返し封鎖壁
-  for(let wy=H-11*TILE;wy<=H-4*TILE;wy+=TILE)addB(6668,wy,'g');
+  G.stairSealX=6956;
 
   // アリーナ壁（7ブロック高 > クッパジャンプ上限 144px）
   for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(7020,wy,'brick');addB(7052,wy,'brick');}

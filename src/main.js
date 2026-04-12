@@ -678,7 +678,7 @@ for(const ib of iceBalls){if(!ib.alive)continue;if(overlap(ib.x,ib.y,ib.w,ib.h,p
 for(const mh of marioHammers){if(!mh.alive)continue;if(overlap(mh.x,mh.y,mh.w,mh.h,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;mh.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#888')}}}
 // Bowser boss
 if(bowser.alive){
-if(bowser.state==='offscreen'){const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];if(mario.x>G.bowserArenaX&&mario.onGround&&mario.y+mario.h>=H-TILE*2){bowser.state='walk';bowser.x=G.cam+W+150;bowser.vx=-_bs.speed;try{beep(120,.4,'sawtooth',.3);beep(80,.5,'sawtooth',.25,.15)}catch(ex){}}}
+if(bowser.state==='offscreen'){const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];if(mario.x>G.bowserArenaX&&mario.onGround&&mario.y+mario.h>=H-TILE*2){bowser.state='walk';if(G.stairSealX){for(let sy=H-15*TILE;sy<=H-12*TILE;sy+=TILE)platforms.push({x:G.stairSealX,y:sy,w:TILE,h:TILE,type:'ground',bounceOffset:0});G.stairSealX=null;}bowser.x=G.cam+W+150;bowser.vx=-_bs.speed;try{beep(120,.4,'sawtooth',.3);beep(80,.5,'sawtooth',.25,.15)}catch(ex){}}}
 else if(bowser.state!=='dead'){
 const _bs=BOWSER_STATS[G.currentWorld]||BOWSER_STATS[1];
 const _p2=bowser.phase===2;

@@ -57,5 +57,6 @@ export const G={
   chasingWall:null,gravityFlipped:false,
   sandstormMode:false,tideMode:false,tideLevel:450,
   pswitchTimer:0,_psCoins:null,_psBricks:null,
+  stairSealX:null,
   usedUndergrounds:null
 };

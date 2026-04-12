@@ -52,8 +52,7 @@ export function buildLevel_3_3(){
   addRow(6200,H-5*TILE,4,'brick');
   // 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
   addStair(6400,10);
-  // 引き返し封鎖壁
-  for(let wy=H-11*TILE;wy<=H-4*TILE;wy+=TILE)addB(6368,wy,'g');
+  G.stairSealX=6656;
 
   // 特殊ブロック (pushのみ)
   platforms.push({x:200,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});

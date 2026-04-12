@@ -53,8 +53,7 @@ export function buildLevel_5_3(){
 
   // 大型上り階段（10段）— クッパアリーナへ
   addStair(6600,10);
-  // 引き返し封鎖壁
-  for(let wy=H-11*TILE;wy<=H-4*TILE;wy+=TILE)addB(6568,wy,'g');
+  G.stairSealX=6856;
 
   // 移動足場（溶岩穴）
   movingPlats.push({x:2050,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:2050,range:80,spd:1.6,prevX:2050});
