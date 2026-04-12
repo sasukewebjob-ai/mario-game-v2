@@ -177,9 +177,10 @@ canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getB
 const gpad={left:false,right:false,up:false,down:false,a:false,b:false,x:false,y:false,start:false,select:false,l:false,r:false};
 const _gpPrev={};let _gpConnected=false,_gpName='';
 const _SHOP_ITEMS=[
-  {key:'mushroom',cost:30},{key:'fire',cost:60},{key:'ice',cost:60},{key:'hammer',cost:80},{key:'1up',cost:100},{key:'1upSet',cost:200},
-  {key:'star10',cost:50},{key:'star30',cost:500},{key:'doubleJump',cost:200},{key:'magnet',cost:250},{key:'retryHeart',cost:100},{key:'1upSet6',cost:280},
-  {key:'highJump',cost:120},{key:'shield',cost:80},{key:'warp',cost:300},{key:'bundle',cost:500},{key:'megaStart',cost:250}
+  {key:'mushroom',cost:30},{key:'star10',cost:50},{key:'fire',cost:60},{key:'ice',cost:60},
+  {key:'hammer',cost:80},{key:'shield',cost:80},{key:'1up',cost:100},{key:'retryHeart',cost:100},
+  {key:'highJump',cost:120},{key:'1upSet',cost:200},{key:'doubleJump',cost:200},{key:'megaStart',cost:250},
+  {key:'magnet',cost:250},{key:'1upSet6',cost:280},{key:'warp',cost:300},{key:'star30',cost:500},{key:'bundle',cost:500}
 ];
 const _SINGLE_ONLY=new Set(['mushroom','fire','ice','hammer','highJump','megaStart']);
 function _gpShopBuy(idx){
@@ -1993,23 +1994,23 @@ ctx.fillText(`TIME:${G.timeLeft}  COINS:${_stCoins}  KO:${G.stageKills}  MAX COM
 ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';ctx.fillText('COIN SHOP',W/2,46);
 ctx.fillStyle='#fff';ctx.font='9px "Press Start 2P",monospace';ctx.fillText(`COINS: ${G.coins}`,W/2,64);
 const _shopItems=[
-  {name:'MUSHROOM',cost:30,key:'mushroom',icon:'🍄',desc:'デカマリオ'},
-  {name:'FIRE',cost:60,key:'fire',icon:'🔥',desc:'ファイアマリオ'},
-  {name:'ICE',cost:60,key:'ice',icon:'❄️',desc:'アイスマリオ'},
-  {name:'HAMMER',cost:80,key:'hammer',icon:'🔨',desc:'ハンマーマリオ'},
-  {name:'1UP',cost:100,key:'1up',icon:'💚',desc:'残機+1'},
-  {name:'1UP x3',cost:200,key:'1upSet',icon:'💚x3',desc:'残機+3'},
-  {name:'STAR 10s',cost:50,key:'star10',icon:'⭐',desc:'10秒無敵'},
-  {name:'STAR 30s',cost:500,key:'star30',icon:'🌟',desc:'30秒無敵!'},
-  {name:'W-JUMP',cost:200,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ 死ぬまで'},
-  {name:'MAGNET',cost:250,key:'magnet',icon:'🧲',desc:'コイン吸引 死ぬまで'},
-  {name:'RETRY',cost:100,key:'retryHeart',icon:'❤️',desc:'死亡時復活 重ね可'},
-  {name:'1UP x6',cost:280,key:'1upSet6',icon:'💚x6',desc:'残機+6 お得!'},
-  {name:'HI-JUMP',cost:120,key:'highJump',icon:'🦘',desc:'ジャンプ力+25% 死ぬまで'},
-  {name:'SHIELD',cost:80,key:'shield',icon:'🛡',desc:'1回ダメージ無効 重ね可'},
-  {name:'WARP',cost:300,key:'warp',icon:'✈️',desc:'次ステージを1つ飛ばす'},
-  {name:'SET 500',cost:500,key:'bundle',icon:'🎁',desc:'磁石+2段JMP+RETRY'},
-  {name:'MEGA',cost:250,key:'megaStart',icon:'⭐',desc:'メガマリオでスタート'}
+  {name:'MUSHROOM',cost:30, key:'mushroom', icon:'🍄', desc:'デカマリオ'},
+  {name:'STAR 10s', cost:50, key:'star10',   icon:'⭐', desc:'10秒無敵'},
+  {name:'FIRE',     cost:60, key:'fire',     icon:'🔥', desc:'ファイアマリオ'},
+  {name:'ICE',      cost:60, key:'ice',      icon:'❄️', desc:'アイスマリオ'},
+  {name:'HAMMER',   cost:80, key:'hammer',   icon:'🔨', desc:'ハンマーマリオ'},
+  {name:'SHIELD',   cost:80, key:'shield',   icon:'🛡', desc:'1回ダメージ無効 重ね可'},
+  {name:'1UP',      cost:100,key:'1up',      icon:'💚', desc:'残機+1'},
+  {name:'RETRY',    cost:100,key:'retryHeart',icon:'❤️',desc:'死亡時復活 重ね可'},
+  {name:'HI-JUMP',  cost:120,key:'highJump', icon:'🦘', desc:'ジャンプ力+25% 死ぬまで'},
+  {name:'1UP x3',   cost:200,key:'1upSet',   icon:'💚x3',desc:'残機+3'},
+  {name:'W-JUMP',   cost:200,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ 死ぬまで'},
+  {name:'MEGA',     cost:250,key:'megaStart', icon:'🔮', desc:'メガマリオでスタート'},
+  {name:'MAGNET',   cost:250,key:'magnet',    icon:'🧲', desc:'コイン吸引 死ぬまで'},
+  {name:'1UP x6',   cost:280,key:'1upSet6',   icon:'💚x6',desc:'残機+6 お得!'},
+  {name:'WARP',     cost:300,key:'warp',      icon:'✈️', desc:'次ステージを1つ飛ばす'},
+  {name:'STAR 30s', cost:500,key:'star30',    icon:'🌟', desc:'30秒無敵!'},
+  {name:'SET 500',  cost:500,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
 ];
 const _cols=6,_siW=104,_siH=100,_siGap=10,_rowGap=10;
 const _siX0=(W-(_siW*_cols+_siGap*(_cols-1)))/2,_siY=78;
