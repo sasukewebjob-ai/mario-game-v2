@@ -86,7 +86,7 @@ export function buildLevel_8_2(){
   // Ship C
   platforms.push({x:2580,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2580>2560 ✓
   platforms.push({x:2810,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2810>2796 ✓
-  platforms.push({x:3090,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3090>3078 ✓
+  platforms.push({x:3170,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3170>3164(pipe right edge) — pipe右端より後ろに移動(stuck防止)
   platforms.push({x:3310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3310>3296 ✓
   // Ship D
   platforms.push({x:3890,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3890>3878 ✓
