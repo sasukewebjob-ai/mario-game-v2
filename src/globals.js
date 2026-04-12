@@ -55,7 +55,7 @@ export const G={
   retryHeart:0,shield:0,highJump:false,afterimages:[],
   darkMode:false,megaTimer:0,megaPrevPower:'none',megaPrevBig:false,
   chasingWall:null,gravityFlipped:false,
-  sandstormMode:false,tideMode:false,tideLevel:450,
+  sandstormMode:false,tideMode:false,tideLevel:450,airshipMode:false,
   pswitchTimer:0,_psCoins:null,_psBricks:null,
   stairSealX:null,
   usedUndergrounds:null

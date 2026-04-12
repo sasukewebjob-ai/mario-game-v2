@@ -337,9 +337,9 @@ else{spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700'
 else if(p.type==='brick'){if(mario.big){sfx('break');G.score+=50;updateHUD();spawnParticle(p.x+16,p.y,'brick');spawnScorePopup(p.x+16,p.y-8,50,'#e67e22');const idx=platforms.indexOf(p);if(idx!==-1)platforms.splice(idx,1)}else{blockAnims.push({p,t:0})}}}
 
 // === GAME MANAGEMENT ===
-function startFromStage(id){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;G.usedUndergrounds=new Set();yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function startFromStage(id){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;G.usedUndergrounds=new Set();yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function startGame(){G.usedUndergrounds=new Set();G.currentWorld=1;G.currentLevel=1;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;const _sg=getStage(1,1);if(_sg)_sg.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
-function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function killMario(force=false){
 if(mario.dead)return;
 if(!force&&(G.starTimer>0||mario.inv>0))return;
@@ -359,7 +359,7 @@ setTimeout(()=>{if(G.lives<=0){G.state='over';clearInterval(G.timerTick);try{pla
 // チェックポイント位置とクッパCP到達状態を保存
 const _cpx=G.checkpoint.x,_cpy=G.checkpoint.y;const _cp2r=G.checkpoint2&&G.checkpoint2.reached;
 // レベル再構築（ブロック・敵を全復活）
-const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}
+const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}
 resetMario();mario.x=_cpx;mario.y=_cpy-mario.h;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));G.timeLeft=400;
 // ショップ購入効果を復元（チェックポイント復帰時は継続）
 G.coinMagnet=_svMagnet;G.doubleJump=_svJump;G.retryHeart=_svRetry;G.highJump=_svHighJump;G.shield=_svShield;
@@ -985,22 +985,41 @@ if(_bgS?.bgTheme==='fortress'){
   return;
 }
 if(_bgS?.bgTheme==='airship'){
-  // 飛行船：暗黒の空 + 星 + 暗雲 + 稲光
+  // 飛行船艦隊：嵐夜の空 + 艦隊シルエット + エンジン排気 + サーチライト
   const ag=ctx.createLinearGradient(0,0,0,H);
-  ag.addColorStop(0,'#020408');ag.addColorStop(0.4,'#0a1020');ag.addColorStop(0.75,'#101828');ag.addColorStop(1,'#080c14');
+  ag.addColorStop(0,'#010306');ag.addColorStop(0.35,'#060e1a');ag.addColorStop(0.72,'#0b1520');ag.addColorStop(1,'#03070e');
   ctx.fillStyle=ag;ctx.fillRect(0,0,W,H);
-  // 星
-  for(let i=0;i<60;i++){const sx=(i*271)%W,sy=(i*173)%(H*0.55);ctx.fillStyle=`rgba(180,200,255,${0.1+Math.abs(Math.sin(G.frame*0.03+i*1.7))*0.9})`;ctx.fillRect(sx,sy,i%5===0?2:1,i%5===0?2:1);}
-  // 暗雲（パララックス）
-  ctx.fillStyle='rgba(20,30,50,0.6)';
-  [0,380,800,1300,1900,2600,3400,4300,5200,6200,7200].forEach((cx,i)=>{const dx=cx-G.cam*0.15;if(dx<-200||dx>W+200)return;const cy=30+(i%4)*28;const cw=120+(i%3)*40;ctx.beginPath();ctx.arc(dx+cw*0.3,cy+12,20+i%3*6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(dx+cw*0.55,cy+6,26+i%2*8,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(dx+cw*0.8,cy+14,18+i%3*5,0,Math.PI*2);ctx.fill();ctx.fillRect(dx+10,cy+10,cw-20,14);});
-  // 稲光（低確率フラッシュ）
-  if(Math.random()<0.003){ctx.fillStyle='rgba(180,200,255,0.08)';ctx.fillRect(0,0,W,H);}
-  // 遠景の暗い山シルエット
-  ctx.fillStyle='#060c18';
-  [0,600,1400,2400,3600,4900,6300].forEach((mx,i)=>{const dx=mx-G.cam*0.06;if(dx<-400||dx>W+400)return;const mh=80+(i%3)*30;ctx.beginPath();ctx.moveTo(dx,H);ctx.lineTo(dx+mh*0.7,H-mh);ctx.lineTo(dx+mh*1.4,H);ctx.fill();});
-  // プロペラ光（船の雰囲気）
-  [300,1200,2400,3800,5200,6600].forEach((px,i)=>{const dx=px-G.cam*0.3;if(dx<-60||dx>W+60)return;const py=H-TILE*2;const rot=G.frame*0.3+i*2;ctx.fillStyle=`rgba(200,220,255,${0.08+0.04*Math.abs(Math.sin(rot))})`;ctx.beginPath();ctx.arc(dx,py,16,0,Math.PI*2);ctx.fill();});
+  // 稲光フラッシュ（強め）
+  if(Math.random()<0.005){ctx.fillStyle=`rgba(160,190,255,${0.06+Math.random()*0.1})`;ctx.fillRect(0,0,W,H);}
+  // 星（嵐で揺らぐ）
+  for(let i=0;i<38;i++){const sx=(i*271+(G.cam*0.01|0))%W,sy=(i*173)%(H*0.42);ctx.fillStyle=`rgba(170,195,255,${0.04+Math.abs(Math.sin(G.frame*0.022+i*1.9))*0.65})`;ctx.fillRect(sx,sy,i%8===0?2:1,i%8===0?2:1);}
+  // 嵐雲（大型・重厚）
+  ctx.fillStyle='rgba(10,18,32,0.78)';
+  [60,500,1100,1900,2900,4000,5300,6700].forEach((cx,i)=>{const dx=cx-G.cam*0.2;if(dx<-320||dx>W+320)return;const cy=10+(i%4)*18;const cw=190+(i%3)*75;ctx.beginPath();ctx.arc(dx+cw*0.22,cy+18,32+i%3*10,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(dx+cw*0.5,cy+9,40+i%2*13,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(dx+cw*0.78,cy+18,28+i%3*8,0,Math.PI*2);ctx.fill();ctx.fillRect(dx+16,cy+13,cw-32,20);
+    if((G.frame+i*71)%380<3){ctx.strokeStyle='rgba(180,210,255,0.6)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(dx+cw*0.5,cy+30);ctx.lineTo(dx+cw*0.52+8,cy+58);ctx.lineTo(dx+cw*0.5+5,cy+78);ctx.stroke();}
+  });
+  // 遠景艦隊シルエット（低速パララックス）
+  [{x:100,w:270,h:28},{x:650,w:180,h:22},{x:1280,w:260,h:30},{x:2050,w:210,h:24},{x:2950,w:310,h:34},{x:3950,w:200,h:26},{x:5100,w:280,h:30},{x:6300,w:230,h:28},{x:7500,w:260,h:32}].forEach(({x,w,h},i)=>{
+    const dx=x-G.cam*0.17;if(dx<-380||dx>W+380)return;
+    const by=H-TILE-h;
+    ctx.fillStyle='#070c18';
+    ctx.fillRect(dx,by,w,h);                          // 船体
+    ctx.fillRect(dx+(w*0.2|0),by-15,(w*0.4|0),15);   // 艦橋
+    ctx.fillRect(dx+(w*0.31|0),by-25,(w*0.13|0),11); // マスト
+    for(let j=0;j<4;j++){ctx.fillStyle=`rgba(255,210,80,${0.1+0.09*Math.sin(G.frame*0.04+i+j)})`;ctx.fillRect(dx+(w*0.22|0)+j*16,by+5,6,5);}  // 窓
+    ctx.fillStyle=`rgba(255,85,10,${0.22+0.14*Math.sin(G.frame*0.08+i)})`;
+    ctx.beginPath();ctx.arc(dx+8,by+(h*0.55|0),10,0,Math.PI*2);ctx.fill(); // エンジン光
+  });
+  // エンジン排気煙（アニメーション）
+  for(let i=0;i<8;i++){const sx=(180+i*1050)-(G.cam*0.17|0);if(sx<-80||sx>W+80)continue;for(let j=0;j<5;j++){const age=(G.frame*1.3+j*44+i*290)%260;const al=Math.max(0,0.18-age*0.0007);if(al<=0)continue;ctx.fillStyle=`rgba(30,42,60,${al})`;ctx.beginPath();ctx.arc(sx,H-TILE*2.2-age*0.72,4+age*0.09,0,Math.PI*2);ctx.fill();}}
+  // 手前甲板下端（搭乗中の船体シルエット）
+  ctx.fillStyle='#080d1a';ctx.fillRect(0,H-TILE*1.3,W,TILE*0.45);
+  ctx.fillStyle='rgba(255,85,10,0.13)';for(let ei=0;ei<W+100;ei+=96){ctx.fillRect((ei+((G.cam*0.45)|0))%W,H-TILE*1.3+1,12,5);}
+  // サーチライト（左右スイープ）
+  const _sa=(G.frame*0.48)%1200;const _sx=(_sa<600?_sa:1200-_sa)*(W/600);
+  const _slg=ctx.createRadialGradient(_sx,H-TILE,0,_sx,H-TILE,W*0.62);
+  _slg.addColorStop(0,'rgba(200,225,255,0.055)');_slg.addColorStop(1,'rgba(200,225,255,0)');
+  ctx.fillStyle=_slg;ctx.fillRect(0,0,W,H);
   return;
 }
 }
@@ -1088,6 +1107,13 @@ ctx.fillStyle='#b4e0f4';ctx.fillRect(x+1,py+1,TILE-2,4);
 ctx.fillStyle='#5aaad0';ctx.fillRect(x+1,py+5,TILE-2,TILE-6);
 ctx.fillStyle='rgba(255,255,255,0.65)';ctx.fillRect(x+2,py+2,7,1);ctx.fillRect(x+20,py+3,8,1);
 ctx.fillStyle='rgba(30,100,160,0.3)';ctx.fillRect(x,py+TILE/2,TILE,1);ctx.fillRect(x+TILE/2,py,1,TILE/2);ctx.fillRect(x+TILE/4,py+TILE/2+1,1,TILE/2-1);ctx.fillRect(x+3*TILE/4,py+TILE/2+1,1,TILE/2-1);
+}else if(G.airshipMode){
+ctx.fillStyle='#28303e';ctx.fillRect(x,py,TILE,TILE);
+ctx.fillStyle='#3a4452';ctx.fillRect(x+1,py+1,TILE-2,6);ctx.fillStyle='#222a36';ctx.fillRect(x+1,py+7,TILE-2,TILE-8);
+ctx.fillStyle='#5a6475';ctx.fillRect(x+2,py+2,3,3);ctx.fillRect(x+TILE-5,py+2,3,3);
+ctx.fillStyle='#181f28';ctx.fillRect(x,py+TILE/2,TILE,2);ctx.fillRect(x+TILE/2,py,2,TILE/2);ctx.fillRect(x+TILE/4,py+TILE/2+2,2,TILE/2-2);ctx.fillRect(x+3*TILE/4,py+TILE/2+2,2,TILE/2-2);
+ctx.fillStyle='#c89000';ctx.fillRect(x,py+TILE-4,TILE,4);ctx.fillStyle='#181f28';for(let _di=0;_di<4;_di++)ctx.fillRect(x+_di*8,py+TILE-4,4,4);
+ctx.fillStyle='rgba(255,255,255,0.07)';ctx.fillRect(x+1,py+1,TILE-2,2);
 }else{
 ctx.fillStyle='#C84C0C';ctx.fillRect(x,py,TILE,TILE);
 ctx.fillStyle='#E09060';ctx.fillRect(x+1,py+1,TILE-2,3);
@@ -1100,6 +1126,13 @@ ctx.fillStyle='#4ea8d8';ctx.fillRect(x+1,py+1,TILE-2,TILE-2);
 ctx.fillStyle='#2a6888';ctx.fillRect(x,py+TILE/2-1,TILE,2);ctx.fillRect(x+TILE/2,py,2,TILE/2);ctx.fillRect(x+TILE/4,py+TILE/2+1,2,TILE/2-1);ctx.fillRect(x+3*TILE/4,py+TILE/2+1,2,TILE/2-1);
 ctx.fillStyle='rgba(200,240,255,0.22)';ctx.fillRect(x+2,py+2,TILE-4,2);
 ctx.fillStyle='rgba(0,40,90,0.15)';ctx.fillRect(x,py+TILE-2,TILE,2);
+}else if(G.airshipMode){
+ctx.fillStyle='#2c3442';ctx.fillRect(x,py,TILE,TILE);
+ctx.fillStyle='#3c4858';ctx.fillRect(x+1,py+1,TILE-2,TILE-2);
+ctx.fillStyle='#7c8898';ctx.fillRect(x+3,py+3,3,3);ctx.fillRect(x+TILE-6,py+3,3,3);ctx.fillRect(x+3,py+TILE-6,3,3);ctx.fillRect(x+TILE-6,py+TILE-6,3,3);
+ctx.fillStyle='#1c2230';ctx.fillRect(x,py+TILE/2-1,TILE,2);ctx.fillRect(x+TILE/2,py,2,TILE/2);ctx.fillRect(x+TILE/4,py+TILE/2+1,2,TILE/2-1);ctx.fillRect(x+3*TILE/4,py+TILE/2+1,2,TILE/2-1);
+ctx.fillStyle='rgba(255,255,255,0.07)';ctx.fillRect(x+2,py+2,TILE-4,2);
+ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fillRect(x,py+TILE-2,TILE,2);
 }else{
 ctx.fillStyle='#C04020';ctx.fillRect(x,py,TILE,TILE);
 ctx.fillStyle='#D85840';ctx.fillRect(x+1,py+1,TILE-2,TILE-2);

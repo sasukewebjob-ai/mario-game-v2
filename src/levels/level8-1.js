@@ -29,6 +29,7 @@ export function buildLevel_8_1(){
   if(!yoshi.mounted){yoshi.alive=false;yoshi.eatCount=0;}
   yoshi.runAway=false;yoshi.runTimer=0;yoshi.eggsReady=0;yoshi.idleTimer=0;
   G.autoScroll=0.8;
+  G.airshipMode=true;
   flagPole.x=5040; // フラッグポール（階段ゴール）
 
   // 地面（船の甲板：micro-gap追加 at x=700）
@@ -97,13 +98,19 @@ export function buildLevel_8_1(){
   movingPlats.push({x:2960,y:H-3*TILE,w:TILE*3,h:12,type:'h',ox:2960,range:70, spd:1.6,prevX:2960});
   movingPlats.push({x:4440,y:H-3*TILE,w:TILE*3,h:12,type:'h',ox:4440,range:55, spd:1.8,prevX:4440});
 
-  // ── キャノン（5基：うち2基は中段高台設置）──
+  // ── キャノン（10基：うち4基は中段高台設置）──
   // 高台キャノン: addRow(350,H-5T)上 と addRow(900,H-5T)上
   cannons.push({x:390,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:280,timer:40});  // Ship A 高台(H-5T列の上)
   cannons.push({x:940,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:260,timer:100}); // Ship A 高台(H-5T列の上)
   cannons.push({x:2000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:250,timer:60});
   cannons.push({x:2800, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:130});
   cannons.push({x:4000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:80});
+  // +5基
+  cannons.push({x:560,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:275,timer:25});  // Ship A 地上
+  cannons.push({x:1840, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:255,timer:85});  // Ship B addRow(1800,H-7T)上
+  cannons.push({x:2620, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:245,timer:155}); // Ship B 地上(checkpoint±300外)
+  cannons.push({x:3540, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:250,timer:50});  // Ship C addRow(3500,H-7T)上
+  cannons.push({x:4180, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:265,timer:115}); // Ship C 地上
 
   // ── 土管（パックン付き）──
   pipes.push({x:800,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
