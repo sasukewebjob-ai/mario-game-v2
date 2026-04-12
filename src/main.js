@@ -67,6 +67,8 @@ if(type==='flower')mario.power=G.iceMode?'ice':'fire';
 else if(type==='hammer')mario.power='hammer';
 else mario.power='big';
 if(!mario.big){mario.h=48;mario.y-=16;mario.crouching=false;}mario.big=true;sfx('power');
+// メガ中にパワーアップを取得した場合、復帰先を最新のパワーに更新
+if(G.megaTimer>0){G.megaPrevPower=mario.power;G.megaPrevBig=true;}
 for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');
 }
 
