@@ -347,11 +347,11 @@ if(mario.dead)return;
 if(!force&&(G.starTimer>0||mario.inv>0))return;
 if(!force&&yoshi.mounted&&yoshi.alive&&!mario.crouching){dismountYoshi(true);mario.inv=120;return}
 if(!force&&G.megaTimer>0){G.megaTimer=0;mario.power=G.megaPrevPower;mario.big=G.megaPrevBig;mario.h=mario.big?48:32;mario.crouching=false;mario.inv=120;sfx('break');return}
-if(G.shield>0){G.shield--;mario.inv=60;G.shakeX=4;G.shakeY=4;try{beep(880,.08,'sine',.2);beep(660,.12,'sine',.15,.08);}catch(ex){}spawnScorePopup(mario.x+13,mario.y-20,'SHIELD!','#88aaff');for(let i=0;i<10;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}
+if(!force&&G.shield>0){G.shield--;mario.inv=60;G.shakeX=4;G.shakeY=4;try{beep(880,.08,'sine',.2);beep(660,.12,'sine',.15,.08);}catch(ex){}spawnScorePopup(mario.x+13,mario.y-20,'SHIELD!','#88aaff');for(let i=0;i<10;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}
 if(!force&&(mario.power==='fire'||mario.power==='ice'||mario.power==='hammer')){mario.power='big';mario.crouching=false;mario.inv=120;sfx('break');return}
 if(!force&&mario.power==='big'){mario.power='none';mario.big=false;mario.h=32;mario.crouching=false;mario.inv=120;sfx('break');return}
 // リトライハート: 死亡回避、その場復活
-if(!force&&G.retryHeart>0){G.retryHeart--;mario.inv=180;mario.vy=-10;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');return;}
+if(G.retryHeart>0){G.retryHeart--;mario.inv=180;mario.vy=-10;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');return;}
 if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
 // 死亡時に特殊効果リセット（チェックポイント復帰用に保存）
 const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart,_svHighJump=G.highJump,_svShield=G.shield;
@@ -554,7 +554,7 @@ if(mario.hipDrop&&mario.onGround){mario.hipDrop=false;G.shakeX=5;G.shakeY=5;try{
   for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}}}
 }
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
-if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else if(G.shield>0){G.shield--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=60;G.shakeX=4;G.shakeY=4;try{beep(880,.08,'sine',.2);beep(660,.12,'sine',.15,.08);}catch(ex){}spawnScorePopup(mario.x+13,mario.y-20,'SHIELD!','#88aaff');for(let i=0;i<10;i++)spawnParticle(mario.x+13,mario.y+16,'star');}else{killMario(true);}}
+if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}
 if(G.autoScroll>0&&mario.x<G.cam+10)killMario(true); // 強制スクロール挟まれ即死
 if(mario.inv>0)mario.inv--;
 
