@@ -137,6 +137,50 @@ export function buildLevel_5_3(){
   // チェックポイント
   G.checkpoint={x:4000,y:H-TILE,reached:false};
 
+  // 溶岩炎（地面火柱＋ギャップガイザー）
+  [
+    // 地面火柱（前半）
+    {x:700, w:18,maxH:90, period:220,phase:0},
+    {x:900, w:18,maxH:100,period:210,phase:70},
+    {x:1100,w:20,maxH:110,period:200,phase:140},
+    {x:1300,w:18,maxH:100,period:210,phase:30},
+    {x:1600,w:20,maxH:120,period:195,phase:100},
+    {x:1800,w:18,maxH:110,period:205,phase:50},
+    // gap1 ガイザー（x=2000-2320）
+    {x:2030,w:24,maxH:220,period:165,phase:0},
+    {x:2120,w:20,maxH:190,period:165,phase:55},
+    {x:2230,w:22,maxH:200,period:160,phase:110},
+    // 地面火柱（中盤）
+    {x:2400,w:20,maxH:130,period:190,phase:20},
+    {x:2600,w:22,maxH:140,period:185,phase:80},
+    {x:2800,w:20,maxH:130,period:195,phase:140},
+    {x:3100,w:22,maxH:150,period:180,phase:40},
+    {x:3300,w:20,maxH:140,period:185,phase:100},
+    {x:3500,w:22,maxH:150,period:175,phase:20},
+    // gap2 ガイザー（x=3700-3920）
+    {x:3720,w:24,maxH:220,period:160,phase:0},
+    {x:3800,w:20,maxH:200,period:160,phase:60},
+    {x:3880,w:22,maxH:210,period:155,phase:110},
+    // 地面火柱（後半・チェックポイント後）
+    {x:4400,w:20,maxH:160,period:175,phase:20},
+    {x:4600,w:22,maxH:170,period:170,phase:80},
+    {x:4800,w:20,maxH:160,period:175,phase:140},
+    {x:5000,w:22,maxH:170,period:165,phase:40},
+    {x:5200,w:20,maxH:160,period:170,phase:100},
+    // gap3 ガイザー（x=5400-5630）
+    {x:5420,w:24,maxH:230,period:155,phase:0},
+    {x:5510,w:20,maxH:200,period:155,phase:55},
+    {x:5600,w:22,maxH:210,period:150,phase:110},
+    // 地面火柱（終盤）
+    {x:5700,w:22,maxH:180,period:160,phase:20},
+    {x:5900,w:20,maxH:170,period:165,phase:80},
+    {x:6100,w:22,maxH:190,period:155,phase:140},
+    {x:6300,w:20,maxH:180,period:160,phase:40},
+    // クッパ直前
+    {x:6920,w:24,maxH:200,period:145,phase:0},
+    {x:7000,w:20,maxH:180,period:150,phase:45},
+  ].forEach(f=>lavaFlames.push({...f,curH:0}));
+
   // アリーナ壁（7ブロック高）
   for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6920,wy,'brick');addB(6952,wy,'brick');}
   // アリーナ内 ? ブロック
