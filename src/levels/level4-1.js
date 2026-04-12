@@ -96,8 +96,6 @@ export function buildLevel_4_1(){
   [{x:590,ph:3},{x:1150,ph:3},{x:1830,ph:3},{x:2440,ph:3},{x:2960,ph:3}].forEach(({x,ph})=>{
     pipes.push({x,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:false,variant:null});
   });
-  // ヨッシーワープ土管（1本）
-  pipes.push({x:3800,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:true,variant:'yoshi4'});
 
   // コイン（3ライン + クラスター + ギャップアーチ）
   for(let i=0;i<25;i++) coinItems.push({x:150+i*145,y:H-9*TILE, collected:false});

@@ -34,6 +34,8 @@ addRow(700,H-4*TILE,2,'brick');addRow(1400,H-6*TILE,3,'brick');
 addRow(2900,H-4*TILE,2,'brick');addRow(4100,H-6*TILE,2,'brick');
 // 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
 addStair(6200,10);
+// 引き返し封鎖壁（地面はくぐれるが段上からは引き返せない）
+for(let wy=H-11*TILE;wy<=H-4*TILE;wy+=TILE)addB(6168,wy,'g');
 // Coins
 // Risk coins near lava pits + varied placement
 [{x:1780,y:H-2*TILE},{x:1810,y:H-2*TILE},{x:1840,y:H-2*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // risk coins at lava edge

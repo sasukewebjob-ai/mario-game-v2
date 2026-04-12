@@ -52,6 +52,8 @@ export function buildLevel_4_3(){
 
   // 大型上り階段（10段）— マリオが高台に上ってクッパアリーナへ
   addStair(6400,10);
+  // 引き返し封鎖壁
+  for(let wy=H-11*TILE;wy<=H-4*TILE;wy+=TILE)addB(6368,wy,'g');
 
   // 移動足場（溶岩穴）
   movingPlats.push({x:1950,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:1950,range:80,spd:1.5,prevX:1950});
