@@ -107,10 +107,11 @@ export function buildLevel_8_2(){
   movingPlats.push({x:3550,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:3550,range:55, spd:2.0,prevX:3550});
   movingPlats.push({x:4550,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:4550,range:60, spd:1.8,prevX:4550});
 
-  // ── キャノン（6基）──
-  cannons.push({x:400,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:30});
+  // ── キャノン（6基：うち2基は中段高台設置）──
+  // 高台キャノン: addRow(350,H-5T)上 と addRow(1150,H-5T)上
+  cannons.push({x:380,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:260,timer:30});  // Ship A 高台
   cannons.push({x:800,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:100});
-  cannons.push({x:1600, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:230,timer:50});
+  cannons.push({x:1200, y:H-TILE*7,w:TILE,h:TILE*2,fireRate:230,timer:50});  // Ship B 高台
   cannons.push({x:2600, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:220,timer:80});
   cannons.push({x:3400, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:230,timer:120});
   cannons.push({x:4300, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:60});
@@ -195,6 +196,12 @@ export function buildLevel_8_2(){
   G.chasingWall={x:-300,speed:1.15,triggerX:3200,active:false}; // チェックポイント(x=3000)通過後に起動
   // ★ ハンマースーツ
   platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  // チャージングチャック ×3（checkpoint±300: 2700〜3300禁止 ✓）
+  [{x:1380,facing:-1},{x:2500,facing:-1},{x:3450,facing:-1}].forEach(d=>{
+    enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,
+      type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0});
+  });
+
   // ★ 装飾土管
   pipes.push({x:800,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:3600,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});

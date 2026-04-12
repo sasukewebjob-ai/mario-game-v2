@@ -393,7 +393,7 @@ if(G.pswitchTimer>0){G.pswitchTimer--;if(G.pswitchTimer<=180&&G.pswitchTimer>0&&
 if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(overlap(mario.x,mario.y,mario.w,mario.h,pc.x,pc.y,TILE,TILE)){pc.collected=true;G.coins++;G.score+=200;sfx('coin');updateHUD();spawnScorePopup(pc.x+8,pc.y-8,200,'#FFD700');spawnParticle(pc.x+16,pc.y,'coin');}}}}
 if(G.comboTimer>0){G.comboTimer--;if(G.comboTimer<=0)G.combo=0}
 // Bullet Bill Cannons
-for(const cn of cannons){cn.timer--;if(cn.timer<=0){cn.timer=cn.fireRate;if(Math.abs(mario.x-cn.x)<600){const dir=mario.x>cn.x?1:-1;bulletBills.push({x:cn.x+(dir>0?cn.w:-20),y:cn.y+4,w:20,h:16,vx:dir*4,alive:true});try{beep(80,.15,'sawtooth',.15);beep(60,.2,'sawtooth',.1,.1)}catch(ex){}}}}
+for(const cn of cannons){if(cn.dead)continue;cn.timer--;if(cn.timer<=0){cn.timer=cn.fireRate;if(Math.abs(mario.x-cn.x)<600){const dir=mario.x>cn.x?1:-1;bulletBills.push({x:cn.x+(dir>0?cn.w:-20),y:cn.y+4,w:20,h:16,vx:dir*4,alive:true});try{beep(80,.15,'sawtooth',.15);beep(60,.2,'sawtooth',.1,.1)}catch(ex){}}}}
 // Bullet Bills
 for(let i=bulletBills.length-1;i>=0;i--){const bb=bulletBills[i];if(!bb.alive){bulletBills.splice(i,1);continue}bb.x+=bb.vx;if(bb.x<G.cam-100||bb.x>G.cam+W+100){bulletBills.splice(i,1);continue}
 if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,bb.x,bb.y,bb.w,bb.h)){if(G.starTimer>0){bb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'star')}else if(mario.y+mario.h-mario.vy<=bb.y+4){bb.alive=false;mario.vy=-9;G.score+=200;sfx('stomp');updateHUD();spawnParticle(bb.x+10,bb.y+8,'dust');spawnScorePopup(bb.x+10,bb.y-8,200,'#e74c3c')}else if(mario.inv===0)killMario()}
@@ -796,6 +796,9 @@ if(!mh.alive)continue;
 // ハンマーで全敵ダメージ（buzzy/teresa/thwomp含む）
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(!overlap(mh.x,mh.y,mh.w,mh.h,e.x,e.y,e.w,e.h))continue;
 e.state='dead';e.vx=0;e.squishT=28;mh.alive=false;G.score+=300;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,300,'#aaa');spawnParticle(e.x+16,e.y+16,'star');break}
+if(!mh.alive)continue;
+// ハンマーでキャノン破壊（5回ヒットで破壊）
+for(let ci=cannons.length-1;ci>=0;ci--){const cn=cannons[ci];if(cn.dead)continue;if(!overlap(mh.x,mh.y,mh.w,mh.h,cn.x,cn.y,cn.w,cn.h))continue;if(cn.hp===undefined)cn.hp=5;cn.hp--;mh.alive=false;if(cn.hp<=0){cn.dead=true;sfx('break');G.score+=500;G.stageKills++;G.totalKills++;updateHUD();for(let k=0;k<8;k++)spawnParticle(cn.x+Math.random()*cn.w,cn.y+Math.random()*cn.h,'brick');spawnScorePopup(cn.x+8,cn.y-8,500,'#aaa');G.shakeX=4;G.shakeY=4;}else{sfx('stomp');G.shakeX=2;G.shakeY=2;spawnParticle(cn.x+cn.w/2,cn.y+cn.h/2,'dust');spawnScorePopup(cn.x+8,cn.y-8,`★${cn.hp}`,'#ff8844');}break;}
 if(!mh.alive)continue;
 // ハンマーでクッパダメージ
 if(bowser.alive&&bowser.state!=='dead'&&bowser.hurtTimer===0&&overlap(mh.x,mh.y,mh.w,mh.h,bowser.x,bowser.y,bowser.w,bowser.h)){
@@ -1710,7 +1713,28 @@ ctx.fillStyle=cwg;ctx.fillRect(cw.x-W*2,0,W*2,H);
 // 先端の炎エフェクト
 for(let fy=0;fy<H;fy+=12){const fw=6+Math.random()*10;ctx.fillStyle=`rgba(255,${100+Math.random()*155},0,${0.5+Math.random()*0.5})`;ctx.fillRect(cw.x-2,fy,fw,8+Math.random()*6);}}
 // Cannons
-for(const cn of cannons){if(cn.x+cn.w<G.cam-10||cn.x>G.cam+W+10)continue;ctx.fillStyle='#1a1a1a';ctx.fillRect(cn.x,cn.y,cn.w,cn.h);ctx.fillStyle='#333';ctx.fillRect(cn.x+2,cn.y+2,cn.w-4,cn.h-4);ctx.fillStyle='#888';ctx.beginPath();ctx.arc(cn.x+cn.w/2,cn.y+14,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#333';ctx.fillRect(cn.x+cn.w/2-4,cn.y+10,3,3);ctx.fillRect(cn.x+cn.w/2+1,cn.y+10,3,3);if(cn.timer<10){ctx.fillStyle=`rgba(255,${150+Math.random()*100},0,${0.5+Math.random()*0.5})`;ctx.beginPath();ctx.arc(cn.x+cn.w/2,cn.y-4,8+Math.random()*4,0,Math.PI*2);ctx.fill()}}
+for(const cn of cannons){if(cn.x+cn.w<G.cam-10||cn.x>G.cam+W+10)continue;
+if(cn.dead){
+  // 破壊済み：傾いてひびが入った残骸
+  ctx.save();ctx.translate(cn.x+cn.w/2,cn.y+cn.h);ctx.rotate(0.28);
+  ctx.fillStyle='#2a2a2a';ctx.fillRect(-cn.w/2,-cn.h,cn.w,cn.h);
+  ctx.fillStyle='#3a3a3a';ctx.fillRect(-cn.w/2+2,-cn.h+2,cn.w-4,cn.h-4);
+  ctx.strokeStyle='#666';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+  ctx.beginPath();ctx.moveTo(-5,-cn.h+4);ctx.lineTo(3,-cn.h/2-2);ctx.lineTo(-1,-6);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(4,-cn.h+10);ctx.lineTo(-2,-cn.h/2+4);ctx.stroke();
+  ctx.setLineDash([]);ctx.restore();
+  // 煙エフェクト
+  if(G.frame%6<3){ctx.fillStyle=`rgba(60,60,60,${0.3+Math.random()*0.3})`;ctx.beginPath();const _sr=3+Math.random()*4;ctx.arc(cn.x+cn.w/2-4,cn.y-_sr,_sr,0,Math.PI*2);ctx.fill();}
+}else{
+  // 通常：HPに応じてボディ色が赤みがかる
+  const _dmg=cn.hp!==undefined?(5-cn.hp):0;
+  const _rc=Math.min(0x1a+_dmg*0x0f,0x5a);
+  ctx.fillStyle=`rgb(${_rc},${Math.max(0x1a-_dmg*8,0)},${Math.max(0x1a-_dmg*8,0)})`;ctx.fillRect(cn.x,cn.y,cn.w,cn.h);
+  ctx.fillStyle=`rgb(${_rc+0x19},${Math.max(0x33-_dmg*10,0)},${Math.max(0x33-_dmg*10,0)})`;ctx.fillRect(cn.x+2,cn.y+2,cn.w-4,cn.h-4);
+  ctx.fillStyle='#888';ctx.beginPath();ctx.arc(cn.x+cn.w/2,cn.y+14,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#333';ctx.fillRect(cn.x+cn.w/2-4,cn.y+10,3,3);ctx.fillRect(cn.x+cn.w/2+1,cn.y+10,3,3);
+  if(cn.timer<10){ctx.fillStyle=`rgba(255,${150+Math.random()*100},0,${0.5+Math.random()*0.5})`;ctx.beginPath();ctx.arc(cn.x+cn.w/2,cn.y-4,8+Math.random()*4,0,Math.PI*2);ctx.fill();}
+}}
 // Bullet Bills
 for(const bb of bulletBills){if(!bb.alive)continue;const dir=bb.vx>0?1:-1;ctx.fillStyle='#111';ctx.fillRect(bb.x,bb.y,bb.w,bb.h);ctx.fillStyle='#333';ctx.fillRect(bb.x+(dir>0?2:4),bb.y+2,bb.w-6,bb.h-4);ctx.fillStyle='#111';ctx.fillRect(dir>0?bb.x+bb.w-2:bb.x,bb.y+2,4,bb.h-4);ctx.fillStyle='#fff';ctx.fillRect(bb.x+(dir>0?4:bb.w-8),bb.y+4,4,4);ctx.fillStyle='#000';ctx.fillRect(bb.x+(dir>0?5:bb.w-7),bb.y+5,2,2);ctx.fillStyle=`rgba(255,${100+Math.random()*100},0,0.7)`;ctx.fillRect(dir>0?bb.x-6:bb.x+bb.w+2,bb.y+4,6,bb.h-8)}
 // Hammers

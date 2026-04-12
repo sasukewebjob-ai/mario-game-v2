@@ -97,9 +97,10 @@ export function buildLevel_8_1(){
   movingPlats.push({x:2960,y:H-3*TILE,w:TILE*3,h:12,type:'h',ox:2960,range:70, spd:1.6,prevX:2960});
   movingPlats.push({x:4440,y:H-3*TILE,w:TILE*3,h:12,type:'h',ox:4440,range:55, spd:1.8,prevX:4440});
 
-  // ── キャノン（5基）──
-  cannons.push({x:550,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:280,timer:40});
-  cannons.push({x:1000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:100});
+  // ── キャノン（5基：うち2基は中段高台設置）──
+  // 高台キャノン: addRow(350,H-5T)上 と addRow(900,H-5T)上
+  cannons.push({x:390,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:280,timer:40});  // Ship A 高台(H-5T列の上)
+  cannons.push({x:940,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:260,timer:100}); // Ship A 高台(H-5T列の上)
   cannons.push({x:2000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:250,timer:60});
   cannons.push({x:2800, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:130});
   cannons.push({x:4000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:80});
@@ -181,6 +182,12 @@ export function buildLevel_8_1(){
   pipes.push({x:600,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:3400,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   piranhas.push({x:3424,baseY:2*TILE,y:2*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+
+  // チャージングチャック ×3（checkpoint±300: 1900〜2500禁止 ✓）
+  [{x:1650,facing:-1},{x:2650,facing:-1},{x:3850,facing:-1}].forEach(d=>{
+    enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,
+      type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0});
+  });
 
   // ★ 追いかけ壁（飛行船の爆発が迫る）
   G.chasingWall={x:-300,speed:0.95,triggerX:2400,active:false}; // チェックポイント(x=2200)通過後に起動
