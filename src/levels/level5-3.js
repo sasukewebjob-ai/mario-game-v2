@@ -137,8 +137,6 @@ export function buildLevel_5_3(){
   // チェックポイント
   G.checkpoint={x:4000,y:H-TILE,reached:false};
 
-  // 水中城のため溶岩炎なし（lavaFlames は既にクリア済み）
-
   // アリーナ壁（7ブロック高）
   for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6920,wy,'brick');addB(6952,wy,'brick');}
   // アリーナ内 ? ブロック
@@ -162,6 +160,4 @@ platforms.push({x:5200,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHam
 pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4300,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 piranhas.push({x:4324,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
-// 水中城（泳ぎながら進む — 溶岩炎なし・全域水泳物理）
-G.waterMode=true;
 }
