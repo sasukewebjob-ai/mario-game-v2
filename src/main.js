@@ -47,8 +47,9 @@ const CASTLE_P2_NOTES=[[440,1],[0,1],[440,1],[415,1],[0,1],[392,1],[415,1],[440,
 const WATER_NOTES=[[196,3],[0,1],[220,3],[0,1],[247,3],[0,1],[262,4],[0,2],[196,3],[0,1],[175,3],[0,1],[165,4],[0,4],[220,3],[0,1],[196,3],[0,1],[175,2],[165,2],[196,4],[0,4]];
 const PSWITCH_NOTES=[[659,1],[784,1],[880,1],[784,1],[659,1],[587,1],[659,1],[784,1],[0,1],[659,1],[784,1],[880,1],[1047,1],[880,1],[784,1],[659,1],[587,1],[523,1],[587,1],[659,1],[0,1],[523,1],[659,1],[784,1],[880,1],[784,1],[659,1],[523,1],[587,1],[659,1],[784,1],[0,1]];
 const FINAL_BOSS_NOTES=[[440,2],[0,1],[415,1],[392,2],[370,2],[349,3],[0,1],[330,4],[0,2],[247,1],[262,1],[294,1],[330,1],[349,1],[392,1],[440,2],[494,2],[523,4],[0,2],[440,1],[0,1],[440,1],[0,1],[440,1],[415,1],[440,1],[0,1],[392,2],[349,2],[330,4],[0,2],[165,1],[0,1],[165,1],[0,1],[220,1],[0,1],[165,1],[196,2],[220,2],[247,2],[294,2],[330,2],[370,2],[415,2],[440,4],[0,4]];
+const SHOP_NOTES=[[523,2],[659,2],[784,2],[659,2],[523,2],[0,2],[440,2],[523,2],[659,2],[784,2],[880,2],[784,2],[659,4],[0,4],[523,2],[523,2],[784,2],[659,2],[784,2],[0,2],[1047,2],[880,2],[784,2],[659,2],[523,4],[440,2],[523,2],[0,4]];
 let bgmStep=0,bgmTime=0;const BEAT=0.09;let _bgmWasBig=false;
-function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const notes=G.ugMode?(_isFinal?FINAL_BOSS_NOTES:UG_NOTES):(G.starTimer>0?STAR_NOTES:(G.megaTimer>0?BIG_MARIO_NOTES:(G.pswitchTimer>0?PSWITCH_NOTES:(G.waterMode?WATER_NOTES:(_bgmS?.bgmTheme==='castle'?(bowser.alive&&bowser.phase===2?CASTLE_P2_NOTES:CASTLE_NOTES):THEME_NOTES)))));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
+function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const notes=G.state==='shop'?SHOP_NOTES:(G.ugMode?(_isFinal?FINAL_BOSS_NOTES:UG_NOTES):(G.starTimer>0?STAR_NOTES:(G.megaTimer>0?BIG_MARIO_NOTES:(G.pswitchTimer>0?PSWITCH_NOTES:(G.waterMode?WATER_NOTES:(_bgmS?.bgmTheme==='castle'?(bowser.alive&&bowser.phase===2?CASTLE_P2_NOTES:CASTLE_NOTES):THEME_NOTES))))));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
 function startBGM(){stopBGM();bgmGain=AC.createGain();bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;bgmGain.connect(AC.destination);bgmStep=0;bgmTime=AC.currentTime;scheduleBGM()}
 function stopBGM(){if(bgmGain){bgmGain.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.2);bgmGain=null}}
 function playGameOverJingle(){try{const _n=[[330,0.22],[294,0.22],[262,0.22],[220,0.55],[0,0.12],[196,0.95]];let _t=AC.currentTime+0.3;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(AC.destination);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.12,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.07;}}catch(ex){}}
@@ -83,10 +84,10 @@ document.addEventListener('keydown',e=>{keys[e.code]=true;
 if(G.state==='start'){if(e.code==='ArrowLeft'&&G.selectedStage>1){G.selectedStage--;e.preventDefault();}if(e.code==='ArrowRight'&&G.selectedStage<STAGES.length){G.selectedStage++;e.preventDefault();}const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];if(e.code==='Space'||e.code==='Enter')startFromStage(G.selectedStage);}
 // ショップ操作
 if(G.state==='shop'){
-  if(e.code==='ArrowLeft'||e.code==='KeyA'){G.shopCursor=(G.shopCursor+16)%17;e.preventDefault();}
-  if(e.code==='ArrowRight'||e.code==='KeyD'){G.shopCursor=(G.shopCursor+1)%17;e.preventDefault();}
-  if(e.code==='ArrowUp'){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(16,G.shopCursor+12):_u;e.preventDefault();}
-  if(e.code==='ArrowDown'){const _d=G.shopCursor+6;G.shopCursor=_d>=17?_d%6:_d;e.preventDefault();}
+  if(e.code==='ArrowLeft'||e.code==='KeyA'){G.shopCursor=(G.shopCursor+15)%16;e.preventDefault();}
+  if(e.code==='ArrowRight'||e.code==='KeyD'){G.shopCursor=(G.shopCursor+1)%16;e.preventDefault();}
+  if(e.code==='ArrowUp'){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(15,G.shopCursor+12):_u;e.preventDefault();}
+  if(e.code==='ArrowDown'){const _d=G.shopCursor+6;G.shopCursor=_d>=16?_d%6:_d;e.preventDefault();}
   if(G.shopConfirm!=null){
     if(e.code==='Space'||e.code==='KeyZ'||e.code==='Enter'){_gpShopBuy(G.shopConfirm);}
     if(e.code==='Escape'||e.code==='KeyN'||e.code==='KeyX'){G.shopConfirm=null;}
@@ -177,10 +178,10 @@ canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getB
 const gpad={left:false,right:false,up:false,down:false,a:false,b:false,x:false,y:false,start:false,select:false,l:false,r:false};
 const _gpPrev={};let _gpConnected=false,_gpName='';
 const _SHOP_ITEMS=[
-  {key:'mushroom',cost:30},{key:'star10',cost:50},{key:'fire',cost:60},{key:'ice',cost:60},
-  {key:'hammer',cost:80},{key:'shield',cost:80},{key:'1up',cost:100},{key:'retryHeart',cost:100},
-  {key:'highJump',cost:120},{key:'1upSet',cost:200},{key:'doubleJump',cost:200},{key:'megaStart',cost:250},
-  {key:'magnet',cost:250},{key:'1upSet6',cost:280},{key:'warp',cost:300},{key:'star30',cost:500},{key:'bundle',cost:500}
+  {key:'mushroom',cost:20},{key:'fire',cost:40},{key:'star10',cost:50},{key:'1up',cost:50},
+  {key:'ice',cost:60},{key:'hammer',cost:80},{key:'shield',cost:80},{key:'retryHeart',cost:100},
+  {key:'1upSet',cost:100},{key:'highJump',cost:120},{key:'1upSet6',cost:150},{key:'doubleJump',cost:200},
+  {key:'megaStart',cost:250},{key:'magnet',cost:250},{key:'bundle',cost:450},{key:'star30',cost:500}
 ];
 const _SINGLE_ONLY=new Set(['mushroom','fire','ice','hammer','highJump','megaStart']);
 function _gpShopBuy(idx){
@@ -202,8 +203,6 @@ function _gpShopNext(){
   if(!G.nextStage)return;
   const _sb=G.shopBought||{};
   let _ns=G.nextStage;
-  // WARP: 買った枚数だけステージをスキップ
-  let _wc=_sb.warp||0;while(_wc-->0){const _nw=getNextStage(_ns.world,_ns.level);if(_nw)_ns=_nw;else break;}
   G.currentWorld=_ns.world;G.currentLevel=_ns.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.usedUndergrounds=new Set();iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ns.build();fireballs.length=0;bowserFire.length=0;bowserShockwaves.length=0;resetMario();
   if(_sb.hammer){mario.big=true;mario.h=48;mario.y-=16;mario.power='hammer';}
   else if(_sb.ice){mario.big=true;mario.h=48;mario.y-=16;mario.power='ice';}
@@ -219,7 +218,7 @@ function _gpShopNext(){
   if(_sb.shield)G.shield+=(_sb.shield||0);
   // MEGA START: パワーアップ適用後にメガ状態を上乗せ
   if(_sb.megaStart){G.megaPrevPower=mario.power;G.megaPrevBig=mario.big;G.megaTimer=480;}
-  G.shopBought=null;G.nextStage=null;updateHUD();
+  G.shopBought=null;G.nextStage=null;updateHUD();stopBGM();try{startBGM()}catch(e){}
 }
 function _gpDoJump(){
   if(G.state!=='play'||mario.dead)return;
@@ -260,10 +259,10 @@ function pollGamepad(){
       if(jp('a'))_gpShopBuy(G.shopConfirm);
       if(jp('b'))G.shopConfirm=null;
     }else{
-      if(jp('left'))G.shopCursor=(G.shopCursor+16)%17;
-      if(jp('right'))G.shopCursor=(G.shopCursor+1)%17;
-      if(jp('up')){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(16,G.shopCursor+12):_u;}
-      if(jp('down')){const _d=G.shopCursor+6;G.shopCursor=_d>=17?_d%6:_d;}
+      if(jp('left'))G.shopCursor=(G.shopCursor+15)%16;
+      if(jp('right'))G.shopCursor=(G.shopCursor+1)%16;
+      if(jp('up')){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(15,G.shopCursor+12):_u;}
+      if(jp('down')){const _d=G.shopCursor+6;G.shopCursor=_d>=16?_d%6:_d;}
       if(jp('a')){const _it=_SHOP_ITEMS[G.shopCursor];if(_it){const _s=_SINGLE_ONLY.has(_it.key);if(G.coins>=_it.cost&&(!_s||!G.shopBought?.[_it.key]))G.shopConfirm=G.shopCursor;}}
       if(jp('start'))_gpShopNext();
     }
@@ -381,9 +380,9 @@ if(G.state==='intro'){G.introTimer--;updateParticles();if(G.introTimer<=0){G.sta
 if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario.x=flagPole.x-4;if(mario.y>=H-TILE-mario.h){mario.y=H-TILE-mario.h;G.goalSlide.phase='walk'}}else if(G.goalSlide.phase==='walk'){mario.x+=2;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}if(G.goalSlide.t>120){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
   // 花火（スコア下1桁が1,3,6）
   const _ld=G.score%10;if(_ld===1||_ld===3||_ld===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
-  const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}else if(G.goalSlide.phase==='pipeGoal'){if(G.goalSlide.t>60){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
+  const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}else if(G.goalSlide.phase==='pipeGoal'){if(G.goalSlide.t>60){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
   const _ld2=G.score%10;if(_ld2===1||_ld2===3||_ld2===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
-  const _ns2=getNextStage(G.currentWorld,G.currentLevel);if(_ns2){G.nextStage=_ns2;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';for(let _pi=0;_pi<30;_pi++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),_pi*60)}}}updateParticles();return}
+  const _ns2=getNextStage(G.currentWorld,G.currentLevel);if(_ns2){G.nextStage=_ns2;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}else{G.state='win';for(let _pi=0;_pi<30;_pi++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),_pi*60)}}}updateParticles();return}
 // Moving platforms
 for(const mp of movingPlats){mp.prevX=mp.x;mp.prevY=mp.y;if(mp.type==='h')mp.x=mp.ox+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='v')mp.y=mp.oy+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='fall'){if(mp.falling){mp.vy+=0.3;mp.y+=mp.vy;if(mp.y>H+100){mp.y=mp.oy;mp.vy=0;mp.falling=false;mp.fallTimer=0}}}}
 if(G.starTimer>0){G.starTimer--;if(G.frame%3===0)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');if(G.starTimer<=0){mario.inv=0;stopBGM();try{startBGM()}catch(e){}}}
@@ -752,7 +751,7 @@ if(mario.x+mario.w>=peach.x){peach.caught=true;peach.vx=0;G.peachChase.catchT=0;
 }else{
 G.peachChase.catchT++;
 if(G.peachChase.catchT===1){G.score+=10000;updateHUD();}
-if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;stopBGM();}else{G.state='win';const _isFin=G.currentWorld===8&&G.currentLevel===3;const _wCnt=_isFin?80:30;for(let wi=0;wi<_wCnt;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*(_isFin?400:200)-(_isFin?200:100),H-TILE-(_isFin?200:100)+Math.random()*(_isFin?160:80),'star'),wi*(_isFin?40:60));if(_isFin){try{playVictoryFanfare();}catch(ex){}}}}
+if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}else{G.state='win';const _isFin=G.currentWorld===8&&G.currentLevel===3;const _wCnt=_isFin?80:30;for(let wi=0;wi<_wCnt;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*(_isFin?400:200)-(_isFin?200:100),H-TILE-(_isFin?200:100)+Math.random()*(_isFin?160:80),'star'),wi*(_isFin?40:60));if(_isFin){try{playVictoryFanfare();}catch(ex){}}}}
 }
 }
 // Lava flames
@@ -2016,28 +2015,27 @@ ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
 const _stCoins=G.coins-G.stageCoinsStart;
 ctx.fillText(`TIME:${G.timeLeft}  COINS:${_stCoins}  KO:${G.stageKills}  MAX COMBO:${G.stageMaxCombo}`,W/2,20);
 ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';ctx.fillText('COIN SHOP',W/2,46);
-ctx.fillStyle='#fff';ctx.font='9px "Press Start 2P",monospace';ctx.fillText(`COINS: ${G.coins}`,W/2,64);
+ctx.fillStyle='#FFD700';ctx.font='bold 14px "Press Start 2P",monospace';ctx.fillText(`COINS: ${G.coins}`,W/2,70);
 const _shopItems=[
-  {name:'MUSHROOM',cost:30, key:'mushroom', icon:'🍄', desc:'デカマリオ'},
-  {name:'STAR 10s', cost:50, key:'star10',   icon:'⭐', desc:'10秒無敵'},
-  {name:'FIRE',     cost:60, key:'fire',     icon:'🔥', desc:'ファイアマリオ'},
-  {name:'ICE',      cost:60, key:'ice',      icon:'❄️', desc:'アイスマリオ'},
-  {name:'HAMMER',   cost:80, key:'hammer',   icon:'🔨', desc:'ハンマーマリオ'},
-  {name:'SHIELD',   cost:80, key:'shield',   icon:'🛡', desc:'1回ダメージ無効 重ね可'},
-  {name:'1UP',      cost:100,key:'1up',      icon:'💚', desc:'残機+1'},
-  {name:'RETRY',    cost:100,key:'retryHeart',icon:'❤️',desc:'死亡時復活 重ね可'},
-  {name:'HI-JUMP',  cost:120,key:'highJump', icon:'🦘', desc:'ジャンプ力+25% 死ぬまで'},
-  {name:'1UP x3',   cost:200,key:'1upSet',   icon:'💚x3',desc:'残機+3'},
-  {name:'W-JUMP',   cost:200,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ 死ぬまで'},
-  {name:'MEGA',     cost:250,key:'megaStart', icon:'🔮', desc:'メガマリオでスタート'},
-  {name:'MAGNET',   cost:250,key:'magnet',    icon:'🧲', desc:'コイン吸引 死ぬまで'},
-  {name:'1UP x6',   cost:280,key:'1upSet6',   icon:'💚x6',desc:'残機+6 お得!'},
-  {name:'WARP',     cost:300,key:'warp',      icon:'✈️', desc:'次ステージを1つ飛ばす'},
-  {name:'STAR 30s', cost:500,key:'star30',    icon:'🌟', desc:'30秒無敵!'},
-  {name:'SET 500',  cost:500,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
+  {name:'MUSHROOM',cost:20, key:'mushroom', icon:'🍄', desc:'デカマリオ'},
+  {name:'FIRE',    cost:40, key:'fire',     icon:'🔥', desc:'ファイアマリオ'},
+  {name:'STAR 10s',cost:50, key:'star10',   icon:'⭐', desc:'10秒無敵'},
+  {name:'1UP',     cost:50, key:'1up',      icon:'💚', desc:'残機+1'},
+  {name:'ICE',     cost:60, key:'ice',      icon:'❄️', desc:'アイスマリオ'},
+  {name:'HAMMER',  cost:80, key:'hammer',   icon:'🔨', desc:'ハンマーマリオ'},
+  {name:'SHIELD',  cost:80, key:'shield',   icon:'🛡', desc:'1回ダメージ無効 重ね可'},
+  {name:'RETRY',   cost:100,key:'retryHeart',icon:'❤️',desc:'やられた時復活 重ね可'},
+  {name:'1UP x3',  cost:100,key:'1upSet',   icon:'💚x3',desc:'残機+3'},
+  {name:'HI-JUMP', cost:120,key:'highJump', icon:'🦘', desc:'ジャンプ力+25% やられるまで'},
+  {name:'1UP x6',  cost:150,key:'1upSet6',  icon:'💚x6',desc:'残機+6 お得!'},
+  {name:'W-JUMP',  cost:200,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ やられるまで'},
+  {name:'MEGA',    cost:250,key:'megaStart', icon:'🔮', desc:'メガマリオでスタート'},
+  {name:'MAGNET',  cost:250,key:'magnet',    icon:'🧲', desc:'コイン吸引 やられるまで'},
+  {name:'SET 450', cost:450,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
+  {name:'STAR 30s',cost:500,key:'star30',    icon:'🌟', desc:'30秒無敵!'},
 ];
 const _cols=6,_siW=104,_siH=100,_siGap=10,_rowGap=10;
-const _siX0=(W-(_siW*_cols+_siGap*(_cols-1)))/2,_siY=78;
+const _siX0=(W-(_siW*_cols+_siGap*(_cols-1)))/2,_siY=86;
 _shopItems.forEach((_si,_idx)=>{
   const _row=Math.floor(_idx/_cols),_col=_idx%_cols;
   const _sx=_siX0+_col*(_siW+_siGap),_sy=_siY+_row*(_siH+_rowGap);
@@ -2067,7 +2065,7 @@ const _totalRetry=(G.retryHeart||0)+(G.shopBought?.retryHeart||0);
 if(_totalRetry>0)_activeEffects.push(`❤️RETRY x${_totalRetry}`);
 const _totalShield=(G.shield||0)+(G.shopBought?.shield||0);
 if(_totalShield>0)_activeEffects.push(`🛡SHIELD x${_totalShield}`);
-const _warpC=G.shopBought?.warp||0;if(_warpC>0)_activeEffects.push(`✈️WARP x${_warpC}`);
+
 if(G.shopBought?.megaStart)_activeEffects.push('🌟MEGA');
 if(_activeEffects.length>0){ctx.fillStyle='#66ffaa';ctx.font='7px "Press Start 2P",monospace';ctx.fillText('ACTIVE: '+_activeEffects.join('  '),W/2,_aeShopY);_aeShopY+=14;}
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
