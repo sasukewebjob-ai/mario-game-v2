@@ -1172,13 +1172,16 @@ ctx.fillStyle='#3377BB';ctx.fillRect(x,py+TILE/2-1,TILE,2);ctx.fillRect(x+TILE/2
 ctx.fillStyle=`rgba(100,200,255,${_pbPulse})`;ctx.fillRect(x,py,TILE,TILE);
 }}
 
-function drawPipe(x,y,w,h,ceil){
-ctx.fillStyle='#1E8C2A';ctx.fillRect(x,y,w,h);
-ctx.fillStyle='#27AE60';ctx.fillRect(x+2,y+2,w-4,h-2);
-ctx.fillStyle='#2ECC71';ctx.fillRect(x+4,y+2,8,h-4);
+const _PCOLS={green:['#1E8C2A','#27AE60','#2ECC71'],red:['#7B241C','#C0392B','#E74C3C'],yellow:['#9A6B00','#D4AC0D','#F4D03F'],blue:['#1A4E7B','#2471A3','#5DADE2'],purple:['#5B2C6F','#8E44AD','#BB8FCE'],pink:['#880E4F','#D81B60','#F48FB1'],cyan:['#0D6E6E','#17A589','#76D7C4']};
+const _PCNAMES=['green','red','yellow','blue','purple','pink','cyan'];
+function drawPipe(x,y,w,h,ceil,color){
+const _c=_PCOLS[color||_PCNAMES[Math.floor(x/321)%7]]||_PCOLS.green;
+ctx.fillStyle=_c[0];ctx.fillRect(x,y,w,h);
+ctx.fillStyle=_c[1];ctx.fillRect(x+2,y+2,w-4,h-2);
+ctx.fillStyle=_c[2];ctx.fillRect(x+4,y+2,8,h-4);
 ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(x+6,y+2,3,h-4);
-if(ceil){ctx.fillStyle='#1E8C2A';ctx.fillRect(x-4,y+h-16,w+8,16);ctx.fillStyle='#27AE60';ctx.fillRect(x-2,y+h-14,w+4,12);ctx.fillStyle='#2ECC71';ctx.fillRect(x,y+h-13,8,8);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+2,y+h-12,3,6);}
-else{ctx.fillStyle='#1E8C2A';ctx.fillRect(x-4,y,w+8,16);ctx.fillStyle='#27AE60';ctx.fillRect(x-2,y+2,w+4,12);ctx.fillStyle='#2ECC71';ctx.fillRect(x,y+3,8,8);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+2,y+4,3,6);}
+if(ceil){ctx.fillStyle=_c[0];ctx.fillRect(x-4,y+h-16,w+8,16);ctx.fillStyle=_c[1];ctx.fillRect(x-2,y+h-14,w+4,12);ctx.fillStyle=_c[2];ctx.fillRect(x,y+h-13,8,8);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+2,y+h-12,3,6);}
+else{ctx.fillStyle=_c[0];ctx.fillRect(x-4,y,w+8,16);ctx.fillStyle=_c[1];ctx.fillRect(x-2,y+2,w+4,12);ctx.fillStyle=_c[2];ctx.fillRect(x,y+3,8,8);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+2,y+4,3,6);}
 }
 
 function drawMario(mx,my,facing,wf,dead,big){
@@ -1762,7 +1765,7 @@ if(G.checkpoint)drawCheckpoint(G.checkpoint);
 if(G.checkpoint2)drawCheckpoint(G.checkpoint2);
 // Piranhas (drawn before pipes so pipe covers them when inside)
 for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
-for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling);
+for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling,p.color);
 if(p.isWarp&&!p.used){ctx.fillStyle='rgba(255,255,255,'+(0.5+Math.sin(G.frame*0.08)*0.3)+')';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('▼',p.x+p.w/2,p.y-6);ctx.textAlign='left'}
 if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
 // Gravity zones
