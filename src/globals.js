@@ -52,7 +52,7 @@ export const G={
   stageKills:0,stageMaxCombo:0,stageCoinsStart:0,
   totalKills:0,bgmMuted:false,bgmVolume:1.0,
   coinMagnet:false,doubleJump:false,doubleJumpUsed:false,
-  retryHeart:0,afterimages:[],
+  retryHeart:0,shield:0,highJump:false,afterimages:[],
   darkMode:false,megaTimer:0,megaPrevPower:'none',megaPrevBig:false,
   chasingWall:null,gravityFlipped:false,
   sandstormMode:false,tideMode:false,tideLevel:450,
