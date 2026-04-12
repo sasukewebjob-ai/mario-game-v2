@@ -13,7 +13,7 @@ export const gravityZones=[];
 export const windZones=[];
 export const windParticles=[];
 
-export const mario={x:80,y:H-3*TILE,w:26,h:32,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,big:false,power:'none',wallContact:0,wallContactTimer:0,hipDrop:false,sliding:false,slideTimer:0};
+export const mario={x:80,y:H-3*TILE,w:26,h:32,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,big:false,power:'none',wallContact:0,wallContactTimer:0,hipDrop:false,sliding:false,slideTimer:0,crouching:false};
 export const yoshi={x:0,y:0,w:30,h:40,vx:0,vy:0,alive:false,mounted:false,facing:1,walkFrame:0,walkTimer:0,tongueOut:0,tongueLen:0,tongueMaxLen:90,eatCount:0,eggsReady:0,onGround:false,runAway:false,runTimer:0,flutterTimer:0,idleTimer:0};
 export const bowser={alive:false,x:0,y:0,w:64,h:72,hp:3,maxHp:3,vx:-1.5,vy:0,facing:-1,hurtTimer:0,fireTimer:130,jumpTimer:220,onGround:false,state:'walk',deadTimer:0,fireImmune:false,phase:1,phaseTransition:0};
 export const bowserShockwaves=[];

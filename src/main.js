@@ -59,14 +59,14 @@ function playVictoryFanfare(){try{const _n=[[392,0.1],[440,0.1],[494,0.1],[523,0
 
 function resetMario(){
 const bh=mario.power!=='none'?48:32;
-Object.assign(mario,{x:80,y:H-3*TILE,w:26,h:bh,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false});
+Object.assign(mario,{x:80,y:H-3*TILE,w:26,h:bh,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,crouching:false});
 G.cam=0;
 }
 function upgradeMario(type){
 if(type==='flower')mario.power=G.iceMode?'ice':'fire';
 else if(type==='hammer')mario.power='hammer';
 else mario.power='big';
-if(!mario.big){mario.h=48;mario.y-=16}mario.big=true;sfx('power');
+if(!mario.big){mario.h=48;mario.y-=16;mario.crouching=false;}mario.big=true;sfx('power');
 for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');
 }
 
@@ -343,11 +343,11 @@ function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null
 function killMario(force=false){
 if(mario.dead)return;
 if(!force&&(G.starTimer>0||mario.inv>0))return;
-if(!force&&yoshi.mounted&&yoshi.alive){dismountYoshi(true);mario.inv=120;return}
-if(!force&&G.megaTimer>0){G.megaTimer=0;mario.power=G.megaPrevPower;mario.big=G.megaPrevBig;mario.h=mario.big?48:32;mario.inv=120;sfx('break');return}
+if(!force&&yoshi.mounted&&yoshi.alive&&!mario.crouching){dismountYoshi(true);mario.inv=120;return}
+if(!force&&G.megaTimer>0){G.megaTimer=0;mario.power=G.megaPrevPower;mario.big=G.megaPrevBig;mario.h=mario.big?48:32;mario.crouching=false;mario.inv=120;sfx('break');return}
 if(!force&&G.shield>0){G.shield--;mario.inv=60;G.shakeX=4;G.shakeY=4;try{beep(880,.08,'sine',.2);beep(660,.12,'sine',.15,.08);}catch(ex){}spawnScorePopup(mario.x+13,mario.y-20,'SHIELD!','#88aaff');for(let i=0;i<10;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}
-if(!force&&(mario.power==='fire'||mario.power==='ice'||mario.power==='hammer')){mario.power='big';mario.inv=120;sfx('break');return}
-if(!force&&mario.power==='big'){mario.power='none';mario.big=false;mario.h=32;mario.inv=120;sfx('break');return}
+if(!force&&(mario.power==='fire'||mario.power==='ice'||mario.power==='hammer')){mario.power='big';mario.crouching=false;mario.inv=120;sfx('break');return}
+if(!force&&mario.power==='big'){mario.power='none';mario.big=false;mario.h=32;mario.crouching=false;mario.inv=120;sfx('break');return}
 // リトライハート: 死亡回避、その場復活
 if(!force&&G.retryHeart>0){G.retryHeart--;mario.inv=180;mario.vy=-10;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');return;}
 if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
@@ -479,10 +479,24 @@ if(!mario.dead){
 if(mario.wallContactTimer>0){mario.wallContactTimer--;}else{mario.wallContact=0;}
 // ヒップドロップ（空中＋下キー）
 if(!mario.onGround&&!mario.hipDrop&&!G.waterMode&&(keys['ArrowDown']||btn.down||gpad.down)&&mario.vy>0){mario.hipDrop=true;mario.vy=16;mario.vx=0;try{beep(200,.08,'square',.15);beep(150,.1,'square',.1,.05);}catch(ex){}}
+// しゃがみ
+{const _isDown=keys['ArrowDown']||btn.down||gpad.down;
+const _wantCrouch=mario.onGround&&_isDown&&!mario.sliding&&!mario.hipDrop&&!G.waterMode&&!mario.dead;
+const _nH=mario.big?48:32,_cH=mario.big?24:20;
+if(_wantCrouch){
+  if(!mario.crouching){mario.y+=_nH-_cH;mario.h=_cH;mario.crouching=true;}
+  else if(mario.h!==_cH){mario.y+=mario.h-_cH;mario.h=_cH;}
+}else if(mario.crouching&&!mario.sliding){
+  const _testY=mario.y-(_nH-mario.h);
+  let _bl=false;
+  for(const p of platforms){if(overlap(mario.x,_testY,mario.w,_nH,p.x,p.y-(p.bounceOffset||0),p.w,p.h)){_bl=true;break;}}
+  if(!_bl){for(const p of pipes){if(overlap(mario.x,_testY,mario.w,_nH,p.x,p.y,p.w,p.h)){_bl=true;break;}}}
+  if(!_bl){mario.y=_testY;mario.h=_nH;mario.crouching=false;}
+}}
 // スライディング
 const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
 if(!mario.sliding&&isDash&&mario.onGround&&(keys['ArrowDown']||btn.down||gpad.down)&&Math.abs(mario.vx)>3&&!G.waterMode){
-  mario.sliding=true;mario.slideTimer=30;const _oldH=mario.h;mario.h=mario.big?24:20;mario.y+=_oldH-mario.h;
+  mario.sliding=true;mario.crouching=false;mario.slideTimer=30;const _oldH=mario.h;mario.h=mario.big?24:20;mario.y+=_oldH-mario.h;
   sfx('stomp');for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');
 }
 if(mario.sliding){
@@ -504,7 +518,7 @@ if(mario.sliding){
 const spd=G.waterMode?(isDash?3.5:2.2):(isDash?6.5:3.8);
 const goL=keys['ArrowLeft']||keys['KeyA']||btn.left||gpad.left;const goR=keys['ArrowRight']||keys['KeyD']||btn.right||gpad.right;
 const _af=G.iceMode?0.042:0.25,_ff=G.iceMode?0.9895:0.78;
-if(goL){mario.vx+=(-spd-mario.vx)*_af;mario.facing=-1}else if(goR){mario.vx+=(spd-mario.vx)*_af;mario.facing=1}else mario.vx*=_ff;
+if(mario.crouching){mario.vx*=_ff;}else if(goL){mario.vx+=(-spd-mario.vx)*_af;mario.facing=-1}else if(goR){mario.vx+=(spd-mario.vx)*_af;mario.facing=1}else mario.vx*=_ff;
 if(G.ugMode&&mario.x<0)mario.x=0;if(G.ugMode&&mario.x+mario.w>W)mario.x=W-mario.w;if(G.ugMode)G.cam=0;
 // Flutter jump (Yoshi)
 if(yoshi.mounted&&yoshi.alive&&yoshi.flutterTimer>0&&(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy>0){mario.vy*=0.6;yoshi.flutterTimer--;if(G.frame%2===0)spawnParticle(mario.x+13,mario.y+mario.h,'dust')}
@@ -1180,6 +1194,20 @@ const skinC='#FBD000',hairC=isHammer?'#444':'#6B3410',shoeC=isHammer?'#333':'#6B
 
 if(dead){ctx.fillStyle=hatC;ctx.fillRect(mx+4,my,20,7);ctx.fillStyle=skinC;ctx.fillRect(mx+6,my+7,16,8);ctx.fillStyle=shirtC;ctx.fillRect(mx+2,my+15,24,12);ctx.restore();return}
 if(big){
+if(mario.crouching){
+// Big Mario crouching (h=24px)
+ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);
+ctx.fillStyle=hairC;ctx.fillRect(mx+2,my+7,4,4);
+ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+9,20,8);
+ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+10,6,4);ctx.fillRect(mx+16,my+10,6,4);
+ctx.fillStyle='#000';ctx.fillRect(mx+10,my+11,4,3);ctx.fillRect(mx+18,my+11,4,3);
+ctx.fillStyle=hairC;ctx.fillRect(mx+6,my+15,16,2);
+ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+17,20,5);
+ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+19,3,2);ctx.fillRect(mx+16,my+19,3,2);
+ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+22,10,2);ctx.fillRect(mx+14,my+22,10,2);
+ctx.fillStyle=shoeC;ctx.fillRect(mx+2,my+22,10,2);ctx.fillRect(mx+14,my+22,10,2);
+if(isHammer){ctx.fillStyle='#888';ctx.fillRect(mx+2,my-4,24,8);ctx.fillStyle='#aaa';ctx.fillRect(mx+4,my-3,20,5);ctx.fillStyle='#666';ctx.fillRect(mx+6,my-6,16,4);}
+}else{
 // Hat
 ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,6);ctx.fillRect(mx+2,my+4,24,6);
 // Hair
@@ -1203,6 +1231,17 @@ ctx.fillStyle=shirtC;ctx.fillRect(mx+4+lo[0],my+36,10,6);ctx.fillRect(mx+16+lo[1
 ctx.fillStyle=shoeC;ctx.fillRect(mx+2+lo[0],my+42,12,6);ctx.fillRect(mx+14+lo[1],my+42,12,6);
 // ハンマースーツのヘルメット
 if(isHammer){ctx.fillStyle='#888';ctx.fillRect(mx+2,my-4,24,8);ctx.fillStyle='#aaa';ctx.fillRect(mx+4,my-3,20,5);ctx.fillStyle='#666';ctx.fillRect(mx+6,my-6,16,4);}
+}}else{
+if(mario.crouching){
+// Small Mario crouching (h=20px)
+ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,4);
+ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+7,20,7);
+ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+8,5,4);ctx.fillRect(mx+16,my+8,5,4);
+ctx.fillStyle='#000';ctx.fillRect(mx+10,my+9,3,3);ctx.fillRect(mx+17,my+9,3,3);
+ctx.fillStyle=hairC;ctx.fillRect(mx+6,my+12,14,2);
+ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+14,20,4);
+ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+15,3,2);ctx.fillRect(mx+16,my+15,3,2);
+ctx.fillStyle=shoeC;ctx.fillRect(mx+2,my+18,10,2);ctx.fillRect(mx+14,my+18,10,2);
 }else{
 // Small Mario
 ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);
@@ -1215,7 +1254,7 @@ ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+18,3,3);ctx.fillRect(mx+16,my+18,3,
 ctx.fillStyle=skinC;ctx.fillRect(mx-3,my+16,7,6);ctx.fillRect(mx+24,my+16,7,6);
 const lo=wf===1?[-3,3]:wf===2?[3,-3]:[0,0];
 ctx.fillStyle=shoeC;ctx.fillRect(mx+2+lo[0],my+26,12,6);ctx.fillRect(mx+14+lo[1],my+26,12,6);
-}
+}}
 ctx.restore();
 }
 
