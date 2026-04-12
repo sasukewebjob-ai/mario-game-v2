@@ -77,19 +77,18 @@ export function buildLevel_3_3(){
   for(let i=0;i<5;i++)coinItems.push({x:3420+i*55,y:H-3*TILE,collected:false});
   for(let i=0;i<4;i++)coinItems.push({x:5220+i*50,y:H-3*TILE,collected:false});
 
-  // 地上敵
+  // 地上敵（サボテンはW2テーマのため削除→koopa/goombaに置換）
   [{x:620,t:'goomba'},{x:880,t:'koopa'},
-   {x:1100,t:'cactus'},{x:1380,t:'koopa'},{x:1490,t:'goomba'},{x:1600,t:'cactus'},
-   {x:2200,t:'koopa'},{x:2380,t:'cactus'},{x:2600,t:'hammerBro'},{x:2700,t:'goomba'},
-   {x:3480,t:'koopa'},{x:4120,t:'cactus'},{x:4220,t:'koopa'},
-   {x:4200,t:'goomba'},{x:4300,t:'cactus'},{x:4700,t:'goomba'},{x:4820,t:'koopa'},
-   {x:5500,t:'cactus'},{x:5620,t:'hammerBro'},{x:5740,t:'cactus'},
-   {x:5930,t:'koopa'},{x:6570,t:'cactus'}
+   {x:1100,t:'koopa'},{x:1380,t:'koopa'},{x:1490,t:'goomba'},{x:1600,t:'goomba'},
+   {x:2200,t:'koopa'},{x:2380,t:'koopa'},{x:2600,t:'hammerBro'},{x:2700,t:'goomba'},
+   {x:3480,t:'koopa'},{x:4120,t:'koopa'},{x:4220,t:'koopa'},
+   {x:4200,t:'goomba'},{x:4300,t:'goomba'},{x:4700,t:'goomba'},{x:4820,t:'koopa'},
+   {x:5500,t:'koopa'},{x:5620,t:'hammerBro'},{x:5740,t:'goomba'},
+   {x:5930,t:'koopa'},{x:6570,t:'koopa'}
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
     else if(t==='koopa')e={x,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1,vy:0,alive:true,type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1};
-    else if(t==='cactus')e={x,y:H-5*TILE,w:TILE,h:TILE*4,vx:-0.8,vy:0,alive:true,type:'cactus',state:'walk',walkFrame:0,walkTimer:0};
     else if(t==='hammerBro')e={x,y:H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5+Math.random(),vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:60+Math.floor(Math.random()*60),jumpTimer:120+Math.floor(Math.random()*80),onGround:false};
     if(e)enemies.push(e);
   });
@@ -159,4 +158,6 @@ export function buildLevel_3_3(){
   pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:4300,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   piranhas.push({x:4324,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+  // 潮の満ち引き（海辺の城らしさ）：低地が定期的に水没
+  G.tideMode=true;
 }

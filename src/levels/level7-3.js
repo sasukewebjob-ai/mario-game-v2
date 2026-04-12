@@ -197,4 +197,6 @@ export function buildLevel_7_3(){
   pipes.push({x:1200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:5500,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   piranhas.push({x:5524,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+  // 暗闇モード（テレサ + ドッスン in 暗闇 — スポットライトのみ）
+  G.darkMode=true;
 }

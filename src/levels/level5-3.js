@@ -137,41 +137,7 @@ export function buildLevel_5_3(){
   // チェックポイント
   G.checkpoint={x:4000,y:H-TILE,reached:false};
 
-  // 火柱（前半→後半で激しく）
-  [
-    {x:250, w:18,maxH:100,period:240,phase:0},
-    {x:500, w:18,maxH:110,period:220,phase:60},
-    {x:800, w:18,maxH:95, period:200,phase:120},
-    {x:1100,w:18,maxH:110,period:230,phase:30},
-    {x:1400,w:18,maxH:105,period:210,phase:90},
-    {x:1750,w:18,maxH:120,period:190,phase:50},
-    {x:2400,w:20,maxH:145,period:175,phase:10},
-    {x:2600,w:18,maxH:125,period:185,phase:80},
-    {x:2850,w:20,maxH:155,period:170,phase:40},
-    {x:3150,w:18,maxH:135,period:180,phase:100},
-    {x:3250,w:20,maxH:165,period:165,phase:20},
-    // 溶岩穴ガイザー
-    {x:2020,w:24,maxH:220,period:160,phase:0},
-    {x:2100,w:20,maxH:185,period:160,phase:50},
-    {x:3720,w:24,maxH:220,period:155,phase:0},
-    {x:3800,w:20,maxH:185,period:155,phase:60},
-    {x:5420,w:24,maxH:220,period:150,phase:0},
-    {x:5510,w:20,maxH:185,period:150,phase:55},
-    // 後半
-    {x:4100,w:20,maxH:170,period:160,phase:70},
-    {x:4300,w:22,maxH:180,period:155,phase:10},
-    {x:4600,w:20,maxH:165,period:165,phase:120},
-    {x:4850,w:22,maxH:175,period:155,phase:55},
-    {x:5000,w:20,maxH:155,period:170,phase:90},
-    {x:5700,w:20,maxH:165,period:160,phase:20},
-    {x:5900,w:22,maxH:185,period:155,phase:45},
-    {x:6100,w:20,maxH:175,period:160,phase:100},
-    {x:6300,w:22,maxH:195,period:150,phase:30},
-    {x:6450,w:20,maxH:175,period:155,phase:80},
-    // クッパ直前
-    {x:7100,w:24,maxH:200,period:140,phase:0},
-    {x:7180,w:20,maxH:185,period:145,phase:45},
-  ].forEach(f=>lavaFlames.push({...f,curH:0}));
+  // 水中城のため溶岩炎なし（lavaFlames は既にクリア済み）
 
   // アリーナ壁（7ブロック高）
   for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6920,wy,'brick');addB(6952,wy,'brick');}
@@ -196,4 +162,6 @@ platforms.push({x:5200,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHam
 pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4300,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 piranhas.push({x:4324,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+// 水中城（泳ぎながら進む — 溶岩炎なし・全域水泳物理）
+G.waterMode=true;
 }

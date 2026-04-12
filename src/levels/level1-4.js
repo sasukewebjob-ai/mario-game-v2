@@ -73,6 +73,11 @@ cannons.push(
 {x:4300,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:140},
 {x:5680,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:40}
 );
+// ドッスン×3（W1-4初登場：Z1/Z2/Z3に1体ずつ）
+// ブロック禁止確認: x=1580-1643(H-7T 1500-1596の右), x=2650-2713(H-7T 2450-2514の右), x=4100-4163(H-6T 4000-4032の右)
+enemies.push({x:1596,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+enemies.push({x:2650,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+enemies.push({x:4100,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
 // Checkpoint
 G.checkpoint={x:3700,y:H-TILE,reached:false};
 // Special blocks (push only – no addRow at same coordinates)

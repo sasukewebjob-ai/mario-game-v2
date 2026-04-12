@@ -177,4 +177,6 @@ export function buildLevel_2_3(){
   pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:4200,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   piranhas.push({x:4224,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+  // 追いかけ壁（砂嵐 + 壁でチェックポイント後に緊張感）
+  G.chasingWall={x:-200,speed:0.9,triggerX:3600,active:false};
 }

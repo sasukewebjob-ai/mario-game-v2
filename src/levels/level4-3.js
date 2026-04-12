@@ -179,4 +179,7 @@ platforms.push({x:5000,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHam
 pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4300,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 piranhas.push({x:4324,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+// 風ゾーン（2廊下：前半向かい風・後半強風）
+windZones.push({x:500,y:0,w:900,h:H,force:-1.5});  // Z1廊下（向かい風）
+windZones.push({x:3600,y:0,w:1400,h:H,force:-2.0}); // Z3廊下（強風）
 }
