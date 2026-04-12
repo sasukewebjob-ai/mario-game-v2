@@ -56,5 +56,6 @@ export const G={
   darkMode:false,megaTimer:0,megaPrevPower:'none',megaPrevBig:false,
   chasingWall:null,gravityFlipped:false,
   sandstormMode:false,tideMode:false,tideLevel:450,
-  pswitchTimer:0,_psCoins:null,_psBricks:null
+  pswitchTimer:0,_psCoins:null,_psBricks:null,
+  usedUndergrounds:null
 };

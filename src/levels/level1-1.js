@@ -41,7 +41,7 @@ addRow(500,H-4*TILE,3,'brick');addRow(3000,H-8*TILE,2,'q');
 addRow(5500,H-6*TILE,3,'brick');addRow(6200,H-3*TILE,2,'g');
 
 // Pipes
-[[500,2,false],[1350,3,'coin'],[3200,2,false],[5500,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
+[[500,2,false],[1350,3,'coin'],[3200,2,false],[4100,3,'yoshi1'],[5500,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
 pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
