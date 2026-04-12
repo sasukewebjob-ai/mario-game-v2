@@ -192,7 +192,7 @@ export function buildLevel_8_2(){
 
   // チェックポイント（Ship C中央・周辺300px: 2700〜3300禁止済み ✓）
   G.checkpoint={x:3000,y:H-TILE,reached:false};
-  G.chasingWall={x:-300,speed:0.7,triggerX:3200,active:false}; // チェックポイント(x=3000)通過後に起動
+  G.chasingWall={x:-300,speed:1.15,triggerX:3200,active:false}; // チェックポイント(x=3000)通過後に起動
   // ★ ハンマースーツ
   platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管

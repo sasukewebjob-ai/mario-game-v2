@@ -833,7 +833,7 @@ if(!mario.dead&&mario.y+mario.h>G.tideLevel){if(mario.vy>0)mario.vy*=0.88;if(mar
 G.gravityFlipped=false;
 for(const gz of gravityZones){if(overlap(mario.x,mario.y,mario.w,mario.h,gz.x,gz.y,gz.w,gz.h)){G.gravityFlipped=true;break;}}
 // === Chasing Wall ===
-if(G.chasingWall){const cw=G.chasingWall;if(!cw.active&&mario.x>cw.triggerX)cw.active=true;
+if(G.chasingWall){const cw=G.chasingWall;if(!cw.active&&mario.x>cw.triggerX){cw.active=true;cw.x=G.cam;}
 if(cw.active){cw.x+=cw.speed;if(G.frame%4===0)spawnParticle(cw.x+4,H*Math.random(),'star');
 if(!mario.dead&&mario.x<cw.x)killMario(true);}}
 }else{mario.vy+=GRAVITY;mario.y+=mario.vy}

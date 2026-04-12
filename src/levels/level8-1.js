@@ -183,5 +183,5 @@ export function buildLevel_8_1(){
   piranhas.push({x:3424,baseY:2*TILE,y:2*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 
   // ★ 追いかけ壁（飛行船の爆発が迫る）
-  G.chasingWall={x:-300,speed:0.6,triggerX:2400,active:false}; // チェックポイント(x=2200)通過後に起動
+  G.chasingWall={x:-300,speed:0.95,triggerX:2400,active:false}; // チェックポイント(x=2200)通過後に起動
 }
