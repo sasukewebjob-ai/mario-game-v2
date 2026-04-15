@@ -138,7 +138,7 @@ if(G.ugMode){
 for(const p of pipes){if(!p.isGoalPipe)continue;const _tol=G.waterMode?10:4;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){sfx('flag');stopBGM();G.goalSlide={phase:'pipeGoal',t:0};mario.vx=0;mario.vy=0;for(let _gi=0;_gi<20;_gi++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}}
 for(const p of pipes){if(!p.isWarp||p.used)continue;const _ugKey=`${G.currentWorld}-${G.currentLevel}-${p.x}`;if(G.usedUndergrounds&&G.usedUndergrounds.has(_ugKey))continue;const _tol=G.waterMode?10:4;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){p.used=true;p.ugKey=_ugKey;enterUnderground(p);return}}
 }
-function enterUnderground(p){if(G.pswitchTimer>0)deactivatePSwitch();G.autoScroll=0;G.savedOW={platforms:[...platforms],pipes:[...pipes],coinItems:[...coinItems],enemies:[...enemies],mushrooms:[...mushrooms],piranhas:[...piranhas],movingPlats:[...movingPlats],springs:[...springs],cannons:[...cannons],chainChomps:[...chainChomps],jumpBlocks:[...jumpBlocks],pipos:[...pipos],gravityZones:[...gravityZones],windZones:[...windZones],chasingWall:G.chasingWall?{...G.chasingWall}:null,cam:G.cam,mx:mario.x,my:mario.y,waterMode:G.waterMode,darkMode:G.darkMode,ugKey:p.ugKey||null};G.waterMode=false;G.darkMode=false;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;
+function enterUnderground(p){if(G.pswitchTimer>0)deactivatePSwitch();G.autoScroll=0;G.savedOW={platforms:[...platforms],pipes:[...pipes],coinItems:[...coinItems],enemies:[...enemies],mushrooms:[...mushrooms],piranhas:[...piranhas],movingPlats:[...movingPlats],springs:[...springs],cannons:[...cannons],chainChomps:[...chainChomps],jumpBlocks:[...jumpBlocks],pipos:[...pipos],gravityZones:[...gravityZones],windZones:[...windZones],chasingWall:G.chasingWall?{...G.chasingWall}:null,cam:G.cam,mx:mario.x,my:mario.y,waterMode:G.waterMode,darkMode:G.darkMode,ugKey:p.ugKey||null,ceilingEntry:!!p.ceiling};G.waterMode=false;G.darkMode=false;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;
 platforms.length=0;pipes.length=0;coinItems.length=0;enemies.length=0;mushrooms.length=0;piranhas.length=0;movingPlats.length=0;springs.length=0;cannons.length=0;bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;bowserShockwaves.length=0;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
 buildUnderground(p.variant||'coin');
 // 地下スポーン(x=60)周辺200px以内の敵を除去（即死防止）
@@ -147,7 +147,10 @@ G.cam=0;mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;G.ugMode=true;G.score+
 function exitUnderground(){if(!G.savedOW)return;if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}platforms.length=0;platforms.push(...G.savedOW.platforms);pipes.length=0;pipes.push(...G.savedOW.pipes);coinItems.length=0;coinItems.push(...G.savedOW.coinItems);enemies.length=0;enemies.push(...G.savedOW.enemies);mushrooms.length=0;mushrooms.push(...G.savedOW.mushrooms);piranhas.length=0;piranhas.push(...G.savedOW.piranhas);movingPlats.length=0;movingPlats.push(...(G.savedOW.movingPlats||[]));springs.length=0;springs.push(...(G.savedOW.springs||[]));cannons.length=0;cannons.push(...(G.savedOW.cannons||[]));bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;chainChomps.push(...(G.savedOW.chainChomps||[]));jumpBlocks.length=0;jumpBlocks.push(...(G.savedOW.jumpBlocks||[]));pipos.length=0;pipos.push(...(G.savedOW.pipos||[]));gravityZones.length=0;gravityZones.push(...(G.savedOW.gravityZones||[]));windZones.length=0;windZones.push(...(G.savedOW.windZones||[]));windParticles.length=0;iceBalls.length=0;marioHammers.length=0;G.darkMode=G.savedOW.darkMode||false;G.chasingWall=G.savedOW.chasingWall||null;G.gravityFlipped=false;
 // 出口(元のパイプ位置)周辺200px以内の敵を除去（即死防止）
 const _exitX=G.savedOW.mx;for(let i=enemies.length-1;i>=0;i--){if(Math.abs(enemies[i].x-_exitX)<200)enemies.splice(i,1);}
-G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;mario.y=G.savedOW.my-TILE*2;G.waterMode=G.savedOW.waterMode||false;mario.vy=G.waterMode?-3:-10;G.ugMode=false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
+G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;G.waterMode=G.savedOW.waterMode||false;
+// 天井パイプから入った場合：パイプ底から自然落下。通常パイプ：上に飛び出す
+if(G.savedOW.ceilingEntry){mario.y=G.savedOW.my+4;mario.vy=4;}
+else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
 // ピノキオ部屋をリセット
 G.pinoRoom=false;pinoObj.alive=false;}
 
@@ -234,23 +237,9 @@ function applyPinoReward(reward,cx,cy){
     }
     G.pinoNeed=5; // need to defeat all
   }else if(reward===8){
-    // goal flag → stage clear
+    // ゴールフラグ → pinoSpeechTimer 後にステージクリア
+    // pinoSpeechTimer=300 が 0 になったらpinoRoom updateでクリア発火
     G.pinoNeed=0;
-    // trigger goal clear in update loop next frame
-    setTimeout(()=>{
-      G.pinoRoom=false;pinoObj.alive=false;
-      if(G.ugMode)exitUnderground();
-      // Complete the original stage
-      const _from=G.exStageFrom;
-      G.isExStage=false;G.exStageFrom=null;
-      const _oriWorld=_from?_from.world:G.currentWorld;
-      const _oriLevel=_from?_from.level:G.currentLevel;
-      G.currentWorld=_oriWorld;G.currentLevel=_oriLevel;
-      G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
-      const _ns=getNextStage(_oriWorld,_oriLevel);
-      if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}
-      else{G.state='win';}
-    },300);
   }else if(reward===9){
     // EX stage warp pipe
     G.pinoNeed=0;
@@ -774,10 +763,24 @@ if(G.pinoRoom){
       const _alive=enemies.filter(e=>e.isPinoItem&&e.alive&&e.state!=='dead').length;
       if(_alive===0){G.pinoNeed=0;}
     }
-    // pinoNeed=0になったら出口パイプを出す
-    if(G.pinoNeed===0&&!pipes.some(p=>p.isExit||p.isExWarp)){
+    // pinoNeed=0になったら出口パイプを出す（報酬#8は自動クリアのためパイプ不要）
+    if(G.chestOpened&&G.pinoNeed===0&&G.pinoReward!==8&&!pipes.some(p=>p.isExit||p.isExWarp)){
       spawnPinoExit();
     }
+  }
+  // 報酬#8（ゴールフラグ）: ピノキオのセリフ終了後にステージクリア
+  if(G.chestOpened&&G.pinoReward===8&&G.pinoSpeechTimer===0){
+    G.pinoReward=-2; // 二重発火防止
+    // exitUndergroundは呼ばず直接ステート遷移（BGM二重再生防止）
+    G.pinoRoom=false;pinoObj.alive=false;G.ugMode=false;G.savedOW=null;
+    const _from=G.isExStage?G.exStageFrom:null;
+    G.isExStage=false;G.exStageFrom=null;
+    if(_from){G.currentWorld=_from.world;G.currentLevel=_from.level;}
+    G.score+=2000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
+    sfx('flag');stopBGM();
+    const _ns=getNextStage(G.currentWorld,G.currentLevel);
+    if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}
+    else{G.state='win';}
   }
   // miniBowser（ピノキオ報酬5）の更新
   for(const e of enemies){
@@ -2000,7 +2003,21 @@ if(G.checkpoint2)drawCheckpoint(G.checkpoint2);
 // Piranhas (drawn before pipes so pipe covers them when inside)
 for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
 for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling,p.color);
-if(p.isWarp&&!p.used){ctx.fillStyle='rgba(255,255,255,'+(0.5+Math.sin(G.frame*0.08)*0.3)+')';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('▼',p.x+p.w/2,p.y-6);ctx.textAlign='left'}
+if(p.isWarp&&!p.used){
+  const _wa=0.55+Math.sin(G.frame*0.1)*0.35;
+  ctx.fillStyle=`rgba(255,255,100,${_wa})`;ctx.font='bold 14px monospace';ctx.textAlign='center';
+  if(p.ceiling){
+    // 天井ワープパイプ: ▲マークを下端（入口）の下に表示
+    const _ay=p.y+p.h+16+Math.abs(Math.sin(G.frame*0.08))*6;
+    ctx.fillText('▲',p.x+p.w/2,_ay);
+    ctx.font='8px "Press Start 2P",monospace';
+    ctx.fillStyle=`rgba(255,255,100,${_wa*0.8})`;
+    ctx.fillText('JUMP!',p.x+p.w/2,_ay+12);
+  }else{
+    ctx.fillText('▼',p.x+p.w/2,p.y-6);
+  }
+  ctx.textAlign='left';ctx.font='11px "Press Start 2P",monospace';
+}
 if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
 // Gravity zones
 for(const gz of gravityZones){if(gz.x+gz.w<G.cam||gz.x>G.cam+W)continue;
@@ -2269,30 +2286,69 @@ if(G.pinoRoom&&G.state==='play'){
     const _ox=pinoObj.x-G.cam,_oy=pinoObj.y;
     const _flip=pinoObj.facing===-1;
     ctx.save();if(_flip){ctx.translate(_ox+pinoObj.w/2,_oy);ctx.scale(-1,1);ctx.translate(-pinoObj.w/2,0);}else{ctx.translate(_ox,_oy);}
-    // 体（青服）
-    ctx.fillStyle='#2244cc';ctx.fillRect(6,20,16,20);
-    // 顔（肌色）
-    ctx.fillStyle='#ffd0a0';ctx.fillRect(4,4,20,18);
-    // 帽子
-    ctx.fillStyle='#cc0000';ctx.fillRect(2,0,24,6);ctx.fillRect(6,-4,12,5);
-    // 鼻（長い）
-    ctx.fillStyle='#ff9944';ctx.fillRect(24,10,10,4);
-    // 目
-    ctx.fillStyle='#000';ctx.fillRect(8,8,4,4);ctx.fillRect(16,8,4,4);
-    // 足
-    ctx.fillStyle='#000';const _ff=pinoObj.frame;ctx.fillRect(6,40,8,6+(_ff?2:0));ctx.fillRect(14,40,8,6+(_ff?0:2));
+    // ★ 帽子（先の尖った赤い円錐帽）
+    ctx.fillStyle='#cc0000';
+    ctx.fillRect(11,-8,6,4);   // 先端
+    ctx.fillRect(8,-4,12,4);   // 上部
+    ctx.fillRect(4,0,20,5);    // 中部
+    ctx.fillStyle='#ee1111';
+    ctx.fillRect(0,5,28,5);    // ツバ（やや明るい）
+    ctx.fillStyle='#880000';
+    ctx.fillRect(0,5,28,1);    // ツバ上縁シャドウ
+    // ★ 顔（肌色・まるっこい）
+    ctx.fillStyle='#ffcc88';ctx.fillRect(4,10,20,20);
+    ctx.fillStyle='#f0ba77';ctx.fillRect(6,27,16,3); // あご
+    // ★ 目（白目＋青い瞳＋光）
+    ctx.fillStyle='#fff';ctx.fillRect(7,14,5,5);ctx.fillRect(16,14,5,5);
+    ctx.fillStyle='#1144cc';ctx.fillRect(8,15,3,3);ctx.fillRect(17,15,3,3);
+    ctx.fillStyle='#000';ctx.fillRect(9,16,2,2);ctx.fillRect(18,16,2,2);
+    ctx.fillStyle='#fff';ctx.fillRect(9,15,1,1);ctx.fillRect(18,15,1,1); // 瞳ハイライト
+    // ★ 眉（表情付け）
+    ctx.fillStyle='#7a4010';ctx.fillRect(7,13,5,1);ctx.fillRect(16,13,5,1);
+    // ★ ほっぺ（赤み）
+    ctx.fillStyle='rgba(255,80,80,0.45)';ctx.fillRect(4,20,5,5);ctx.fillRect(19,20,5,5);
+    // ★ 鼻（ピノキオ最大の特徴！長い！）
+    ctx.fillStyle='#ff7700';ctx.fillRect(23,19,18,4); // 本体18px
+    ctx.fillStyle='#ee5500';ctx.fillRect(39,20,2,2);   // 先端
+    ctx.fillStyle='rgba(255,200,100,0.55)';ctx.fillRect(23,19,5,2); // 付け根ハイライト
+    // ★ 口（笑い）
+    ctx.fillStyle='#cc2222';ctx.fillRect(9,26,10,2);
+    ctx.fillStyle='#ff5555';ctx.fillRect(10,25,8,1);
+    // ★ 首
+    ctx.fillStyle='#ffcc88';ctx.fillRect(11,30,6,3);
+    // ★ 胴体（黄ベスト＋青オーバーオール）
+    ctx.fillStyle='#eecc00';ctx.fillRect(5,33,18,8); // 黄ベスト
+    ctx.fillStyle='#bb9900';ctx.fillRect(5,33,18,1);ctx.fillRect(13,33,2,8); // ベスト縁+ボタン
+    ctx.fillStyle='#2244cc';ctx.fillRect(4,41,9,TILE*0.6);ctx.fillRect(15,41,9,TILE*0.6); // ズボン
+    // ★ 腕（肌色）
+    ctx.fillStyle='#ffcc88';ctx.fillRect(0,34,5,6);ctx.fillRect(23,34,5,6);
+    ctx.fillStyle='#fff';ctx.fillRect(-1,38,5,4);ctx.fillRect(24,38,5,4); // 手（白手袋）
+    // ★ 靴（先の尖ったエルフシューズ）
+    const _wf=pinoObj.frame;
+    ctx.fillStyle='#331100';
+    ctx.fillRect(2,46+(_wf?1:0),10,3);ctx.fillRect(15,46+(_wf?0:1),10,3);
     ctx.restore();
-    // 吹き出し
+    // ★ 吹き出し（大きめ・読みやすいフォント）
     if(G.pinoSpeechTimer>0&&G.pinoSpeechText){
-      const _bx=pinoObj.x-G.cam-80,_by=pinoObj.y-50;const _bw=180,_bh=40;
-      ctx.fillStyle='rgba(255,255,220,0.95)';ctx.fillRect(_bx,_by,_bw,_bh);
-      ctx.strokeStyle='#888';ctx.lineWidth=2;ctx.strokeRect(_bx,_by,_bw,_bh);ctx.lineWidth=1;
-      // 吹き出し△
-      ctx.fillStyle='rgba(255,255,220,0.95)';ctx.beginPath();ctx.moveTo(_bx+80,_by+_bh);ctx.lineTo(_bx+92,_by+_bh+10);ctx.lineTo(_bx+104,_by+_bh);ctx.fill();
-      ctx.strokeStyle='#888';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(_bx+80,_by+_bh);ctx.lineTo(_bx+92,_by+_bh+10);ctx.lineTo(_bx+104,_by+_bh);ctx.stroke();ctx.lineWidth=1;
-      ctx.fillStyle='#333';ctx.font='6px "Press Start 2P",monospace';ctx.textAlign='center';
       const _lines=G.pinoSpeechText.split('\n');
-      _lines.forEach((_l,_li)=>ctx.fillText(_l,_bx+_bw/2,_by+14+_li*14));
+      const _bw=Math.max(180,_lines.reduce((mx,l)=>Math.max(mx,l.length*7+20),100));
+      const _bh=_lines.length*16+14;
+      const _bx=Math.max(4,Math.min(W-_bw-4,pinoObj.x-G.cam-_bw/2+14));
+      const _by=Math.max(4,pinoObj.y-_bh-16);
+      // 影
+      ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fillRect(_bx+3,_by+3,_bw,_bh);
+      // 本体
+      ctx.fillStyle='rgba(255,255,230,0.97)';ctx.fillRect(_bx,_by,_bw,_bh);
+      ctx.strokeStyle='#bb8800';ctx.lineWidth=2;ctx.strokeRect(_bx,_by,_bw,_bh);ctx.lineWidth=1;
+      // 吹き出し三角（ピノキオの位置に合わせて）
+      const _tx=Math.max(_bx+10,Math.min(_bx+_bw-20,pinoObj.x-G.cam+14));
+      ctx.fillStyle='rgba(255,255,230,0.97)';
+      ctx.beginPath();ctx.moveTo(_tx,_by+_bh);ctx.lineTo(_tx+8,_by+_bh+12);ctx.lineTo(_tx+16,_by+_bh);ctx.fill();
+      ctx.strokeStyle='#bb8800';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(_tx,_by+_bh-1);ctx.lineTo(_tx+8,_by+_bh+12);ctx.lineTo(_tx+16,_by+_bh-1);ctx.stroke();ctx.lineWidth=1;
+      // テキスト
+      ctx.fillStyle='#332200';ctx.font='bold 8px "Press Start 2P",monospace';ctx.textAlign='center';
+      _lines.forEach((_l,_li)=>ctx.fillText(_l,_bx+_bw/2,_by+13+_li*16));
       ctx.textAlign='left';
     }
   }

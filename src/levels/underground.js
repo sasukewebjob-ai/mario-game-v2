@@ -11,7 +11,8 @@ chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
 const W=800;
 for(let x=0;x<W;x+=TILE){platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 if(x>0&&x<W-TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0})}
-pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+// ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
+if(variant!=='pinocchio'&&variant!=='pinocchio_fail')pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
 for(let wy=TILE;wy<H-4*TILE;wy+=TILE)platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
 // ── ヘルパー関数 ──
