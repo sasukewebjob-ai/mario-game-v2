@@ -163,7 +163,7 @@ G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;G.waterMode=G.savedOW.waterMode||false;
 if(G.savedOW.ceilingEntry){mario.y=G.savedOW.my+4;mario.vy=4;}
 else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
 // ピノキオ部屋をリセット
-G.pinoRoom=false;pinoObj.alive=false;}
+G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;}
 
 // === ピノキオ部屋 ===
 function startExStage(){
@@ -172,7 +172,7 @@ function startExStage(){
   G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;
   G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;
   iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
-  G.ugMode=false;G.savedOW=null;G.pinoRoom=false;pinoObj.alive=false;
+  G.ugMode=false;G.savedOW=null;G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;
   G.isExStage=true;
   buildExStage();
   mario.big=false;mario.power='none';fireballs.length=0;bowserFire.length=0;bowserShockwaves.length=0;
@@ -189,7 +189,7 @@ function spawnPinoCoins(amount){
   const _val=Math.max(1,Math.ceil(amount/_n)); // 各コインの価値（100→+2C, 200→+4Cなど）
   for(let i=0;i<_n;i++){
     coinItems.push({
-      x:TILE+Math.random()*694,y:-TILE*(1+Math.random()*4),
+      x:TILE*2+8+Math.random()*(W-TILE*4-16),y:-TILE*(1+Math.random()*4),
       vx:(Math.random()-0.5)*4,vy:1.5+Math.random()*3,
       type:'firecoin',gravity:0.28,timer:700,
       collected:false,isPinoItem:true,noLand:true,coinValue:_val
@@ -198,14 +198,14 @@ function spawnPinoCoins(amount){
   return _n;
 }
 function spawnPinoMushroom(){
-  // 天井からランダム位置に2個降ってくる
+  // 天井直下からランダム位置に2個落ちてくる（y=-32は天井に引っかかるのでTILE+2から開始）
   for(let i=0;i<2;i++){
     mushrooms.push({
-      x:TILE*2+Math.random()*(W-TILE*5),
-      y:-TILE*(1+Math.random()*3),
+      x:TILE*2+20+Math.random()*(W-TILE*4-40),
+      y:TILE+2,
       w:24,h:TILE,
-      vx:(Math.random()-0.5)*1.5,
-      vy:0,
+      vx:(i===0?1.2:-1.2),
+      vy:1.0,
       alive:true,type:'1up',isPinoItem:true
     });
   }
@@ -222,7 +222,7 @@ const _PINO_SPEECHES=[
   '1コインだけ！\nざんねんでした♪', // 4: 1coin troll
   'うわー！クッパ様ご降臨！\nぼくのせいじゃないよ！', // 5: mini bowser
   'ハンマーブロスが2体！\nがんばってね♪', // 6: 2 hammer bros
-  'ブンブンが5匹！\nにぎやかになるよ！', // 7: 5 buzzy beetles
+  'クリボー20体をプレゼント！\n全部倒せたら出口が出るよ！', // 7: 20 goombas
   'ゴールフラッグ！\nステージクリアだ！', // 8: instant clear
   'EXステージへの扉！\nクリアできるかな？' // 9: EX warp
 ];
@@ -259,12 +259,12 @@ function applyPinoReward(reward,cx,cy){
       state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:80,jumpTimer:120,isPinoItem:true});
     G.pinoNeed=2; // need to defeat both
   }else if(reward===7){
-    // 5 Goombas（クリボー - メットは踏みつけ不可なのでクリボーに変更）
-    for(let i=0;i<5;i++){
-      enemies.push({x:cx-80+i*40,y:H-2*TILE,w:TILE,h:TILE,vx:(i%2===0?-1.3:1.3),vy:0,
+    // 20 Goombas（クリボー大量！）
+    for(let i=0;i<20;i++){
+      enemies.push({x:TILE*2+30+i*35,y:H-2*TILE,w:TILE,h:TILE,vx:(i%2===0?-1.3:1.3),vy:0,
         alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,isPinoItem:true});
     }
-    G.pinoNeed=5; // need to defeat all
+    G.pinoNeed=20; // need to defeat all
   }else if(reward===8){
     // ゴールフラグ → pinoSpeechTimer 後にステージクリア
     // pinoSpeechTimer=300 が 0 になったらpinoRoom updateでクリア発火
@@ -272,7 +272,7 @@ function applyPinoReward(reward,cx,cy){
   }else if(reward===9){
     // EX stage warp pipe
     G.pinoNeed=0;
-    pipes.push({x:350,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExWarp:true});
+    pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExWarp:true});
   }
 }
 function openChest(chestPlatform){
@@ -796,10 +796,16 @@ if(G.pinoRoom){
   if(G.chestOpened&&G.pinoNeed===0&&G.pinoReward>=0&&G.pinoReward!==8&&G.pinoReward!==9&&!pipes.some(p=>p.isExit||p.isExWarp)){
     spawnPinoExit();
   }
-  // 報酬#8（ゴールフラグ）: ピノキオのセリフ終了後にステージクリア
-  if(G.chestOpened&&G.pinoReward===8&&G.pinoSpeechTimer===0){
-    G.pinoReward=-2; // 二重発火防止
-    // exitUndergroundは呼ばず直接ステート遷移（BGM二重再生防止）
+  // 報酬#8（ゴールフラグ）: セリフ終了後にフラグポール＋出口パイプを出す
+  if(G.chestOpened&&G.pinoReward===8&&G.pinoSpeechTimer===0&&!G.pinoFlagReady){
+    G.pinoFlagReady=true;G.pinoFlagDelay=90; // 1.5秒猶予（選択のため）
+    if(!pipes.some(p=>p.isExit))
+      pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+  }
+  if(G.pinoFlagDelay>0)G.pinoFlagDelay--;
+  // フラグポール：猶予後にマリオが左端フラグに触れたらステージクリア（x=48が旗の x）
+  if(G.pinoFlagReady&&G.pinoFlagDelay===0&&!mario.dead&&mario.x+mario.w>=48&&mario.x<=64){
+    G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoReward=-2;
     G.pinoRoom=false;pinoObj.alive=false;G.ugMode=false;G.savedOW=null;
     const _from=G.isExStage?G.exStageFrom:null;
     G.isExStage=false;G.exStageFrom=null;
@@ -835,7 +841,7 @@ if(G.pinoRoom){
 
 // Coins
 for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}
-if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(!c.noLand&&!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){const _cv=c.coinValue||1;c.collected=true;G.coins=Math.min(999,G.coins+_cv);G.score+=100*_cv;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,`+${_cv}C`,'#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
+if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(c.noLand){if(c.x<TILE*2){c.x=TILE*2;if(c.vx<0)c.vx=-c.vx;}if(c.x+14>W-TILE*2){c.x=W-TILE*2-14;if(c.vx>0)c.vx=-c.vx;}}if(!c.noLand&&!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){const _cv=c.coinValue||1;c.collected=true;G.coins=Math.min(999,G.coins+_cv);G.score+=100*_cv;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,`+${_cv}C`,'#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
 if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins++;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
@@ -2326,14 +2332,49 @@ if(G.pinoRoom&&G.state==='play'){
     ctx.fillStyle='#FFD700';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
     ctx.fillText('JUMP!',_px,_py);ctx.textAlign='left';
   }
-  // EXワープパイプ（ピノキオ報酬9）
+  // EXワープ扉（ピノキオ報酬9）木製ドア風
   for(const p of pipes){
     if(!p.isExWarp)continue;
-    const _px=p.x-G.cam;
-    ctx.fillStyle='#cc00cc';ctx.fillRect(_px,p.y,p.w,p.h);
-    ctx.fillStyle='#ff44ff';ctx.fillRect(_px,p.y,p.w,8);
-    ctx.fillStyle='#880088';ctx.strokeStyle='#ff88ff';ctx.lineWidth=2;ctx.strokeRect(_px,p.y,p.w,p.h);ctx.lineWidth=1;
-    ctx.fillStyle='#fff';ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillText('EX',_px+p.w/2,p.y+p.h/2+4);ctx.textAlign='left';
+    const _px=p.x-G.cam,_py=p.y,_pw=p.w,_ph=p.h;
+    // ドア枠（濃い茶）
+    ctx.fillStyle='#5a3010';ctx.fillRect(_px-3,_py-3,_pw+6,_ph+3);
+    // ドア本体（木目茶）
+    ctx.fillStyle='#8B4513';ctx.fillRect(_px,_py,_pw,_ph);
+    ctx.fillStyle='#a0522d';ctx.fillRect(_px+3,_py+3,_pw-6,_ph-3);
+    // 木目ライン
+    ctx.fillStyle='rgba(80,30,0,0.4)';
+    for(let _wd=0;_wd<_ph;_wd+=10)ctx.fillRect(_px+3,_py+_wd,_pw-6,2);
+    // 縦仕切り（パネル感）
+    ctx.fillStyle='#5a3010';ctx.fillRect(_px+_pw/2-1,_py+3,2,_ph-3);
+    // ドアノブ
+    ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(_px+_pw*0.78,_py+_ph*0.55,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#FFA500';ctx.beginPath();ctx.arc(_px+_pw*0.78,_py+_ph*0.55,2.5,0,Math.PI*2);ctx.fill();
+    // 上部アーチ（アーチ型ドア）
+    ctx.fillStyle='#8B4513';ctx.beginPath();ctx.arc(_px+_pw/2,_py,_pw/2,Math.PI,0);ctx.fill();
+    ctx.fillStyle='#5a3010';ctx.beginPath();ctx.arc(_px+_pw/2,_py,_pw/2,Math.PI,0);ctx.stroke();
+    // EXラベル（金色）
+    ctx.fillStyle='#FFD700';ctx.font='bold 9px "Press Start 2P",monospace';ctx.textAlign='center';
+    ctx.fillText('EX',_px+_pw/2,_py+_ph*0.35);ctx.textAlign='left';
+  }
+  // ゴールフラグポール（ピノキオ報酬8）
+  if(G.pinoFlagReady){
+    const _fpx=48-G.cam,_fpy=H-TILE*6,_fph=TILE*5;
+    // ポール（銀）
+    ctx.fillStyle='#bbb';ctx.fillRect(_fpx+6,_fpy,4,_fph);
+    ctx.fillStyle='#ddd';ctx.fillRect(_fpx+7,_fpy,2,_fph);
+    // 旗（赤白交互にアニメ）
+    const _fc=Math.floor(G.frame/12)%2===0?'#E52521':'#fff';
+    ctx.fillStyle=_fc;ctx.beginPath();ctx.moveTo(_fpx+10,_fpy+4);ctx.lineTo(_fpx+30,_fpy+14);ctx.lineTo(_fpx+10,_fpy+26);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;ctx.strokeRect(_fpx+6,_fpy,4,_fph);ctx.lineWidth=1;
+    // 台座球
+    ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(_fpx+8,_fpy,5,0,Math.PI*2);ctx.fill();
+    // 台座下
+    ctx.fillStyle='#888';ctx.fillRect(_fpx+2,_fpy+_fph,12,6);
+    // GOAL文字（点滅）
+    if(Math.floor(G.frame/20)%2===0){
+      ctx.fillStyle='#FFD700';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
+      ctx.fillText('GOAL',_fpx+8,_fpy-10);ctx.textAlign='left';
+    }
   }
   // ピノキオエンティティの描画
   if(pinoObj.alive){

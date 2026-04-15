@@ -443,7 +443,7 @@ if(variant==='pinocchio_fail'){
   // 防御的リセット（前回の状態が残っていても安全に）
   G.chestOpened=false;G.pinoReward=-1;G.pinoNeed=0;
   pipes.push({x:704,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
-  pinoObj.alive=true;pinoObj.x=360;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=1;pinoObj.frame=0;pinoObj.frameTimer=0;
+  pinoObj.alive=true;pinoObj.x=660;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=-1;pinoObj.frame=0;pinoObj.frameTimer=0;
   G.pinoState='exfail';
   G.pinoSpeechText='チャレンジは1度だけ！\n次は自分で頑張りなさい！';
   G.pinoSpeechTimer=400;
@@ -454,7 +454,7 @@ if(variant==='pinocchio_fail'){
   for(let _i=0;_i<5;_i++){
     platforms.push({x:_cxs[_i],y:H-2*TILE-10,w:TILE+4,h:TILE+10,type:'chest',bounceOffset:0,opened:false,chestIdx:_i});
   }
-  pinoObj.alive=true;pinoObj.x=360;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=1;pinoObj.frame=0;pinoObj.frameTimer=0;
+  pinoObj.alive=true;pinoObj.x=660;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=-1;pinoObj.frame=0;pinoObj.frameTimer=0;
   G.pinoState='idle';G.pinoReward=-1;G.pinoNeed=0;G.chestOpened=false;G.exStageFailed=false;
   G.pinoSpeechText='好きな宝箱を１個選んで！\nいいものも悪いものもあるよ…';G.pinoSpeechTimer=400;
 }
