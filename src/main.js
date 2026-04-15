@@ -172,7 +172,7 @@ function startExStage(){
   G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;
   G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;
   iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
-  G.ugMode=false;G.savedOW=null;G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoSpeechText='';
+  G.ugMode=false;G.exSavedOW=G.savedOW;G.savedOW=null;G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoSpeechText='';
   G.isExStage=true;
   buildExStage();
   mario.big=false;mario.power='none';fireballs.length=0;bowserFire.length=0;bowserShockwaves.length=0;
@@ -248,7 +248,7 @@ function applyPinoReward(reward,cx,cy){
     G.pinoNeed=spawnPinoCoins(1);
   }else if(reward===5){
     // mini bowser (as enemy type)
-    enemies.push({x:cx,y:H-2.5*TILE,w:48,h:64,vx:-1.0,vy:0,alive:true,type:'miniBowser',state:'walk',
+    enemies.push({x:pinoObj.x+4,y:H-2.5*TILE,w:48,h:64,vx:-1.0,vy:0,alive:true,type:'miniBowser',state:'walk',
       hp:3,hurtTimer:0,walkFrame:0,walkTimer:0,facing:-1,isPinoItem:true});
     G.pinoNeed=1; // need to defeat miniBowser
   }else if(reward===6){
@@ -509,9 +509,10 @@ if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
 const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart,_svHighJump=G.highJump;
 G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;
 G.lives--;G.combo=0;sfx('die');stopBGM();mario.dead=true;mario.vy=-11;G.shakeX=8;G.shakeY=8;updateHUD();
-setTimeout(()=>{if(G.lives<=0){G.state='over';clearInterval(G.timerTick);try{playGameOverJingle();}catch(ex){}}else{
-// EXステージ失敗→ピノキオ部屋へ戻る
-if(G.isExStage){G.isExStage=false;G.exStageFailed=true;
+setTimeout(()=>{
+// EXステージ失敗→ピノキオ部屋へ戻る（残機減少を打ち消す）
+if(G.isExStage){G.lives++;G.isExStage=false;G.exStageFailed=true;
+  G.savedOW=G.exSavedOW||{cam:0,mx:80,my:H-TILE,waterMode:false,ugKey:null};G.exSavedOW=null;
   if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}
   flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
   platforms.length=0;pipes.length=0;coinItems.length=0;enemies.length=0;mushrooms.length=0;piranhas.length=0;movingPlats.length=0;springs.length=0;cannons.length=0;bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;bowserShockwaves.length=0;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
@@ -520,6 +521,7 @@ if(G.isExStage){G.isExStage=false;G.exStageFailed=true;
   G.ugMode=true;G.pinoRoom=true;G.timeLeft=400;
   G.state='play';if(G.timerTick)clearInterval(G.timerTick);G.timerTick=setInterval(()=>{if(G.state==='play'&&!G.paused){G.timeLeft--;if(G.timeLeft<=0){clearInterval(G.timerTick);killMario(true);}updateHUD()}},1000);
   sfx('flag');stopBGM();try{startBGM()}catch(ex){};return;}
+if(G.lives<=0){G.state='over';clearInterval(G.timerTick);try{playGameOverJingle();}catch(ex){}}else{
 if(G.checkpointReached&&G.checkpoint){
 // チェックポイント位置とクッパCP到達状態を保存
 const _cpx=G.checkpoint.x,_cpy=G.checkpoint.y;const _cp2r=G.checkpoint2&&G.checkpoint2.reached;
@@ -2461,7 +2463,7 @@ if(G.pinoRoom&&G.state==='play'){
       const _lines=G.pinoSpeechText.split('\n');
       const _bw=Math.max(180,_lines.reduce((mx,l)=>Math.max(mx,l.length*7+20),100));
       const _bh=_lines.length*16+14;
-      const _bx=Math.max(4,Math.min(W-_bw-4,pinoObj.x-G.cam-_bw/2+14));
+      const _bx=Math.max(4,Math.min(W-3*TILE-_bw-8,pinoObj.x-G.cam-_bw/2+14));
       const _by=Math.max(4,pinoObj.y-_bh-16);
       // 影
       ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fillRect(_bx+3,_by+3,_bw,_bh);

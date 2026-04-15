@@ -450,8 +450,8 @@ if(variant==='pinocchio_fail'){
 }else{
   // 通常状態：宝箱5個 + ピノキオ
   chests.length=0;
-  const _cxs=[90,205,330,460,580];
-  for(let _i=0;_i<5;_i++){
+  const _cxs=[130,360,590];
+  for(let _i=0;_i<3;_i++){
     platforms.push({x:_cxs[_i],y:H-2*TILE-10,w:TILE+4,h:TILE+10,type:'chest',bounceOffset:0,opened:false,chestIdx:_i});
   }
   pinoObj.alive=true;pinoObj.x=660;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=-1;pinoObj.frame=0;pinoObj.frameTimer=0;
