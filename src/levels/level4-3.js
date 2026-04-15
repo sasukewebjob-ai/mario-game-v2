@@ -194,4 +194,7 @@ enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:
 // 風ゾーン（2廊下：前半向かい風・後半強風）
 windZones.push({x:500,y:0,w:900,h:H,force:-1.5});  // Z1廊下（向かい風）
 windZones.push({x:3600,y:0,w:1400,h:H,force:-2.0}); // Z3廊下（強風）
+
+// ピノキオ部屋ワープ天井パイプ（1ステージに1本）
+pipes.push({x:2400,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

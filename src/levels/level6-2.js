@@ -214,4 +214,7 @@ pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 // ★ 上空パタパタ（2段JMP対策）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
+
+// ピノキオ部屋ワープ天井パイプ（1ステージに1本）
+pipes.push({x:2800,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

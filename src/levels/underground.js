@@ -2,7 +2,7 @@ import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
   chainChomps,jumpBlocks,pipos,gravityZones,windZones,
-  yoshi,peach,bowser,G,H,TILE,LW,BOWSER_STATS} from '../globals.js';
+  yoshi,peach,bowser,G,H,TILE,LW,BOWSER_STATS,pinoObj,chests} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
 export function buildUnderground(variant){
@@ -424,6 +424,30 @@ ci(55,H-9*TILE,6,48);ci(640,H-7*TILE,3,32);
 // 敵
 enemies.push(gm(580));enemies.push(kp(220));
 
+}else if(variant==='pinocchio'||variant==='pinocchio_fail'){
+// ★ ピノキオの部屋 ★ 空テーマの選択部屋
+G.pinoRoom=true;
+// 雲の足場プラットフォーム
+platforms.push({x:80,y:H-7*TILE,w:4*TILE,h:TILE,type:'ground',bounceOffset:0});
+platforms.push({x:320,y:H-9*TILE,w:3*TILE,h:TILE,type:'ground',bounceOffset:0});
+platforms.push({x:540,y:H-7*TILE,w:3*TILE,h:TILE,type:'ground',bounceOffset:0});
+if(variant==='pinocchio_fail'){
+  // 失敗状態：出口パイプのみ、ピノキオが一言
+  pipes.push({x:696,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+  pinoObj.alive=true;pinoObj.x=300;pinoObj.y=H-3*TILE;pinoObj.vx=1.2;pinoObj.vy=0;pinoObj.facing=1;pinoObj.jumpTimer=60;
+  G.pinoState='exfail';
+  G.pinoSpeechText='チャレンジは1度だけ！\n次は自分で頑張りなさい！';
+  G.pinoSpeechTimer=400;
+}else{
+  // 通常状態：宝箱5個 + ピノキオ
+  chests.length=0;
+  const _cxs=[90,205,330,460,580];
+  for(let _i=0;_i<5;_i++){
+    platforms.push({x:_cxs[_i],y:H-2*TILE-10,w:TILE+4,h:TILE+10,type:'chest',bounceOffset:0,opened:false,chestIdx:_i});
+  }
+  pinoObj.alive=true;pinoObj.x=330;pinoObj.y=H-3*TILE;pinoObj.vx=1.5;pinoObj.vy=0;pinoObj.facing=1;pinoObj.jumpTimer=80;pinoObj.frame=0;pinoObj.frameTimer=0;
+  G.pinoState='idle';G.pinoReward=-1;G.pinoSpeechText='';G.pinoSpeechTimer=0;G.pinoNeed=0;G.chestOpened=false;G.exStageFailed=false;
+}
 }else{
 // ★ デフォルト ★ coin と同じレイアウト
 addRow(150,H-4*TILE,3,'brick');addRow(380,H-6*TILE,3,'brick');addRow(560,H-4*TILE,2,'brick');

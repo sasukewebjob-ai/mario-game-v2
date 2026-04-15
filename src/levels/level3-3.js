@@ -174,4 +174,7 @@ export function buildLevel_3_3(){
   enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
   // 潮の満ち引き（海辺の城らしさ）：低地が定期的に水没
   G.tideMode=true;
+
+// ピノキオ部屋ワープ天井パイプ（1ステージに1本）
+pipes.push({x:3000,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

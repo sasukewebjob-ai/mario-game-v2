@@ -58,5 +58,15 @@ export const G={
   sandstormMode:false,tideMode:false,tideLevel:450,airshipMode:false,
   pswitchTimer:0,_psCoins:null,_psBricks:null,
   stairSealX:null,
-  usedUndergrounds:null
+  usedUndergrounds:null,
+  // ピノキオ部屋
+  pinoRoom:false,pinoState:'idle',pinoReward:-1,
+  pinoSpeechText:'',pinoSpeechTimer:0,pinoNeed:0,chestOpened:false,
+  // EXステージ
+  exStageFrom:null,isExStage:false,exStageFailed:false
 };
+
+// ピノキオエンティティ（ピノキオ部屋専用NPC）
+export const pinoObj={alive:false,x:0,y:0,w:28,h:44,vx:1.5,vy:0,onGround:false,facing:1,jumpTimer:80,frame:0,frameTimer:0};
+// 宝箱配列（platforms内にtype:'chest'として配置）
+export let chests=[];
