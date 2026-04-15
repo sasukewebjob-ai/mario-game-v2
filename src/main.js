@@ -163,7 +163,7 @@ G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;G.waterMode=G.savedOW.waterMode||false;
 if(G.savedOW.ceilingEntry){mario.y=G.savedOW.my+4;mario.vy=4;}
 else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
 // ピノキオ部屋をリセット
-G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;}
+G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoSpeechText='';}
 
 // === ピノキオ部屋 ===
 function startExStage(){
@@ -172,7 +172,7 @@ function startExStage(){
   G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;
   G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;
   iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
-  G.ugMode=false;G.savedOW=null;G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;
+  G.ugMode=false;G.savedOW=null;G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoSpeechText='';
   G.isExStage=true;
   buildExStage();
   mario.big=false;mario.power='none';fireballs.length=0;bowserFire.length=0;bowserShockwaves.length=0;
@@ -222,9 +222,9 @@ const _PINO_SPEECHES=[
   '1コインだけ！\nざんねんでした♪', // 4: 1coin troll
   'うわー！クッパ様ご降臨！\nぼくのせいじゃないよ！', // 5: mini bowser
   'ハンマーブロスが2体！\nがんばってね♪', // 6: 2 hammer bros
-  'クリボー20体をプレゼント！\n全部倒せたら出口が出るよ！', // 7: 20 goombas
-  'ゴールフラッグ！\nステージクリアだ！', // 8: instant clear
-  'EXステージへの扉！\nクリアできるかな？' // 9: EX warp
+  'クリボー20体プレゼント！\n連続で踏むと良いことあるよ！', // 7: 20 goombas
+  'このステージをゴールするなら左、\n続けるなら右の土管へ！', // 8: goal or continue
+  'エクストラステージに挑戦する？\nチャンスは1回だけだよ～！' // 9: EX warp
 ];
 function applyPinoReward(reward,cx,cy){
   G.pinoReward=reward;
@@ -270,9 +270,10 @@ function applyPinoReward(reward,cx,cy){
     // pinoSpeechTimer=300 が 0 になったらpinoRoom updateでクリア発火
     G.pinoNeed=0;
   }else if(reward===9){
-    // EX stage warp pipe
+    // EX stage warp pipe（左隅）+ 出口パイプ（右隅）
     G.pinoNeed=0;
-    pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExWarp:true});
+    pipes.push({x:TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExWarp:true});
+    pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
   }
 }
 function openChest(chestPlatform){
@@ -2332,29 +2333,24 @@ if(G.pinoRoom&&G.state==='play'){
     ctx.fillStyle='#FFD700';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
     ctx.fillText('JUMP!',_px,_py);ctx.textAlign='left';
   }
-  // EXワープ扉（ピノキオ報酬9）木製ドア風
+  // EXワープ土管（ピノキオ報酬9）レインボー
   for(const p of pipes){
     if(!p.isExWarp)continue;
     const _px=p.x-G.cam,_py=p.y,_pw=p.w,_ph=p.h;
-    // ドア枠（濃い茶）
-    ctx.fillStyle='#5a3010';ctx.fillRect(_px-3,_py-3,_pw+6,_ph+3);
-    // ドア本体（木目茶）
-    ctx.fillStyle='#8B4513';ctx.fillRect(_px,_py,_pw,_ph);
-    ctx.fillStyle='#a0522d';ctx.fillRect(_px+3,_py+3,_pw-6,_ph-3);
-    // 木目ライン
-    ctx.fillStyle='rgba(80,30,0,0.4)';
-    for(let _wd=0;_wd<_ph;_wd+=10)ctx.fillRect(_px+3,_py+_wd,_pw-6,2);
-    // 縦仕切り（パネル感）
-    ctx.fillStyle='#5a3010';ctx.fillRect(_px+_pw/2-1,_py+3,2,_ph-3);
-    // ドアノブ
-    ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(_px+_pw*0.78,_py+_ph*0.55,4,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#FFA500';ctx.beginPath();ctx.arc(_px+_pw*0.78,_py+_ph*0.55,2.5,0,Math.PI*2);ctx.fill();
-    // 上部アーチ（アーチ型ドア）
-    ctx.fillStyle='#8B4513';ctx.beginPath();ctx.arc(_px+_pw/2,_py,_pw/2,Math.PI,0);ctx.fill();
-    ctx.fillStyle='#5a3010';ctx.beginPath();ctx.arc(_px+_pw/2,_py,_pw/2,Math.PI,0);ctx.stroke();
-    // EXラベル（金色）
-    ctx.fillStyle='#FFD700';ctx.font='bold 9px "Press Start 2P",monospace';ctx.textAlign='center';
-    ctx.fillText('EX',_px+_pw/2,_py+_ph*0.35);ctx.textAlign='left';
+    const _hue=(G.frame*4)%360;
+    // パイプ本体
+    ctx.fillStyle=`hsl(${_hue},90%,35%)`;ctx.fillRect(_px,_py,_pw,_ph);
+    ctx.fillStyle=`hsl(${(_hue+60)%360},90%,50%)`;ctx.fillRect(_px+4,_py+4,_pw-8,_ph-4);
+    ctx.fillStyle=`hsl(${(_hue+30)%360},90%,40%)`;ctx.fillRect(_px+_pw*0.55,_py+4,_pw*0.1,_ph-4);
+    // 上部リム（幅広・立体感）
+    ctx.fillStyle=`hsl(${(_hue+120)%360},90%,40%)`;ctx.fillRect(_px-4,_py,_pw+8,12);
+    ctx.fillStyle=`hsl(${(_hue+150)%360},90%,55%)`;ctx.fillRect(_px-4,_py,_pw+8,6);
+    ctx.fillStyle=`hsl(${(_hue+180)%360},90%,30%)`;ctx.fillRect(_px-4,_py+10,_pw+8,2);
+    // 星スパーク
+    for(let _si=0;_si<4;_si++){const _sa=(_si*Math.PI/2+(G.frame*0.12));const _sx=_px+_pw/2+Math.cos(_sa)*(_pw/2+8);const _sy=_py+_ph*0.4+Math.sin(_sa)*12;ctx.fillStyle=`hsl(${(_hue+_si*60)%360},100%,70%)`;ctx.beginPath();ctx.arc(_sx,_sy,3,0,Math.PI*2);ctx.fill();}
+    // EXラベル（白・影付き）
+    ctx.fillStyle='rgba(0,0,0,0.5)';ctx.font='bold 9px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText('EX',_px+_pw/2+1,_py+_ph*0.55+1);
+    ctx.fillStyle='#fff';ctx.fillText('EX',_px+_pw/2,_py+_ph*0.55);ctx.textAlign='left';
   }
   // ゴールフラグポール（ピノキオ報酬8）
   if(G.pinoFlagReady){
@@ -2461,7 +2457,7 @@ if(G.pinoRoom&&G.state==='play'){
     ctx.fillStyle='#aaaacc';ctx.fillRect(4,44,10,2);ctx.fillRect(14,44,10,2);
     ctx.restore();
     // ★ 吹き出し（大きめ・読みやすいフォント）
-    if(G.pinoSpeechTimer>0&&G.pinoSpeechText){
+    if(G.pinoSpeechText){
       const _lines=G.pinoSpeechText.split('\n');
       const _bw=Math.max(180,_lines.reduce((mx,l)=>Math.max(mx,l.length*7+20),100));
       const _bh=_lines.length*16+14;
