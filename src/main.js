@@ -196,8 +196,9 @@ function spawnPinoCoins(amount){
     });
   }
 }
-function spawnPinoMushroom(cx,cy){
-  mushrooms.push({x:cx,y:cy,w:24,h:TILE,vx:1.5,vy:0,alive:true,type:'1up',isPinoItem:true});
+function spawnPinoMushroom(cx,cy,dir){
+  // dir: 1=右移動(デフォルト), -1=左移動
+  mushrooms.push({x:cx,y:cy,w:24,h:TILE,vx:1.5*(dir??1),vy:0,alive:true,type:'1up',isPinoItem:true});
 }
 function spawnPinoExit(){
   // 出口パイプを画面右端付近に追加（地下の共通出口と同じ位置）
@@ -220,9 +221,9 @@ function applyPinoReward(reward,cx,cy){
   G.pinoSpeechText=_PINO_SPEECHES[reward]||'はずれ！';
   G.pinoSpeechTimer=300;
   if(reward===0){
-    // 2x 1UP mushroom
-    spawnPinoMushroom(cx-20,cy-TILE);
-    spawnPinoMushroom(cx+20,cy-TILE);
+    // 2x 1UP mushroom（左右に散る）
+    spawnPinoMushroom(cx-20,cy-TILE,-1);// 左へ
+    spawnPinoMushroom(cx+20,cy-TILE,1); // 右へ
     G.pinoNeed=0;
   }else if(reward===1){
     // 50コイン（直接付与＋シャワー）
@@ -773,8 +774,8 @@ if(G.pinoRoom){
   if(G.pinoNeed>0&&G.chestOpened){
     const _reward=G.pinoReward;
     if(_reward===1||_reward===2||_reward===3||_reward===4){
-      // コイン系: まだ残ってるものをカウント
-      const _alive=coinItems.filter(c=>c.isPinoItem&&!c.collected).length;
+      // コイン系: まだ残ってるものをカウント（視覚用noCollectは除外）
+      const _alive=coinItems.filter(c=>c.isPinoItem&&!c.collected&&!c.noCollect).length;
       if(_alive===0){G.pinoNeed=0;}
     }else if(_reward===5||_reward===6||_reward===7){
       // 敵系: まだ生きているものをカウント

@@ -439,8 +439,10 @@ G.pinoRoom=true;
 // キノコ？ブロック1個だけ（浮き足場はなし）
 platforms.push({x:384,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 if(variant==='pinocchio_fail'){
-  // 失敗状態：出口パイプのみ、ピノキオが一言
-  pipes.push({x:696,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+  // 失敗状態：出口パイプのみ、キノピオが一言
+  // 防御的リセット（前回の状態が残っていても安全に）
+  G.chestOpened=false;G.pinoReward=-1;G.pinoNeed=0;
+  pipes.push({x:704,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
   pinoObj.alive=true;pinoObj.x=360;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=1;pinoObj.frame=0;pinoObj.frameTimer=0;
   G.pinoState='exfail';
   G.pinoSpeechText='チャレンジは1度だけ！\n次は自分で頑張りなさい！';
