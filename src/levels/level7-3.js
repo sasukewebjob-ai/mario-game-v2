@@ -184,6 +184,12 @@ export function buildLevel_7_3(){
   // addStair(6500, 10) → 最右端: 6500+9*32=6788。壁は 6820,6852
   G.bowserArenaX=6755;G.checkpoint2={x:6350,y:H-TILE,reached:false}; // 階段頂上付近（6788-33）
   G.bowserLeftX=6886;  // 壁右端+2（6820+64+2）
+  // ★ アリーナ特色: 暗闇の中のドッスン×2（クッパと挟み撃ち）
+  enemies.push({x:6960,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+  enemies.push({x:7180,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+  // アリーナ溶岩火柱（暗闇でチラつく炎）
+  lavaFlames.push({x:6960,w:16,maxH:80,period:190,phase:0,curH:0});
+  lavaFlames.push({x:7200,w:16,maxH:70,period:175,phase:90,curH:0});
   const _bs=BOWSER_STATS[7];Object.assign(bowser,{
     alive:true,x:9000,y:H-TILE-bowser.h,w:64,h:72,
     hp:_bs.hp,maxHp:_bs.hp,vx:-_bs.speed,vy:0,facing:-1,

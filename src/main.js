@@ -86,10 +86,10 @@ document.addEventListener('keydown',e=>{keys[e.code]=true;
 if(G.state==='start'){if(e.code==='ArrowLeft'&&G.selectedStage>1){G.selectedStage--;e.preventDefault();}if(e.code==='ArrowRight'&&G.selectedStage<STAGES.length){G.selectedStage++;e.preventDefault();}const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];if(e.code==='Space'||e.code==='Enter')startFromStage(G.selectedStage);}
 // ショップ操作
 if(G.state==='shop'){
-  if(e.code==='ArrowLeft'||e.code==='KeyA'){G.shopCursor=(G.shopCursor+15)%16;e.preventDefault();}
-  if(e.code==='ArrowRight'||e.code==='KeyD'){G.shopCursor=(G.shopCursor+1)%16;e.preventDefault();}
-  if(e.code==='ArrowUp'){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(15,G.shopCursor+12):_u;e.preventDefault();}
-  if(e.code==='ArrowDown'){const _d=G.shopCursor+6;G.shopCursor=_d>=16?_d%6:_d;e.preventDefault();}
+  if(e.code==='ArrowLeft'||e.code==='KeyA'){G.shopCursor=(G.shopCursor+14)%15;e.preventDefault();}
+  if(e.code==='ArrowRight'||e.code==='KeyD'){G.shopCursor=(G.shopCursor+1)%15;e.preventDefault();}
+  if(e.code==='ArrowUp'){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(14,G.shopCursor+12):_u;e.preventDefault();}
+  if(e.code==='ArrowDown'){const _d=G.shopCursor+6;G.shopCursor=_d>=15?_d%6:_d;e.preventDefault();}
   if(G.shopConfirm!=null){
     if(e.code==='Space'||e.code==='KeyZ'||e.code==='Enter'){_gpShopBuy(G.shopConfirm);}
     if(e.code==='Escape'||e.code==='KeyN'||e.code==='KeyX'){G.shopConfirm=null;}
@@ -181,9 +181,9 @@ const gpad={left:false,right:false,up:false,down:false,a:false,b:false,x:false,y
 const _gpPrev={};let _gpConnected=false,_gpName='';
 const _SHOP_ITEMS=[
   {key:'mushroom',cost:20},{key:'fire',cost:40},{key:'star10',cost:50},{key:'1up',cost:50},
-  {key:'ice',cost:60},{key:'hammer',cost:80},{key:'shield',cost:80},{key:'retryHeart',cost:100},
-  {key:'1upSet',cost:100},{key:'highJump',cost:120},{key:'1upSet6',cost:150},{key:'doubleJump',cost:200},
-  {key:'megaStart',cost:250},{key:'magnet',cost:300},{key:'bundle',cost:450},{key:'star30',cost:500}
+  {key:'ice',cost:60},{key:'hammer',cost:80},{key:'retryHeart',cost:100},
+  {key:'1upSet',cost:100},{key:'highJump',cost:120},{key:'1upSet6',cost:150},{key:'doubleJump',cost:300},
+  {key:'megaStart',cost:250},{key:'magnet',cost:350},{key:'bundle',cost:650},{key:'star30',cost:500}
 ];
 const _SINGLE_ONLY=new Set(['mushroom','fire','ice','hammer','highJump','megaStart']);
 function _gpShopBuy(idx){
@@ -217,7 +217,6 @@ function _gpShopNext(){
   if(_sb.doubleJump)G.doubleJump=true;
   if(_sb.retryHeart)G.retryHeart+=(_sb.retryHeart||0);
   if(_sb.highJump)G.highJump=true;
-  if(_sb.shield)G.shield+=(_sb.shield||0);
   // MEGA START: パワーアップ適用後にメガ状態を上乗せ
   if(_sb.megaStart){G.megaPrevPower=mario.power;G.megaPrevBig=mario.big;G.megaTimer=480;}
   G.shopBought=null;G.nextStage=null;updateHUD();stopBGM();try{startBGM()}catch(e){}
@@ -261,10 +260,10 @@ function pollGamepad(){
       if(jp('a'))_gpShopBuy(G.shopConfirm);
       if(jp('b'))G.shopConfirm=null;
     }else{
-      if(jp('left'))G.shopCursor=(G.shopCursor+15)%16;
-      if(jp('right'))G.shopCursor=(G.shopCursor+1)%16;
-      if(jp('up')){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(15,G.shopCursor+12):_u;}
-      if(jp('down')){const _d=G.shopCursor+6;G.shopCursor=_d>=16?_d%6:_d;}
+      if(jp('left'))G.shopCursor=(G.shopCursor+14)%15;
+      if(jp('right'))G.shopCursor=(G.shopCursor+1)%15;
+      if(jp('up')){const _u=G.shopCursor-6;G.shopCursor=_u<0?Math.min(14,G.shopCursor+12):_u;}
+      if(jp('down')){const _d=G.shopCursor+6;G.shopCursor=_d>=15?_d%6:_d;}
       if(jp('a')){const _it=_SHOP_ITEMS[G.shopCursor];if(_it){const _s=_SINGLE_ONLY.has(_it.key);if(G.coins>=_it.cost&&(!_s||!G.shopBought?.[_it.key]))G.shopConfirm=G.shopCursor;}}
       if(jp('start'))_gpShopNext();
     }
@@ -347,15 +346,14 @@ if(mario.dead)return;
 if(!force&&(G.starTimer>0||mario.inv>0))return;
 if(!force&&yoshi.mounted&&yoshi.alive&&!mario.crouching){dismountYoshi(true);mario.inv=120;return}
 if(!force&&G.megaTimer>0){G.megaTimer=0;mario.power=G.megaPrevPower;mario.big=G.megaPrevBig;mario.h=mario.big?48:32;mario.crouching=false;mario.inv=120;sfx('break');return}
-if(!force&&G.shield>0){G.shield--;mario.inv=60;G.shakeX=4;G.shakeY=4;try{beep(880,.08,'sine',.2);beep(660,.12,'sine',.15,.08);}catch(ex){}spawnScorePopup(mario.x+13,mario.y-20,'SHIELD!','#88aaff');for(let i=0;i<10;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}
 if(!force&&(mario.power==='fire'||mario.power==='ice'||mario.power==='hammer')){mario.power='big';mario.crouching=false;mario.inv=120;sfx('break');return}
 if(!force&&mario.power==='big'){mario.power='none';mario.big=false;mario.h=32;mario.crouching=false;mario.inv=120;sfx('break');return}
 // リトライハート: 死亡回避、その場復活
 if(G.retryHeart>0){G.retryHeart--;mario.inv=180;mario.vy=-10;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');return;}
 if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
 // 死亡時に特殊効果リセット（チェックポイント復帰用に保存）
-const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart,_svHighJump=G.highJump,_svShield=G.shield;
-G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;
+const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart,_svHighJump=G.highJump;
+G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;
 G.lives--;G.combo=0;sfx('die');stopBGM();mario.dead=true;mario.vy=-11;G.shakeX=8;G.shakeY=8;updateHUD();
 setTimeout(()=>{if(G.lives<=0){G.state='over';clearInterval(G.timerTick);try{playGameOverJingle();}catch(ex){}}else{if(G.checkpointReached&&G.checkpoint){
 // チェックポイント位置とクッパCP到達状態を保存
@@ -364,7 +362,7 @@ const _cpx=G.checkpoint.x,_cpy=G.checkpoint.y;const _cp2r=G.checkpoint2&&G.check
 const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}
 mario.power='none';mario.big=false;mario.h=32;resetMario();mario.x=_cpx;mario.y=_cpy-mario.h;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));G.timeLeft=400;
 // ショップ購入効果を復元（チェックポイント復帰時は継続）
-G.coinMagnet=_svMagnet;G.doubleJump=_svJump;G.retryHeart=_svRetry;G.highJump=_svHighJump;G.shield=_svShield;
+G.coinMagnet=_svMagnet;G.doubleJump=_svJump;G.retryHeart=_svRetry;G.highJump=_svHighJump;
 // チェックポイント到達状態を復元
 G.checkpointReached=true;G.checkpoint={x:_cpx,y:_cpy,reached:true};
 if(_cp2r&&G.checkpoint2){G.checkpoint2.reached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;mario.x=G.checkpoint2.x;mario.y=G.checkpoint2.y-mario.h;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
@@ -588,7 +586,8 @@ if(eg.bounces>3||eg.x<G.cam-80||eg.x>G.cam+W+80||eg.y>H+50){eg.alive=false;conti
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(overlap(eg.x,eg.y,eg.w,eg.h,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=20;eg.alive=false;G.score+=300;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,300,'#2ecc71')}}}
 
 // Coins
-for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
+for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}
+if(c.type==='firecoin'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){c.collected=true;G.coins=Math.min(999,G.coins+1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,'+1C','#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
 if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins++;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
@@ -784,9 +783,9 @@ if(!G.waterMode)for(const p of[...platforms,...pipes]){const bo=p.bounceOffset||
 if(fb.bounces>4||fb.x<G.cam-80||fb.x>G.cam+W+80||fb.y>H+50)fb.alive=false;
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(!overlap(fb.x,fb.y,fb.w,fb.h,e.x,e.y,e.w,e.h))continue;
 if(e.type==='plantFire'){e.alive=false;fb.alive=false;G.score+=100;updateHUD();spawnParticle(e.x+7,e.y+7,'star');continue}
-if(e.type==='cheepH'||e.type==='cheepV'||e.type==='firePlant'){e.state='dead';e.squishT=20;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+10,'star');spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');continue}
+if(e.type==='cheepH'||e.type==='cheepV'||e.type==='firePlant'){e.state='dead';e.squishT=20;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+10,'star');spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});continue}
 if(e.type==='buzzy'||e.type==='cactus'||e.type==='teresa'||e.type==='thwomp'||e.type==='dryBones'||e.type==='angrySun'){fb.alive=false;spawnParticle(e.x+16,e.y+16,'dust');continue}
-e.state='dead';e.vx=0;e.squishT=28;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');spawnParticle(e.x+16,e.y+16,'star')}}
+e.state='dead';e.vx=0;e.squishT=28;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false})}}
 // === Ice Balls ===
 for(let i=iceBalls.length-1;i>=0;i--){const ib=iceBalls[i];if(!ib.alive){iceBalls.splice(i,1);continue}
 ib.vy+=(G.waterMode?0:0.45);ib.x+=ib.vx;ib.y+=ib.vy;
@@ -1421,6 +1420,7 @@ ctx.fillStyle=is1up?'#2ECC71':'#E74C3C';ctx.beginPath();ctx.arc(m.x+12,m.y+10,12
 ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(m.x+7,m.y+6,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(m.x+17,m.y+6,4,0,Math.PI*2);ctx.fill();
 ctx.fillStyle=is1up?'#1a9c5a':'#C0392B';ctx.fillRect(m.x,m.y+14,24,3)}
 
+function drawFireCoin(x,y){const cx=Math.round(x+7),cy=Math.round(y+7);ctx.save();const _grd=ctx.createRadialGradient(cx,cy,1,cx,cy,11);_grd.addColorStop(0,'rgba(255,220,0,0.7)');_grd.addColorStop(1,'rgba(255,80,0,0)');ctx.fillStyle=_grd;ctx.beginPath();ctx.arc(cx,cy,11,0,Math.PI*2);ctx.fill();const _sq=0.7+0.3*Math.abs(Math.cos(G.frame*0.22));ctx.translate(cx,cy);ctx.scale(_sq,1);ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(0,0,6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#FF9900';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 6px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('C',0,1);ctx.restore();}
 function drawCoinItem(x,y){const squeeze=Math.abs(Math.cos(G.frame*0.18));ctx.save();ctx.translate(x+TILE/2,y+TILE/2);ctx.scale(squeeze,1);
 ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#F39C12';ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();
@@ -1882,7 +1882,7 @@ for(const yi of yoshiItems)drawYoshiEggItem(yi);
 // Yoshi egg projectiles
 for(const eg of yoshiEggs)if(eg.alive)drawYoshiEggProj(eg);
 // Coins
-for(const c of coinItems){if(c.collected||c._psHidden)continue;if(c.pop){drawCoinItem(c.x,c.popY);continue}if(c.x+TILE<G.cam||c.x>G.cam+W)continue;drawCoinItem(c.x,c.y)}
+for(const c of coinItems){if(c.collected||c._psHidden)continue;if(c.type==='firecoin'){if(c.x+14>=G.cam&&c.x<=G.cam+W)drawFireCoin(c.x,c.y);continue}if(c.type==='frozendrop'){if(c.x+16>=G.cam&&c.x<=G.cam+W)drawCoinItem(c.x,c.y);continue}if(c.pop){drawCoinItem(c.x,c.popY);continue}if(c.x+TILE<G.cam||c.x>G.cam+W)continue;drawCoinItem(c.x,c.y)}
 // P-Switch coins (bricks turned into coins)
 if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(pc.x+TILE<G.cam||pc.x>G.cam+W)continue;drawCoinItem(pc.x,pc.y);}}
 // Enemies
@@ -2074,7 +2074,6 @@ if(G.state==='play'&&!mario.dead){
   // アクティブ効果表示
   let _aeY2=H-26;ctx.font='6px "Press Start 2P",monospace';ctx.textAlign='right';
   if(G.retryHeart>0){ctx.fillStyle='#ff6666';ctx.fillText(`❤️ RETRY x${G.retryHeart}`,W-10,_aeY2);_aeY2-=12;}
-  if(G.shield>0){ctx.fillStyle='#88aaff';ctx.fillText(`🛡 SHIELD x${G.shield}`,W-10,_aeY2);_aeY2-=12;}
   if(G.doubleJump){ctx.fillStyle='#66ccff';ctx.fillText('⬆️ W-JUMP',W-10,_aeY2);_aeY2-=12;}
   if(G.highJump){ctx.fillStyle='#aaffaa';ctx.fillText('🦘 HI-JUMP',W-10,_aeY2);_aeY2-=12;}
   if(G.coinMagnet){ctx.fillStyle='#ffcc00';ctx.fillText('🧲 MAGNET',W-10,_aeY2);_aeY2-=12;}
@@ -2100,15 +2099,14 @@ const _shopItems=[
   {name:'1UP',     cost:50, key:'1up',      icon:'💚', desc:'残機+1'},
   {name:'ICE',     cost:60, key:'ice',      icon:'❄️', desc:'アイスマリオ'},
   {name:'HAMMER',  cost:80, key:'hammer',   icon:'🔨', desc:'ハンマーマリオ'},
-  {name:'SHIELD',  cost:80, key:'shield',   icon:'🛡', desc:'1回ダメージ無効 重ね可'},
   {name:'RETRY',   cost:100,key:'retryHeart',icon:'❤️',desc:'やられた時復活 重ね可'},
   {name:'1UP x3',  cost:100,key:'1upSet',   icon:'💚x3',desc:'残機+3'},
   {name:'HI-JUMP', cost:120,key:'highJump', icon:'🦘', desc:'ジャンプ力+25% やられるまで'},
   {name:'1UP x6',  cost:150,key:'1upSet6',  icon:'💚x6',desc:'残機+6 お得!'},
-  {name:'W-JUMP',  cost:200,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ やられるまで'},
+  {name:'W-JUMP',  cost:300,key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ やられるまで'},
   {name:'MEGA',    cost:250,key:'megaStart', icon:'🔮', desc:'メガマリオでスタート'},
-  {name:'MAGNET',  cost:300,key:'magnet',    icon:'🧲', desc:'コイン吸引 やられるまで'},
-  {name:'SET 450', cost:450,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
+  {name:'MAGNET',  cost:350,key:'magnet',    icon:'🧲', desc:'コイン吸引 やられるまで'},
+  {name:'SET 650', cost:650,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
   {name:'STAR 30s',cost:500,key:'star30',    icon:'🌟', desc:'30秒無敵!'},
 ];
 const _cols=6,_siW=104,_siH=100,_siGap=10,_rowGap=10;
@@ -2140,8 +2138,6 @@ if(G.highJump||G.shopBought?.highJump)_activeEffects.push('🦘HI-JUMP');
 if(G.coinMagnet||(G.shopBought?.magnet||0)>0)_activeEffects.push('🧲MAGNET');
 const _totalRetry=(G.retryHeart||0)+(G.shopBought?.retryHeart||0);
 if(_totalRetry>0)_activeEffects.push(`❤️RETRY x${_totalRetry}`);
-const _totalShield=(G.shield||0)+(G.shopBought?.shield||0);
-if(_totalShield>0)_activeEffects.push(`🛡SHIELD x${_totalShield}`);
 
 if(G.shopBought?.megaStart)_activeEffects.push('🌟MEGA');
 if(_activeEffects.length>0){ctx.fillStyle='#66ffaa';ctx.font='7px "Press Start 2P",monospace';ctx.fillText('ACTIVE: '+_activeEffects.join('  '),W/2,_aeShopY);_aeShopY+=14;}

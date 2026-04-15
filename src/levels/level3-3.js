@@ -147,6 +147,9 @@ export function buildLevel_3_3(){
   // アリーナ内 ? ブロック
   platforms.push({x:6860,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:7100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // ★ アリーナ特色: 潮に浮かぶ岩島（垂直移動足場 × 2）
+  movingPlats.push({x:6950,y:H-5*TILE,w:TILE*2,h:12,type:'v',ox:6950,oy:H-5*TILE,range:TILE*2,spd:0.7,prevX:6950});
+  movingPlats.push({x:7200,y:H-6*TILE,w:TILE*2,h:12,type:'v',ox:7200,oy:H-6*TILE,range:TILE*2,spd:0.9,prevX:7200});
   // クッパ — 階段頂上をマリオが越えたとき画面右端から登場
   G.bowserArenaX=6655;G.checkpoint2={x:6250,y:H-TILE,reached:false};
   G.bowserLeftX=6786;
