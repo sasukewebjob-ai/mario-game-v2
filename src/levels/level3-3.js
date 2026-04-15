@@ -147,6 +147,9 @@ export function buildLevel_3_3(){
   // アリーナ内 ? ブロック
   platforms.push({x:6860,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:7100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // ★ アリーナ足場（高低差でジャンプルート多様化）
+  addRow(6900,H-7*TILE,2,'brick');   // 中段足場（左側）
+  addRow(7150,H-6*TILE,2,'brick');   // 中段足場（右側）
   // ★ アリーナ特色: 潮に浮かぶ岩島（垂直移動足場 × 2）
   movingPlats.push({x:6950,y:H-5*TILE,w:TILE*2,h:12,type:'v',ox:6950,oy:H-5*TILE,range:TILE*2,spd:0.7,prevX:6950});
   movingPlats.push({x:7200,y:H-6*TILE,w:TILE*2,h:12,type:'v',ox:7200,oy:H-6*TILE,range:TILE*2,spd:0.9,prevX:7200});

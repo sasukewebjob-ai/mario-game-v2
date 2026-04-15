@@ -187,6 +187,9 @@ export function buildLevel_5_3(){
   // アリーナ内 ? ブロック
   platforms.push({x:7060,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:7300,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // ★ アリーナ足場（高低差でジャンプルート多様化）
+  addRow(7100,H-7*TILE,3,'brick');   // 中段足場（左側）
+  addRow(7350,H-6*TILE,2,'brick');   // 中段足場（右側）
 
   // クッパ — HP=5+、最終ボス
   G.bowserArenaX=6855;G.checkpoint2={x:6450,y:H-TILE,reached:false};

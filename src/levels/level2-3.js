@@ -166,6 +166,9 @@ export function buildLevel_2_3(){
   // アリーナ内 ? ブロック
   platforms.push({x:6480,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:6720,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // ★ アリーナ足場（高低差でジャンプルート多様化）
+  addRow(6530,H-7*TILE,2,'brick');   // 中段足場（左側）
+  addRow(6850,H-6*TILE,3,'brick');   // 中段足場（右側）
   // ★ アリーナ特色: 砂嵐向かい風 + 動く砂岩足場
   windZones.push({x:6386,y:0,w:1200,h:H,force:-1.5}); // 向かい風（マリオを押し戻す）
   movingPlats.push({x:6600,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:6600,range:90,spd:1.0,prevX:6600});

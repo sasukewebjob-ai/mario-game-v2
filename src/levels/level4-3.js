@@ -167,6 +167,7 @@ export function buildLevel_4_3(){
   platforms.push({x:7100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   // ★ アリーナ特色: 2段アリーナ（中段足場）+ 山岳の暴風
   platforms.push({x:6870,y:H-8*TILE,w:TILE*4,h:TILE,type:'brick',bounceOffset:0}); // 上段足場
+  addRow(7200,H-6*TILE,2,'brick');   // 中段足場（右側追加）
   windZones.push({x:6786,y:0,w:1100,h:H,force:-1.5}); // アリーナ内暴風（右→左）
   // クッパ — 階段頂上をマリオが越えたとき画面右端から登場、HP=5
   G.bowserArenaX=6655;G.checkpoint2={x:6250,y:H-TILE,reached:false};

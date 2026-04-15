@@ -129,6 +129,9 @@ for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6520,wy,'brick');addB(6552,wy,'bric
 // アリーナ内 ? ブロック（壁右側の平地）
 platforms.push({x:6660,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 platforms.push({x:6900,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+// ★ アリーナ足場（高低差でジャンプルート多様化）
+addRow(6720,H-7*TILE,3,'brick');   // 中段足場（左側）
+addRow(7000,H-6*TILE,2,'brick');   // 中段足場（右側）
 // Bowser — 階段頂上(x=6488)をマリオが越えたとき画面右端から登場
 G.bowserArenaX=6455;G.checkpoint2={x:6050,y:H-TILE,reached:false};
 G.bowserLeftX=6586;

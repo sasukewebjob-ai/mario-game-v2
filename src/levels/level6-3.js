@@ -68,6 +68,11 @@ export function buildLevel_6_3(){
 
   // アリーナ壁（7ブロック高 > クッパジャンプ上限 144px）
   for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(7020,wy,'brick');addB(7052,wy,'brick');}
+  // ★ アリーナ内 ? ブロック + 足場
+  platforms.push({x:7150,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:7390,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  addRow(7220,H-7*TILE,2,'brick');   // 中段足場（左側）
+  addRow(7400,H-6*TILE,2,'brick');   // 中段足場（右側）
 
   // ── ? ブロック（addRowと座標重複なし確認済み）──
   // Z1

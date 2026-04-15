@@ -190,6 +190,11 @@ export function buildLevel_7_3(){
   // アリーナ溶岩火柱（暗闇でチラつく炎）
   lavaFlames.push({x:6960,w:16,maxH:80,period:190,phase:0,curH:0});
   lavaFlames.push({x:7200,w:16,maxH:70,period:175,phase:90,curH:0});
+  // ★ アリーナ内 ? ブロック + 足場（ドッスン落下範囲 6960-7024・7180-7244 を避ける）
+  platforms.push({x:7050,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:7300,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  addRow(7070,H-7*TILE,2,'brick');   // 中段足場（ドッスン間・左側）
+  addRow(7300,H-6*TILE,2,'brick');   // 中段足場（ドッスン右外・右側）
   const _bs=BOWSER_STATS[7];Object.assign(bowser,{
     alive:true,x:9000,y:H-TILE-bowser.h,w:64,h:72,
     hp:_bs.hp,maxHp:_bs.hp,vx:-_bs.speed,vy:0,facing:-1,
