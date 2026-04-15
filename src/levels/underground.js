@@ -429,9 +429,9 @@ enemies.push(gm(580));enemies.push(kp(220));
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋
 G.pinoRoom=true;
 // 雲の足場プラットフォーム
-platforms.push({x:80,y:H-7*TILE,w:4*TILE,h:TILE,type:'ground',bounceOffset:0});
-platforms.push({x:320,y:H-9*TILE,w:3*TILE,h:TILE,type:'ground',bounceOffset:0});
-platforms.push({x:540,y:H-7*TILE,w:3*TILE,h:TILE,type:'ground',bounceOffset:0});
+for(let _bx=80;_bx<80+4*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-7*TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+for(let _bx=320;_bx<320+3*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-9*TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+for(let _bx=540;_bx<540+3*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-7*TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 if(variant==='pinocchio_fail'){
   // 失敗状態：出口パイプのみ、ピノキオが一言
   pipes.push({x:696,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});

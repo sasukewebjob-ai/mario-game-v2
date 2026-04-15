@@ -50,8 +50,10 @@ const WATER_NOTES=[[196,3],[0,1],[220,3],[0,1],[247,3],[0,1],[262,4],[0,2],[196,
 const PSWITCH_NOTES=[[659,1],[784,1],[880,1],[784,1],[659,1],[587,1],[659,1],[784,1],[0,1],[659,1],[784,1],[880,1],[1047,1],[880,1],[784,1],[659,1],[587,1],[523,1],[587,1],[659,1],[0,1],[523,1],[659,1],[784,1],[880,1],[784,1],[659,1],[523,1],[587,1],[659,1],[784,1],[0,1]];
 const FINAL_BOSS_NOTES=[[440,2],[0,1],[415,1],[392,2],[370,2],[349,3],[0,1],[330,4],[0,2],[247,1],[262,1],[294,1],[330,1],[349,1],[392,1],[440,2],[494,2],[523,4],[0,2],[440,1],[0,1],[440,1],[0,1],[440,1],[415,1],[440,1],[0,1],[392,2],[349,2],[330,4],[0,2],[165,1],[0,1],[165,1],[0,1],[220,1],[0,1],[165,1],[196,2],[220,2],[247,2],[294,2],[330,2],[370,2],[415,2],[440,4],[0,4]];
 const SHOP_NOTES=[[523,2],[659,2],[784,2],[659,2],[523,2],[0,2],[440,2],[523,2],[659,2],[784,2],[880,2],[784,2],[659,4],[0,4],[523,2],[523,2],[784,2],[659,2],[784,2],[0,2],[1047,2],[880,2],[784,2],[659,2],[523,4],[440,2],[523,2],[0,4]];
+// ピノキオ部屋専用BGM（明るいおとぎ話メロディ）
+const PINO_NOTES=[[523,2],[659,2],[784,2],[0,1],[880,2],[784,1],[659,2],[523,4],[0,2],[659,2],[784,2],[880,2],[0,1],[1047,2],[880,1],[784,2],[659,4],[0,2],[523,2],[659,2],[784,2],[880,2],[784,2],[659,2],[523,2],[440,2],[523,4],[0,4],[659,2],[880,2],[784,2],[659,2],[523,2],[440,4],[0,4]];
 let bgmStep=0,bgmTime=0;const BEAT=0.09;let _bgmWasBig=false;
-function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const notes=G.state==='shop'?SHOP_NOTES:(G.ugMode?(_isFinal?FINAL_BOSS_NOTES:UG_NOTES):(G.starTimer>0?STAR_NOTES:(G.megaTimer>0?BIG_MARIO_NOTES:(G.pswitchTimer>0?PSWITCH_NOTES:(G.waterMode?WATER_NOTES:(_bgmS?.bgmTheme==='castle'?(bowser.alive&&bowser.phase===2?CASTLE_P2_NOTES:CASTLE_NOTES):THEME_NOTES))))));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
+function scheduleBGM(){const _bgmS=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const notes=G.state==='shop'?SHOP_NOTES:(G.pinoRoom?PINO_NOTES:(G.ugMode?(_isFinal?FINAL_BOSS_NOTES:UG_NOTES):(G.starTimer>0?STAR_NOTES:(G.megaTimer>0?BIG_MARIO_NOTES:(G.pswitchTimer>0?PSWITCH_NOTES:(G.waterMode?WATER_NOTES:(_bgmS?.bgmTheme==='castle'?(bowser.alive&&bowser.phase===2?CASTLE_P2_NOTES:CASTLE_NOTES):THEME_NOTES)))))));while(bgmTime<AC.currentTime+0.5){const[freq,len]=notes[bgmStep%notes.length];if(freq>0){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(bgmGain);o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.08,bgmTime);g.gain.exponentialRampToValueAtTime(0.001,bgmTime+len*BEAT-0.01);o.start(bgmTime);o.stop(bgmTime+len*BEAT)}bgmTime+=len*BEAT;bgmStep++}}
 function startBGM(){stopBGM();bgmGain=AC.createGain();bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;bgmGain.connect(AC.destination);bgmStep=0;bgmTime=AC.currentTime;scheduleBGM()}
 function stopBGM(){if(bgmGain){bgmGain.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.2);bgmGain=null}}
 function playGameOverJingle(){try{const _n=[[330,0.22],[294,0.22],[262,0.22],[220,0.55],[0,0.12],[196,0.95]];let _t=AC.currentTime+0.3;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(AC.destination);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.12,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.07;}}catch(ex){}}
@@ -827,7 +829,8 @@ if(overlap(mario.x,mario.y,mario.w,mario.h,m.x,m.y,m.w,m.h)){m.alive=false;
 if(m.type==='1up'){G.lives++;sfx('1up');updateHUD();spawnScorePopup(mario.x+13,mario.y-10,'1UP!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(mario.x+13,mario.y+24,'star')}
 else{upgradeMario('mushroom');G.score+=1000;updateHUD();spawnScorePopup(mario.x+13,mario.y-10,'1000','#2ecc71')}}}
 // Enemies
-for(const e of enemies){if(!e.alive)continue;if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
+for(const e of enemies){if(!e.alive)continue;if(e.type==='miniBowser')continue;// pinoRoomループで処理
+if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
 // 休眠スポーン: カメラ右端+8タイル先に入るまで physics をスキップ（parakoopa/lakitu は自前ロジックで動くので除外）
 if(e.type!=='parakoopa'&&e.type!=='lakitu'&&e.type!=='cheepH'&&e.type!=='cheepV'&&e.type!=='firePlant'&&e.type!=='plantFire'&&e.type!=='blooper'&&e.type!=='angrySun'&&!e.activated){if(G.cam+W+TILE*8<e.x)continue;e.activated=true;}
 if(e.type==='parakoopa'&&e.flying){e.x+=e.vx;if(e.x+e.w<-100){e.alive=false;continue}e.y=e.baseY+Math.sin(G.frame*0.05+(e.phase||0))*22;if((mario.inv===0||G.starTimer>0)&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue}if(mario.y+mario.h-mario.vy<=e.y+e.h*0.4){e.flying=false;e.type='koopa';e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300;mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;G.score+=200;updateHUD();spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c')}else killMario()}continue}
@@ -2261,16 +2264,41 @@ if(yoshi.alive)drawYoshiHead(yoshi.x,yoshi.y,yoshi.facing);
 drawParticles();ctx.restore();
 // === ピノキオ部屋の描画 ===
 if(G.pinoRoom&&G.state==='play'){
+  // 宝箱：一番近いものをハイライト選択
+  let _selChest=null;
+  if(!G.chestOpened){
+    let _sdist=90;
+    for(const p of platforms){
+      if(p.type!=='chest'||p.opened)continue;
+      const _d=Math.abs(mario.x+mario.w/2-(p.x+p.w/2));
+      if(_d<_sdist){_sdist=_d;_selChest=p;}
+    }
+  }
   // 宝箱の描画
   for(const p of platforms){
     if(p.type!=='chest')continue;
     const _cx=p.x-G.cam,_cy=p.y;
+    const _isSel=(_selChest===p);
+    // 選択グロー
+    if(_isSel&&!p.opened){
+      const _ga=0.35+Math.sin(G.frame*0.18)*0.2;
+      ctx.fillStyle=`rgba(255,215,0,${_ga})`;ctx.fillRect(_cx-6,_cy-6,p.w+12,p.h+12);
+    }
     ctx.fillStyle=p.opened?'#8B6914':'#c8861a';ctx.fillRect(_cx,_cy,p.w,p.h);
-    ctx.strokeStyle='#5c3d00';ctx.lineWidth=2;ctx.strokeRect(_cx,_cy,p.w,p.h);
+    ctx.strokeStyle=(_isSel&&!p.opened)?'#FFD700':'#5c3d00';ctx.lineWidth=2;ctx.strokeRect(_cx,_cy,p.w,p.h);
     ctx.fillStyle='#5c3d00';ctx.fillRect(_cx,_cy+p.h/2-2,p.w,4);// 仕切り線
     ctx.fillStyle='#FFD700';ctx.fillRect(_cx+p.w/2-6,_cy+p.h/2-8,12,12);// 錠前
-    if(p.opened){ctx.fillStyle='rgba(255,200,0,0.6)';ctx.fillRect(_cx,_cy-16,p.w,16);} // 光
+    if(p.opened){ctx.fillStyle='rgba(255,200,0,0.6)';ctx.fillRect(_cx,_cy-16,p.w,16);}
+    // 番号ラベル（1〜5）
+    if(!p.opened){ctx.fillStyle='#fff';ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.fillText(p.chestIdx+1,_cx+p.w/2,_cy+p.h-4);ctx.textAlign='left';}
     ctx.lineWidth=1;
+  }
+  // 選択宝箱の上に「↑ OPEN」プロンプト
+  if(_selChest&&!_selChest.opened&&!G.chestOpened){
+    const _px=_selChest.x-G.cam+_selChest.w/2;
+    const _py=_selChest.y-10-Math.abs(Math.sin(G.frame*0.12))*5;
+    ctx.fillStyle='#FFD700';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
+    ctx.fillText('JUMP!',_px,_py);ctx.textAlign='left';
   }
   // EXワープパイプ（ピノキオ報酬9）
   for(const p of pipes){
@@ -2286,47 +2314,57 @@ if(G.pinoRoom&&G.state==='play'){
     const _ox=pinoObj.x-G.cam,_oy=pinoObj.y;
     const _flip=pinoObj.facing===-1;
     ctx.save();if(_flip){ctx.translate(_ox+pinoObj.w/2,_oy);ctx.scale(-1,1);ctx.translate(-pinoObj.w/2,0);}else{ctx.translate(_ox,_oy);}
-    // ★ 帽子（先の尖った赤い円錐帽）
+    // ★ ピノキオ（黄色のとんがり帽・長い木の鼻・白シャツ緑ズボン）
+    // 帽子：三角形の黄色いダンスキャップ（キノピオとの差別化！）
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath();ctx.moveTo(14,-16);ctx.lineTo(4,3);ctx.lineTo(24,3);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#E6A800';
+    ctx.beginPath();ctx.moveTo(14,-16);ctx.lineTo(4,3);ctx.lineTo(14,-1);ctx.closePath();ctx.fill();// 影
+    ctx.fillStyle='rgba(255,255,180,0.45)';ctx.fillRect(12,-14,3,14);// ハイライト
+    ctx.fillStyle='#fff';ctx.fillRect(3,3,22,3);// ツバ（白）
+    ctx.fillStyle='#cc0000';ctx.fillRect(4,4,20,2);// 赤ライン
+    // 顔
+    ctx.fillStyle='#FFD09B';ctx.fillRect(4,6,20,17);
+    ctx.fillRect(2,10,24,10);// 頬
+    // 目（大きく可愛い青い瞳）
+    ctx.fillStyle='#fff';ctx.fillRect(5,9,6,6);ctx.fillRect(17,9,6,6);
+    ctx.fillStyle='#1155cc';ctx.fillRect(6,10,4,4);ctx.fillRect(18,10,4,4);
+    ctx.fillStyle='#000';ctx.fillRect(7,11,2,2);ctx.fillRect(19,11,2,2);
+    ctx.fillStyle='#fff';ctx.fillRect(7,10,1,1);ctx.fillRect(19,10,1,1);
+    ctx.fillStyle='#5a3000';ctx.fillRect(5,8,5,1);ctx.fillRect(17,8,5,1);// 眉
+    // ほっぺ
+    ctx.fillStyle='rgba(255,100,80,0.35)';ctx.fillRect(2,14,5,4);ctx.fillRect(21,14,5,4);
+    // 鼻：木の茶色！24pxの長さ（ピノキオ最大の特徴）
+    ctx.fillStyle='#8B4513';ctx.fillRect(14,14,24,4);
+    ctx.fillStyle='#6B3010';ctx.fillRect(14,17,24,1);// 下影
+    ctx.fillStyle='rgba(200,140,80,0.5)';ctx.fillRect(14,14,4,2);// 付け根HL
+    ctx.fillStyle='#4d2208';ctx.fillRect(37,14,2,4);// 先端
+    // 口（笑顔）
+    ctx.fillStyle='#cc3300';ctx.fillRect(8,20,12,2);
+    ctx.fillRect(7,21,2,2);ctx.fillRect(18,21,2,2);// 口角
+    // 首
+    ctx.fillStyle='#FFD09B';ctx.fillRect(10,23,8,3);
+    // 白シャツ
+    ctx.fillStyle='#eeeeee';ctx.fillRect(4,26,20,13);
+    ctx.fillStyle='#dddddd';ctx.fillRect(4,26,20,2);
+    // 赤いネクタイ（三角形）
     ctx.fillStyle='#cc0000';
-    ctx.fillRect(11,-8,6,4);   // 先端
-    ctx.fillRect(8,-4,12,4);   // 上部
-    ctx.fillRect(4,0,20,5);    // 中部
-    ctx.fillStyle='#ee1111';
-    ctx.fillRect(0,5,28,5);    // ツバ（やや明るい）
-    ctx.fillStyle='#880000';
-    ctx.fillRect(0,5,28,1);    // ツバ上縁シャドウ
-    // ★ 顔（肌色・まるっこい）
-    ctx.fillStyle='#ffcc88';ctx.fillRect(4,10,20,20);
-    ctx.fillStyle='#f0ba77';ctx.fillRect(6,27,16,3); // あご
-    // ★ 目（白目＋青い瞳＋光）
-    ctx.fillStyle='#fff';ctx.fillRect(7,14,5,5);ctx.fillRect(16,14,5,5);
-    ctx.fillStyle='#1144cc';ctx.fillRect(8,15,3,3);ctx.fillRect(17,15,3,3);
-    ctx.fillStyle='#000';ctx.fillRect(9,16,2,2);ctx.fillRect(18,16,2,2);
-    ctx.fillStyle='#fff';ctx.fillRect(9,15,1,1);ctx.fillRect(18,15,1,1); // 瞳ハイライト
-    // ★ 眉（表情付け）
-    ctx.fillStyle='#7a4010';ctx.fillRect(7,13,5,1);ctx.fillRect(16,13,5,1);
-    // ★ ほっぺ（赤み）
-    ctx.fillStyle='rgba(255,80,80,0.45)';ctx.fillRect(4,20,5,5);ctx.fillRect(19,20,5,5);
-    // ★ 鼻（ピノキオ最大の特徴！長い！）
-    ctx.fillStyle='#ff7700';ctx.fillRect(23,19,18,4); // 本体18px
-    ctx.fillStyle='#ee5500';ctx.fillRect(39,20,2,2);   // 先端
-    ctx.fillStyle='rgba(255,200,100,0.55)';ctx.fillRect(23,19,5,2); // 付け根ハイライト
-    // ★ 口（笑い）
-    ctx.fillStyle='#cc2222';ctx.fillRect(9,26,10,2);
-    ctx.fillStyle='#ff5555';ctx.fillRect(10,25,8,1);
-    // ★ 首
-    ctx.fillStyle='#ffcc88';ctx.fillRect(11,30,6,3);
-    // ★ 胴体（黄ベスト＋青オーバーオール）
-    ctx.fillStyle='#eecc00';ctx.fillRect(5,33,18,8); // 黄ベスト
-    ctx.fillStyle='#bb9900';ctx.fillRect(5,33,18,1);ctx.fillRect(13,33,2,8); // ベスト縁+ボタン
-    ctx.fillStyle='#2244cc';ctx.fillRect(4,41,9,TILE*0.6);ctx.fillRect(15,41,9,TILE*0.6); // ズボン
-    // ★ 腕（肌色）
-    ctx.fillStyle='#ffcc88';ctx.fillRect(0,34,5,6);ctx.fillRect(23,34,5,6);
-    ctx.fillStyle='#fff';ctx.fillRect(-1,38,5,4);ctx.fillRect(24,38,5,4); // 手（白手袋）
-    // ★ 靴（先の尖ったエルフシューズ）
+    ctx.beginPath();ctx.moveTo(11,26);ctx.lineTo(17,26);ctx.lineTo(14,32);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#aa0000';
+    ctx.beginPath();ctx.moveTo(11,26);ctx.lineTo(8,25);ctx.lineTo(9,28);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(17,26);ctx.lineTo(20,25);ctx.lineTo(19,28);ctx.closePath();ctx.fill();
+    // 緑の半ズボン
+    ctx.fillStyle='#2d7a2d';ctx.fillRect(4,39,9,8);ctx.fillRect(15,39,9,8);
+    ctx.fillStyle='#1d5a1d';ctx.fillRect(4,39,9,2);ctx.fillRect(15,39,9,2);
+    // 茶色の靴
     const _wf=pinoObj.frame;
-    ctx.fillStyle='#331100';
-    ctx.fillRect(2,46+(_wf?1:0),10,3);ctx.fillRect(15,46+(_wf?0:1),10,3);
+    ctx.fillStyle='#5a2d0a';
+    ctx.fillRect(2,46+(_wf?1:0),11,4);ctx.fillRect(15,46+(_wf?0:1),11,4);
+    ctx.fillStyle='#2a1004';
+    ctx.fillRect(2,49+(_wf?1:0),13,1);ctx.fillRect(15,49+(_wf?0:1),13,1);
+    // 腕・白手袋
+    ctx.fillStyle='#FFD09B';ctx.fillRect(0,28,5,7);ctx.fillRect(23,28,5,7);
+    ctx.fillStyle='#fff';ctx.fillRect(-1,34,6,5);ctx.fillRect(23,34,6,5);
     ctx.restore();
     // ★ 吹き出し（大きめ・読みやすいフォント）
     if(G.pinoSpeechTimer>0&&G.pinoSpeechText){
@@ -2352,25 +2390,52 @@ if(G.pinoRoom&&G.state==='play'){
       ctx.textAlign='left';
     }
   }
-  // miniBowser の描画
+  // miniBowser の描画（クッパ Jr. スタイル - 通常クッパと同じデザイン縮小版）
   for(const e of enemies){
     if(!e.alive||e.type!=='miniBowser')continue;
     const _mx=e.x-G.cam,_my=e.y;
     const _hf=e.facing===-1;
-    ctx.save();if(_hf){ctx.translate(_mx+e.w/2,_my);ctx.scale(-1,1);ctx.translate(-e.w/2,0);}else{ctx.translate(_mx,_my);}
-    // 体
-    ctx.fillStyle=e.hurtTimer>0?'#ff8800':'#1a8800';ctx.fillRect(4,16,40,46);
-    // 頭
-    ctx.fillStyle='#1a8800';ctx.fillRect(0,4,48,20);
-    // 角
-    ctx.fillStyle='#cc8800';ctx.fillRect(0,0,8,8);ctx.fillRect(40,0,8,8);
-    // 目（赤）
-    ctx.fillStyle='#ff0000';ctx.fillRect(8,8,8,8);ctx.fillRect(28,8,8,8);
-    // 甲羅
-    ctx.fillStyle='#cc6600';ctx.fillRect(6,16,36,28);
-    ctx.fillStyle='#ff9900';ctx.fillRect(10,20,28,20);
-    // HP表示
-    ctx.fillStyle='#ff4444';ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillText('♥'.repeat(e.hp),24,_my<40?54:-4);
+    ctx.save();
+    if(_hf){ctx.translate(_mx+e.w/2,_my);ctx.scale(-1,1);ctx.translate(-e.w/2,0);}
+    else{ctx.translate(_mx,_my);}
+    const _flash=e.hurtTimer>0&&Math.floor(G.frame/3)%2===0;
+    if(_flash)ctx.globalAlpha=0.35;
+    // 甲羅スパイク（通常クッパと同じ三角形スタイル）
+    ctx.fillStyle='#7acc7a';
+    for(let _s=0;_s<3;_s++){ctx.beginPath();ctx.moveTo(7+_s*12,12);ctx.lineTo(12+_s*12,2);ctx.lineTo(17+_s*12,12);ctx.closePath();ctx.fill();}
+    // 甲羅・背中
+    ctx.fillStyle=e.hurtTimer>0?'#885500':'#1a6a1a';ctx.fillRect(4,12,40,30);
+    // 腹（明るい緑）
+    ctx.fillStyle='#3aaa3a';ctx.fillRect(10,22,28,18);
+    // 頭（タン色 - 通常クッパと同色）
+    ctx.fillStyle='#c8a050';ctx.fillRect(8,0,32,18);
+    // 王冠（通常クッパと同じ金色3つ）
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(14,-8);ctx.lineTo(18,0);ctx.fill();
+    ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(24,-12);ctx.lineTo(28,0);ctx.fill();
+    ctx.beginPath();ctx.moveTo(30,0);ctx.lineTo(34,-8);ctx.lineTo(38,0);ctx.fill();
+    // 目（赤 - 通常クッパと同じ）
+    ctx.fillStyle='#cc1100';ctx.fillRect(10,4,10,7);
+    ctx.fillStyle='#000';ctx.fillRect(12,5,6,5);
+    ctx.fillStyle='#fff';ctx.fillRect(15,5,3,2);
+    // 鼻（茶色）
+    ctx.fillStyle='#a06820';ctx.fillRect(10,12,28,5);
+    ctx.fillStyle='#000';ctx.fillRect(14,13,4,3);ctx.fillRect(26,13,4,3);
+    // 腕（緑）
+    ctx.fillStyle='#3a8a3a';ctx.fillRect(0,20,8,14);ctx.fillRect(40,22,8,12);
+    // 足（歩きアニメ）
+    ctx.fillStyle='#1a5a1a';
+    const _lf=e.onGround?(G.frame%18<9?-1:1):0;
+    ctx.fillRect(8,42,16,12+_lf);ctx.fillRect(24,42,16,12-_lf);
+    // 爪（白）
+    ctx.fillStyle='#ddd';ctx.fillRect(6,53,6,4);ctx.fillRect(14,53,4,3);ctx.fillRect(26,53,4,3);ctx.fillRect(34,53,6,4);
+    ctx.globalAlpha=1;
+    // HP バー
+    ctx.fillStyle='#333';ctx.fillRect(0,-16,48,8);
+    ctx.fillStyle='#e74c3c';ctx.fillRect(1,-15,Math.max(0,Math.ceil(46*(e.hp/3))),6);
+    ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(0,-16,48,8);ctx.lineWidth=1;
+    ctx.fillStyle='#FFD700';ctx.font='5px "Press Start 2P",monospace';ctx.textAlign='center';
+    ctx.fillText('BOWSER JR',24,-20);ctx.textAlign='left';
     ctx.restore();
   }
 }
