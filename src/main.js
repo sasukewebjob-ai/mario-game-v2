@@ -182,19 +182,20 @@ function startExStage(){
   updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(e){}
 }
 function spawnPinoCoins(amount){
-  // コインを直接付与（確実に手に入る）
-  G.coins=Math.min(999,G.coins+amount);G.score+=amount*100;updateHUD();sfx('coin');
-  spawnScorePopup(400,H/2-20,`+${amount}コイン！`,'#FFD700');
-  // 部屋全体にコインシャワー（視覚用・非回収）
+  sfx('coin');
+  spawnScorePopup(W/2-60,H/2-30,`コイン×${amount}！集めよう！`,'#FFD700');
+  // 天井からコインシャワー（マリオが回収する）
   const _n=Math.min(amount,50);
+  const _val=Math.max(1,Math.ceil(amount/_n)); // 各コインの価値（100→+2C, 200→+4Cなど）
   for(let i=0;i<_n;i++){
     coinItems.push({
-      x:TILE+Math.random()*694,y:H-TILE-8,
-      vx:(Math.random()-0.5)*7,vy:-7-Math.random()*9,
-      type:'firecoin',gravity:0.35,timer:400,
-      collected:false,isPinoItem:true,noCollect:true
+      x:TILE+Math.random()*694,y:-TILE*(1+Math.random()*4),
+      vx:(Math.random()-0.5)*4,vy:1.5+Math.random()*3,
+      type:'firecoin',gravity:0.28,timer:700,
+      collected:false,isPinoItem:true,noLand:true,coinValue:_val
     });
   }
+  return _n;
 }
 function spawnPinoMushroom(cx,cy,dir){
   // dir: 1=右移動(デフォルト), -1=左移動
@@ -226,17 +227,17 @@ function applyPinoReward(reward,cx,cy){
     spawnPinoMushroom(cx+20,cy-TILE,1); // 右へ
     G.pinoNeed=0;
   }else if(reward===1){
-    // 50コイン（直接付与＋シャワー）
-    spawnPinoCoins(50);G.pinoNeed=0;
+    // 50コイン
+    G.pinoNeed=spawnPinoCoins(50);
   }else if(reward===2){
     // 100コイン
-    spawnPinoCoins(100);G.pinoNeed=0;
+    G.pinoNeed=spawnPinoCoins(100);
   }else if(reward===3){
     // 200コイン
-    spawnPinoCoins(200);G.pinoNeed=0;
+    G.pinoNeed=spawnPinoCoins(200);
   }else if(reward===4){
     // 1コイン（ハズレ）
-    spawnPinoCoins(1);G.pinoNeed=0;
+    G.pinoNeed=spawnPinoCoins(1);
   }else if(reward===5){
     // mini bowser (as enemy type)
     enemies.push({x:cx,y:H-2.5*TILE,w:48,h:64,vx:-1.0,vy:0,alive:true,type:'miniBowser',state:'walk',
@@ -774,18 +775,18 @@ if(G.pinoRoom){
   if(G.pinoNeed>0&&G.chestOpened){
     const _reward=G.pinoReward;
     if(_reward===1||_reward===2||_reward===3||_reward===4){
-      // コイン系: まだ残ってるものをカウント（視覚用noCollectは除外）
-      const _alive=coinItems.filter(c=>c.isPinoItem&&!c.collected&&!c.noCollect).length;
+      // コイン系: まだ残ってるものをカウント
+      const _alive=coinItems.filter(c=>c.isPinoItem&&!c.collected).length;
       if(_alive===0){G.pinoNeed=0;}
     }else if(_reward===5||_reward===6||_reward===7){
       // 敵系: まだ生きているものをカウント
       const _alive=enemies.filter(e=>e.isPinoItem&&e.alive&&e.state!=='dead').length;
       if(_alive===0){G.pinoNeed=0;}
     }
-    // pinoNeed=0になったら出口パイプを出す（報酬#8は自動クリアのためパイプ不要）
-    if(G.chestOpened&&G.pinoNeed===0&&G.pinoReward!==8&&!pipes.some(p=>p.isExit||p.isExWarp)){
-      spawnPinoExit();
-    }
+  }
+  // 出口パイプを出す（pinoNeed=0, 開封済み, 報酬8/9以外, まだ出ていない）
+  if(G.chestOpened&&G.pinoNeed===0&&G.pinoReward>=0&&G.pinoReward!==8&&G.pinoReward!==9&&!pipes.some(p=>p.isExit||p.isExWarp)){
+    spawnPinoExit();
   }
   // 報酬#8（ゴールフラグ）: ピノキオのセリフ終了後にステージクリア
   if(G.chestOpened&&G.pinoReward===8&&G.pinoSpeechTimer===0){
@@ -826,7 +827,7 @@ if(G.pinoRoom){
 
 // Coins
 for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}
-if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){c.collected=true;G.coins=Math.min(999,G.coins+1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,'+1C','#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
+if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(!c.noLand&&!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){const _cv=c.coinValue||1;c.collected=true;G.coins=Math.min(999,G.coins+_cv);G.score+=100*_cv;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,`+${_cv}C`,'#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
 if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins++;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
