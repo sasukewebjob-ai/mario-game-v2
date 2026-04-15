@@ -36,43 +36,41 @@ movingPlats.push(
   {x:2170,y:H-3*TILE,w:TILE*3,h:12,type:'v',oy:H-3*TILE,range:50,spd:1.5}
 );
 
-// パタパタ 15体（右から左に飛んでくる）
+// パタパタ 5体（適度な間隔で配置）
 [
-  {x:460,y:H-6*TILE,phase:0.0},{x:640,y:H-9*TILE,phase:0.8},
-  {x:810,y:H-5*TILE,phase:1.5},{x:980,y:H-8*TILE,phase:0.3},
-  {x:1150,y:H-6*TILE,phase:2.1},{x:1300,y:H-10*TILE,phase:1.0},
-  {x:1470,y:H-5*TILE,phase:0.5},{x:1630,y:H-7*TILE,phase:1.8},
-  {x:1790,y:H-9*TILE,phase:0.2},{x:1960,y:H-6*TILE,phase:2.5},
-  {x:2080,y:H-8*TILE,phase:0.9},{x:2200,y:H-5*TILE,phase:1.4},
-  {x:700,y:H-11*TILE,phase:3.0},{x:1520,y:H-10*TILE,phase:2.2},
-  {x:2150,y:H-11*TILE,phase:0.7}
+  {x:600,y:H-7*TILE,phase:0.0},
+  {x:1000,y:H-9*TILE,phase:1.2},
+  {x:1400,y:H-6*TILE,phase:2.4},
+  {x:1750,y:H-8*TILE,phase:0.7},
+  {x:2100,y:H-7*TILE,phase:1.8}
 ].forEach(({x,y,phase})=>{
   enemies.push({x,y,w:TILE,h:TILE*1.2,vx:-1.8,vy:0,alive:true,type:'parakoopa',
     state:'walk',flying:true,baseY:y,phase,shellTimer:0,walkFrame:0,walkTimer:0});
 });
 
-// コイン 300枚以上
-// ① ステージ上部を横断するコイン列 (60枚)
-for(let i=0;i<60;i++)coinItems.push({x:80+i*36,y:H-11*TILE,collected:false});
-// ② 波状コイン列（低め）(50枚)
-for(let i=0;i<50;i++)coinItems.push({x:350+i*40,y:H-6*TILE+Math.sin(i*0.8)*TILE,collected:false});
-// ③ 中央密集コイン (80枚)
-for(let i=0;i<80;i++)coinItems.push({x:820+i*18,y:H-8*TILE+Math.sin(i*0.5)*TILE*2,collected:false});
-// ④ アーチ型コイン 3箇所 (45枚)
-[500,1200,1900].forEach(cx=>{
-  for(let i=0;i<15;i++){
-    const a=Math.PI*i/14;
-    coinItems.push({x:cx-70+i*10,y:H-6*TILE-Math.sin(a)*80,collected:false});
+// コイン モリモリ 500枚以上
+// ① ステージ上部 横断コイン列 2本（細かく密に）
+for(let i=0;i<70;i++)coinItems.push({x:60+i*32,y:H-11*TILE,collected:false});
+for(let i=0;i<70;i++)coinItems.push({x:60+i*32,y:H-9*TILE,collected:false});
+// ② 波状コイン 2段（下段）
+for(let i=0;i<60;i++)coinItems.push({x:300+i*36,y:H-5*TILE+Math.sin(i*0.7)*TILE,collected:false});
+for(let i=0;i<60;i++)coinItems.push({x:300+i*36,y:H-7*TILE+Math.sin(i*0.7+1.5)*TILE,collected:false});
+// ③ 大アーチ 5箇所（各20枚）
+[300,700,1100,1550,2000].forEach(cx=>{
+  for(let i=0;i<20;i++){
+    const a=Math.PI*i/19;
+    coinItems.push({x:cx-90+i*10,y:H-5*TILE-Math.sin(a)*TILE*3,collected:false});
   }
 });
-// ⑤ ゴール前コイン (30枚)
-for(let i=0;i<30;i++)coinItems.push({x:1920+i*12,y:H-6*TILE,collected:false});
-// ⑥ 縦コイン柱 各足場間に誘導 (20枚)
-for(let i=0;i<5;i++)coinItems.push({x:660,y:H-(3+i)*TILE,collected:false});
-for(let i=0;i<5;i++)coinItems.push({x:1560,y:H-(3+i)*TILE,collected:false});
-for(let i=0;i<5;i++)coinItems.push({x:2040,y:H-(3+i)*TILE,collected:false});
-for(let i=0;i<5;i++)coinItems.push({x:1340,y:H-(3+i)*TILE,collected:false});
-// ⑦ 補完スキャッター (36枚)
-for(let i=0;i<36;i++)coinItems.push({x:110+i*60,y:H-4*TILE,collected:false});
-// 合計: 60+50+80+45+30+20+36 = 321枚 ✓
+// ④ ゴール前ラッシュ（60枚・密集）
+for(let i=0;i<60;i++)coinItems.push({x:1900+i*8,y:H-5*TILE-Math.sin(i*0.3)*TILE*2,collected:false});
+// ⑤ 縦コイン柱（足場間の誘導）各6枚×6本
+[[500,3],[700,4],[1050,3],[1350,5],[1650,4],[2020,3]].forEach(([px,row])=>{
+  for(let i=0;i<6;i++)coinItems.push({x:px,y:H-(row+i)*TILE,collected:false});
+});
+// ⑥ 横スキャッター（等間隔）
+for(let i=0;i<50;i++)coinItems.push({x:100+i*44,y:H-3*TILE,collected:false});
+// ⑦ 中段密集帯
+for(let i=0;i<80;i++)coinItems.push({x:500+i*20,y:H-8*TILE+Math.sin(i*0.4)*TILE*1.5,collected:false});
+// 合計: 140+120+100+60+36+50+80 = 586枚 ✓
 }
