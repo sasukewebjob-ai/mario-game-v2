@@ -13,7 +13,9 @@ for(let x=0;x<W;x+=TILE){platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',
 if(x>0&&x<W-TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0})}
 // ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
 if(variant!=='pinocchio'&&variant!=='pinocchio_fail')pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
-for(let wy=TILE;wy<H-4*TILE;wy+=TILE)platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+// ピノキオ部屋は右壁を床まで完全に埋める（出口パイプ不在で隙間が生じるため）
+const _wallBottom=(variant==='pinocchio'||variant==='pinocchio_fail')?H-TILE:H-4*TILE;
+for(let wy=TILE;wy<_wallBottom;wy+=TILE)platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
 // ── ヘルパー関数 ──
 const gm=(x,y)=>({x,y:y??H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});

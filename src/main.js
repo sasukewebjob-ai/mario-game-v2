@@ -232,10 +232,10 @@ function applyPinoReward(reward,cx,cy){
       state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:80,jumpTimer:120,isPinoItem:true});
     G.pinoNeed=2; // need to defeat both
   }else if(reward===7){
-    // 5 Buzzy Beetles
+    // 5 Goombas（クリボー - メットは踏みつけ不可なのでクリボーに変更）
     for(let i=0;i<5;i++){
-      enemies.push({x:cx-80+i*40,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:(i%2===0?-1.3:1.3),vy:0,
-        alive:true,type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,isPinoItem:true});
+      enemies.push({x:cx-80+i*40,y:H-2*TILE,w:TILE,h:TILE,vx:(i%2===0?-1.3:1.3),vy:0,
+        alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,isPinoItem:true});
     }
     G.pinoNeed=5; // need to defeat all
   }else if(reward===8){
@@ -2314,57 +2314,46 @@ if(G.pinoRoom&&G.state==='play'){
     const _ox=pinoObj.x-G.cam,_oy=pinoObj.y;
     const _flip=pinoObj.facing===-1;
     ctx.save();if(_flip){ctx.translate(_ox+pinoObj.w/2,_oy);ctx.scale(-1,1);ctx.translate(-pinoObj.w/2,0);}else{ctx.translate(_ox,_oy);}
-    // ★ ピノキオ（黄色のとんがり帽・長い木の鼻・白シャツ緑ズボン）
-    // 帽子：三角形の黄色いダンスキャップ（キノピオとの差別化！）
-    ctx.fillStyle='#FFD700';
-    ctx.beginPath();ctx.moveTo(14,-16);ctx.lineTo(4,3);ctx.lineTo(24,3);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#E6A800';
-    ctx.beginPath();ctx.moveTo(14,-16);ctx.lineTo(4,3);ctx.lineTo(14,-1);ctx.closePath();ctx.fill();// 影
-    ctx.fillStyle='rgba(255,255,180,0.45)';ctx.fillRect(12,-14,3,14);// ハイライト
-    ctx.fillStyle='#fff';ctx.fillRect(3,3,22,3);// ツバ（白）
-    ctx.fillStyle='#cc0000';ctx.fillRect(4,4,20,2);// 赤ライン
-    // 顔
-    ctx.fillStyle='#FFD09B';ctx.fillRect(4,6,20,17);
-    ctx.fillRect(2,10,24,10);// 頬
-    // 目（大きく可愛い青い瞳）
-    ctx.fillStyle='#fff';ctx.fillRect(5,9,6,6);ctx.fillRect(17,9,6,6);
-    ctx.fillStyle='#1155cc';ctx.fillRect(6,10,4,4);ctx.fillRect(18,10,4,4);
-    ctx.fillStyle='#000';ctx.fillRect(7,11,2,2);ctx.fillRect(19,11,2,2);
-    ctx.fillStyle='#fff';ctx.fillRect(7,10,1,1);ctx.fillRect(19,10,1,1);
-    ctx.fillStyle='#5a3000';ctx.fillRect(5,8,5,1);ctx.fillRect(17,8,5,1);// 眉
-    // ほっぺ
-    ctx.fillStyle='rgba(255,100,80,0.35)';ctx.fillRect(2,14,5,4);ctx.fillRect(21,14,5,4);
-    // 鼻：木の茶色！24pxの長さ（ピノキオ最大の特徴）
-    ctx.fillStyle='#8B4513';ctx.fillRect(14,14,24,4);
-    ctx.fillStyle='#6B3010';ctx.fillRect(14,17,24,1);// 下影
-    ctx.fillStyle='rgba(200,140,80,0.5)';ctx.fillRect(14,14,4,2);// 付け根HL
-    ctx.fillStyle='#4d2208';ctx.fillRect(37,14,2,4);// 先端
-    // 口（笑顔）
-    ctx.fillStyle='#cc3300';ctx.fillRect(8,20,12,2);
-    ctx.fillRect(7,21,2,2);ctx.fillRect(18,21,2,2);// 口角
-    // 首
-    ctx.fillStyle='#FFD09B';ctx.fillRect(10,23,8,3);
-    // 白シャツ
-    ctx.fillStyle='#eeeeee';ctx.fillRect(4,26,20,13);
-    ctx.fillStyle='#dddddd';ctx.fillRect(4,26,20,2);
-    // 赤いネクタイ（三角形）
-    ctx.fillStyle='#cc0000';
-    ctx.beginPath();ctx.moveTo(11,26);ctx.lineTo(17,26);ctx.lineTo(14,32);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#aa0000';
-    ctx.beginPath();ctx.moveTo(11,26);ctx.lineTo(8,25);ctx.lineTo(9,28);ctx.closePath();ctx.fill();
-    ctx.beginPath();ctx.moveTo(17,26);ctx.lineTo(20,25);ctx.lineTo(19,28);ctx.closePath();ctx.fill();
-    // 緑の半ズボン
-    ctx.fillStyle='#2d7a2d';ctx.fillRect(4,39,9,8);ctx.fillRect(15,39,9,8);
-    ctx.fillStyle='#1d5a1d';ctx.fillRect(4,39,9,2);ctx.fillRect(15,39,9,2);
-    // 茶色の靴
+    // キノピオ（Toad）- きのこ型の帽子・青いベスト
+    // きのこ帽子：大きな赤いドーム
+    ctx.fillStyle='#cc2200';
+    ctx.beginPath();ctx.arc(14,8,14,Math.PI,0);ctx.fill();
+    ctx.fillRect(0,8,28,9);
+    // 白い水玉スポット
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(7,5,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(21,5,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(14,1,3,0,Math.PI*2);ctx.fill();
+    // 帽子の縁（白いリム）
+    ctx.fillStyle='#fff';ctx.fillRect(0,16,28,3);
+    // 顔（丸くて白い）
+    ctx.fillStyle='#fffcf0';ctx.fillRect(3,17,22,16);ctx.fillRect(1,19,26,12);
+    // 目（青い大きな丸目）
+    ctx.fillStyle='#1144cc';
+    ctx.beginPath();ctx.arc(9,23,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(19,23,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#000';
+    ctx.beginPath();ctx.arc(10,23,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(20,23,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(11,22,1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(21,22,1,0,Math.PI*2);ctx.fill();
+    // 口（小さな笑顔）
+    ctx.fillStyle='#cc3300';ctx.fillRect(10,28,8,2);
+    ctx.fillRect(9,29,2,2);ctx.fillRect(17,29,2,2);
+    // 胴体（青いベスト）
+    ctx.fillStyle='#2244aa';ctx.fillRect(5,33,18,10);
+    ctx.fillStyle='#fff';ctx.fillRect(13,33,2,10);
+    ctx.fillStyle='#FFD700';ctx.fillRect(13,35,2,2);ctx.fillRect(13,39,2,2);
+    // 腕（白）
+    ctx.fillStyle='#fffcf0';ctx.fillRect(0,34,5,7);ctx.fillRect(23,34,5,7);
+    ctx.fillStyle='#fff';ctx.fillRect(-1,39,6,4);ctx.fillRect(23,39,6,4);
+    // 靴（茶色・歩きアニメ）
     const _wf=pinoObj.frame;
     ctx.fillStyle='#5a2d0a';
-    ctx.fillRect(2,46+(_wf?1:0),11,4);ctx.fillRect(15,46+(_wf?0:1),11,4);
+    ctx.fillRect(4,44+(_wf?1:0),9,4);ctx.fillRect(15,44+(_wf?0:1),9,4);
     ctx.fillStyle='#2a1004';
-    ctx.fillRect(2,49+(_wf?1:0),13,1);ctx.fillRect(15,49+(_wf?0:1),13,1);
-    // 腕・白手袋
-    ctx.fillStyle='#FFD09B';ctx.fillRect(0,28,5,7);ctx.fillRect(23,28,5,7);
-    ctx.fillStyle='#fff';ctx.fillRect(-1,34,6,5);ctx.fillRect(23,34,6,5);
+    ctx.fillRect(3,47+(_wf?1:0),11,1);ctx.fillRect(14,47+(_wf?0:1),11,1);
     ctx.restore();
     // ★ 吹き出し（大きめ・読みやすいフォント）
     if(G.pinoSpeechTimer>0&&G.pinoSpeechText){
