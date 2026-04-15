@@ -207,5 +207,5 @@ export function buildLevel_8_1(){
   G.chasingWall={x:-300,speed:0.95,triggerX:2400,active:false}; // チェックポイント(x=2200)通過後に起動
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
-pipes.push({x:2400,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
+pipes.push({x:2400,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

@@ -220,5 +220,5 @@ export function buildLevel_7_3(){
   G.darkMode=true;
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
-pipes.push({x:3400,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
+pipes.push({x:3400,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

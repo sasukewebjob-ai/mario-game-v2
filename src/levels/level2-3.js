@@ -195,5 +195,5 @@ export function buildLevel_2_3(){
   G.chasingWall={x:-200,speed:0.9,triggerX:3600,active:false};
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
-pipes.push({x:2400,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
+pipes.push({x:2400,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

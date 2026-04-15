@@ -684,10 +684,9 @@ if(G.waterMode&&mario.y<TILE){mario.y=TILE;mario.vy=0;}
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;
 if(p.type==='hidden'&&!p.hit){const bo=p.bounceOffset||0,py=p.y-bo;if(mario.vy<0&&overlap(mario.x+1,mario.y,mario.w-2,mario.h,p.x,py,p.w,p.h)){mario.y=py+p.h;mario.vy=0;hitBlock(p)}continue}
 cY(mario,p,hitBlock)}
+// 天井ワープパイプ：cYより先に判定（cYがvy=0にする前に検出する必要がある）
+if(!G.ugMode&&!mario.dead&&mario.vy<0){for(const p of pipes){if(!p.ceiling||!p.isWarp||p.used)continue;if(Math.abs((p.x+32)-mario.x)>160)continue;const _ugKey=`${G.currentWorld}-${G.currentLevel}-${p.x}`;if(G.usedUndergrounds&&G.usedUndergrounds.has(_ugKey))continue;if(mario.x+mario.w>p.x&&mario.x<p.x+p.w&&mario.y<=p.y+p.h&&mario.y-mario.vy>p.y+p.h-4){p.used=true;p.ugKey=_ugKey;enterUnderground(p);break;}}}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cY(mario,p,null)}
-// 天井ワープパイプ：マリオが上向きに通過したら入る（vy<0、マリオの頭が土管の底面を越えた）
-if(!G.ugMode&&!mario.dead&&mario.vy<0){for(const p of pipes){if(!p.ceiling||!p.isWarp||p.used)continue;if(Math.abs((p.x+32)-mario.x)>160)continue;const _ugKey=`${G.currentWorld}-${G.currentLevel}-${p.x}`;if(G.usedUndergrounds&&G.usedUndergrounds.has(_ugKey))continue;// マリオの頭が土管の下端（p.y+p.h）を上から越えた
-if(mario.x+mario.w>p.x&&mario.x<p.x+p.w&&mario.y<=p.y+p.h&&mario.y-mario.vy>p.y+p.h-4){p.used=true;p.ugKey=_ugKey;enterUnderground(p);break;}}}
 // P-Switch stomp detection (landing on top)
 if(G.pswitchTimer<=0&&mario.onGround){for(const p of platforms){if(p.type==='pswitch'&&!p.hit&&mario.y+mario.h>=p.y-(p.bounceOffset||0)-2&&mario.y+mario.h<=p.y-(p.bounceOffset||0)+6&&mario.x+mario.w>p.x&&mario.x<p.x+p.w){activatePSwitch(p);break;}}}
 // Gravity flip: land on ceiling of blocks
