@@ -181,10 +181,19 @@ function startExStage(){
   G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);
   updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(e){}
 }
-function spawnPinoCoins(cx,cy,n){
-  for(let i=0;i<n;i++){
-    const ang=(Math.PI*2/n)*i;
-    coinItems.push({x:cx,y:cy,vx:Math.cos(ang)*4,vy:Math.sin(ang)*4-3,type:'firecoin',gravity:0.35,timer:240,collected:false,isPinoItem:true});
+function spawnPinoCoins(amount){
+  // コインを直接付与（確実に手に入る）
+  G.coins=Math.min(999,G.coins+amount);G.score+=amount*100;updateHUD();sfx('coin');
+  spawnScorePopup(400,H/2-20,`+${amount}コイン！`,'#FFD700');
+  // 部屋全体にコインシャワー（視覚用・非回収）
+  const _n=Math.min(amount,50);
+  for(let i=0;i<_n;i++){
+    coinItems.push({
+      x:TILE+Math.random()*694,y:H-TILE-8,
+      vx:(Math.random()-0.5)*7,vy:-7-Math.random()*9,
+      type:'firecoin',gravity:0.35,timer:400,
+      collected:false,isPinoItem:true,noCollect:true
+    });
   }
 }
 function spawnPinoMushroom(cx,cy){
@@ -216,18 +225,17 @@ function applyPinoReward(reward,cx,cy){
     spawnPinoMushroom(cx+20,cy-TILE);
     G.pinoNeed=0;
   }else if(reward===1){
-    // 50 coins
-    spawnPinoCoins(cx,cy,10);G.pinoNeed=10;
-    // pinoNeed counts isPinoItem alive coins — tracked in update loop
+    // 50コイン（直接付与＋シャワー）
+    spawnPinoCoins(50);G.pinoNeed=0;
   }else if(reward===2){
-    // 100 coins
-    spawnPinoCoins(cx,cy,20);G.pinoNeed=20;
+    // 100コイン
+    spawnPinoCoins(100);G.pinoNeed=0;
   }else if(reward===3){
-    // 200 coins
-    spawnPinoCoins(cx,cy,32);G.pinoNeed=32;
+    // 200コイン
+    spawnPinoCoins(200);G.pinoNeed=0;
   }else if(reward===4){
-    // 1 coin troll
-    spawnPinoCoins(cx,cy,1);G.pinoNeed=1;
+    // 1コイン（ハズレ）
+    spawnPinoCoins(1);G.pinoNeed=0;
   }else if(reward===5){
     // mini bowser (as enemy type)
     enemies.push({x:cx,y:H-2.5*TILE,w:48,h:64,vx:-1.0,vy:0,alive:true,type:'miniBowser',state:'walk',
@@ -817,7 +825,7 @@ if(G.pinoRoom){
 
 // Coins
 for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}
-if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){c.collected=true;G.coins=Math.min(999,G.coins+1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,'+1C','#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
+if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){c.collected=true;G.coins=Math.min(999,G.coins+1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,'+1C','#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
 if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins++;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}

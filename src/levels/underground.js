@@ -436,10 +436,8 @@ enemies.push(gm(580));enemies.push(kp(220));
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋
 G.pinoRoom=true;
-// 雲の足場プラットフォーム
-for(let _bx=80;_bx<80+4*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-7*TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
-for(let _bx=320;_bx<320+3*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-9*TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
-for(let _bx=540;_bx<540+3*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-7*TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+// キノコ？ブロック1個だけ（浮き足場はなし）
+platforms.push({x:384,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 if(variant==='pinocchio_fail'){
   // 失敗状態：出口パイプのみ、ピノキオが一言
   pipes.push({x:696,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
@@ -455,7 +453,8 @@ if(variant==='pinocchio_fail'){
     platforms.push({x:_cxs[_i],y:H-2*TILE-10,w:TILE+4,h:TILE+10,type:'chest',bounceOffset:0,opened:false,chestIdx:_i});
   }
   pinoObj.alive=true;pinoObj.x=360;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=1;pinoObj.frame=0;pinoObj.frameTimer=0;
-  G.pinoState='idle';G.pinoReward=-1;G.pinoSpeechText='';G.pinoSpeechTimer=0;G.pinoNeed=0;G.chestOpened=false;G.exStageFailed=false;
+  G.pinoState='idle';G.pinoReward=-1;G.pinoNeed=0;G.chestOpened=false;G.exStageFailed=false;
+  G.pinoSpeechText='好きな宝箱を１個選んで！\nいいものも悪いものもあるよ…';G.pinoSpeechTimer=400;
 }
 }else{
 // ★ デフォルト ★ coin と同じレイアウト
