@@ -197,9 +197,18 @@ function spawnPinoCoins(amount){
   }
   return _n;
 }
-function spawnPinoMushroom(cx,cy,dir){
-  // dir: 1=右移動(デフォルト), -1=左移動
-  mushrooms.push({x:cx,y:cy,w:24,h:TILE,vx:1.5*(dir??1),vy:0,alive:true,type:'1up',isPinoItem:true});
+function spawnPinoMushroom(){
+  // 天井からランダム位置に2個降ってくる
+  for(let i=0;i<2;i++){
+    mushrooms.push({
+      x:TILE*2+Math.random()*(W-TILE*5),
+      y:-TILE*(1+Math.random()*3),
+      w:24,h:TILE,
+      vx:(Math.random()-0.5)*1.5,
+      vy:0,
+      alive:true,type:'1up',isPinoItem:true
+    });
+  }
 }
 function spawnPinoExit(){
   // 出口パイプを画面右端付近に追加（地下の共通出口と同じ位置）
@@ -222,9 +231,8 @@ function applyPinoReward(reward,cx,cy){
   G.pinoSpeechText=_PINO_SPEECHES[reward]||'はずれ！';
   G.pinoSpeechTimer=300;
   if(reward===0){
-    // 2x 1UP mushroom（左右に散る）
-    spawnPinoMushroom(cx-20,cy-TILE,-1);// 左へ
-    spawnPinoMushroom(cx+20,cy-TILE,1); // 右へ
+    // 2x 1UP mushroom（天井から降ってくる）
+    spawnPinoMushroom();
     G.pinoNeed=0;
   }else if(reward===1){
     // 50コイン
