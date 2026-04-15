@@ -13,9 +13,15 @@ for(let x=0;x<W;x+=TILE){platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',
 if(x>0&&x<W-TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0})}
 // ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
 if(variant!=='pinocchio'&&variant!=='pinocchio_fail')pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
-// ピノキオ部屋は右壁を床まで完全に埋める（出口パイプ不在で隙間が生じるため）
-const _wallBottom=(variant==='pinocchio'||variant==='pinocchio_fail')?H-TILE:H-4*TILE;
+// ピノキオ部屋は右壁・左壁を床まで完全に埋める（出口パイプ不在＋敵脱走防止）
+const _isPino=(variant==='pinocchio'||variant==='pinocchio_fail');
+const _wallBottom=_isPino?H-TILE:H-4*TILE;
 for(let wy=TILE;wy<_wallBottom;wy+=TILE)platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+// 左壁（ピノキオ部屋のみ）
+if(_isPino){
+  platforms.push({x:0,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});// 天井左角
+  for(let wy=TILE;wy<H-TILE;wy+=TILE)platforms.push({x:0,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+}
 
 // ── ヘルパー関数 ──
 const gm=(x,y)=>({x,y:y??H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
@@ -437,7 +443,7 @@ for(let _bx=540;_bx<540+3*TILE;_bx+=TILE)platforms.push({x:_bx,y:H-7*TILE,w:TILE
 if(variant==='pinocchio_fail'){
   // 失敗状態：出口パイプのみ、ピノキオが一言
   pipes.push({x:696,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
-  pinoObj.alive=true;pinoObj.x=300;pinoObj.y=H-3*TILE;pinoObj.vx=1.2;pinoObj.vy=0;pinoObj.facing=1;pinoObj.jumpTimer=60;
+  pinoObj.alive=true;pinoObj.x=360;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=1;pinoObj.frame=0;pinoObj.frameTimer=0;
   G.pinoState='exfail';
   G.pinoSpeechText='チャレンジは1度だけ！\n次は自分で頑張りなさい！';
   G.pinoSpeechTimer=400;
@@ -448,7 +454,7 @@ if(variant==='pinocchio_fail'){
   for(let _i=0;_i<5;_i++){
     platforms.push({x:_cxs[_i],y:H-2*TILE-10,w:TILE+4,h:TILE+10,type:'chest',bounceOffset:0,opened:false,chestIdx:_i});
   }
-  pinoObj.alive=true;pinoObj.x=330;pinoObj.y=H-3*TILE;pinoObj.vx=1.5;pinoObj.vy=0;pinoObj.facing=1;pinoObj.jumpTimer=80;pinoObj.frame=0;pinoObj.frameTimer=0;
+  pinoObj.alive=true;pinoObj.x=360;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=1;pinoObj.frame=0;pinoObj.frameTimer=0;
   G.pinoState='idle';G.pinoReward=-1;G.pinoSpeechText='';G.pinoSpeechTimer=0;G.pinoNeed=0;G.chestOpened=false;G.exStageFailed=false;
 }
 }else{

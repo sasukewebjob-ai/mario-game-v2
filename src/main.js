@@ -87,7 +87,16 @@ function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=partic
 // === INPUT ===
 const keys={},btn={left:false,right:false,jump:false,dash:false,down:false};
 document.addEventListener('keydown',e=>{keys[e.code]=true;
-if(G.state==='start'){if(e.code==='ArrowLeft'&&G.selectedStage>1){G.selectedStage--;e.preventDefault();}if(e.code==='ArrowRight'&&G.selectedStage<STAGES.length){G.selectedStage++;e.preventDefault();}const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];if(e.code==='Space'||e.code==='Enter')startFromStage(G.selectedStage);}
+if(G.state==='start'){
+  const _exId=STAGES.length+1;
+  if(e.code==='ArrowLeft'){if(G.selectedStage===_exId)G.selectedStage=STAGES.length;else if(G.selectedStage>1)G.selectedStage--;e.preventDefault();}
+  if(e.code==='ArrowRight'){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId;e.preventDefault();}
+  if(e.code==='ArrowUp'){if(G.selectedStage===_exId)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;e.preventDefault();}
+  if(e.code==='ArrowDown'){if(G.selectedStage!==_exId){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId;}e.preventDefault();}
+  const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};
+  if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];
+  if(e.code==='Space'||e.code==='Enter'){if(G.selectedStage===_exId){G.isExStage=false;G.exStageFrom=null;startExStage();}else startFromStage(G.selectedStage);}
+}
 // ショップ操作
 if(G.state==='shop'){
   if(e.code==='ArrowLeft'||e.code==='KeyA'){G.shopCursor=(G.shopCursor+14)%15;e.preventDefault();}
@@ -252,12 +261,9 @@ function openChest(chestPlatform){
   if(G.chestOpened)return;
   G.chestOpened=true;
   chestPlatform.opened=true;
-  // Close all other chests
-  for(const p of platforms){
-    if(p.type==='chest'&&p!==chestPlatform){
-      // mark closed (disappear)
-      const idx=platforms.indexOf(p);if(idx>=0)platforms.splice(idx,1);
-    }
+  // Close all other chests（逆順で splice して for...of の問題を回避）
+  for(let _ci=platforms.length-1;_ci>=0;_ci--){
+    if(platforms[_ci].type==='chest'&&platforms[_ci]!==chestPlatform)platforms.splice(_ci,1);
   }
   const reward=Math.floor(Math.random()*10);
   const cx=chestPlatform.x+chestPlatform.w/2;
@@ -376,9 +382,12 @@ function pollGamepad(){
   const jp=k=>gpad[k]&&!_gpPrev[k];
   // === Per-state event handling ===
   if(G.state==='start'){
-    if(jp('left')&&G.selectedStage>1)G.selectedStage--;
-    if(jp('right')&&G.selectedStage<STAGES.length)G.selectedStage++;
-    if(jp('a')||jp('start'))startFromStage(G.selectedStage);
+    const _exId2=STAGES.length+1;
+    if(jp('left')){if(G.selectedStage===_exId2)G.selectedStage=STAGES.length;else if(G.selectedStage>1)G.selectedStage--;}
+    if(jp('right')){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId2;}
+    if(jp('up')){if(G.selectedStage===_exId2)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;}
+    if(jp('down')){if(G.selectedStage!==_exId2){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId2;}}
+    if(jp('a')||jp('start')){if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage();}else startFromStage(G.selectedStage);}
   }
   else if(G.state==='shop'){
     if(G.shopConfirm!=null){
@@ -730,15 +739,14 @@ for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(overlap(eg.x,e
 
 // === ピノキオ部屋の更新 ===
 if(G.pinoRoom){
-  // ピノキオエンティティ更新
+  // キノピオエンティティ更新（静止＋マリオ方向を向く）
   if(pinoObj.alive){
-    pinoObj.vy+=GRAVITY;pinoObj.x+=pinoObj.vx;pinoObj.y+=pinoObj.vy;pinoObj.onGround=false;
-    for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(pinoObj.x,pinoObj.y,pinoObj.w,pinoObj.h,p.x,py,p.w,p.h)){if(pinoObj.vy>0&&pinoObj.y+pinoObj.h/2<py+p.h/2){pinoObj.y=py-pinoObj.h;pinoObj.vy=0;pinoObj.onGround=true;}else if(pinoObj.vy<0){pinoObj.y=py+p.h;pinoObj.vy=0;}else{pinoObj.vx=-pinoObj.vx;}}}
-    if(pinoObj.x<0){pinoObj.x=0;pinoObj.vx=Math.abs(pinoObj.vx);pinoObj.facing=1;}
-    if(pinoObj.x+pinoObj.w>W){pinoObj.x=W-pinoObj.w;pinoObj.vx=-Math.abs(pinoObj.vx);pinoObj.facing=-1;}
-    if(pinoObj.onGround){pinoObj.jumpTimer--;if(pinoObj.jumpTimer<=0){pinoObj.vy=-11;pinoObj.jumpTimer=60+Math.floor(Math.random()*60);}}
-    pinoObj.frameTimer++;if(pinoObj.frameTimer>8){pinoObj.frameTimer=0;pinoObj.frame=(pinoObj.frame+1)%2;}
-    if(pinoObj.vx>0)pinoObj.facing=1;else if(pinoObj.vx<0)pinoObj.facing=-1;
+    pinoObj.vy+=GRAVITY;pinoObj.y+=pinoObj.vy;pinoObj.onGround=false;
+    for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(pinoObj.x,pinoObj.y,pinoObj.w,pinoObj.h,p.x,py,p.w,p.h)){if(pinoObj.vy>0&&pinoObj.y+pinoObj.h/2<py+p.h/2){pinoObj.y=py-pinoObj.h;pinoObj.vy=0;pinoObj.onGround=true;}else if(pinoObj.vy<0){pinoObj.y=py+p.h;pinoObj.vy=0;}}}
+    // マリオの方向を向く
+    pinoObj.facing=(mario.x+mario.w/2<pinoObj.x+pinoObj.w/2)?-1:1;
+    // アイドルアニメ（ゆっくり手を振る）
+    pinoObj.frameTimer++;if(pinoObj.frameTimer>20){pinoObj.frameTimer=0;pinoObj.frame=(pinoObj.frame+1)%2;}
     if(G.pinoSpeechTimer>0)G.pinoSpeechTimer--;
   }
   // 宝箱ジャンプ着地：マリオが上から宝箱を踏んで着地したら開く
@@ -2315,45 +2323,83 @@ if(G.pinoRoom&&G.state==='play'){
     const _flip=pinoObj.facing===-1;
     ctx.save();if(_flip){ctx.translate(_ox+pinoObj.w/2,_oy);ctx.scale(-1,1);ctx.translate(-pinoObj.w/2,0);}else{ctx.translate(_ox,_oy);}
     // キノピオ（Toad）- きのこ型の帽子・青いベスト
-    // きのこ帽子：大きな赤いドーム
-    ctx.fillStyle='#cc2200';
-    ctx.beginPath();ctx.arc(14,8,14,Math.PI,0);ctx.fill();
-    ctx.fillRect(0,8,28,9);
-    // 白い水玉スポット
+    // ── キノピオ（可愛いちびデザイン）──
+    // きのこ帽子：大きな赤いドーム（頭の大部分を占める）
+    ctx.fillStyle='#dd2200';
+    ctx.beginPath();ctx.arc(14,6,15,Math.PI,0);ctx.fill();
+    ctx.fillRect(0,6,28,10);
+    // 帽子のハイライト
+    ctx.fillStyle='rgba(255,255,255,0.25)';
+    ctx.beginPath();ctx.arc(10,3,5,Math.PI,0);ctx.fill();
+    // 白い水玉スポット（大き目で可愛く）
     ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(7,5,4,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(21,5,4,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(14,1,3,0,Math.PI*2);ctx.fill();
-    // 帽子の縁（白いリム）
-    ctx.fillStyle='#fff';ctx.fillRect(0,16,28,3);
-    // 顔（丸くて白い）
-    ctx.fillStyle='#fffcf0';ctx.fillRect(3,17,22,16);ctx.fillRect(1,19,26,12);
-    // 目（青い大きな丸目）
-    ctx.fillStyle='#1144cc';
-    ctx.beginPath();ctx.arc(9,23,4,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(19,23,4,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#000';
-    ctx.beginPath();ctx.arc(10,23,2,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(20,23,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(7,4,4.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(21,4,4.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(14,0,3,0,Math.PI*2);ctx.fill();
+    // スポットのシェーディング
+    ctx.fillStyle='rgba(220,220,220,0.4)';
+    ctx.beginPath();ctx.arc(8,5,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(22,5,2,0,Math.PI*2);ctx.fill();
+    // 帽子の縁（クリーム色）
+    ctx.fillStyle='#fff8e8';ctx.fillRect(0,15,28,4);
+    // 帽子縁のシャドウ
+    ctx.fillStyle='rgba(0,0,0,0.12)';ctx.fillRect(0,18,28,1);
+    // 顔（ぷっくり丸い・クリーム色）
+    ctx.fillStyle='#fff8e8';
+    ctx.beginPath();ctx.arc(14,26,12,0,Math.PI*2);ctx.fill();
+    ctx.fillRect(3,19,22,14);
+    // ほっぺ（ピンクのまる）
+    ctx.fillStyle='rgba(255,130,130,0.55)';
+    ctx.beginPath();ctx.arc(5,27,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(23,27,4,0,Math.PI*2);ctx.fill();
+    // 目（大きな黒い丸目 + 白ハイライト2個）
+    ctx.fillStyle='#111';
+    ctx.beginPath();ctx.arc(9,24,4.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(19,24,4.5,0,Math.PI*2);ctx.fill();
+    // 目の中の青いリング
+    ctx.fillStyle='#3366ee';
+    ctx.beginPath();ctx.arc(9,24,3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(19,24,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#111';
+    ctx.beginPath();ctx.arc(9.5,24,1.8,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(19.5,24,1.8,0,Math.PI*2);ctx.fill();
+    // 白ハイライト（2か所）
     ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(11,22,1,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(21,22,1,0,Math.PI*2);ctx.fill();
-    // 口（小さな笑顔）
-    ctx.fillStyle='#cc3300';ctx.fillRect(10,28,8,2);
-    ctx.fillRect(9,29,2,2);ctx.fillRect(17,29,2,2);
-    // 胴体（青いベスト）
-    ctx.fillStyle='#2244aa';ctx.fillRect(5,33,18,10);
-    ctx.fillStyle='#fff';ctx.fillRect(13,33,2,10);
-    ctx.fillStyle='#FFD700';ctx.fillRect(13,35,2,2);ctx.fillRect(13,39,2,2);
-    // 腕（白）
-    ctx.fillStyle='#fffcf0';ctx.fillRect(0,34,5,7);ctx.fillRect(23,34,5,7);
-    ctx.fillStyle='#fff';ctx.fillRect(-1,39,6,4);ctx.fillRect(23,39,6,4);
-    // 靴（茶色・歩きアニメ）
+    ctx.beginPath();ctx.arc(10.5,22.5,1.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(20.5,22.5,1.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(8,25.5,0.7,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(18,25.5,0.7,0,Math.PI*2);ctx.fill();
+    // 口（かわいいアーチ笑顔）
+    ctx.strokeStyle='#aa3300';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(14,29,4,0.1*Math.PI,0.9*Math.PI);ctx.stroke();ctx.lineWidth=1;
+    // 口角のドット
+    ctx.fillStyle='#aa3300';
+    ctx.beginPath();ctx.arc(10.5,29,1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(17.5,29,1,0,Math.PI*2);ctx.fill();
+    // 胴体（青いベスト・小さくコンパクト）
+    ctx.fillStyle='#2255cc';ctx.fillRect(6,32,16,10);
+    ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(6,32,16,3);// ハイライト
+    // ベルト中央線
+    ctx.fillStyle='#fff';ctx.fillRect(13,32,2,10);
+    // ボタン（ゴールド）
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath();ctx.arc(14,35,1.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(14,39,1.5,0,Math.PI*2);ctx.fill();
+    // 腕（アイドルアニメ：frame0=通常, frame1=手を振る）
     const _wf=pinoObj.frame;
-    ctx.fillStyle='#5a2d0a';
-    ctx.fillRect(4,44+(_wf?1:0),9,4);ctx.fillRect(15,44+(_wf?0:1),9,4);
-    ctx.fillStyle='#2a1004';
-    ctx.fillRect(3,47+(_wf?1:0),11,1);ctx.fillRect(14,47+(_wf?0:1),11,1);
+    ctx.fillStyle='#fff8e8';
+    if(_wf===0){// 通常
+      ctx.fillRect(-1,33,6,7);ctx.fillRect(23,33,6,7);
+      ctx.fillStyle='#fff';ctx.fillRect(-2,39,7,4);ctx.fillRect(23,39,7,4);
+    }else{// 手を振る（左腕が上がる）
+      ctx.fillRect(-3,27,6,7);ctx.fillRect(23,33,6,7);// 左腕が上
+      ctx.fillStyle='#fff';ctx.fillRect(-4,23,7,5);ctx.fillRect(23,39,7,4);// 左手が上
+    }
+    // 靴（白い丸い靴・左右交互に小bounce）
+    ctx.fillStyle='#eeeeff';
+    ctx.beginPath();ctx.arc(9,44,5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(19,44,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#aaaacc';ctx.fillRect(4,44,10,2);ctx.fillRect(14,44,10,2);
     ctx.restore();
     // ★ 吹き出し（大きめ・読みやすいフォント）
     if(G.pinoSpeechTimer>0&&G.pinoSpeechText){
@@ -2602,17 +2648,20 @@ _ws2.forEach((_w,_wi)=>{
     if(_sel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',_bx+_bw/2,_by+_bh+7);}
   });
 });
-// EXステージボタン
+// EXステージボタン（選択可能）
+const _exSel=G.selectedStage===STAGES.length+1;
 const _exBw=80,_exBh=26,_exBy=_startY+_ws2.length*_rowH+4;
 const _exBx=(W-_exBw)/2;
-ctx.fillStyle='#8800cc';ctx.fillRect(_exBx,_exBy,_exBw,_exBh);
-ctx.strokeStyle='#cc44ff';ctx.lineWidth=2;ctx.strokeRect(_exBx,_exBy,_exBw,_exBh);ctx.lineWidth=1;
-ctx.fillStyle='#ff88ff';ctx.font='bold 8px "Press Start 2P",monospace';ctx.fillText('EX STAGE',W/2,_exBy+_exBh/2+4);
-const _hintY=_startY+_ws2.length*_rowH+36;
+ctx.fillStyle=_exSel?'#bb00ff':'#8800cc';ctx.fillRect(_exBx,_exBy,_exBw,_exBh);
+ctx.strokeStyle=_exSel?'#fff':'#cc44ff';ctx.lineWidth=_exSel?2:1;ctx.strokeRect(_exBx,_exBy,_exBw,_exBh);ctx.lineWidth=1;
+if(_exSel){ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(_exBx,_exBy,_exBw,_exBh/2);}
+ctx.fillStyle=_exSel?'#fff':'#ff88ff';ctx.font='bold 8px "Press Start 2P",monospace';ctx.fillText('EX STAGE',W/2,_exBy+_exBh/2+4);
+if(_exSel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',W/2,_exBy+_exBh+10);}
+const _hintY=_startY+_ws2.length*_rowH+38;
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
-ctx.fillText(`← → or 1-${STAGES.length} key : SELECT`,W/2,_hintY);
+ctx.fillText(`← → ↑ ↓ or 1-${STAGES.length} key : SELECT`,W/2,_hintY);
 ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+14);
-if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→:SELECT',W/2,_hintY+30);}
+if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→↑↓:SELECT',W/2,_hintY+28);}
 ctx.textAlign='left';}
 if(G.state==='dead')drawOverlay('MISS!',`${G.lives} LEFT\nCLICK or SPACE to CONTINUE`,'#4a1a1a');
 if(G.state==='over'){ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff2222';ctx.font='bold 38px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#ff0000';ctx.shadowBlur=28;ctx.fillText('GAME OVER',W/2,H/2-18);ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='10px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+18);ctx.fillStyle='#bbb';ctx.fillText('CLICK or SPACE to RESTART',W/2,H/2+48);ctx.textAlign='left';}
