@@ -713,8 +713,8 @@ if(!G.waterMode&&!(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy<-
 mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else{if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;if(p.type==='hidden'&&!p.hit)continue;cX(mario,p)}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cX(mario,p)}
-const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.28:GRAVITY);mario.vy+=_grav;
-if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{if(mario.vy>(G.waterMode?3.5:G.lowGravity?7:15))mario.vy=G.waterMode?3.5:G.lowGravity?7:15;}
+const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);mario.vy+=_grav;
+if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{if(mario.vy>(G.waterMode?3.5:G.lowGravity?9:15))mario.vy=G.waterMode?3.5:G.lowGravity?9:15;}
 mario.y+=mario.vy;mario.onGround=false;
 if(G.gravityFlipped&&mario.y<0){mario.y=0;mario.vy=0;mario.onGround=true;}
 if(G.waterMode&&mario.y<TILE){mario.y=TILE;mario.vy=0;}
