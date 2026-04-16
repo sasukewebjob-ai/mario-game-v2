@@ -53,7 +53,7 @@ platforms.push(qM(280,H-5*TILE));
 platforms.push(rh1());
 platforms.push(qC(510,H-7*TILE,8));
 ci(55,H-7*TILE,22,34);ci(55,H-9*TILE,18,40);
-enemies.push(gm(300));enemies.push(gm(500));enemies.push(kp(620));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(430));enemies.push(gm(500));enemies.push(kp(620));
 
 }else if(variant==='goomba'){
 // ★ クリボーの小部屋 ★ 1-2: クリボーが少しいるコイン部屋
@@ -61,7 +61,7 @@ addRow(100,H-5*TILE,2,'brick');addRow(300,H-4*TILE,4,'brick');addRow(560,H-6*TIL
 platforms.push(qM(230,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,19,38);ci(60,H-9*TILE,17,42);
-enemies.push(gm(300));enemies.push(gm(480));enemies.push(gm(600));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(400));enemies.push(gm(480));enemies.push(gm(600));
 
 }else if(variant==='mushroom'){
 // ★ ノコノコの甲羅通路 ★ 1-2: ノコノコがうろつくボーナス通路
@@ -69,7 +69,7 @@ addRow(120,H-4*TILE,2,'brick');addRow(350,H-5*TILE,2,'brick');addRow(540,H-4*TIL
 platforms.push(qM(260,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-8*TILE,24,30);ci(80,H-6*TILE,14,35);
-enemies.push(kp(300));enemies.push(gm(500));enemies.push(gm(200));
+enemies.push(bz(150));enemies.push(kp(300));enemies.push(gm(420));enemies.push(gm(500));enemies.push(gm(200));
 
 // ════════════════════════════════════════
 // World 1 — ヨッシー秘密部屋
@@ -82,7 +82,7 @@ platforms.push({x:464,y:H-6*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceO
 platforms.push(qM(300,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
-enemies.push(gm(320));enemies.push(gm(560));
+enemies.push(gm(150));enemies.push(gm(320));enemies.push(gm(440));enemies.push(gm(560));
 
 // ════════════════════════════════════════
 // World 2 — 砂漠
@@ -94,7 +94,7 @@ addRow(130,H-4*TILE,2,'brick');addRow(310,H-5*TILE,3,'brick');addRow(550,H-4*TIL
 platforms.push(qM(240,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,24,30);ci(80,H-9*TILE,14,45);
-enemies.push(gm(300));enemies.push(gm(500));enemies.push(kp(200));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(430));enemies.push(gm(500));enemies.push(kp(200));
 jumpBlocks.push(jb(620));
 
 }else if(variant==='desert2'){
@@ -103,7 +103,7 @@ addRow(100,H-5*TILE,3,'brick');addRow(370,H-4*TILE,2,'brick');addRow(540,H-6*TIL
 platforms.push(qM(260,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,26,28);ci(60,H-9*TILE,12,55);
-enemies.push(gm(400));enemies.push(gm(200));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(400));enemies.push(gm(200));
 pipos.push(pp(550,-6));
 
 }else if(variant==='desert3'){
@@ -112,7 +112,7 @@ addRow(130,H-4*TILE,2,'brick');addRow(340,H-6*TILE,2,'brick');addRow(530,H-4*TIL
 platforms.push(qM(250,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(70,H-9*TILE,14,48);
-enemies.push(gm(400));enemies.push(gm(560));
+enemies.push(gm(200));enemies.push(gm(400));enemies.push(gm(500));enemies.push(gm(560));
 jumpBlocks.push(jb(250));pipos.push(pp(550,-6));
 
 }else if(variant==='desert4'){
@@ -121,7 +121,7 @@ addRow(100,H-4*TILE,2,'brick');addRow(310,H-5*TILE,2,'brick');addRow(510,H-4*TIL
 platforms.push(qM(230,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,19,38);ci(80,H-9*TILE,17,40);
-enemies.push(gm(300));enemies.push(gm(550));enemies.push(kp(200));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(450));enemies.push(gm(550));enemies.push(kp(200));
 lavaFlames.push(lf(420,0));
 
 // ════════════════════════════════════════
@@ -135,7 +135,7 @@ platforms.push({x:432,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceO
 platforms.push(qM(280,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
-enemies.push(gm(300));enemies.push(gm(530));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(430));enemies.push(gm(530));
 jumpBlocks.push(jb(600));
 
 // ════════════════════════════════════════
@@ -148,7 +148,7 @@ addRow(130,H-5*TILE,3,'brick');addRow(390,H-4*TILE,2,'brick');addRow(560,H-6*TIL
 platforms.push(qM(280,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(65,H-9*TILE,18,38);
-enemies.push(gm(300));enemies.push(kp(500));enemies.push(gm(200));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(kp(420));enemies.push(kp(500));enemies.push(gm(200));
 
 }else if(variant==='river2'){
 // ★ 橋の下の宝庫 ★ 3-1: ひっそり隠れた宝の間
@@ -156,7 +156,7 @@ addRow(120,H-4*TILE,2,'brick');addRow(310,H-6*TILE,3,'brick');addRow(560,H-5*TIL
 platforms.push(qM(240,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,24,30);ci(70,H-9*TILE,12,55);
-enemies.push(kp(300));enemies.push(gm(500));enemies.push(gm(600));
+enemies.push(gm(150));enemies.push(kp(300));enemies.push(gm(420));enemies.push(gm(500));enemies.push(gm(600));
 
 }else if(variant==='forest1'){
 // ★ 森の地下室 ★ 3-2: メットが1匹うろつくコイン部屋
@@ -164,7 +164,7 @@ addRow(100,H-4*TILE,2,'brick');addRow(290,H-5*TILE,3,'brick');addRow(530,H-4*TIL
 platforms.push(qM(220,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,14,48);
-enemies.push(bz(350));enemies.push(gm(550));enemies.push(gm(200));
+enemies.push(bz(150));enemies.push(bz(350));enemies.push(gm(470));enemies.push(gm(550));enemies.push(gm(200));
 
 }else if(variant==='forest2'){
 // ★ 暗闘の倉庫 ★ 3-2: ノコノコとクリボーのコイン倉庫
@@ -172,7 +172,7 @@ addRow(130,H-5*TILE,2,'brick');addRow(350,H-4*TILE,3,'brick');addRow(570,H-6*TIL
 platforms.push(qM(260,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,26,27);ci(80,H-9*TILE,12,52);
-enemies.push(kp(300));enemies.push(gm(480));enemies.push(gm(620));
+enemies.push(gm(150));enemies.push(kp(300));enemies.push(gm(400));enemies.push(gm(480));enemies.push(gm(620));
 
 // ════════════════════════════════════════
 // World 3 — ヨッシー秘密部屋
@@ -185,7 +185,7 @@ platforms.push({x:448,y:H-7*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceO
 platforms.push(qM(300,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
-enemies.push(kp(320));enemies.push(gm(570));
+enemies.push(gm(150));enemies.push(kp(320));enemies.push(gm(450));enemies.push(gm(570));
 
 // ════════════════════════════════════════
 // World 5 — 水辺
@@ -198,7 +198,7 @@ platforms.push(qM(260,H-5*TILE));
 platforms.push(rh1());
 platforms.push(qC(400,H-5*TILE,10));
 ci(55,H-7*TILE,26,27);ci(60,H-9*TILE,19,36);
-enemies.push(gm(300));enemies.push(gm(500));enemies.push(kp(620));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(430));enemies.push(gm(500));enemies.push(kp(620));
 
 }else if(variant==='water2'){
 // ★ 潮溜まりの宝箱 ★ 5-1: コンパクトな宝箱部屋
@@ -206,7 +206,7 @@ addRow(120,H-5*TILE,2,'brick');addRow(330,H-4*TILE,3,'brick');addRow(570,H-6*TIL
 platforms.push(qM(250,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,24,30);ci(80,H-9*TILE,14,46);
-enemies.push(gm(300));enemies.push(kp(500));enemies.push(gm(200));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(kp(420));enemies.push(kp(500));enemies.push(gm(200));
 
 }else if(variant==='water3'){
 // ★ 深海のコイン洞窟 ★ 5-2: ノコノコがうろつくコイン洞窟
@@ -214,7 +214,7 @@ addRow(130,H-4*TILE,2,'brick');addRow(340,H-5*TILE,3,'brick');addRow(570,H-4*TIL
 platforms.push(qM(260,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
-enemies.push(kp(300));enemies.push(gm(500));enemies.push(gm(620));
+enemies.push(gm(150));enemies.push(kp(300));enemies.push(gm(420));enemies.push(gm(500));enemies.push(gm(620));
 
 }else if(variant==='water4'){
 // ★ 海底の秘密基地 ★ 5-2: メットがちょっといる海底基地
@@ -222,7 +222,7 @@ addRow(100,H-5*TILE,2,'brick');addRow(320,H-4*TILE,2,'brick');addRow(510,H-6*TIL
 platforms.push(qM(230,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,19,38);ci(80,H-9*TILE,17,40);
-enemies.push(bz(350));enemies.push(gm(550));enemies.push(kp(200));
+enemies.push(bz(150));enemies.push(bz(350));enemies.push(gm(450));enemies.push(gm(550));enemies.push(kp(200));
 
 // ════════════════════════════════════════
 // World 6 — 氷
@@ -234,7 +234,7 @@ addRow(120,H-4*TILE,3,'brick');addRow(380,H-5*TILE,2,'brick');addRow(560,H-4*TIL
 platforms.push(qM(280,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,24,30);ci(60,H-9*TILE,14,48);
-enemies.push(pg(350));enemies.push(gm(550));enemies.push(pg(200));
+enemies.push(pg(150));enemies.push(pg(350));enemies.push(gm(450));enemies.push(gm(550));enemies.push(pg(200));
 
 }else if(variant==='ice2'){
 // ★ ペンギンのコイン部屋 ★ 6-1: ペンギン2匹のコイン部屋
@@ -242,7 +242,7 @@ addRow(100,H-5*TILE,2,'brick');addRow(310,H-4*TILE,3,'brick');addRow(560,H-6*TIL
 platforms.push(qM(230,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,24,30);ci(80,H-9*TILE,14,46);
-enemies.push(pg(300));enemies.push(pg(520));enemies.push(gm(200));
+enemies.push(pg(150));enemies.push(pg(300));enemies.push(gm(420));enemies.push(pg(520));enemies.push(gm(200));
 
 }else if(variant==='ice3'){
 // ★ 凍りついたコイン部屋 ★ 6-2: コインブロック付き氷のご褒美部屋
@@ -251,7 +251,7 @@ platforms.push(qM(260,H-5*TILE));
 platforms.push(rh1());
 platforms.push(qC(460,H-7*TILE,10));
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,19,36);
-enemies.push(pg(300));enemies.push(gm(530));enemies.push(pg(580));
+enemies.push(pg(150));enemies.push(pg(300));enemies.push(gm(420));enemies.push(gm(530));enemies.push(pg(580));
 
 }else if(variant==='ice4'){
 // ★ 氷のコイン倉庫 ★ 6-2: ペンギンとジャンプブロックのコイン倉庫
@@ -259,7 +259,7 @@ addRow(100,H-4*TILE,2,'brick');addRow(300,H-5*TILE,2,'brick');addRow(520,H-4*TIL
 platforms.push(qM(220,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(80,H-9*TILE,14,46);
-enemies.push(pg(350));enemies.push(gm(550));enemies.push(pg(200));
+enemies.push(pg(150));enemies.push(pg(350));enemies.push(gm(450));enemies.push(gm(550));enemies.push(pg(200));
 jumpBlocks.push(jb(460));
 
 // ════════════════════════════════════════
@@ -272,7 +272,7 @@ addRow(130,H-5*TILE,3,'brick');addRow(400,H-4*TILE,2,'brick');addRow(580,H-6*TIL
 platforms.push(qM(290,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(70,H-9*TILE,14,46);
-enemies.push(te(400,H-6*TILE));enemies.push(gm(550));enemies.push(gm(200));
+enemies.push(gm(150));enemies.push(te(400,H-6*TILE));enemies.push(gm(470));enemies.push(gm(550));enemies.push(gm(200));
 
 }else if(variant==='fortress2'){
 // ★ ドッスンの通路 ★ 7-1: ドッスンが1体いるスリルのある通路
@@ -281,7 +281,7 @@ addRow(100,H-4*TILE,2,'brick');addRow(420,H-5*TILE,2,'brick');addRow(580,H-4*TIL
 platforms.push(qM(240,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,19,38);ci(80,H-9*TILE,17,40);
-enemies.push(tw(320));enemies.push(gm(500));enemies.push(gm(200));
+enemies.push(gm(150));enemies.push(tw(320));enemies.push(gm(420));enemies.push(gm(500));enemies.push(gm(200));
 
 }else if(variant==='fortress3'){
 // ★ 亡霊の回廊 ★ 7-2: テレサとクリボーの回廊
@@ -289,7 +289,7 @@ addRow(120,H-4*TILE,2,'brick');addRow(340,H-6*TILE,3,'brick');addRow(570,H-4*TIL
 platforms.push(qM(260,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,24,30);ci(60,H-9*TILE,14,48);
-enemies.push(te(400,H-5*TILE));enemies.push(gm(300));enemies.push(gm(550));
+enemies.push(gm(150));enemies.push(te(400,H-5*TILE));enemies.push(gm(300));enemies.push(gm(470));enemies.push(gm(550));
 
 }else if(variant==='fortress4'){
 // ★ ハンマーブロスの部屋 ★ 7-2: ハンマーブロスが1匹いるコイン部屋
@@ -297,7 +297,7 @@ addRow(100,H-5*TILE,2,'brick');addRow(310,H-4*TILE,2,'brick');addRow(520,H-6*TIL
 platforms.push(qM(230,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(80,H-9*TILE,14,46);
-enemies.push(hb(400));enemies.push(gm(580));
+enemies.push(gm(150));enemies.push(hb(400));enemies.push(kp(490));enemies.push(gm(580));
 
 // ════════════════════════════════════════
 // World 4 — ヨッシー秘密部屋
@@ -310,7 +310,7 @@ platforms.push({x:464,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceO
 platforms.push(qM(300,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
-enemies.push(bz(340));enemies.push(gm(560));
+enemies.push(gm(150));enemies.push(bz(340));enemies.push(gm(460));enemies.push(gm(560));
 
 // ════════════════════════════════════════
 // World 8 — 飛行船
@@ -324,7 +324,7 @@ addRow(150,H-4*TILE,3,'brick');addRow(380,H-5*TILE,2,'brick');
 platforms.push(qM(300,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,18,34);ci(80,H-9*TILE,12,48);
-enemies.push(gm(300));enemies.push(gm(480));enemies.push(bz(560));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(420));enemies.push(gm(480));enemies.push(bz(560));
 
 }else if(variant==='airship_goal2'){
 // ★ 飛行船最終出口 ★ 8-2: メットが1匹いるゴール部屋
@@ -334,7 +334,7 @@ addRow(130,H-5*TILE,2,'brick');addRow(350,H-4*TILE,2,'brick');
 platforms.push(qM(250,H-4*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,18,34);ci(80,H-9*TILE,12,48);
-enemies.push(bz(300));enemies.push(gm(480));enemies.push(bz(580));
+enemies.push(gm(150));enemies.push(bz(300));enemies.push(gm(420));enemies.push(gm(480));enemies.push(bz(580));
 
 // ════════════════════════════════════════
 // 8-3 クッパ最終決戦（変更なし）
@@ -380,7 +380,7 @@ platforms.push(qM(64,H-5*TILE));
 platforms.push(rh1());
 ci(64,H-8*TILE,6,32);ci(560,H-4*TILE,5,32);
 // 軽い敵
-enemies.push(gm(580));enemies.push(kp(200));
+enemies.push(bz(155));enemies.push(gm(565));enemies.push(gm(580));enemies.push(kp(200));
 
 }else if(variant==='pswitch_wall'){
 // ★ Pスイッチ・ウォール ★ レンガ壁がコインに変わる突破パズル
@@ -396,7 +396,7 @@ addRow(100,H-6*TILE,4,'brick');addRow(200,H-8*TILE,3,'brick');addRow(380,H-7*TIL
 platforms.push(qM(160,H-5*TILE));
 platforms.push(rh1());
 // 軽い敵
-enemies.push(gm(400));enemies.push(kp(200));
+enemies.push(gm(150));enemies.push(gm(400));enemies.push(bz(555));enemies.push(kp(200));
 
 }else if(variant==='pswitch_maze'){
 // ★ Pスイッチ・迷路 ★ レンガ迷路がコインの嵐に変わる！
@@ -415,7 +415,7 @@ platforms.push(qM(80,H-7*TILE));
 platforms.push(rh1());
 ci(55,H-9*TILE,8,48);ci(600,H-7*TILE,3,32);
 // 敵（迷路の先に待ち構える）
-enemies.push(bz(560));enemies.push(gm(200));
+enemies.push(gm(150));enemies.push(bz(380));enemies.push(bz(560));enemies.push(gm(200));
 
 }else if(variant==='pswitch_grid'){
 // ★ Pスイッチ・グリッド ★ 大量レンガがコインの洪水に！（Pスイッチ2個）
@@ -431,7 +431,7 @@ platforms.push(qM(360,H-9*TILE));
 platforms.push(rh1());
 ci(55,H-9*TILE,6,48);ci(640,H-7*TILE,3,32);
 // 敵
-enemies.push(gm(580));enemies.push(kp(220));
+enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(kp(220));
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋
@@ -465,5 +465,5 @@ platforms.push(qM(280,H-5*TILE));
 platforms.push(rh1());
 platforms.push(qC(510,H-7*TILE,8));
 ci(55,H-7*TILE,22,34);ci(55,H-9*TILE,18,40);
-enemies.push(gm(300));enemies.push(gm(500));
+enemies.push(gm(150));enemies.push(gm(300));enemies.push(gm(430));enemies.push(gm(500));
 }}

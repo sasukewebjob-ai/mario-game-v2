@@ -65,7 +65,7 @@ export const G={
   // EXステージ
   exStageFrom:null,isExStage:false,exStageFailed:false,
   // 新機能
-  heldItem:null,stageDamaged:false,starCoins:0
+  heldItem:null,stageDamaged:false
 };
 
 // ピノキオエンティティ（ピノキオ部屋専用NPC）
