@@ -319,7 +319,7 @@ if(yoshi.tongueOut<=0){yoshi.tongueOut=20;yoshi.tongueLen=0;sfx('yoshi_tongue')}
 function spawnYoshiEgg(x,y){yoshiItems.push({x,y:y-TILE,w:24,h:24,vy:-6,hatchTimer:90,hatched:false,onGround:false})}
 function mountYoshi(){yoshi.mounted=true;sfx('yoshi_mount');spawnScorePopup(mario.x,mario.y-20,'YOSHI!','#2ecc71')}
 function dismountYoshi(hurt){
-yoshi.mounted=false;
+yoshi.mounted=false;yoshi.tongueOut=0;yoshi.tongueLen=0;yoshi.eatTarget=null;yoshi.chewTimer=0;
 if(hurt){yoshi.runAway=true;yoshi.runTimer=180;yoshi.vx=mario.facing*3;sfx('yoshi_dismount')}
 }
 
@@ -438,8 +438,8 @@ function pollGamepad(){
     if(jp('right')){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId2;else if(G.selectedStage===_exId2)G.selectedStage=_exId3;}
     if(jp('up')){if(G.selectedStage===_gpContId)G.selectedStage=_exId2;else if(G.selectedStage===_exId2||G.selectedStage===_exId3)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;}
     if(jp('down')){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId2;}else if((G.selectedStage===_exId2||G.selectedStage===_exId3)&&hasSave())G.selectedStage=_gpContId;}
-    if(jp('a')||jp('start')){if(G.selectedStage===_gpContId&&hasSave()){loadSave();}else if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId3){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
     if(jp('l')||jp('r')){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
+    else if(jp('a')||jp('start')){if(G.selectedStage===_gpContId&&hasSave()){loadSave();}else if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId3){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
   }
   else if(G.state==='shop'){
     if(G.shopConfirm!=null){
@@ -780,7 +780,7 @@ if(mario.inv>0)mario.inv--;
 for(let i=yoshiItems.length-1;i>=0;i--){const yi=yoshiItems[i];
 if(!yi.onGround){yi.vy+=GRAVITY;yi.y+=yi.vy;if(yi.y>=H-TILE-yi.h){yi.y=H-TILE-yi.h;yi.vy=0;yi.onGround=true}}
 if(yi.onGround){yi.hatchTimer--;if(yi.hatchTimer<=0&&!yi.hatched){yi.hatched=true;
-yoshi.x=yi.x;yoshi.y=yi.y-yoshi.h+yi.h;yoshi.alive=true;yoshi.mounted=false;yoshi.runAway=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.facing=1;yoshi.vx=0;yoshi.vy=0;yoshi.idleTimer=0;
+yoshi.x=yi.x;yoshi.y=yi.y-yoshi.h+yi.h;yoshi.alive=true;yoshi.mounted=false;yoshi.runAway=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.facing=1;yoshi.vx=0;yoshi.vy=0;yoshi.idleTimer=0;yoshi.eatTarget=null;yoshi.chewTimer=0;
 sfx('power');for(let j=0;j<15;j++)spawnParticle(yi.x+12,yi.y,'star');yoshiItems.splice(i,1)}}}
 // Yoshi free-roaming / run away
 if(yoshi.alive&&!yoshi.mounted){
@@ -792,11 +792,40 @@ if(yoshi.idleTimer>0){yoshi.idleTimer--;if(yoshi.idleTimer<=0){yoshi.alive=false
 if(yoshi.alive&&overlap(mario.x,mario.y,mario.w,mario.h,yoshi.x,yoshi.y,yoshi.w,yoshi.h)){mountYoshi();yoshi.idleTimer=0;}}}
 // Yoshi mounted - follow Mario
 if(yoshi.alive&&yoshi.mounted){yoshi.x=mario.x-2;yoshi.y=mario.y+mario.h-yoshi.h+8;yoshi.facing=mario.facing;
-// Tongue
-if(yoshi.tongueOut>0){yoshi.tongueOut--;yoshi.tongueLen=Math.min(yoshi.tongueLen+8,yoshi.tongueMaxLen);
-const tx=yoshi.x+(yoshi.facing===1?yoshi.w:0)+yoshi.facing*yoshi.tongueLen;const ty=yoshi.y+15;
-for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(overlap(tx-10,ty-90,20,110,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=1;e.alive=false;sfx('yoshi_eat');G.score+=200;yoshi.eatCount++;if(yoshi.eatCount>=10){yoshi.eatCount=0;G.starTimer=600;mario.inv=600;spawnScorePopup(mario.x,mario.y-30,'★STAR!','#FFD700');for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');sfx('power');stopBGM();try{startBGM()}catch(ex){}}updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,200,'#27ae60');break}}
-for(const pr of piranhas){if(!pr.alive)continue;if(overlap(tx-10,ty-90,20,110,pr.x,pr.y,pr.w,pr.h)){pr.alive=false;sfx('yoshi_eat');G.score+=200;yoshi.eatCount++;if(yoshi.eatCount>=10){yoshi.eatCount=0;G.starTimer=600;mario.inv=600;spawnScorePopup(mario.x,mario.y-30,'★STAR!','#FFD700');for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');sfx('power');stopBGM();try{startBGM()}catch(ex){}}updateHUD();spawnParticle(pr.x+8,pr.y,'star');spawnScorePopup(pr.x+8,pr.y-8,200,'#27ae60');break}}}}
+// Tongue（当たり判定修正＋食べる→飲み込むアニメ）
+if(yoshi.tongueOut>0){
+if(!yoshi.eatTarget){
+  // 伸ばしフェーズ
+  yoshi.tongueOut--;yoshi.tongueLen=Math.min(yoshi.tongueLen+8,yoshi.tongueMaxLen);
+  const tx=yoshi.x+(yoshi.facing===1?yoshi.w:0)+yoshi.facing*yoshi.tongueLen;const ty=yoshi.y+15;
+  const _tR=10;
+  // 敵チェック（舌先に正確にヒット）
+  for(const e of enemies){if(!e.alive||e.state==='dead')continue;
+    if(overlap(tx-_tR,ty-_tR,_tR*2,_tR*2,e.x,e.y,e.w,e.h)){
+      const _ec=e.type==='goomba'?'#8B4513':e.type==='koopa_red'||e.type==='koopa_red_fly'?'#c0392b':'#27ae60';
+      yoshi.eatTarget={color:_ec};e.state='dead';e.squishT=1;e.alive=false;
+      spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');break}}
+  // パックンチェック
+  if(!yoshi.eatTarget){for(const pr of piranhas){if(!pr.alive)continue;
+    if(overlap(tx-_tR,ty-_tR,_tR*2,_tR*2,pr.x,pr.y,pr.w,pr.h)){
+      yoshi.eatTarget={color:'#27ae60'};pr.alive=false;
+      spawnParticle(pr.x+pr.w/2,pr.y+pr.h/2,'star');break}}}
+} else {
+  // 引き戻しフェーズ（敵を口に運ぶ）
+  yoshi.tongueLen-=12;
+  if(yoshi.tongueLen<=0){
+    // 飲み込み完了
+    yoshi.tongueLen=0;yoshi.tongueOut=0;yoshi.chewTimer=18;
+    sfx('yoshi_eat');G.score+=200;yoshi.eatCount++;
+    if(yoshi.eatCount>=10){yoshi.eatCount=0;G.starTimer=600;mario.inv=600;
+      spawnScorePopup(mario.x,mario.y-30,'★STAR!','#FFD700');
+      for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+24,'star');
+      sfx('power');stopBGM();try{startBGM()}catch(ex){}}
+    updateHUD();spawnScorePopup(yoshi.x+yoshi.w/2,yoshi.y-8,200,'#27ae60');
+    yoshi.eatTarget=null;
+  }
+}}
+if(yoshi.chewTimer>0)yoshi.chewTimer--;}
 // Yoshi thrown eggs
 for(let i=yoshiEggs.length-1;i>=0;i--){const eg=yoshiEggs[i];if(!eg.alive){yoshiEggs.splice(i,1);continue}
 eg.vy+=0.4;eg.x+=eg.vx;eg.y+=eg.vy;
@@ -1640,22 +1669,52 @@ ctx.restore();
 function drawYoshiHead(yx,yy,facing){
 ctx.save();
 if(facing===-1){ctx.translate(yx+30,0);ctx.scale(-1,1);yx=0}else{ctx.translate(yx,0);yx=0}
+const _chewing=yoshi.chewTimer>0;
+const _eating=!!yoshi.eatTarget;
 // Neck
 ctx.fillStyle='#2ecc71';ctx.fillRect(yx+17,yy+10,9,10);
 // Head
 ctx.fillStyle='#27ae60';ctx.beginPath();ctx.arc(yx+22,yy+7,11,0,Math.PI*2);ctx.fill();ctx.fillRect(yx+12,yy+2,14,12);
-// Big round snout
-ctx.fillStyle='#52be80';ctx.beginPath();ctx.arc(yx+28,yy+10,7,0,Math.PI*2);ctx.fill();
+// Snout（飲み込み中は膨らむ）
+if(_chewing){
+  const _cPulse=Math.sin(yoshi.chewTimer*0.8)*2;
+  ctx.fillStyle='#52be80';ctx.beginPath();ctx.arc(yx+28,yy+10,9+_cPulse,0,Math.PI*2);ctx.fill();
+  // 頬の膨らみ
+  ctx.fillStyle='#5fcf8b';ctx.beginPath();ctx.arc(yx+30,yy+12,5+_cPulse*0.5,0,Math.PI*2);ctx.fill();
+  // 口（モグモグ）
+  const _mOpen=Math.abs(Math.sin(yoshi.chewTimer*1.2))*3;
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(yx+31,yy+11-_mOpen/2,5,2+_mOpen);
+} else if(_eating){
+  // 口を大きく開けて待ち構える
+  ctx.fillStyle='#52be80';ctx.beginPath();ctx.arc(yx+28,yy+10,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(yx+33,yy+11,4,0,Math.PI*2);ctx.fill();
+} else {
+  ctx.fillStyle='#52be80';ctx.beginPath();ctx.arc(yx+28,yy+10,7,0,Math.PI*2);ctx.fill();
+}
 // Nostrils
 ctx.fillStyle='#145a14';ctx.beginPath();ctx.arc(yx+26,yy+7,1.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(yx+30,yy+7,1.5,0,Math.PI*2);ctx.fill();
 // Eye white
 ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(yx+19,yy+4,5,0,Math.PI*2);ctx.fill();
-// Pupil
-ctx.fillStyle='#1a1a1a';ctx.beginPath();ctx.arc(yx+20,yy+4,3,0,Math.PI*2);ctx.fill();
-// Eye shine
-ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(yx+22,yy+3,1.2,0,Math.PI*2);ctx.fill();
-// Tongue
-if(yoshi.tongueOut>0&&yoshi.tongueLen>0){ctx.fillStyle='#e91e63';const tLen=yoshi.tongueLen;ctx.fillRect(yx+32,yy+9,tLen,5);ctx.beginPath();ctx.arc(yx+32+tLen,yy+11,5,0,Math.PI*2);ctx.fill();}
+// Pupil（食べてる時は嬉しそうに）
+if(_chewing){
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(yx+17,yy+4,7,2);
+} else {
+  ctx.fillStyle='#1a1a1a';ctx.beginPath();ctx.arc(yx+20,yy+4,3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(yx+22,yy+3,1.2,0,Math.PI*2);ctx.fill();
+}
+// Tongue + 捕まえた敵の描画
+if(yoshi.tongueOut>0&&yoshi.tongueLen>0){
+  ctx.fillStyle='#e91e63';const tLen=yoshi.tongueLen;
+  ctx.fillRect(yx+32,yy+9,tLen,5);
+  ctx.beginPath();ctx.arc(yx+32+tLen,yy+11,5,0,Math.PI*2);ctx.fill();
+  // 引き戻し中：舌先に敵を描画
+  if(yoshi.eatTarget){
+    ctx.fillStyle=yoshi.eatTarget.color||'#8B4513';
+    ctx.beginPath();ctx.arc(yx+32+tLen,yy+11,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath();ctx.arc(yx+32+tLen,yy+11,7,0,Math.PI*2);ctx.fill();
+  }
+}
 // Egg indicator
 if(yoshi.eggsReady>0){ctx.fillStyle='#fff';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText('x'+yoshi.eggsReady,yx+14,yy-6);ctx.textAlign='left'}
 ctx.restore();
