@@ -63,7 +63,8 @@ export const G={
   pinoRoom:false,pinoState:'idle',pinoReward:-1,
   pinoSpeechText:'',pinoSpeechTimer:0,pinoNeed:0,chestOpened:false,
   // EXステージ
-  exStageFrom:null,isExStage:false,exStageFailed:false,
+  exStageFrom:null,isExStage:false,exStageFailed:false,exStageUsed:false,
+  ex1Cleared:false,ex2Used:false,exStageNum:1,lowGravity:false,
   // 新機能
   heldItem:null,stageDamaged:false
 };
