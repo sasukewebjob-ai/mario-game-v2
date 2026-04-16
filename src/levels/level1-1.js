@@ -46,6 +46,11 @@ addRow(5500,H-6*TILE,3,'brick');addRow(6200,H-3*TILE,2,'g');
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
 pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
+// スターコイン (3枚) — 各ゾーンの少し高い位置
+coinItems.push({x:1200,y:H-8*TILE,isStar:true,scKey:'sc_1_1_a',collected:false});
+coinItems.push({x:3500,y:H-8*TILE,isStar:true,scKey:'sc_1_1_b',collected:false});
+coinItems.push({x:5700,y:H-8*TILE,isStar:true,scKey:'sc_1_1_c',collected:false});
+
 // Coins
 // Clusters near gap edges + vertical columns + risk coins
 [{x:2200,y:H-4*TILE},{x:2220,y:H-5*TILE},{x:2240,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // vertical column before gap1
