@@ -95,14 +95,14 @@ function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=partic
 const keys={},btn={left:false,right:false,jump:false,dash:false,down:false};
 document.addEventListener('keydown',e=>{keys[e.code]=true;
 if(G.state==='start'){
-  const _exId=STAGES.length+1,_exId2K=STAGES.length+2;
-  if(e.code==='ArrowLeft'){if(G.selectedStage===_exId2K)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=STAGES.length;else if(G.selectedStage>1)G.selectedStage--;e.preventDefault();}
+  const _exId=STAGES.length+1,_exId2K=STAGES.length+2,_contId=STAGES.length+3;
+  if(e.code==='ArrowLeft'){if(G.selectedStage===_exId2K)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=STAGES.length;else if(G.selectedStage>1&&G.selectedStage!==_contId)G.selectedStage--;e.preventDefault();}
   if(e.code==='ArrowRight'){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=_exId2K;e.preventDefault();}
-  if(e.code==='ArrowUp'){if(G.selectedStage===_exId||G.selectedStage===_exId2K)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;e.preventDefault();}
-  if(e.code==='ArrowDown'){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId;}e.preventDefault();}
+  if(e.code==='ArrowUp'){if(G.selectedStage===_contId)G.selectedStage=_exId;else if(G.selectedStage===_exId||G.selectedStage===_exId2K)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;e.preventDefault();}
+  if(e.code==='ArrowDown'){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId;}else if((G.selectedStage===_exId||G.selectedStage===_exId2K)&&hasSave())G.selectedStage=_contId;e.preventDefault();}
   const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};
   if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];
-  if(e.code==='Space'||e.code==='Enter'){if(G.selectedStage===_exId){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId2K){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
+  if(e.code==='Space'||e.code==='Enter'){if(G.selectedStage===_contId&&hasSave()){loadSave();}else if(G.selectedStage===_exId){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId2K){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
 }
 // ショップ操作
 if(G.state==='shop'){
@@ -324,7 +324,7 @@ if(hurt){yoshi.runAway=true;yoshi.runTimer=180;yoshi.vx=mario.facing*3;sfx('yosh
 
 function setupBtn(id,key){const el=document.getElementById(id);
 const press=e=>{e.preventDefault();btn[key]=true;el.classList.add('pressed');
-if(key==='jump'){if(G.state==='play'&&mario.onGround&&!mario.dead)doJump();if(G.state==='start')startFromStage(G.selectedStage);if(G.state==='dead'||G.state==='over'||G.state==='win'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}}else{if(G.state==='start')startGame()}};
+if(key==='jump'){if(G.state==='play'&&mario.onGround&&!mario.dead)doJump();if(G.state==='start'){const _kc=STAGES.length+3;if(G.selectedStage===_kc&&hasSave())loadSave();else if(G.selectedStage===STAGES.length+1){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===STAGES.length+2){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}if(G.state==='dead'||G.state==='over'||G.state==='win'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}}else{if(G.state==='start')startGame()}};
 const release=e=>{e.preventDefault();btn[key]=false;el.classList.remove('pressed')};
 el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false});
 el.addEventListener('mouseup',release);el.addEventListener('touchend',release);el.addEventListener('mouseleave',release)}
@@ -334,11 +334,16 @@ const press=e=>{e.preventDefault();if(G.state==='play'&&!mario.dead){if(yoshi.mo
 el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false})})();
 document.getElementById('btn-down').addEventListener('mousedown',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()});
 document.getElementById('btn-down').addEventListener('touchstart',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()},{passive:false});
-canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),sx=W/r.width,sy=H/r.height,cx=(ev.clientX-r.left)*sx,cy=(ev.clientY-r.top)*sy;const _bw=120,_bh=56,_gap=14,_rowH=72,_startY=195;const _ws=getWorlds();for(let _wi=0;_wi<_ws.length;_wi++){const _wSt=getWorldStages(_ws[_wi]);const _tot=_wSt.length*(_bw+_gap)-_gap;const _bx0=(W-_tot)/2;const _by=_startY+_wi*_rowH;for(let _si=0;_si<_wSt.length;_si++){const _bx=_bx0+_si*(_bw+_gap);if(cx>=_bx&&cx<=_bx+_bw&&cy>=_by&&cy<=_by+_bh){startFromStage(_wSt[_si].id);return;}}}// EXボタン
-const _exBwC=76,_exBhC=26,_exByC=_startY+_ws.length*_rowH+4;
-const _ex1xC=W/2-_exBwC-6,_ex2xC=W/2+6;
-if(cx>=_ex1xC&&cx<=_ex1xC+_exBwC&&cy>=_exByC&&cy<=_exByC+_exBhC){G.isExStage=false;G.exStageFrom=null;startExStage(1);return;}
-if(cx>=_ex2xC&&cx<=_ex2xC+_exBwC&&cy>=_exByC&&cy<=_exByC+_exBhC){G.isExStage=false;G.exStageFrom=null;startExStage(2);return;}
+canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),sx=W/r.width,sy=H/r.height,cx=(ev.clientX-r.left)*sx,cy=(ev.clientY-r.top)*sy;
+// ステージボタン（キャンバス座標で正確に判定）
+const _cbw=72,_cbh=24,_cgap=8,_crowH=34,_cstY=84;const _cws=getWorlds();
+for(let _wi=0;_wi<_cws.length;_wi++){const _wSt=getWorldStages(_cws[_wi]);const _tot=_wSt.length*(_cbw+_cgap)-_cgap;const _bx0=(W-_tot)/2;const _by=_cstY+_wi*_crowH;for(let _si=0;_si<_wSt.length;_si++){const _bx=_bx0+_si*(_cbw+_cgap);if(cx>=_bx&&cx<=_bx+_cbw&&cy>=_by&&cy<=_by+_cbh){startFromStage(_wSt[_si].id);return;}}}
+// EXボタン
+const _cExY=_cstY+_cws.length*_crowH+4,_cExH=22;
+if(cx>=W/2-82&&cx<=W/2-6&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStageFrom=null;startExStage(1);return;}
+if(cx>=W/2+6&&cx<=W/2+82&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStageFrom=null;startExStage(2);return;}
+// CONTINUEボタン
+if(hasSave()){const _ctY=_cExY+_cExH+6;if(cx>=W/2-90&&cx<=W/2+90&&cy>=_ctY&&cy<=_ctY+20){loadSave();return;}}
 return;}if(G.state!=='play'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else if(G.state==='dead'){restartCurrentLevel()}}});
 
 // === GAMEPAD ===
@@ -382,6 +387,7 @@ function _gpShopNext(){
   if(_sb.doubleJump)G.doubleJump=true;
   if(_sb.retryHeart)G.retryHeart+=(_sb.retryHeart||0);
   G.stageDamaged=false;G.shopBought=null;G.nextStage=null;updateHUD();stopBGM();try{startBGM()}catch(e){}
+  saveGame();
 }
 function _gpDoJump(){
   if(G.state!=='play'||mario.dead)return;
@@ -413,12 +419,12 @@ function pollGamepad(){
   const jp=k=>gpad[k]&&!_gpPrev[k];
   // === Per-state event handling ===
   if(G.state==='start'){
-    const _exId2=STAGES.length+1,_exId3=STAGES.length+2;
-    if(jp('left')){if(G.selectedStage===_exId3)G.selectedStage=_exId2;else if(G.selectedStage===_exId2)G.selectedStage=STAGES.length;else if(G.selectedStage>1)G.selectedStage--;}
+    const _exId2=STAGES.length+1,_exId3=STAGES.length+2,_gpContId=STAGES.length+3;
+    if(jp('left')){if(G.selectedStage===_exId3)G.selectedStage=_exId2;else if(G.selectedStage===_exId2)G.selectedStage=STAGES.length;else if(G.selectedStage>1&&G.selectedStage!==_gpContId)G.selectedStage--;}
     if(jp('right')){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId2;else if(G.selectedStage===_exId2)G.selectedStage=_exId3;}
-    if(jp('up')){if(G.selectedStage===_exId2||G.selectedStage===_exId3)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;}
-    if(jp('down')){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId2;}}
-    if(jp('a')||jp('start')){if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId3){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
+    if(jp('up')){if(G.selectedStage===_gpContId)G.selectedStage=_exId2;else if(G.selectedStage===_exId2||G.selectedStage===_exId3)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;}
+    if(jp('down')){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId2;}else if((G.selectedStage===_exId2||G.selectedStage===_exId3)&&hasSave())G.selectedStage=_gpContId;}
+    if(jp('a')||jp('start')){if(G.selectedStage===_gpContId&&hasSave()){loadSave();}else if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId3){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
   }
   else if(G.state==='shop'){
     if(G.shopConfirm!=null){
@@ -506,7 +512,7 @@ else if(p.type==='brick'){if(mario.big){sfx('break');G.score+=50;updateHUD();spa
 
 // === GAME MANAGEMENT ===
 function startFromStage(id){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;G.usedUndergrounds=new Set();yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.lowGravity=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
-function startGame(){G.usedUndergrounds=new Set();G.exStageUsed=false;G.ex1Cleared=false;G.ex2Used=false;G.exStageNum=1;G.lowGravity=false;G.currentWorld=1;G.currentLevel=1;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;const _sg=getStage(1,1);if(_sg){_sg.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.heldItem=null;G.stageDamaged=false;G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function startGame(){G.usedUndergrounds=new Set();G.exStageUsed=false;G.ex1Cleared=false;G.ex2Used=false;G.exStageNum=1;G.lowGravity=false;G.clearedStages=[];_saveInfo=null;try{localStorage.removeItem('mario_v2_save');}catch(_e){}G.currentWorld=1;G.currentLevel=1;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;const _sg=getStage(1,1);if(_sg){_sg.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.heldItem=null;G.stageDamaged=false;G.timeLeft=400;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.lowGravity=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function killMario(force=false){
 if(mario.dead)return;
@@ -550,6 +556,12 @@ if(_cp2r&&G.checkpoint2){G.checkpoint2.reached=true;G.checkpoint.x=G.checkpoint2
 G.state='play';G.timerTick=setInterval(()=>{if(G.state==='play'&&!G.paused){G.timeLeft--;if(G.timeLeft<=0){clearInterval(G.timerTick);killMario(true);}updateHUD()}},1000);try{startBGM()}catch(ex){}}else{G.state='dead';clearInterval(G.timerTick)}}},2200)}
 function updateHUD(){if(G.coins>=2000){G.coins=1999;}document.getElementById('hScore').textContent=String(G.score).padStart(6,'0');document.getElementById('hCoins').textContent='x'+String(G.coins).padStart(4,'0');document.getElementById('hTime').textContent=G.timeLeft;document.getElementById('hWorld').textContent=G.isExStage?'EX'+(G.exStageNum||1):G.currentWorld+'-'+G.currentLevel;const li=document.getElementById('lives-icons');li.innerHTML='';for(let i=0;i<Math.max(0,G.lives);i++){const s=document.createElement('span');s.textContent='🍄';s.style.fontSize='14px';li.appendChild(s)}}
 
+// === SAVE / LOAD ===
+let _saveInfo=null;(function(){try{const _r=localStorage.getItem('mario_v2_save');if(_r)_saveInfo=JSON.parse(_r);}catch(e){}}());
+function hasSave(){return!!_saveInfo;}
+function saveGame(){const _sid=getStage(G.currentWorld,G.currentLevel)?.id;const _nid=G.nextStage?G.nextStage.id:(_sid||1);_saveInfo={score:G.score,coins:G.coins,lives:G.lives,nextStageId:_nid,clearedStages:[...G.clearedStages],ex1Cleared:G.ex1Cleared,ex2Used:G.ex2Used,exStageUsed:G.exStageUsed,savedAt:new Date().toISOString()};try{localStorage.setItem('mario_v2_save',JSON.stringify(_saveInfo));}catch(e){}}
+function loadSave(){if(!_saveInfo)return;G.score=_saveInfo.score||0;G.coins=Math.min(1999,_saveInfo.coins||0);G.lives=Math.max(1,_saveInfo.lives||3);G.clearedStages=Array.isArray(_saveInfo.clearedStages)?[..._saveInfo.clearedStages]:[];G.ex1Cleared=!!_saveInfo.ex1Cleared;G.ex2Used=!!_saveInfo.ex2Used;G.exStageUsed=!!_saveInfo.exStageUsed;G.exStageNum=1;G.isExStage=false;G.lowGravity=false;updateHUD();startFromStage(getStageById(_saveInfo.nextStageId||1)?(_saveInfo.nextStageId||1):1);}
+
 // === UPDATE ===
 function update(){
 G.frame++;if(G.swimCooldown>0)G.swimCooldown--;
@@ -564,12 +576,14 @@ if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario
   const _ld=G.score%10;if(_ld===1||_ld===3||_ld===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
   // EXステージクリア → 元ステージをクリア扱いにする
   if(G.isExStage&&G.exStageFrom){if(G.exStageNum===1)G.ex1Cleared=true;G.lowGravity=false;const _ef=G.exStageFrom;G.isExStage=false;G.exStageFrom=null;G.currentWorld=_ef.world;G.currentLevel=_ef.level;}
-  const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}else if(G.goalSlide.phase==='pipeGoal'){if(G.goalSlide.t>60){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
+  {const _cId=getStage(G.currentWorld,G.currentLevel)?.id;if(_cId&&!G.clearedStages.includes(_cId))G.clearedStages.push(_cId);}
+  const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};saveGame();}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}else if(G.goalSlide.phase==='pipeGoal'){if(G.goalSlide.t>60){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
   if(!G.stageDamaged){G.coins=Math.min(1999,G.coins+30);G.score+=5000;updateHUD();spawnScorePopup(mario.x+13,mario.y-30,'PERFECT! +30C','#FFD700');for(let _pf2=0;_pf2<30;_pf2++)spawnParticle(mario.x+(Math.random()-0.5)*40,mario.y-Math.random()*60,'star');try{beep(880,.1,'sine',.15);beep(1100,.1,'sine',.15,.1);beep(1320,.1,'sine',.15,.2)}catch(ex){}}
   const _ld2=G.score%10;if(_ld2===1||_ld2===3||_ld2===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
   // EXステージパイプゴール→元ステージクリア
   if(G.isExStage&&G.exStageFrom){if(G.exStageNum===1)G.ex1Cleared=true;G.lowGravity=false;const _ef2=G.exStageFrom;G.isExStage=false;G.exStageFrom=null;G.currentWorld=_ef2.world;G.currentLevel=_ef2.level;}
-  const _ns2=getNextStage(G.currentWorld,G.currentLevel);if(_ns2){G.nextStage=_ns2;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}else{G.state='win';for(let _pi=0;_pi<30;_pi++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),_pi*60)}}}updateParticles();return}
+  {const _cId2=getStage(G.currentWorld,G.currentLevel)?.id;if(_cId2&&!G.clearedStages.includes(_cId2))G.clearedStages.push(_cId2);}
+  const _ns2=getNextStage(G.currentWorld,G.currentLevel);if(_ns2){G.nextStage=_ns2;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};saveGame();}else{G.state='win';for(let _pi=0;_pi<30;_pi++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),_pi*60)}}}updateParticles();return}
 // Moving platforms
 for(const mp of movingPlats){mp.prevX=mp.x;mp.prevY=mp.y;if(mp.type==='h')mp.x=mp.ox+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='v')mp.y=mp.oy+Math.sin(G.frame*0.015*mp.spd)*mp.range;else if(mp.type==='fall'){if(mp.falling){mp.vy+=0.3;mp.y+=mp.vy;if(mp.y>H+100){mp.y=mp.oy;mp.vy=0;mp.falling=false;mp.fallTimer=0}}}}
 if(G.starTimer>0){G.starTimer--;if(G.frame%3===0)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');if(G.starTimer<=0){mario.inv=0;stopBGM();try{startBGM()}catch(e){}}}
@@ -2738,7 +2752,7 @@ ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(0,0,W,H);
 ctx.textAlign='center';
 ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';ctx.fillText('SUPER MARIO',W/2,68);
 ctx.fillStyle='#ff9944';ctx.font='8px "Press Start 2P",monospace';ctx.fillText('▶  TEST MODE — STAGE SELECT  ◀',W/2,90);
-const _bw=72,_bh=26,_gap=8,_rowH=36,_startY=112;
+const _bw=72,_bh=24,_gap=8,_rowH=34,_startY=84;
 const _ws2=getWorlds();
 _ws2.forEach((_w,_wi)=>{
   const _wSt=getWorldStages(_w);
@@ -2754,10 +2768,11 @@ _ws2.forEach((_w,_wi)=>{
     ctx.fillStyle=_sel?'#fff':'#888';ctx.font=`bold ${_sel?9:8}px "Press Start 2P",monospace`;
     ctx.fillText(`${_w}-${_st.level}`,_bx+_bw/2,_by+_bh/2+4);
     if(_sel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',_bx+_bw/2,_by+_bh+7);}
+    if(G.clearedStages.includes(_st.id)){ctx.fillStyle='#FFD700';ctx.font='7px monospace';ctx.textAlign='right';ctx.fillText('★',_bx+_bw-2,_by+9);ctx.textAlign='center';}
   });
 });
 // EXステージボタン（EX-1 + EX-2 常時2ボタン表示）
-const _exBh=26,_exBy=_startY+_ws2.length*_rowH+4;
+const _exBh=22,_exBy=_startY+_ws2.length*_rowH+4;
 {const _exBw2=76,_ex1x=W/2-_exBw2-6,_ex2x=W/2+6;
 const _ex1Sel=G.selectedStage===STAGES.length+1,_ex2Sel=G.selectedStage===STAGES.length+2;
 // EX-1ボタン（紫）
@@ -2775,8 +2790,23 @@ ctx.fillStyle=_ex2Sel?'#fff':'#88aaff';ctx.font='bold 8px "Press Start 2P",monos
 ctx.fillText('EX-2',_ex2x+_exBw2/2,_exBy+_exBh/2+4);
 if(_ex2Sel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',_ex2x+_exBw2/2,_exBy+_exBh+10);}
 ctx.textAlign='left';}
-const _hintY=_startY+_ws2.length*_rowH+38;
-ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
+// CONTINUEボタン（セーブデータがある場合）
+const _exEnd=_exBy+_exBh;
+if(hasSave()){
+  const _ctId=STAGES.length+3,_ctSel=G.selectedStage===_ctId;
+  const _ctW=180,_ctH=20,_ctX=W/2-90,_ctY=_exEnd+6;
+  ctx.fillStyle=_ctSel?'#27ae60':'#144a24';ctx.fillRect(_ctX,_ctY,_ctW,_ctH);
+  ctx.strokeStyle=_ctSel?'#88ff88':'#3a8a4a';ctx.lineWidth=_ctSel?2:1;ctx.strokeRect(_ctX,_ctY,_ctW,_ctH);ctx.lineWidth=1;
+  if(_ctSel){ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(_ctX,_ctY,_ctW,_ctH/2);}
+  const _svSt=_saveInfo?getStageById(_saveInfo.nextStageId):null;
+  const _svLbl=_svSt?`W${_svSt.world}-${_svSt.level}`:'?';
+  ctx.fillStyle=_ctSel?'#fff':'#88dd88';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
+  ctx.fillText(`▶ CONTINUE  [${_svLbl}]`,W/2,_ctY+_ctH/2+3);
+  if(_ctSel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',W/2,_ctY+_ctH+10);}
+  ctx.textAlign='left';
+}
+const _hintY=_exEnd+(hasSave()?32:8);
+ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';ctx.textAlign='center';
 ctx.fillText(`← → ↑ ↓ or 1-${STAGES.length} key : SELECT`,W/2,_hintY);
 ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+14);
 if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→↑↓:SELECT',W/2,_hintY+28);}
