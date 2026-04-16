@@ -63,7 +63,6 @@ export function buildLevel_7_1(){
   platforms.push({x:1760, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1760>1746 ✓
   // Z3
   platforms.push({x:2500, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2500<2600 ✓
-  platforms.push({x:2740, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2740>2728 ✓
   platforms.push({x:3060, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3060>3046 ✓
   platforms.push({x:3472, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3472>3460 ✓
   // Z4
@@ -73,10 +72,8 @@ export function buildLevel_7_1(){
   platforms.push({x:5140, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 5140>5128 ✓
   // Z5
   platforms.push({x:5800, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5800<5900 ✓
-  platforms.push({x:6070, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6070>6060 ✓
   platforms.push({x:6410, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6410>6396 ✓
   platforms.push({x:6890, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6890>6878 ✓
-  platforms.push({x:7210, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 7210>7196 ✓
 
   // 隠し1UP
   platforms.push({x:200, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});

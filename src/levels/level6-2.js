@@ -79,12 +79,10 @@ export function buildLevel_6_2(){
   platforms.push({x:1100,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1100>1096 ✓
   // Z3
   platforms.push({x:1690,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1690<1740 ✓
-  platforms.push({x:1880,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1880>1868 ✓
   platforms.push({x:2090,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 2090>2076 ✓
   platforms.push({x:2310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2310>2296 ✓
   // Z4
   platforms.push({x:2870,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2870<2920 ✓
-  platforms.push({x:3060,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3060>3048 ✓
   platforms.push({x:3510,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3510>3496 ✓
   // Z5
   platforms.push({x:4300,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4300>4288 ✓
@@ -97,7 +95,6 @@ export function buildLevel_6_2(){
   platforms.push({x:6010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6010>5996 ✓
   // Z7
   platforms.push({x:6640,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6640<6660 ✓
-  platforms.push({x:6800,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6800<6900 ✓
   platforms.push({x:7010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 7010>6996 ✓
 
   // 隠し1UP

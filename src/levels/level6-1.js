@@ -58,20 +58,17 @@ export function buildLevel_6_1(){
   // ── ? ブロック（addRowと (x,y) 重複なし確認済み）──
   // Z1 (0-600)
   platforms.push({x:300, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 300>296 ✓
-  platforms.push({x:500, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 500>496 ✓
   // Z2 (870-1500)
   platforms.push({x:870, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 870<920 ✓
   platforms.push({x:1250,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 1250>1246 ✓
   // Z3 (1800-2600)
   platforms.push({x:1800,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1800<1860 ✓
-  platforms.push({x:2260,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2260>2246 ✓
   // Z4 (2920-3800)
   platforms.push({x:2950,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2950<3000 ✓
   platforms.push({x:3160,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3160>3128 ✓
   platforms.push({x:3420,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3420>3396 ✓
   // Z5 (4250-5100) — gap widened to 4250
   platforms.push({x:4340,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4340>4328 ✓
-  platforms.push({x:4660,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4660>4646 ✓
   // Z6 (5420-8000)
   platforms.push({x:5620,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5620>5608 ✓
   platforms.push({x:6010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6010>5996 ✓

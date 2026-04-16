@@ -53,7 +53,6 @@ export function buildLevel_4_1(){
 
   // Zone 4 (1660-1960): レンガ@1680-1744, Q@1800(H-5T), hidden@1900(H-9T)
   addRow(1680, H-7*TILE, 3,'brick');
-  platforms.push({x:1800, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:1900, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
 
   // Zone 5 (2240-2580): レンガ@2260-2324, Q@2370(H-7T), hidden@2540(H-9T)

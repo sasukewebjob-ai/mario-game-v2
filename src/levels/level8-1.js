@@ -77,12 +77,10 @@ export function buildLevel_8_1(){
   platforms.push({x:1010,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 1010>996 ✓
   // Ship B
   platforms.push({x:1640,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1640>1628 ✓
-  platforms.push({x:1910,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1910>1896 ✓
   platforms.push({x:2280,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2280>2260 ✓
   platforms.push({x:2610,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 2610>2596 ✓
   // Ship C
   platforms.push({x:3340,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3340>3328 ✓
-  platforms.push({x:3610,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3610>3596 ✓
   platforms.push({x:3980,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3980>3960 ✓
   platforms.push({x:4210,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 4210>4196 ✓
   // Landing

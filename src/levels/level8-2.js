@@ -81,14 +81,12 @@ export function buildLevel_8_2(){
   platforms.push({x:680, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 680>664 ✓
   // Ship B
   platforms.push({x:1290,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1290>1278 ✓
-  platforms.push({x:1560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1560>1546 ✓
   platforms.push({x:1840,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1840>1828 ✓
   platforms.push({x:2030,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 2030>2014 ✓
   // Ship C
   platforms.push({x:2580,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2580>2560 ✓
   platforms.push({x:2810,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2810>2796 ✓
   platforms.push({x:3170,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3170>3164(pipe right edge) — pipe右端より後ろに移動(stuck防止)
-  platforms.push({x:3310,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3310: スター→キノコに変更
   // Ship D
   platforms.push({x:3890,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3890>3878 ✓
   platforms.push({x:4110,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4110>4096 ✓

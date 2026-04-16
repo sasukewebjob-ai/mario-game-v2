@@ -75,7 +75,6 @@ export function buildLevel_3_1(){
   // x=4155: gap end直後の地面上、addRow(4220,H-5T)とは別y
   // x=4350: addRow(4220,H-5T)終端x=4316より右、addRow(4420,H-4T)のx=4420,4452とは別
   // x=4250,H-8T: addRow(4220,H-5T)と異なるy、パイプ(x=4700)からも十分離れる
-  platforms.push({x:4155,y:H-4*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:4350,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:4250,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
 

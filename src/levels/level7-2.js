@@ -63,12 +63,10 @@ export function buildLevel_7_2(){
   platforms.push({x:760, y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 760>746 ✓
   // Z2
   platforms.push({x:1200, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1200<1250 ✓
-  platforms.push({x:1390, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1390>1378 ✓
   platforms.push({x:1710, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1710>1696 ✓
   platforms.push({x:2010, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 2010>1996 ✓
   // Z3
   platforms.push({x:2400, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2400<2450 ✓
-  platforms.push({x:2590, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2590>2578 ✓
   platforms.push({x:2910, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2910>2896 ✓
   platforms.push({x:3240, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3240>3228 ✓
   // Z4
@@ -78,14 +76,12 @@ export function buildLevel_7_2(){
   platforms.push({x:4840, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 4840>4828 ✓
   // Z5
   platforms.push({x:5300, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5300<5380 ✓
-  platforms.push({x:5520, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5520>5508 ✓
   platforms.push({x:5860, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5860>5846 ✓
   platforms.push({x:6160, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6160>6146 ✓
   // Z6
   platforms.push({x:6500, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6500<6580 ✓
   platforms.push({x:6720, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 6720>6708 ✓
   platforms.push({x:7060, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 7060>7046 ✓
-  platforms.push({x:7310, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 7310>7296 ✓
 
   // 隠し1UP
   platforms.push({x:500,  y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
