@@ -67,8 +67,8 @@ Object.assign(mario,{x:80,y:H-3*TILE,w:26,h:bh,vx:0,vy:0,onGround:false,facing:1
 G.cam=0;
 }
 function upgradeMario(type,_fromStock=false){
-// アイテムストック: すでにビッグ以上かつスロット空きがあれば保存
-if(!_fromStock&&mario.big&&G.heldItem===null){
+// アイテムストック: すでに特殊パワー(fire/hammer/ice)持ちかつスロット空きがあれば保存
+if(!_fromStock&&mario.big&&mario.power!=='none'&&mario.power!=='big'&&G.heldItem===null){
   G.heldItem=(type==='hammer')?'hammer':(type==='flower')?'flower':'mushroom';
   spawnScorePopup(mario.x+13,mario.y-10,'STORED!','#66ccff');sfx('coin');return;
 }
