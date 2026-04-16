@@ -335,7 +335,7 @@ const press=e=>{e.preventDefault();if(G.state==='play'&&!mario.dead){if(yoshi.mo
 el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false})})();
 document.getElementById('btn-down').addEventListener('mousedown',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()});
 document.getElementById('btn-down').addEventListener('touchstart',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()},{passive:false});
-canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),sx=W/r.width,sy=H/r.height,cx=(ev.clientX-r.left)*sx,cy=(ev.clientY-r.top)*sy;
+canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),bl=(r.width-canvas.clientWidth)/2,bt=(r.height-canvas.clientHeight)/2,sx=W/canvas.clientWidth,sy=H/canvas.clientHeight,cx=(ev.clientX-r.left-bl)*sx,cy=(ev.clientY-r.top-bt)*sy;
 // キャラクターボタン（大きめ判定エリア）
 {const _ccW=120,_ccH=52,_ccY=42,_ccGap=8;const _ccMx=W/2-_ccW-_ccGap/2,_ccLx=W/2+_ccGap/2;
 if(cy>=_ccY&&cy<=_ccY+_ccH){
@@ -352,6 +352,13 @@ if(cx>=W/2+6&&cx<=W/2+82&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStag
 // CONTINUEボタン
 if(hasSave()){const _ctY=_cExY+_cExH+6;if(cx>=W/2-90&&cx<=W/2+90&&cy>=_ctY&&cy<=_ctY+20){loadSave();return;}}
 return;}if(G.state!=='play'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else if(G.state==='dead'){restartCurrentLevel()}}});
+// タッチでキャラクター選択（モバイル対応・即時反応）
+canvas.addEventListener('touchstart',(ev)=>{if(G.state==='start'){const t=ev.touches[0];const r=canvas.getBoundingClientRect(),bl=(r.width-canvas.clientWidth)/2,bt=(r.height-canvas.clientHeight)/2,sx=W/canvas.clientWidth,sy=H/canvas.clientHeight,cx=(t.clientX-r.left-bl)*sx,cy=(t.clientY-r.top-bt)*sy;
+const _tcW=120,_tcH=52,_tcY=42,_tcGap=8;const _tcMx=W/2-_tcW-_tcGap/2,_tcLx=W/2+_tcGap/2;
+if(cy>=_tcY&&cy<=_tcY+_tcH){
+  if(cx>=_tcMx&&cx<=_tcMx+_tcW){G.character='mario';try{localStorage.setItem('mario_v2_char','mario');}catch(e){}ev.preventDefault();return;}
+  if(cx>=_tcLx&&cx<=_tcLx+_tcW){G.character='luigi';try{localStorage.setItem('mario_v2_char','luigi');}catch(e){}ev.preventDefault();return;}
+}}},{passive:false});
 
 // === GAMEPAD ===
 const gpad={left:false,right:false,up:false,down:false,a:false,b:false,x:false,y:false,start:false,select:false,l:false,r:false};
@@ -432,6 +439,7 @@ function pollGamepad(){
     if(jp('up')){if(G.selectedStage===_gpContId)G.selectedStage=_exId2;else if(G.selectedStage===_exId2||G.selectedStage===_exId3)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;}
     if(jp('down')){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId2;}else if((G.selectedStage===_exId2||G.selectedStage===_exId3)&&hasSave())G.selectedStage=_gpContId;}
     if(jp('a')||jp('start')){if(G.selectedStage===_gpContId&&hasSave()){loadSave();}else if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId3){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
+    if(jp('l')||jp('r')){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
   }
   else if(G.state==='shop'){
     if(G.shopConfirm!=null){
@@ -2768,13 +2776,17 @@ const _isMario=G.character!=='luigi',_isLuigi=G.character==='luigi';
 ctx.fillStyle=_isMario?'#7a0000':'#220000';ctx.fillRect(_cMx,_cY,_cW,_cH);
 ctx.strokeStyle=_isMario?'#ff4444':'#550000';ctx.lineWidth=_isMario?2:1;ctx.strokeRect(_cMx,_cY,_cW,_cH);ctx.lineWidth=1;
 if(_isMario){ctx.fillStyle='rgba(255,200,200,0.08)';ctx.fillRect(_cMx,_cY,_cW,_cH/2);}
-// mini Marioスプライト（左側）
-{const _sx=_cMx+6,_sy=_cY+4;
-ctx.fillStyle='#E52521';ctx.fillRect(_sx+4,_sy,12,3);ctx.fillRect(_sx,_sy+3,20,4);
-ctx.fillStyle='#FBD000';ctx.fillRect(_sx+2,_sy+7,16,7);
-ctx.fillStyle='#000';ctx.fillRect(_sx+5,_sy+9,4,3);ctx.fillRect(_sx+11,_sy+9,4,3);
-ctx.fillStyle='#0050C8';ctx.fillRect(_sx,_sy+14,20,10);ctx.fillRect(_sx+1,_sy+24,7,6);ctx.fillRect(_sx+12,_sy+24,7,6);
-ctx.fillStyle='#6B3410';ctx.fillRect(_sx,_sy+30,8,3);ctx.fillRect(_sx+12,_sy+30,8,3);}
+// mini Marioスプライト（ゲーム中と同じ描画）
+{const mx=_cMx+8,my=_cY+4;
+ctx.fillStyle='#E52521';ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);
+ctx.fillStyle='#FBD000';ctx.fillRect(mx+4,my+8,20,8);
+ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+9,5,4);ctx.fillRect(mx+16,my+9,5,4);
+ctx.fillStyle='#000';ctx.fillRect(mx+9,my+10,3,3);ctx.fillRect(mx+17,my+10,3,3);
+ctx.fillStyle='#6B3410';ctx.fillRect(mx+6,my+14,14,2);
+ctx.fillStyle='#0050C8';ctx.fillRect(mx+4,my+16,20,10);
+ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+18,3,3);ctx.fillRect(mx+16,my+18,3,3);
+ctx.fillStyle='#FBD000';ctx.fillRect(mx-3,my+16,7,6);ctx.fillRect(mx+24,my+16,7,6);
+ctx.fillStyle='#6B3410';ctx.fillRect(mx+2,my+26,12,6);ctx.fillRect(mx+14,my+26,12,6);}
 ctx.fillStyle=_isMario?'#fff':'#888';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
 ctx.fillText('MARIO',_cMx+_cW/2,_cY+_cH-5);
 if(_isMario){ctx.fillStyle='#FFD700';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cMx+_cW/2,_cY+_cH+9);}
@@ -2782,13 +2794,17 @@ if(_isMario){ctx.fillStyle='#FFD700';ctx.font='bold 6px monospace';ctx.fillText(
 ctx.fillStyle=_isLuigi?'#0a4a1a':'#031008';ctx.fillRect(_cLx,_cY,_cW,_cH);
 ctx.strokeStyle=_isLuigi?'#44ff88':'#155520';ctx.lineWidth=_isLuigi?2:1;ctx.strokeRect(_cLx,_cY,_cW,_cH);ctx.lineWidth=1;
 if(_isLuigi){ctx.fillStyle='rgba(100,255,150,0.08)';ctx.fillRect(_cLx,_cY,_cW,_cH/2);}
-// mini Luigiスプライト（右側）
-{const _sx=_cLx+6,_sy=_cY+4;
-ctx.fillStyle='#27AE60';ctx.fillRect(_sx+4,_sy,12,3);ctx.fillRect(_sx,_sy+3,20,4);
-ctx.fillStyle='#FBD000';ctx.fillRect(_sx+2,_sy+7,16,7);
-ctx.fillStyle='#000';ctx.fillRect(_sx+5,_sy+9,4,3);ctx.fillRect(_sx+11,_sy+9,4,3);
-ctx.fillStyle='#1a55bb';ctx.fillRect(_sx,_sy+14,20,10);ctx.fillRect(_sx+1,_sy+24,7,6);ctx.fillRect(_sx+12,_sy+24,7,6);
-ctx.fillStyle='#6B3410';ctx.fillRect(_sx,_sy+30,8,3);ctx.fillRect(_sx+12,_sy+30,8,3);}
+// mini Luigiスプライト（ゲーム中と同じ描画）
+{const mx=_cLx+8,my=_cY+4;
+ctx.fillStyle='#27AE60';ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);
+ctx.fillStyle='#FBD000';ctx.fillRect(mx+4,my+8,20,8);
+ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+9,5,4);ctx.fillRect(mx+16,my+9,5,4);
+ctx.fillStyle='#000';ctx.fillRect(mx+9,my+10,3,3);ctx.fillRect(mx+17,my+10,3,3);
+ctx.fillStyle='#6B3410';ctx.fillRect(mx+6,my+14,14,2);
+ctx.fillStyle='#1a55bb';ctx.fillRect(mx+4,my+16,20,10);
+ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+18,3,3);ctx.fillRect(mx+16,my+18,3,3);
+ctx.fillStyle='#FBD000';ctx.fillRect(mx-3,my+16,7,6);ctx.fillRect(mx+24,my+16,7,6);
+ctx.fillStyle='#6B3410';ctx.fillRect(mx+2,my+26,12,6);ctx.fillRect(mx+14,my+26,12,6);}
 ctx.fillStyle=_isLuigi?'#fff':'#5a9a5a';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
 ctx.fillText('LUIGI',_cLx+_cW/2,_cY+_cH-5);
 if(_isLuigi){ctx.fillStyle='#55ff88';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cLx+_cW/2,_cY+_cH+9);}
