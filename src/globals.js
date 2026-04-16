@@ -66,7 +66,9 @@ export const G={
   exStageFrom:null,isExStage:false,exStageFailed:false,exStageUsed:false,
   ex1Cleared:false,ex2Used:false,exStageNum:1,lowGravity:false,
   // 新機能
-  heldItem:null,stageDamaged:false,clearedStages:[]
+  heldItem:null,stageDamaged:false,clearedStages:[],
+  // キャラクター・タイム
+  character:'mario',stageStartTime:0,stageTimes:{}
 };
 
 // ピノキオエンティティ（ピノキオ部屋専用NPC）
