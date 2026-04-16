@@ -130,7 +130,7 @@ if(G.state==='play'&&e.code==='KeyP'){G.paused=!G.paused;}
 if(G.state==='play'&&e.code==='KeyZ'&&!mario.dead){if(mario.power==='fire')shootFireball();else if(mario.power==='ice')shootIceBall();else if(mario.power==='hammer')throwMarioHammer()}
 if(G.state==='play'&&e.code==='KeyC'&&!mario.dead)useHeldItem();
 if(G.state==='play'&&e.code==='KeyX'&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction()}
-if(G.state==='play'&&e.code==='ArrowDown'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry();
+if(G.state==='play'&&(e.code==='ArrowDown'||e.code==='KeyS')&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry();
 // BGM音量操作
 if(e.code==='KeyM'){G.bgmMuted=!G.bgmMuted;if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;}
 if(e.code==='Equal'||e.code==='NumpadAdd'){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;}
@@ -336,12 +336,14 @@ el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{p
 document.getElementById('btn-down').addEventListener('mousedown',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()});
 document.getElementById('btn-down').addEventListener('touchstart',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()},{passive:false});
 canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const r=canvas.getBoundingClientRect(),sx=W/r.width,sy=H/r.height,cx=(ev.clientX-r.left)*sx,cy=(ev.clientY-r.top)*sy;
-// キャラクターボタン
-{const _ccY=68,_ccH=14,_ccW=60,_ccG=6;const _mrX=W/2-_ccW-_ccG/2,_lgX=W/2+_ccG/2;
-if(cy>=_ccY&&cy<=_ccY+_ccH){if(cx>=_mrX&&cx<=_mrX+_ccW){G.character='mario';try{localStorage.setItem('mario_v2_char','mario');}catch(e){}return;}
-if(cx>=_lgX&&cx<=_lgX+_ccW){G.character='luigi';try{localStorage.setItem('mario_v2_char','luigi');}catch(e){}return;}}}
+// キャラクターボタン（大きめ判定エリア）
+{const _ccW=120,_ccH=52,_ccY=42,_ccGap=8;const _ccMx=W/2-_ccW-_ccGap/2,_ccLx=W/2+_ccGap/2;
+if(cy>=_ccY&&cy<=_ccY+_ccH){
+  if(cx>=_ccMx&&cx<=_ccMx+_ccW){G.character='mario';try{localStorage.setItem('mario_v2_char','mario');}catch(e){}return;}
+  if(cx>=_ccLx&&cx<=_ccLx+_ccW){G.character='luigi';try{localStorage.setItem('mario_v2_char','luigi');}catch(e){}return;}
+}}
 // ステージボタン（キャンバス座標で正確に判定）
-const _cbw=72,_cbh=24,_cgap=8,_crowH=33,_cstY=90;const _cws=getWorlds();
+const _cbw=72,_cbh=24,_cgap=8,_crowH=30,_cstY=116;const _cws=getWorlds();
 for(let _wi=0;_wi<_cws.length;_wi++){const _wSt=getWorldStages(_cws[_wi]);const _tot=_wSt.length*(_cbw+_cgap)-_cgap;const _bx0=(W-_tot)/2;const _by=_cstY+_wi*_crowH;for(let _si=0;_si<_wSt.length;_si++){const _bx=_bx0+_si*(_cbw+_cgap);if(cx>=_bx&&cx<=_bx+_cbw&&cy>=_by&&cy<=_by+_cbh){startFromStage(_wSt[_si].id);return;}}}
 // EXボタン
 const _cExY=_cstY+_cws.length*_crowH+4,_cExH=22;
@@ -685,9 +687,9 @@ if(!mario.dead){
 // 壁キック猶予タイマー
 if(mario.wallContactTimer>0){mario.wallContactTimer--;}else{mario.wallContact=0;}
 // ヒップドロップ（空中＋下キー）
-if(!mario.onGround&&!mario.hipDrop&&!G.waterMode&&(keys['ArrowDown']||btn.down||gpad.down)&&mario.vy>0){mario.hipDrop=true;mario.vy=16;mario.vx=0;try{beep(200,.08,'square',.15);beep(150,.1,'square',.1,.05);}catch(ex){}}
+if(!mario.onGround&&!mario.hipDrop&&!G.waterMode&&(keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down)&&mario.vy>0){mario.hipDrop=true;mario.vy=16;mario.vx=0;try{beep(200,.08,'square',.15);beep(150,.1,'square',.1,.05);}catch(ex){}}
 // しゃがみ
-{const _isDown=keys['ArrowDown']||btn.down||gpad.down;
+{const _isDown=keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down;
 const _wantCrouch=mario.onGround&&_isDown&&!mario.sliding&&!mario.hipDrop&&!G.waterMode&&!mario.dead;
 const _nH=mario.big?48:32,_cH=mario.big?24:20;
 if(_wantCrouch){
@@ -702,7 +704,7 @@ if(_wantCrouch){
 }}
 // スライディング
 const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
-if(!mario.sliding&&isDash&&mario.onGround&&(keys['ArrowDown']||btn.down||gpad.down)&&Math.abs(mario.vx)>3&&!G.waterMode){
+if(!mario.sliding&&isDash&&mario.onGround&&(keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down)&&Math.abs(mario.vx)>3&&!G.waterMode){
   mario.sliding=true;mario.crouching=false;mario.slideTimer=30;const _oldH=mario.h;mario.h=mario.big?24:20;mario.y+=_oldH-mario.h;
   sfx('stomp');for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');
 }
@@ -2757,22 +2759,41 @@ ctx.textAlign='left';
 if(G.state==='start'){
 ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(0,0,W,H);
 ctx.textAlign='center';
-ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';ctx.fillText('SUPER MARIO',W/2,52);
-ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';ctx.fillText('STAGE SELECT',W/2,64);
-// キャラクター選択ボタン
-{const _cbY=68,_cbH=14,_cbW=60,_cbGap=6;
-const _mrX=W/2-_cbW-_cbGap/2,_lgX=W/2+_cbGap/2;
+ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';ctx.fillText('SUPER MARIO',W/2,36);
+// キャラクター選択（大きめボタン＋ミニスプライト）
+{const _cW=120,_cH=52,_cY=42,_cGap=8;
+const _cMx=W/2-_cW-_cGap/2,_cLx=W/2+_cGap/2;
 const _isMario=G.character!=='luigi',_isLuigi=G.character==='luigi';
-ctx.fillStyle=_isMario?'#c00':'#440';ctx.fillRect(_mrX,_cbY,_cbW,_cbH);
-ctx.strokeStyle=_isMario?'#ff5555':'#662200';ctx.lineWidth=_isMario?2:1;ctx.strokeRect(_mrX,_cbY,_cbW,_cbH);ctx.lineWidth=1;
-ctx.fillStyle=_isMario?'#fff':'#999';ctx.font=`bold ${_isMario?7:6}px "Press Start 2P",monospace`;ctx.textAlign='center';
-ctx.fillText('MARIO',_mrX+_cbW/2,_cbY+_cbH/2+3);
-ctx.fillStyle=_isLuigi?'#27AE60':'#0a3a18';ctx.fillRect(_lgX,_cbY,_cbW,_cbH);
-ctx.strokeStyle=_isLuigi?'#55ff88':'#1a6030';ctx.lineWidth=_isLuigi?2:1;ctx.strokeRect(_lgX,_cbY,_cbW,_cbH);ctx.lineWidth=1;
-ctx.fillStyle=_isLuigi?'#fff':'#5a9a5a';ctx.font=`bold ${_isLuigi?7:6}px "Press Start 2P",monospace`;ctx.textAlign='center';
-ctx.fillText('LUIGI',_lgX+_cbW/2,_cbY+_cbH/2+3);
-ctx.fillStyle='#666';ctx.font='5px monospace';ctx.fillText('[L] key to switch',W/2,_cbY+_cbH+8);}
-const _bw=72,_bh=24,_gap=8,_rowH=33,_startY=90;
+// --- MARIOボックス ---
+ctx.fillStyle=_isMario?'#7a0000':'#220000';ctx.fillRect(_cMx,_cY,_cW,_cH);
+ctx.strokeStyle=_isMario?'#ff4444':'#550000';ctx.lineWidth=_isMario?2:1;ctx.strokeRect(_cMx,_cY,_cW,_cH);ctx.lineWidth=1;
+if(_isMario){ctx.fillStyle='rgba(255,200,200,0.08)';ctx.fillRect(_cMx,_cY,_cW,_cH/2);}
+// mini Marioスプライト（左側）
+{const _sx=_cMx+6,_sy=_cY+4;
+ctx.fillStyle='#E52521';ctx.fillRect(_sx+4,_sy,12,3);ctx.fillRect(_sx,_sy+3,20,4);
+ctx.fillStyle='#FBD000';ctx.fillRect(_sx+2,_sy+7,16,7);
+ctx.fillStyle='#000';ctx.fillRect(_sx+5,_sy+9,4,3);ctx.fillRect(_sx+11,_sy+9,4,3);
+ctx.fillStyle='#0050C8';ctx.fillRect(_sx,_sy+14,20,10);ctx.fillRect(_sx+1,_sy+24,7,6);ctx.fillRect(_sx+12,_sy+24,7,6);
+ctx.fillStyle='#6B3410';ctx.fillRect(_sx,_sy+30,8,3);ctx.fillRect(_sx+12,_sy+30,8,3);}
+ctx.fillStyle=_isMario?'#fff':'#888';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
+ctx.fillText('MARIO',_cMx+_cW/2,_cY+_cH-5);
+if(_isMario){ctx.fillStyle='#FFD700';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cMx+_cW/2,_cY+_cH+9);}
+// --- LUIGIボックス ---
+ctx.fillStyle=_isLuigi?'#0a4a1a':'#031008';ctx.fillRect(_cLx,_cY,_cW,_cH);
+ctx.strokeStyle=_isLuigi?'#44ff88':'#155520';ctx.lineWidth=_isLuigi?2:1;ctx.strokeRect(_cLx,_cY,_cW,_cH);ctx.lineWidth=1;
+if(_isLuigi){ctx.fillStyle='rgba(100,255,150,0.08)';ctx.fillRect(_cLx,_cY,_cW,_cH/2);}
+// mini Luigiスプライト（右側）
+{const _sx=_cLx+6,_sy=_cY+4;
+ctx.fillStyle='#27AE60';ctx.fillRect(_sx+4,_sy,12,3);ctx.fillRect(_sx,_sy+3,20,4);
+ctx.fillStyle='#FBD000';ctx.fillRect(_sx+2,_sy+7,16,7);
+ctx.fillStyle='#000';ctx.fillRect(_sx+5,_sy+9,4,3);ctx.fillRect(_sx+11,_sy+9,4,3);
+ctx.fillStyle='#1a55bb';ctx.fillRect(_sx,_sy+14,20,10);ctx.fillRect(_sx+1,_sy+24,7,6);ctx.fillRect(_sx+12,_sy+24,7,6);
+ctx.fillStyle='#6B3410';ctx.fillRect(_sx,_sy+30,8,3);ctx.fillRect(_sx+12,_sy+30,8,3);}
+ctx.fillStyle=_isLuigi?'#fff':'#5a9a5a';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
+ctx.fillText('LUIGI',_cLx+_cW/2,_cY+_cH-5);
+if(_isLuigi){ctx.fillStyle='#55ff88';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cLx+_cW/2,_cY+_cH+9);}
+ctx.fillStyle='#555';ctx.font='5px monospace';ctx.fillText('[L]キー または クリックで切替',W/2,_cY+_cH+20);}
+const _bw=72,_bh=24,_gap=8,_rowH=30,_startY=116;
 const _ws2=getWorlds();
 _ws2.forEach((_w,_wi)=>{
   const _wSt=getWorldStages(_w);
