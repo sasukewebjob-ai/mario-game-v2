@@ -255,8 +255,8 @@ function applyPinoReward(reward,cx,cy){
     G.pinoNeed=spawnPinoCoins(1);
   }else if(reward===5){
     // mini bowser (as enemy type)
-    enemies.push({x:pinoObj.x+4,y:H-2.5*TILE,w:48,h:64,vx:-1.0,vy:0,alive:true,type:'miniBowser',state:'walk',
-      hp:3,hurtTimer:0,walkFrame:0,walkTimer:0,facing:-1,isPinoItem:true});
+    enemies.push({x:pinoObj.x+4,y:H-2.5*TILE,w:48,h:64,vx:-2.0,vy:0,alive:true,type:'miniBowser',state:'walk',
+      hp:3,hurtTimer:0,walkFrame:0,walkTimer:0,facing:-1,isPinoItem:true,jumpTimer:60});
     G.pinoNeed=1; // need to defeat miniBowser
   }else if(reward===6){
     // 2 Hammer Bros
@@ -838,7 +838,7 @@ if(G.pinoRoom){
     if(e.x<0){e.x=0;e.vx=Math.abs(e.vx);}if(e.x+e.w>W){e.x=W-e.w;e.vx=-Math.abs(e.vx);}
     e.facing=e.vx>=0?1:-1;
     if(e.onGround){e.walkTimer++;if(e.walkTimer>10){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}}
-    if(e.onGround&&G.frame%120===0){e.vy=-9;}
+    if(e.onGround){if(!e.jumpTimer)e.jumpTimer=55;e.jumpTimer--;if(e.jumpTimer<=0){e.vy=-11;e.jumpTimer=45+Math.floor(Math.random()*30);}}
     // マリオとの衝突
     if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)&&e.hurtTimer===0){
       const mBot=mario.y+mario.h;
