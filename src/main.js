@@ -103,7 +103,7 @@ if(G.state==='start'){
   const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};
   if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];
   if(e.code==='Space'||e.code==='Enter'){if(G.selectedStage===_contId&&hasSave()){loadSave();}else if(G.selectedStage===_exId){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId2K){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
-  if(e.code==='KeyL'){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
+  if(e.code==='KeyL'||e.code==='KeyR'){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
 }
 // ショップ操作
 if(G.state==='shop'){
@@ -2792,7 +2792,7 @@ ctx.fillStyle='#6B3410';ctx.fillRect(_sx,_sy+30,8,3);ctx.fillRect(_sx+12,_sy+30,
 ctx.fillStyle=_isLuigi?'#fff':'#5a9a5a';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
 ctx.fillText('LUIGI',_cLx+_cW/2,_cY+_cH-5);
 if(_isLuigi){ctx.fillStyle='#55ff88';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cLx+_cW/2,_cY+_cH+9);}
-ctx.fillStyle='#555';ctx.font='5px monospace';ctx.fillText('[L]キー または クリックで切替',W/2,_cY+_cH+20);}
+ctx.fillStyle='#555';ctx.font='5px monospace';ctx.fillText('[R]or[L]キー または クリックで切替',W/2,_cY+_cH+20);}
 const _bw=72,_bh=24,_gap=8,_rowH=30,_startY=116;
 const _ws2=getWorlds();
 _ws2.forEach((_w,_wi)=>{
