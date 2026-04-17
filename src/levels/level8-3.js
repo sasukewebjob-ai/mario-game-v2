@@ -240,8 +240,5 @@ export function buildLevel_8_3(){
   platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管
   pipes.push({x:1200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
-  pipes.push({x:5500,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-  pipes.push({x:2000,y:0,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-  pipes.push({x:4000,y:0,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-  piranhas.push({x:5524,baseY:3*TILE,y:3*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+  // 城の天井土管は撤去（落とし穴上の火柱との競合回避）
 }
