@@ -2566,21 +2566,6 @@ if(G.checkpoint2)drawCheckpoint(G.checkpoint2);
 // Piranhas (drawn before pipes so pipe covers them when inside)
 for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
 for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling,p.color);
-if(p.isWarp&&!p.used){
-  const _wa=0.55+Math.sin(G.frame*0.1)*0.35;
-  ctx.fillStyle=`rgba(255,255,100,${_wa})`;ctx.font='bold 14px monospace';ctx.textAlign='center';
-  if(p.ceiling){
-    // 天井ワープパイプ: ▲マークを下端（入口）の下に表示
-    const _ay=p.y+p.h+16+Math.abs(Math.sin(G.frame*0.08))*6;
-    ctx.fillText('▲',p.x+p.w/2,_ay);
-    ctx.font='8px "Press Start 2P",monospace';
-    ctx.fillStyle=`rgba(255,255,100,${_wa*0.8})`;
-    ctx.fillText('JUMP!',p.x+p.w/2,_ay+12);
-  }else{
-    ctx.fillText('▼',p.x+p.w/2,p.y-6);
-  }
-  ctx.textAlign='left';ctx.font='11px "Press Start 2P",monospace';
-}
 if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
 // Gravity zones
 for(const gz of gravityZones){if(gz.x+gz.w<G.cam||gz.x>G.cam+W)continue;
