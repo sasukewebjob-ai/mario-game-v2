@@ -118,17 +118,11 @@ export function buildLevel_4_2(){
     enemies.push({x,y,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // 飛びノコノコ（parakoopa）×9（ギャップ6か所 + ゾーン上空カバー3）
+  // 飛びノコノコ（parakoopa）×3（11体→3体に削減）
   [
-    {x:490, baseY:H-4*TILE,phase:0  },  // gap1
-    {x:940, baseY:H-5*TILE,phase:1.0},  // gap2
-    {x:1420,baseY:H-4*TILE,phase:0.5},  // gap3
-    {x:2120,baseY:H-5*TILE,phase:1.5},  // gap4
-    {x:2625,baseY:H-4*TILE,phase:0.8},  // gap5
-    {x:3250,baseY:H-6*TILE,phase:0.3},  // gap6
-    {x:1480,baseY:H-5*TILE,phase:0.6},  // Z4上空
-    {x:2310,baseY:H-4*TILE,phase:1.2},  // Z5上空
-    {x:2900,baseY:H-5*TILE,phase:0.4},  // Z6上空
+    {x:940, baseY:H-5*TILE,phase:1.0},
+    {x:2120,baseY:H-5*TILE,phase:1.5},
+    {x:3250,baseY:H-6*TILE,phase:0.3},
   ].forEach(({x,baseY,phase})=>{
     enemies.push({x,y:baseY,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,
       type:'parakoopa',flying:true,baseY,phase,
@@ -151,9 +145,7 @@ export function buildLevel_4_2(){
   piranhas.push({x:2324,baseY:5*TILE,y:5*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
   pipes.push({x:3350,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   pipes.push({x:4750,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-  // ★ 上空パタパタ（2段JMP対策）
-  enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
-  enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
+  // 上空パタパタ削減（2体→0）
 
   // ★ トゲゾー（CP後・地面 2200-2450）
   enemies.push({x:2400,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'spiny',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});

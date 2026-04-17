@@ -64,7 +64,7 @@ function playVictoryFanfare(){try{const _n=[[392,0.1],[440,0.1],[494,0.1],[523,0
 
 function resetMario(){
 const bh=mario.power!=='none'?48:32;
-Object.assign(mario,{x:80,y:H-3*TILE,w:26,h:bh,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,crouching:false});
+Object.assign(mario,{x:80,y:H-3*TILE,w:26,h:bh,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,crouching:false,heldShell:null});
 G.cam=0;
 }
 function upgradeMario(type,_fromStock=false){
@@ -537,6 +537,19 @@ stopBGM();try{startBGM()}catch(e){}
 // === HIT BLOCK ===
 function hitBlock(p){
 if(p.type==='chest'){return}// 宝箱は上から踏む（pinoRoomブロックで処理）
+// ブロックを下から叩いた時、上に乗っている敵を倒す
+for(const _be of enemies){
+  if(!_be.alive||_be.state==='dead')continue;
+  if(_be.type==='miniBowser'||_be.type==='thwomp'||_be.type==='teresa'||_be.type==='bowser'||_be.type==='angrySun'||_be.type==='lakitu'||_be.type==='fuzzy'||_be.type==='blooper'||_be.type==='cheepH'||_be.type==='cheepV'||_be.type==='firePlant'||_be.type==='plantFire')continue;
+  if(_be===mario.heldShell)continue;
+  if(Math.abs((_be.x+_be.w/2)-(p.x+p.w/2))<p.w/2+_be.w/2 && _be.y+_be.h>=p.y-6 && _be.y+_be.h<=p.y+10){
+    _be.alive=false;
+    G.score+=200;G.stageKills++;G.totalKills++;updateHUD();
+    for(let _bi=0;_bi<6;_bi++)spawnParticle(_be.x+_be.w/2+(Math.random()-0.5)*_be.w,_be.y+_be.h/2,'star');
+    spawnScorePopup(_be.x+8,_be.y-8,200,'#e74c3c');
+    sfx('stomp');
+  }
+}
 if(p.type==='pswitch'&&!p.hit){activatePSwitch(p);return}
 if(p.type==='pswitch_block'){return}// temp P-Switch blocks are not hittable
 if(p.type==='yoshiEgg'&&!p.hit){p.hit=true;p.type='question';sfx('qblock');blockAnims.push({p,t:0});spawnYoshiEgg(p.x,p.y);return}
@@ -739,6 +752,12 @@ if(_wantCrouch){
 }}
 // スライディング
 const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
+// Shell投げ（持っている shell を離すと前方に投げる）
+if(mario.heldShell&&(!isDash||mario.dead||!mario.heldShell.alive)){
+  const _sh=mario.heldShell;
+  if(_sh.alive){_sh.vx=mario.facing*9;_sh.shellTimer=300;sfx('stomp');}
+  mario.heldShell=null;
+}
 if(!mario.sliding&&isDash&&mario.onGround&&(keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down)&&Math.abs(mario.vx)>3&&!G.waterMode){
   mario.sliding=true;mario.crouching=false;mario.slideTimer=30;const _oldH=mario.h;mario.h=mario.big?24:20;mario.y+=_oldH-mario.h;
   sfx('stomp');for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');
@@ -1028,6 +1047,8 @@ if(m.type==='1up'){G.lives++;sfx('1up');updateHUD();spawnScorePopup(mario.x+13,m
 else{upgradeMario('mushroom');G.score+=1000;updateHUD();spawnScorePopup(mario.x+13,mario.y-10,'1000','#2ecc71')}}}
 // Enemies
 for(const e of enemies){if(!e.alive)continue;if(e.type==='miniBowser')continue;// pinoRoomループで処理
+// マリオが持ち上げ中のshellはマリオに追従
+if(e===mario.heldShell){e.x=mario.x+(mario.facing===1?mario.w-4:-e.w+4);e.y=mario.y+mario.h-e.h-2;e.vx=0;e.vy=0;e.shellTimer=300;continue;}
 if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
 // 休眠スポーン: カメラ右端+8タイル先に入るまで physics をスキップ（parakoopa/lakitu は自前ロジックで動くので除外）
 if(e.type!=='parakoopa'&&e.type!=='lakitu'&&e.type!=='cheepH'&&e.type!=='cheepV'&&e.type!=='firePlant'&&e.type!=='plantFire'&&e.type!=='blooper'&&e.type!=='angrySun'&&!e.activated){if(G.cam+W+TILE*8<e.x)continue;e.activated=true;}
@@ -1263,7 +1284,7 @@ mario.vy=-9;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'dust');
 if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'){e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}
 else if(e.type==='rex'){if(!e.rexHurt){e.rexHurt=true;e.h=TILE*0.5;e.y+=TILE*0.5;e.vx=(e.vx>=0?1:-1)*Math.max(Math.abs(e.vx)*1.8,2.2);mario.inv=30;}else{e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}}
 else if(e.type==='koopa'||e.type==='buzzy'){if(e.state==='walk'){e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300}else if(e.state==='shell'&&Math.abs(e.vx)<0.5)e.vx=mario.facing*8;else{e.vx=0;e.shellTimer=300}}}
-else if(e.state==='shell'&&Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10}else if(mario.inv===0)killMario()}
+else if(e.state==='shell'&&Math.abs(e.vx)<0.5){if(isDash&&!mario.heldShell){mario.heldShell=e;sfx('stomp');mario.inv=10;}else{e.vx=mario.facing*8;sfx('stomp');mario.inv=10;}}else if(mario.inv===0)killMario()}
 if(e.state==='shell'){e.shellTimer--;if(e.shellTimer<=0){e.state='walk';e.vx=e.type==='buzzy'?-1.6:-1.3;e.h=e.type==='koopa'?TILE*1.2:e.type==='buzzy'?TILE*0.85:TILE}}}
 // Piranhas
 for(const pr of piranhas){if(!pr.alive)continue;const t=G.frame*0.03+pr.phase;
@@ -2460,11 +2481,19 @@ ctx.fillStyle='#f5c040';ctx.fillRect(x+6+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE
 
 function drawSpiny(e){const x=e.x,y=e.y;
 if(e.state==='dead'){ctx.fillStyle='#a82020';ctx.fillRect(x+4,y+TILE-8,TILE-8,8);return;}
+// 頭上の大きなトゲ（踏み不可の警告マーク）
+ctx.fillStyle='#fff';ctx.strokeStyle='#555';ctx.lineWidth=1.5;
+ctx.beginPath();
+ctx.moveTo(x+TILE/2-7,y-1);
+ctx.lineTo(x+TILE/2,y-14);
+ctx.lineTo(x+TILE/2+7,y-1);
+ctx.closePath();ctx.fill();ctx.stroke();
+ctx.lineWidth=1;
 // 甲羅（赤・丸型）
 ctx.fillStyle='#a82020';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.42,Math.PI,0);ctx.fill();
 ctx.fillRect(x+4,y+TILE*0.55,TILE-8,TILE*0.35);
 ctx.fillStyle='#d03030';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.3,Math.PI,0);ctx.fill();
-// トゲ（背中に6本）
+// トゲ（背中に5本）
 ctx.fillStyle='#fff';
 for(let i=0;i<5;i++){const sx=x+5+i*5;
 ctx.beginPath();ctx.moveTo(sx,y+TILE*0.45);ctx.lineTo(sx+2,y+3);ctx.lineTo(sx+4,y+TILE*0.45);ctx.closePath();ctx.fill();}
@@ -2484,6 +2513,14 @@ function drawSpikeTop(e){const x=e.x,y=e.y;
 ctx.fillStyle='#6b3410';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.42,0,Math.PI);ctx.fill();
 ctx.fillRect(x+4,y+TILE*0.2,TILE-8,TILE*0.35);
 ctx.fillStyle='#8b4a1a';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.3,0,Math.PI);ctx.fill();
+// 下側の大きなトゲ（踏み不可の警告マーク）
+ctx.fillStyle='#fff';ctx.strokeStyle='#555';ctx.lineWidth=1.5;
+ctx.beginPath();
+ctx.moveTo(x+TILE/2-7,y+TILE-2);
+ctx.lineTo(x+TILE/2,y+TILE+12);
+ctx.lineTo(x+TILE/2+7,y+TILE-2);
+ctx.closePath();ctx.fill();ctx.stroke();
+ctx.lineWidth=1;
 // トゲ（下向き5本）
 ctx.fillStyle='#fff';
 for(let i=0;i<5;i++){const sx=x+5+i*5;
