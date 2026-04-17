@@ -149,8 +149,8 @@ export function buildLevel_2_1(){
       vx:0,vy:0,phase:Math.random()*Math.PI*2,state:'idle',lungeTimer:0,alive:true});
   });
 
-  // 移動足場（ギャップ越え補助）
-  movingPlats.push({x:2850,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:2850,range:60,spd:1.5});
+  // 移動足場（ギャップ越え補助・ピノキオ土管下を左地面まで往復）
+  movingPlats.push({x:2700,y:H-5*TILE,w:TILE*4,h:12,type:'h',ox:2780,range:80,spd:1.5});
   movingPlats.push({x:5230,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:5230,range:60,spd:1.5});
 
   // チェックポイント（y=H-TILE で地面に接地）
