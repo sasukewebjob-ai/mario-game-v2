@@ -1151,7 +1151,8 @@ for(let i=iceBalls.length-1;i>=0;i--){const ib=iceBalls[i];if(!ib.alive){iceBall
 ib.vy+=(G.waterMode?0:0.45);ib.x+=ib.vx;ib.y+=ib.vy;
 if(!G.waterMode)for(const p of[...platforms,...pipes]){const bo=p.bounceOffset||0,py=p.y-bo;if(!overlap(ib.x,ib.y,ib.w,ib.h,p.x,py,p.w,p.h))continue;if(ib.y+ib.h/2<py+p.h/2){ib.y=py-ib.h;ib.vy=-6;ib.bounces++}else ib.alive=false;break}
 if(ib.bounces>5||ib.x<G.cam-80||ib.x>G.cam+W+80||ib.y>H+50)ib.alive=false;
-for(const e of enemies){if(!e.alive||e.state==='dead'||e.frozen)continue;if(!overlap(ib.x,ib.y,ib.w,ib.h,e.x,e.y,e.w,e.h))continue;
+for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(!overlap(ib.x,ib.y,ib.w,ib.h,e.x,e.y,e.w,e.h))continue;
+if(e.frozen){ib.alive=false;e.alive=false;e.frozen=false;e.shakeX=0;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});break;}
 if(e.type==='dryBones'||e.type==='angrySun'){ib.alive=false;spawnParticle(e.x+16,e.y+16,'dust');break;}
 if(e.type==='blooper'){e.state='dead';e.squishT=20;ib.alive=false;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+12,'star');spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');break;}
 ib.alive=false;e.frozen=true;e.frozenTimer=240;e.frozenVx=e.vx;e.vx=0;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(e.x+8,e.y-8,'ICE!','#44bbff');spawnParticle(e.x+16,e.y+16,'star');break}
@@ -1180,15 +1181,17 @@ mh.alive=false;bowser.hurtTimer=70;bowser.hp--;sfx('stomp');spawnScorePopup(bows
 if(bowser.hp>0&&bowser.phase===1&&bowser.hp<=Math.floor(bowser.maxHp/2)){bowser.phase=2;bowser.phaseTransition=90;G.shakeX=14;G.shakeY=14;for(let pi=0;pi<30;pi++)spawnParticle(bowser.x+Math.random()*64,bowser.y+Math.random()*72,'star');try{stopBGM();startBGM();}catch(ex){}}
 if(bowser.hp<=0){bowser.state='dead';bowser.deadTimer=160;stopBGM();G.score+=5000;updateHUD();G.coins=Math.min(G.coins+200,999);updateHUD();{const _bx=bowser.x+bowser.w/2,_by=bowser.y+bowser.h/2;for(let _i=0;_i<200;_i++){const _a=-Math.PI*0.95+(_i/199*Math.PI*0.9);const _spd=4+Math.random()*8;coinItems.push({x:_bx-8,y:_by-8,vx:Math.cos(_a)*_spd,vy:Math.sin(_a)*_spd,type:'frozendrop',timer:300,gravity:0.35,w:16,h:16,collected:false,noCollect:true})}}for(let pi=0;pi<20;pi++)spawnParticle(bowser.x+Math.random()*64,bowser.y+Math.random()*72,'star')}}}
 // === Frozen enemies update ===
-for(const e of enemies){if(!e.alive||!e.frozen)continue;e.frozenTimer--;if(e.frozenTimer<=0){e.frozen=false;e.vx=e.frozenVx||0;e.frozenVx=0;}
-// 凍結敵を踏むと粉砕
-if(overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){const mBot=mario.y+mario.h;
-if(mBot-mario.vy<=e.y+e.h*0.5&&mario.vy>=0){e.alive=false;e.frozen=false;mario.vy=-9;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<5;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-2)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.0,vx:(c-2)*2.5,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}
-else if(mario.vy<0){mario.y=e.y+e.h+1;mario.vy=0;}// 下から突き上げ: 天井扱いでダメージなし
-else if(mario.inv===0&&G.starTimer===0){// 横から蹴ると粉砕
-if(Math.abs(mario.vx)>2){e.alive=false;e.frozen=false;G.score+=400;sfx('break');updateHUD();spawnScorePopup(e.x+8,e.y-8,400,'#44bbff');for(let k=0;k<8;k++)spawnParticle(e.x+e.w/2,e.y+e.h/2,'star');for(let c=0;c<5;c++){G.coins++;coinItems.push({x:e.x+e.w/2-8+(c-2)*16,y:e.y-12,w:16,h:16,vy:-6-c*1.0,vx:(c-2)*2.5,gravity:0.4,timer:45,type:'frozendrop'})}updateHUD()}}}
+for(const e of enemies){if(!e.alive||!e.frozen)continue;e.frozenTimer--;if(e.frozenTimer<=0){e.frozen=false;e.vx=e.frozenVx||0;e.frozenVx=0;e.shakeX=0;}
+// 溶ける前にブルブル震える
+if(e.frozen&&e.frozenTimer>0&&e.frozenTimer<60){e.shakeX=(Math.random()-0.5)*4;}else if(e.frozen){e.shakeX=0;}
+// 凍結敵との衝突（完全にダメージなし、上に乗れる）
+if(e.frozen&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){const mBot=mario.y+mario.h;
+if(mBot-mario.vy<=e.y+e.h*0.5&&mario.vy>=0){mario.y=e.y-mario.h;mario.vy=0;mario.onGround=true;}
+else if(mario.vy<0){mario.y=e.y+e.h+1;mario.vy=0;}}
 // 凍結敵を足場として使う
-if(e.frozen&&mario.vy>=0&&!mario.onGround){const prevBot=mario.y-mario.vy+mario.h;if(prevBot<=e.y+4&&overlap(mario.x+2,mario.y,mario.w-4,mario.h,e.x,e.y,e.w,e.h)){mario.y=e.y-mario.h;mario.vy=0;mario.onGround=true;}}}
+if(e.frozen&&mario.vy>=0&&!mario.onGround){const prevBot=mario.y-mario.vy+mario.h;if(prevBot<=e.y+4&&overlap(mario.x+2,mario.y,mario.w-4,mario.h,e.x,e.y,e.w,e.h)){mario.y=e.y-mario.h;mario.vy=0;mario.onGround=true;}}
+// ↓キーで踏みつけ→コイン化
+if(e.frozen&&mario.onGround&&!mario.dead&&mario.y+mario.h>=e.y-2&&mario.y+mario.h<=e.y+6&&mario.x+mario.w>e.x&&mario.x<e.x+e.w){const _isDown=keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down;if(_isDown){e.alive=false;e.frozen=false;e.shakeX=0;mario.vy=-6;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});}}}
 // === Mega Timer ===
 if(G.megaTimer>0){G.megaTimer--;if(G.frame%6===0)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');
 // メガ状態: 敵に触れると即死
@@ -2333,8 +2336,8 @@ for(const ib of iceBalls){if(!ib.alive)continue;const ix=Math.round(ib.x),iy=Mat
 // Mario hammers
 for(const mh of marioHammers){if(!mh.alive)continue;ctx.save();ctx.translate(mh.x+8,mh.y+8);ctx.rotate(mh.rot);ctx.fillStyle='#8B4513';ctx.fillRect(-3,0,6,12);ctx.fillStyle='#aaa';ctx.fillRect(-7,-7,14,9);ctx.fillStyle='#ccc';ctx.fillRect(-5,-5,10,5);ctx.restore();}
 // Frozen enemy overlay
-for(const e of enemies){if(!e.alive||!e.frozen)continue;ctx.globalAlpha=0.5;ctx.fillStyle='#88ddff';ctx.fillRect(e.x-2,e.y-2,e.w+4,e.h+4);ctx.globalAlpha=0.3;ctx.fillStyle='#fff';ctx.fillRect(e.x,e.y,e.w,e.h);ctx.globalAlpha=1;
-ctx.strokeStyle='#44aaff';ctx.lineWidth=2;ctx.strokeRect(e.x-2,e.y-2,e.w+4,e.h+4);ctx.lineWidth=1;}
+for(const e of enemies){if(!e.alive||!e.frozen)continue;const sx=e.shakeX||0;ctx.globalAlpha=0.5;ctx.fillStyle='#88ddff';ctx.fillRect(e.x-2+sx,e.y-2,e.w+4,e.h+4);ctx.globalAlpha=0.3;ctx.fillStyle='#fff';ctx.fillRect(e.x+sx,e.y,e.w,e.h);ctx.globalAlpha=1;
+ctx.strokeStyle='#44aaff';ctx.lineWidth=2;ctx.strokeRect(e.x-2+sx,e.y-2,e.w+4,e.h+4);ctx.lineWidth=1;}
 // Yoshi items (eggs hatching)
 for(const yi of yoshiItems)drawYoshiEggItem(yi);
 // Yoshi egg projectiles
@@ -2344,9 +2347,9 @@ for(const c of coinItems){if(c.collected||c._psHidden)continue;if(c.type==='fire
 // P-Switch coins (bricks turned into coins)
 if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(pc.x+TILE<G.cam||pc.x>G.cam+W)continue;drawCoinItem(pc.x,pc.y);}}
 // Enemies
-for(const e of enemies){if(!e.alive||e.x+e.w<G.cam-10||e.x>G.cam+W+10)continue;
+for(const e of enemies){if(!e.alive||e.x+e.w<G.cam-10||e.x>G.cam+W+10)continue;const _sx=e.shakeX||0;if(_sx)e.x+=_sx;
 if(e.type==='koopa'||e.type==='parakoopa')drawKoopa(e);else if(e.type==='buzzy')drawBuzzy(e);else if(e.type==='hammerBro')drawHammerBro(e);else if(e.type==='cactus')drawCactus(e);else if(e.type==='lakitu')drawLakitu(e);else if(e.type==='cheepH'||e.type==='cheepV')drawCheep(e);else if(e.type==='firePlant')drawFirePlant(e);else if(e.type==='plantFire')drawPlantFireball(e);else if(e.type==='penguin')drawPenguin(e);else if(e.type==='teresa')drawTeresa(e);else if(e.type==='thwomp')drawThwomp(e);else if(e.type==='blooper')drawBlooper(e);else if(e.type==='dryBones')drawDryBones(e);else if(e.type==='angrySun')drawAngrySun(e);else if(e.type==='chuck')drawChuck(e);
-else drawGoomba(e.x,e.y,e.state==='dead',e.walkFrame)}
+else drawGoomba(e.x,e.y,e.state==='dead',e.walkFrame);if(_sx)e.x-=_sx;}
 if(G.currentLevel!==3&&!G.ugMode&&flagPole.x-G.cam>-200&&flagPole.x-G.cam<W+200)drawFlag();
 // Bowser
 if(bowser.alive&&bowser.x+bowser.w>G.cam-10&&bowser.x<G.cam+W+10){
