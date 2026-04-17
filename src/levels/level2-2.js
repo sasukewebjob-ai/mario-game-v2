@@ -110,12 +110,7 @@ export function buildLevel_2_2(){
     else enemies.push({x,y:H-2*TILE,w:TILE,h:t==='koopa'?TILE*1.2:TILE,vx:-1.5,vy:0,alive:true,type:t,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0});
   });
 
-  // パラクーパ（26体、ランダムな高さ）
-  [200,500,850,1150,1450,1800,2200,2500,2800,3100,3400,3680,
-   4320,4500,4600,4900,5200,5500,5800,6100,6300,6500,6600,6700,6800,6950].forEach(x=>{
-    const by=H-(4+Math.floor(Math.random()*4))*TILE;
-    enemies.push({x,y:by,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:by,phase:Math.random()*Math.PI*2,shellTimer:0,walkFrame:0,walkTimer:0});
-  });
+  // パラクーパは削除（敵密度調整）
 
   // 飛び跳ねるブロック（12体、2-1より多め）
   [{x:450},{x:900},{x:1450},{x:2000},{x:2700},{x:3300},{x:4000},{x:4600},{x:5100},{x:5700},{x:6300},{x:6800}].forEach(({x})=>{
@@ -155,9 +150,7 @@ pipes.push({x:4000,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 piranhas.push({x:5524,baseY:6*TILE,y:6*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 pipes.push({x:1050,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-// ★ 上空パタパタ（2段JMP対策）
-enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
-enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
+// 上空パタパタは削除（敵密度調整）
 
 // ★ 新敵（CP後・赤パタパタ水平飛行）
 enemies.push({x:5150,y:H-5*TILE,w:TILE,h:TILE*1.2,vx:1.8,vy:0,alive:true,type:'parakoopaR',state:'walk',flying:true,baseX:5150,baseY:H-5*TILE,range:100,shellTimer:0,walkFrame:0,walkTimer:0,facing:1});
