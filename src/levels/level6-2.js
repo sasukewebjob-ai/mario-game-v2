@@ -7,7 +7,7 @@ import {addB,addRow,addStair} from '../builders.js';
 
 // 6-2: 氷の崖 (Icy Cliffs)
 // 高台多め・落下プラットフォーム・キャノン・JumpBlock・難度↑
-// Ground zones: Z1=0-480, Z2=740-1350, Z3=1680-2200/2296-2500, Z4=2850-3700, Z5=4100-4650/4746-5200, Z6=5600-6300, Z7=6600-7050/7146-8000
+// Ground zones: Z1=0-480, Z2=740-830/900-1350, Z3=1680-2200/2296-2500, Z4=2850-3700, Z5=4100-4650/4746-5200, Z6=5720-6300, Z7=6600-7050/7146-8000
 export function buildLevel_6_2(){
   [platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
    particles,scorePopups,blockAnims,movingPlats,springs,cannons,
@@ -72,7 +72,7 @@ export function buildLevel_6_2(){
   // ── ? ブロック（各addRowと座標重複なし確認済み）──
   // Z1
   platforms.push({x:260, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 260>246 ✓
-  platforms.push({x:460, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 460>446 ✓ (ギャップ直前)
+  platforms.push({x:316, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 316<350(addRow先頭) ✓
   // Z2
   platforms.push({x:748, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 748<780 ✓
   platforms.push({x:920, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 920>908 ✓
@@ -90,8 +90,7 @@ export function buildLevel_6_2(){
   platforms.push({x:4810,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4810>4796 ✓
   platforms.push({x:5140,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5140>5128 ✓
   // Z6
-  platforms.push({x:5770,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5770>5756(addRow末端)・5770>5720(gap終端) ✓
-  platforms.push({x:5800,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 5800<5900 ✓
+  platforms.push({x:5800,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 5800>5788(addRow末端) ✓
   platforms.push({x:6010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6010>5996 ✓
   // Z7
   platforms.push({x:6640,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6640<6660 ✓
@@ -99,7 +98,7 @@ export function buildLevel_6_2(){
 
   // 隠し1UP
   platforms.push({x:100, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:2500,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:2400,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:4900,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:7000,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 
@@ -110,8 +109,8 @@ export function buildLevel_6_2(){
   // 土管（グラウンドゾーン内）
   pipes.push({x:300, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:2100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
-  pipes.push({x:5000,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
-  pipes.push({x:7050,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  pipes.push({x:5130,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  pipes.push({x:6980,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   // ワープ土管（地下へ）
   pipes.push({x:950, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice3'});
   pipes.push({x:3100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice4'});
@@ -134,14 +133,14 @@ export function buildLevel_6_2(){
   // ペンギン（グラウンドゾーンのみ）
   // チェックポイント x=3600 から±300px: 3300〜3900 には敵を置かない
   [800,1100,1760,2050,2360,2950,3050,3100,
-   4380,4820,5700,5950,6200,6710,7200
+   4380,4820,5740,5950,6200,6710,7200
   ].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE,vx:-2.0,vy:0,alive:true,
       type:'penguin',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // コンバット（地上）
-  [{x:1050},{x:2320},{x:2700}].forEach(({x})=>{
+  [{x:1050},{x:2320},{x:2870}].forEach(({x})=>{
     enemies.push({x,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
@@ -159,7 +158,7 @@ export function buildLevel_6_2(){
   jumpBlocks.push({x:5850,y:H-6*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,onGround:false,jumpTimer:60});
 
   // ワンワン（2体）
-  chainChomps.push({x:2750,y:H-TILE-36,w:36,h:36,postX:2750,postY:H-TILE-36,vx:0,vy:0,phase:0,   state:'idle',lungeTimer:0,alive:true});
+  chainChomps.push({x:2900,y:H-TILE-36,w:36,h:36,postX:2900,postY:H-TILE-36,vx:0,vy:0,phase:0,   state:'idle',lungeTimer:0,alive:true});
   chainChomps.push({x:6750,y:H-TILE-36,w:36,h:36,postX:6750,postY:H-TILE-36,vx:0,vy:0,phase:1.2, state:'idle',lungeTimer:0,alive:true});
 
   // ── コイン（300枚以上）──
@@ -200,18 +199,17 @@ export function buildLevel_6_2(){
 // ★ ハンマースーツ・巨大キノコ
 platforms.push({x:3500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 platforms.push({x:2860,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
-// ★ 装飾土管
-pipes.push({x:1900,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
-pipes.push({x:4800,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
+// ★ 装飾土管（x=1900削除: キャノンと重複）
+pipes.push({x:4880,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:1800,y:0,w:TILE*2,h:7*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:5800,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-piranhas.push({x:4824,baseY:6*TILE,y:6*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
-pipes.push({x:1050,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
+piranhas.push({x:4904,baseY:6*TILE,y:6*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+pipes.push({x:1160,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 // ★ 上空パタパタ（2段JMP対策）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
-// ピノキオ部屋ワープ天井パイプ（1ステージに1本）
-pipes.push({x:2800,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
+// ピノキオ部屋ワープ地上パイプ（Z4地面・ブロック間の安全地帯 x=3280）
+pipes.push({x:3280,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'pinocchio'});
 }
