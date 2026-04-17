@@ -175,6 +175,11 @@ export function buildLevel_3_3(){
   // 潮の満ち引き（海辺の城らしさ）：低地が定期的に水没
   G.tideMode=true;
 
+// ★ 新敵（CP2以降・クッパアリーナ前廊下）
+enemies.push({x:6450,y:H-2*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'bobomb',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1,litTimer:0});
+enemies.push({x:6500,y:2*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'spikeTop',state:'walk',baseX:6500,range:80,walkFrame:0,walkTimer:0,facing:-1});
+enemies.push({x:6600,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'spiny',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:3000,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }
