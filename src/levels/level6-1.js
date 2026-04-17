@@ -7,7 +7,7 @@ import {addB,addRow,addStair} from '../builders.js';
 
 // 6-1: 氷の平原 (Ice Plains)
 // 新敵・ペンギン初登場。全面氷でマリオがスライドする。
-// Ground zones: Z1=0-600, Z2=870-1500, Z3=1800-2350/2446-2600, Z4=2920-3200/3296-3800, Z5=4120-5100, Z6=5420-5800/5896-8000
+// Ground zones: Z1=0-600, Z2=870-1060/1130-1500, Z3=1800-2350/2446-2600, Z4=2920-3200/3296-3800, Z5=4250-5100, Z6=5420-5800/5896-8000
 export function buildLevel_6_1(){
   [platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
    particles,scorePopups,blockAnims,movingPlats,springs,cannons,
@@ -108,7 +108,7 @@ export function buildLevel_6_1(){
   // ── 敵配置 ──
   // ペンギン（新敵・グラウンドゾーンのみ）
   // チェックポイント x=3600 から±300px離す: 3300〜3900 には敵を置かない
-  [950,1300,1950,2200,2450,3100,3980,4300,4700,
+  [950,1300,1950,2200,2450,3100,4260,4300,4700,
    5600,5900,6350,6750,7060
   ].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE,vx:-2.0,vy:0,alive:true,
@@ -123,7 +123,7 @@ export function buildLevel_6_1(){
   });
 
   // ワンワン（2体・チェックポイントから500px以上離れた場所）
-  chainChomps.push({x:5250,y:H-TILE-36,w:36,h:36,postX:5250,postY:H-TILE-36,vx:0,vy:0,phase:0,   state:'idle',lungeTimer:0,alive:true});
+  chainChomps.push({x:5460,y:H-TILE-36,w:36,h:36,postX:5460,postY:H-TILE-36,vx:0,vy:0,phase:0,   state:'idle',lungeTimer:0,alive:true});
   chainChomps.push({x:6950,y:H-TILE-36,w:36,h:36,postX:6950,postY:H-TILE-36,vx:0,vy:0,phase:1.5, state:'idle',lungeTimer:0,alive:true});
 
   // ── コイン（300枚以上）──
@@ -172,15 +172,15 @@ platforms.push({x:2940,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMeg
 // ★ 装飾土管
 pipes.push({x:5000,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:5600,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-pipes.push({x:2500,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
+pipes.push({x:2580,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:4000,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 piranhas.push({x:5624,baseY:6*TILE,y:6*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 pipes.push({x:1050,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-pipes.push({x:3350,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
+pipes.push({x:3700,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'pinocchio'});
 // ★ 上空パタパタ（2段JMP対策）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
-// ピノキオ部屋ワープ天井パイプ（1ステージに1本）
+// 装飾天井パイプ
 pipes.push({x:3200,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 }
