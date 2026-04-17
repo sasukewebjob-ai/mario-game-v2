@@ -938,13 +938,15 @@ if(G.pinoRoom){
     if(e.x<0){e.x=0;e.vx=_spd;}
     if(e.x+e.w>W){e.x=W-e.w;e.vx=-_spd;}
     e.facing=e.vx>=0?1:-1;
-    // 着地したら即高ジャンプ（常時飛び回る）
+    // 地上を歩き回る（ジャンプなし、方向転換のみ）
     if(e.onGround){
-      e.vy=_jmpVy;
-      // 方向: 30%でランダム反転、70%でマリオ方向追跡
-      if(Math.random()<0.3)e.vx=-Math.sign(e.vx||1)*_spd;
-      else e.vx=(mario.x<e.x?-1:1)*_spd;
-      try{beep(180,.06,'square',.12);}catch(_be){}
+      e.turnTimer=(e.turnTimer||0)-1;
+      if(e.turnTimer<=0){
+        // 方向: 30%でランダム反転、70%でマリオ方向追跡
+        if(Math.random()<0.3)e.vx=-Math.sign(e.vx||1)*_spd;
+        else e.vx=(mario.x<e.x?-1:1)*_spd;
+        e.turnTimer=60+Math.floor(Math.random()*60);
+      }
     }
     // 速度維持
     if(Math.abs(e.vx)<_spd*0.8)e.vx=Math.sign(e.vx||1)*_spd;
@@ -954,7 +956,7 @@ if(G.pinoRoom){
       const mBot=mario.y+mario.h;
       if(G.starTimer>0){e.state='dead';e.squishT=28;e.alive=false;G.score+=1000;sfx('stomp');updateHUD();spawnParticle(e.x+24,e.y+32,'star');spawnScorePopup(e.x+24,e.y-8,1000,'#FFD700');}
       else if(mBot-mario.vy<=e.y+e.h*0.35){
-        e.hurtTimer=45;e.hp--;mario.vy=-10;mario.inv=30;sfx('stomp');
+        e.hurtTimer=42;e.hp--;mario.vy=-10;mario.inv=42;sfx('stomp');
         G.shakeX=5;G.shakeY=5;
         spawnParticle(e.x+24,e.y+32,'dust');
         if(e.hp<=0){
@@ -976,8 +978,8 @@ if(G.pinoRoom){
         } else {
           G.score+=500;updateHUD();
           spawnScorePopup(e.x+24,e.y-8,500,'#e74c3c');
-          // HP減ったら即ジャンプで反撃（画面内に収まる高さ）
-          e.vy=-10;e.vx=(mario.x<e.x?-1:1)*_spd*1.1;e.onGround=false;
+          // HP減ったら方向転換＋速度アップ（ジャンプなし）
+          e.vx=(mario.x<e.x?-1:1)*_spd*1.1;e.turnTimer=30;
         }
       }
       else if(mario.inv===0){
