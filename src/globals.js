@@ -20,14 +20,14 @@ export const bowserShockwaves=[];
 
 // クッパ難易度テーブル（ワールド1〜8で段階的に強化）
 export const BOWSER_STATS={
-  1:{hp:3,fireImmune:false,speed:1.2,fireSpeed:4.5,fireVy:-2.5,fireTimer:130,jumpTimer:240},
-  2:{hp:3,fireImmune:false,speed:1.5,fireSpeed:5.0,fireVy:-3.0,fireTimer:110,jumpTimer:230},
-  3:{hp:3,fireImmune:false,speed:1.8,fireSpeed:5.5,fireVy:-3.5,fireTimer:95,jumpTimer:220},
-  4:{hp:4,fireImmune:false,speed:2.0,fireSpeed:6.0,fireVy:-3.5,fireTimer:80,jumpTimer:210},
-  5:{hp:4,fireImmune:false,speed:2.0,fireSpeed:6.5,fireVy:-4.0,fireTimer:85,jumpTimer:215},
-  6:{hp:4,fireImmune:false,speed:2.2,fireSpeed:7.0,fireVy:-4.0,fireTimer:75,jumpTimer:205},
-  7:{hp:5,fireImmune:false,speed:2.4,fireSpeed:7.5,fireVy:-4.5,fireTimer:65,jumpTimer:195},
-  8:{hp:5,fireImmune:false,speed:2.6,fireSpeed:8.0,fireVy:-5.0,fireTimer:60,jumpTimer:175}
+  1:{hp:3,fireImmune:false,speed:1.0,fireSpeed:4.0,fireVy:-2.5,fireTimer:160,jumpTimer:320},
+  2:{hp:3,fireImmune:false,speed:1.2,fireSpeed:4.5,fireVy:-3.0,fireTimer:140,jumpTimer:300},
+  3:{hp:3,fireImmune:false,speed:1.4,fireSpeed:5.0,fireVy:-3.5,fireTimer:120,jumpTimer:290},
+  4:{hp:4,fireImmune:false,speed:1.6,fireSpeed:5.5,fireVy:-3.5,fireTimer:105,jumpTimer:280},
+  5:{hp:4,fireImmune:false,speed:1.6,fireSpeed:6.0,fireVy:-4.0,fireTimer:110,jumpTimer:285},
+  6:{hp:4,fireImmune:false,speed:1.8,fireSpeed:6.5,fireVy:-4.0,fireTimer:100,jumpTimer:270},
+  7:{hp:5,fireImmune:false,speed:2.0,fireSpeed:7.0,fireVy:-4.5,fireTimer:90,jumpTimer:260},
+  8:{hp:5,fireImmune:false,speed:2.2,fireSpeed:7.5,fireVy:-5.0,fireTimer:85,jumpTimer:240}
 };
 export const peach={alive:false,x:0,y:0,w:30,h:52,vx:0,caught:false,walkFrame:0,walkTimer:0};
 export const flagPole={x:LW-500,h:320};

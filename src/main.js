@@ -1371,8 +1371,8 @@ if(G.peachChase.catchT===1){G.score+=10000;updateHUD();}
 if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};}else{G.state='win';const _isFin=G.currentWorld===8&&G.currentLevel===3;const _wCnt=_isFin?80:30;for(let wi=0;wi<_wCnt;wi++)setTimeout(()=>spawnParticle(mario.x+Math.random()*(_isFin?400:200)-(_isFin?200:100),H-TILE-(_isFin?200:100)+Math.random()*(_isFin?160:80),'star'),wi*(_isFin?40:60));if(_isFin){try{playVictoryFanfare();}catch(ex){}}}}
 }
 }
-// Lava flames
-for(const f of lavaFlames){f.phase++;const cyc=f.phase%f.period,rise=Math.floor(f.period*0.28),stay=Math.floor(f.period*0.18);if(cyc<rise){f.curH=Math.min(f.maxH,(cyc/rise)*f.maxH*1.1)}else if(cyc<rise+stay){f.curH=f.maxH}else{f.curH=Math.max(0,f.curH-f.maxH/(rise*0.7))}if(f.curH>12){const ft=H-TILE-f.curH;if(mario.inv===0&&G.starTimer===0&&mario.x+mario.w>f.x-2&&mario.x<f.x+f.w+2&&mario.y+mario.h>ft&&mario.y<H-TILE)killMario()}}
+// Lava flames（周期を1.8倍に延長してゆっくり出現）
+for(const f of lavaFlames){f.phase++;const _per=f.period*1.8;const cyc=f.phase%_per,rise=Math.floor(_per*0.28),stay=Math.floor(_per*0.18);if(cyc<rise){f.curH=Math.min(f.maxH,(cyc/rise)*f.maxH*1.1)}else if(cyc<rise+stay){f.curH=f.maxH}else{f.curH=Math.max(0,f.curH-f.maxH/(rise*0.7))}if(f.curH>12){const ft=H-TILE-f.curH;if(mario.inv===0&&G.starTimer===0&&mario.x+mario.w>f.x-2&&mario.x<f.x+f.w+2&&mario.y+mario.h>ft&&mario.y<H-TILE)killMario()}}
 if(G.ugMode&&G.state==='play'&&!G.peachChase&&!bowser.alive&&mario.x>W-1.5*TILE&&mario.onGround)exitUnderground();
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
 // クッパ前チェックポイント（2つ目）
