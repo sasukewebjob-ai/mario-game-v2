@@ -795,7 +795,7 @@ if(mario.hipDrop&&mario.onGround){mario.hipDrop=false;G.shakeX=5;G.shakeY=5;try{
   // 着地点のブロック破壊（ビッグマリオのみ）
   if(mario.big){for(const p of platforms){if(p.type!=='brick'||p.hit)continue;if(Math.abs(p.x-mario.x)<mario.w+8&&p.y===mario.y+mario.h){p.hit=true;spawnParticle(p.x+16,p.y+16,'brick');G.score+=50;updateHUD();const idx=platforms.indexOf(p);if(idx>=0)platforms.splice(idx,1);}}}
   // 周囲の敵にダメージ
-  for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}}}
+  for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'||e.type==='rex'||e.type==='spiny'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}else if(e.type==='bobomb'&&e.state==='walk'){e.state='lit';e.litTimer=180;G.score+=100;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,100,'#ff4400');}}}
 }
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
 if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}
@@ -972,6 +972,21 @@ if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
 if(e.type!=='parakoopa'&&e.type!=='lakitu'&&e.type!=='cheepH'&&e.type!=='cheepV'&&e.type!=='firePlant'&&e.type!=='plantFire'&&e.type!=='blooper'&&e.type!=='angrySun'&&!e.activated){if(G.cam+W+TILE*8<e.x)continue;e.activated=true;}
 if(e.frozen)continue; // 凍結中は全処理スキップ（凍結専用セクションで対応）
 if(e.type==='parakoopa'&&e.flying){e.x+=e.vx;if(e.x+e.w<-100){e.alive=false;continue}e.y=e.baseY+Math.sin(G.frame*0.05+(e.phase||0))*22;if((mario.inv===0||G.starTimer>0)&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue}if(mario.y+mario.h-mario.vy<=e.y+e.h*0.4){e.flying=false;e.type='koopa';e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300;mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;G.score+=200;updateHUD();spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c')}else killMario()}continue}
+// === 赤パタパタ（水平飛行）===
+if(e.type==='parakoopaR'&&e.flying){
+  if(e.baseX===undefined){e.baseX=e.x;e.baseY=e.y;e.range=e.range||80;}
+  e.x+=e.vx;e.y=e.baseY;
+  if(e.x<=e.baseX-e.range){e.x=e.baseX-e.range;e.vx=Math.abs(e.vx);e.facing=1;}
+  else if(e.x>=e.baseX+e.range){e.x=e.baseX+e.range;e.vx=-Math.abs(e.vx);e.facing=-1;}
+  if(!mario.dead&&(mario.inv===0||G.starTimer>0)&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.alive=false;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue;}
+    if(mario.y+mario.h-mario.vy<=e.y+e.h*0.4){
+      e.flying=false;e.type='koopa';e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300;mario.vy=-9;sfx('stomp');
+      G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;G.score+=200;updateHUD();spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c');
+    } else killMario();
+  }
+  continue;
+}
 // ラキチュウ AI (空中追跡 + ノコノコ投下)
 if(e.type==='lakitu'){
   if(e.baseY===undefined)e.baseY=e.y;
@@ -1027,13 +1042,141 @@ if(e.type==='angrySun'){if(e.baseX===undefined){e.baseX=e.x;e.baseY=e.y;e.orbitA
 if(e.type==='dryBones'){if(G.starTimer>0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){e.alive=false;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue;}if(e.state==='collapsed'){e.collapseTimer=(e.collapseTimer||180)-1;if(e.collapseTimer<=0){e.state='walk';e.vx=-1.2;}continue;}e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}if(e.y>H+100){e.alive=false;continue;}if(e.onGround){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h))e.vx=-e.vx;}if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){const _mBot=mario.y+mario.h;if(_mBot-mario.vy<=e.y+e.h*0.4){mario.vy=-9;sfx('stomp');spawnParticle(e.x+16,e.y+16,'dust');e.state='collapsed';e.collapseTimer=180;e.vx=0;G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;G.score+=100;updateHUD();spawnScorePopup(e.x+8,e.y-8,100,'#e8e8d0');}else if(mario.inv===0)killMario();}continue;}
 // === チャージングチャック（Chargin' Chuck）===
 if(e.type==='chuck'){if(e.hp===undefined)e.hp=3;if(e.state==='stun'){e.stunTimer--;if(e.stunTimer<=0){e.state='idle';e.vx=e.facing*1.5;}e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}if(e.y>H+100){e.alive=false;continue;}if(!mario.dead&&mario.inv===0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.state='dead';e.squishT=20;e.vx=0;G.score+=500;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,500,'#FFD700');}else killMario();}continue;}if(e.state==='idle'){if(Math.abs(e.vx)<0.1)e.vx=e.facing*1.5;if(e.onGround&&Math.abs(mario.y+mario.h-(e.y+e.h))<48&&Math.abs(mario.x-e.x)<420){e.state='charge';e.facing=mario.x>e.x?1:-1;e.vx=e.facing*4.5;}}else if(e.state==='charge')e.vx=e.facing*4.5;e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}if(e.y>H+100){e.alive=false;continue;}if(e.onGround){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;e.facing=-e.facing;if(e.state==='charge')e.state='idle';}}if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.state='dead';e.squishT=20;e.vx=0;G.score+=500;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,500,'#FFD700');continue;}const _mBot=mario.y+mario.h;if(_mBot-mario.vy<=e.y+e.h*0.35){e.hp--;mario.vy=-9;sfx('stomp');spawnParticle(e.x+16,e.y+16,'dust');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;if(e.hp<=0){e.state='dead';e.squishT=28;e.vx=0;G.score+=500;G.stageKills++;G.totalKills++;updateHUD();spawnScorePopup(e.x+8,e.y-8,500,'#e74c3c');}else{e.state='stun';e.stunTimer=60;e.vx=0;G.score+=200;updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c');}}else if(mario.inv===0)killMario();}continue;}
+// === ボム兵（Bob-omb）===
+if(e.type==='bobomb'){
+  if(e.state==='lit'){
+    e.litTimer--;
+    if(e.litTimer<=0){
+      const cx=e.x+e.w/2,cy=e.y+e.h/2,r=TILE*2.5;
+      G.shakeX=8;G.shakeY=8;
+      for(let _ei=0;_ei<20;_ei++)spawnParticle(cx+(Math.random()-0.5)*48,cy+(Math.random()-0.5)*48,'star');
+      try{beep(80,.3,'sawtooth',.3);beep(50,.4,'sawtooth',.2,.1);}catch(_ex){}
+      for(const o of enemies){if(!o.alive||o===e||o.state==='dead')continue;
+        const _od=Math.hypot(o.x+o.w/2-cx,o.y+o.h/2-cy);
+        if(_od<r){if(o.type==='thwomp'||o.type==='teresa'||o.type==='bowser'){continue;}o.state='dead';o.squishT=20;o.vx=0;G.score+=100;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(o.x+8,o.y-8,100,'#ff8844');}
+      }
+      for(let _pi=platforms.length-1;_pi>=0;_pi--){const p=platforms[_pi];if(p.type!=='brick'||p.hit)continue;
+        const _pd=Math.hypot(p.x+p.w/2-cx,p.y+p.h/2-cy);
+        if(_pd<r){spawnParticle(p.x+16,p.y+16,'brick');platforms.splice(_pi,1);G.score+=50;}
+      }
+      const _mdx=mario.x+mario.w/2-cx,_mdy=mario.y+mario.h/2-cy;
+      if(Math.hypot(_mdx,_mdy)<r&&mario.inv===0&&G.starTimer===0&&!mario.dead)killMario();
+      e.alive=false;continue;
+    }
+  }
+  e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}
+  e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}
+  if(e.y>H+100){e.alive=false;continue;}
+  if(e.onGround){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}
+    const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;
+    if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;e.facing=e.vx>0?1:-1;}
+  }
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.state='dead';e.squishT=20;e.vx=0;G.score+=300;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,300,'#FFD700');continue;}
+    const _mBot=mario.y+mario.h;
+    if(_mBot-mario.vy<=e.y+e.h*0.4){
+      mario.vy=-9;sfx('stomp');spawnParticle(e.x+16,e.y+16,'dust');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;
+      if(e.state==='walk'){e.state='lit';e.litTimer=180;e.vx*=0.6;G.score+=100;spawnScorePopup(e.x+8,e.y-8,100,'#ff4400');}
+    } else if(mario.inv===0)killMario();
+  }
+  continue;
+}
+// === トゲゾー（Spiny）===
+if(e.type==='spiny'){
+  e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}
+  e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}
+  if(e.y>H+100){e.alive=false;continue;}
+  if(e.onGround){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}
+    const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;
+    if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;e.facing=e.vx>0?1:-1;}
+  }
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.state='dead';e.squishT=20;G.score+=300;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,300,'#FFD700');}
+    else if(mario.inv===0)killMario();
+  }
+  continue;
+}
+// === ポケッキー（Pokey・多段サボテン）===
+if(e.type==='pokey'){
+  if(e.segments===undefined)e.segments=3;
+  e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}
+  e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}
+  if(e.y>H+100){e.alive=false;continue;}
+  if(e.onGround){e.walkTimer++;if(e.walkTimer>10){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}
+    const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;
+    if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;e.facing=e.vx>0?1:-1;}
+  }
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.alive=false;G.score+=500;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,500,'#FFD700');continue;}
+    const _mBot=mario.y+mario.h;
+    if(_mBot-mario.vy<=e.y+TILE*0.5){
+      mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;
+      e.segments--;
+      if(e.segments<=0){e.alive=false;G.score+=300;G.stageKills++;G.totalKills++;spawnParticle(e.x+16,e.y+16,'dust');spawnScorePopup(e.x+8,e.y-8,300,'#e74c3c');updateHUD();}
+      else{e.y+=TILE;e.h=Math.max(TILE,e.h-TILE);G.score+=100;spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,100,'#e74c3c');updateHUD();}
+    } else if(mario.inv===0)killMario();
+  }
+  continue;
+}
+// === ファジー（Fuzzy・レール移動）===
+if(e.type==='fuzzy'){
+  if(e.t===undefined)e.t=e.phase||0;
+  e.t+=e.speed||0.010;
+  const _k=0.5-Math.cos(e.t*Math.PI*2)*0.5;
+  e.x=e.railX1+(e.railX2-e.railX1)*_k;
+  e.y=e.railY1+(e.railY2-e.railY1)*_k;
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.alive=false;G.score+=400;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,400,'#FFD700');}
+    else if(mario.inv===0)killMario();
+  }
+  continue;
+}
+// === モンテ（Monty Mole・地面突撃）===
+if(e.type==='montyMole'){
+  if(e.state==='hidden'){
+    if(!mario.dead&&Math.abs(mario.x+mario.w/2-(e.x+e.w/2))<240){e.state='emerge';e.emergeT=30;try{beep(120,.08,'square',.15)}catch(_ex){}}
+  } else if(e.state==='emerge'){
+    e.emergeT--;
+    if(e.emergeT<=0){e.state='walk';e.facing=mario.x<e.x?-1:1;e.vx=e.facing*2.8;e.vy=-6;}
+  } else if(e.state==='walk'){
+    e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}
+    e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}
+    if(e.y>H+100){e.alive=false;continue;}
+    if(e.onGround){e.walkTimer++;if(e.walkTimer>6){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}
+      const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;
+      if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;e.facing=e.vx>0?1:-1;}
+    }
+  }
+  if(!mario.dead&&e.state==='walk'&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.state='dead';e.squishT=20;e.vx=0;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue;}
+    const _mBot=mario.y+mario.h;
+    if(_mBot-mario.vy<=e.y+e.h*0.4){
+      mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;
+      e.state='dead';e.squishT=28;e.vx=0;G.score+=200;G.stageKills++;G.totalKills++;updateHUD();spawnParticle(e.x+16,e.y+16,'dust');spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c');
+    } else if(mario.inv===0)killMario();
+  }
+  continue;
+}
+// === スパイクトップ（Spike Top・天井這い）===
+if(e.type==='spikeTop'){
+  if(e.baseX===undefined){e.baseX=e.x;e.range=e.range||100;}
+  e.x+=e.vx;
+  if(e.x<=e.baseX-e.range){e.x=e.baseX-e.range;e.vx=Math.abs(e.vx);e.facing=1;}
+  else if(e.x>=e.baseX+e.range){e.x=e.baseX+e.range;e.vx=-Math.abs(e.vx);e.facing=-1;}
+  e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
+    if(G.starTimer>0){e.alive=false;G.score+=400;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,400,'#FFD700');}
+    else if(mario.inv===0)killMario();
+  }
+  continue;
+}
 if(e.type==='firePlant'){if(e.frozen)continue;if(e.fireTimer===undefined)e.fireTimer=120;e.fireTimer--;if(e.fireTimer<=0&&Math.abs(mario.x-e.x)<500){e.fireTimer=80+Math.floor(Math.random()*60);const _fpd=mario.x<e.x?-1:1;enemies.push({x:e.x+(_fpd>0?e.w:0),y:e.y+e.h/2-6,w:14,h:14,vx:_fpd*3.5,vy:0,type:'plantFire',alive:true,activated:true});try{beep(200,.06,'sawtooth',.12);beep(280,.08,'sawtooth',.1,.06)}catch(_ex){}}if(G.starTimer>0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=20;G.score+=300;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,300,'#FFD700')}else if(!mario.dead&&mario.inv===0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h))killMario();continue;}
 if(e.type==='plantFire'){e.x+=e.vx;e.vy+=(G.waterMode?0:0.2);e.y+=e.vy;if(e.x<G.cam-120||e.x>G.cam+W+120||e.y<-60||e.y>H+60){e.alive=false;continue}if(!mario.dead&&mario.inv===0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.alive=false}else killMario();e.alive=false;}continue;}
 e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p)}
 e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null)}
 if(e.y>H+100){e.alive=false;continue}
 if(e.onGround&&e.state==='walk'){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2}}
-if((e.type==='buzzy'||e.type==='penguin')&&e.onGround&&e.state==='walk'){const _ax=e.vx>0?e.x+e.w+2:e.x-2;const _ay=e.y+e.h+2;if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;if(e.type==='penguin')e.facing=e.vx>0?1:-1;}}
+if((e.type==='buzzy'||e.type==='penguin'||e.type==='shyGuy'||e.type==='rex')&&e.onGround&&e.state==='walk'){const _ax=e.vx>0?e.x+e.w+2:e.x-2;const _ay=e.y+e.h+2;if(!platforms.some(p=>_ax>=p.x&&_ax<p.x+p.w&&_ay>=p.y&&_ay<p.y+p.h)){e.vx=-e.vx;if(e.type==='penguin'||e.type==='shyGuy'||e.type==='rex')e.facing=e.vx>0?1:-1;}}
 if(e.state==='shell'&&Math.abs(e.vx)>1){for(const o of enemies){if(o===e||!o.alive||o.state==='dead')continue;if(overlap(e.x,e.y,e.w,e.h,o.x,o.y,o.w,o.h)){o.state='dead';o.squishT=20;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(o.x+8,o.y-8,200,'#e74c3c')}}}
 if(e.frozen)continue; // 凍結敵は通常衝突スキップ（専用処理で対応）
 if(overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
@@ -1041,7 +1184,8 @@ if(G.starTimer>0){e.state='dead';e.squishT=20;G.score+=200;sfx('stomp');updateHU
 if(e.type==='cheepH'||e.type==='cheepV'||e.type==='firePlant'){if(mario.inv===0)killMario();continue}
 const mBot=mario.y+mario.h;if(mBot-mario.vy<=e.y+e.h*0.4){G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;const cs=G.combo<=1?200:G.combo===2?400:G.combo===3?800:G.combo===4?1600:0;if(G.combo>=5){G.lives++;sfx('1up');spawnScorePopup(e.x+8,e.y-8,'1UP!','#2ecc71')}else{G.score+=cs;spawnScorePopup(e.x+8,e.y-8,cs,'#e74c3c')}
 mario.vy=-9;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'dust');
-if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'){e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}
+if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'){e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}
+else if(e.type==='rex'){if(!e.rexHurt){e.rexHurt=true;e.h=TILE*0.5;e.y+=TILE*0.5;e.vx=(e.vx>=0?1:-1)*Math.max(Math.abs(e.vx)*1.8,2.2);}else{e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}}
 else if(e.type==='koopa'||e.type==='buzzy'){if(e.state==='walk'){e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300}else if(e.state==='shell'&&Math.abs(e.vx)<0.5)e.vx=mario.facing*8;else{e.vx=0;e.shellTimer=300}}}
 else if(e.state==='shell'&&Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10}else if(mario.inv===0)killMario()}
 if(e.state==='shell'){e.shellTimer--;if(e.shellTimer<=0){e.state='walk';e.vx=e.type==='buzzy'?-1.6:-1.3;e.h=e.type==='koopa'?TILE*1.2:e.type==='buzzy'?TILE*0.85:TILE}}}
@@ -1145,7 +1289,8 @@ if(fb.bounces>4||fb.x<G.cam-80||fb.x>G.cam+W+80||fb.y>H+50)fb.alive=false;
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(!overlap(fb.x,fb.y,fb.w,fb.h,e.x,e.y,e.w,e.h))continue;
 if(e.type==='plantFire'){e.alive=false;fb.alive=false;G.score+=100;updateHUD();spawnParticle(e.x+7,e.y+7,'star');continue}
 if(e.type==='cheepH'||e.type==='cheepV'||e.type==='firePlant'){e.state='dead';e.squishT=20;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+10,'star');spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});continue}
-if(e.type==='buzzy'||e.type==='cactus'||e.type==='teresa'||e.type==='thwomp'||e.type==='dryBones'||e.type==='angrySun'){fb.alive=false;spawnParticle(e.x+16,e.y+16,'dust');continue}
+if(e.type==='bobomb'){if(e.state==='walk'){e.state='lit';e.litTimer=120;}fb.alive=false;spawnParticle(e.x+16,e.y+16,'dust');continue;}
+if(e.type==='buzzy'||e.type==='cactus'||e.type==='teresa'||e.type==='thwomp'||e.type==='dryBones'||e.type==='angrySun'||e.type==='spikeTop'||e.type==='spiny'||e.type==='fuzzy'){fb.alive=false;spawnParticle(e.x+16,e.y+16,'dust');continue}
 e.state='dead';e.vx=0;e.squishT=28;fb.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#ff9944');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false})}}
 // === Ice Balls ===
 for(let i=iceBalls.length-1;i>=0;i--){const ib=iceBalls[i];if(!ib.alive){iceBalls.splice(i,1);continue}
@@ -1154,7 +1299,7 @@ if(!G.waterMode)for(const p of[...platforms,...pipes]){const bo=p.bounceOffset||
 if(ib.bounces>5||ib.x<G.cam-80||ib.x>G.cam+W+80||ib.y>H+50)ib.alive=false;
 for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(!overlap(ib.x,ib.y,ib.w,ib.h,e.x,e.y,e.w,e.h))continue;
 if(e.frozen){ib.alive=false;e.alive=false;e.frozen=false;e.shakeX=0;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});break;}
-if(e.type==='dryBones'||e.type==='angrySun'){ib.alive=false;spawnParticle(e.x+16,e.y+16,'dust');break;}
+if(e.type==='dryBones'||e.type==='angrySun'||e.type==='spikeTop'||e.type==='fuzzy'){ib.alive=false;spawnParticle(e.x+16,e.y+16,'dust');break;}
 if(e.type==='blooper'){e.state='dead';e.squishT=20;ib.alive=false;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+12,'star');spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');break;}
 ib.alive=false;e.frozen=true;e.frozenTimer=240;e.frozenVx=e.vx;e.vx=0;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(e.x+8,e.y-8,'ICE!','#44bbff');spawnParticle(e.x+16,e.y+16,'star');break}
 // bowser ice hit
@@ -1779,7 +1924,7 @@ if(Math.abs(e.vx)>1){ctx.fillStyle='rgba(255,255,255,0.25)';ctx.fillRect(x+5+Mat
 }else if(e.state==='dead'){ctx.fillStyle='#27ae60';ctx.fillRect(x+4,y+TILE-6,TILE-8,6);}
 else{
 // Wings for parakoopa
-if(e.type==='parakoopa'&&e.flying){const wf=Math.sin(G.frame*0.25)*8;
+if((e.type==='parakoopa'||e.type==='parakoopaR')&&e.flying){const wf=Math.sin(G.frame*0.25)*8;
 ctx.fillStyle='#ecf0f1';ctx.beginPath();ctx.moveTo(x+6,y+h*0.32);ctx.lineTo(x-10,y+h*0.32-wf);ctx.lineTo(x+2,y+h*0.55);ctx.closePath();ctx.fill();
 ctx.beginPath();ctx.moveTo(x+e.w-6,y+h*0.32);ctx.lineTo(x+e.w+10,y+h*0.32-wf);ctx.lineTo(x+e.w-2,y+h*0.55);ctx.closePath();ctx.fill();
 ctx.fillStyle='#bdc3c7';ctx.beginPath();ctx.moveTo(x+6,y+h*0.32);ctx.lineTo(x-5,y+h*0.32-wf*0.6);ctx.lineTo(x+3,y+h*0.5);ctx.closePath();ctx.fill();
@@ -2162,6 +2307,194 @@ ctx.fillStyle='#8b6914';ctx.fillRect(x+24,y+8,3,20);ctx.fillRect(x+24,y+8,18,3);
 // Dangling koopa shell
 ctx.fillStyle='#d4a020';ctx.fillRect(x+37,y+6,9,7);ctx.fillStyle='#4a7c2f';ctx.fillRect(x+36,y+10,11,5);}
 
+function drawShyGuy(e){const x=e.x,y=e.y;
+if(e.state==='dead'){ctx.fillStyle='#a01818';ctx.fillRect(x+2,y+TILE-8,TILE-4,8);ctx.fillStyle='#c02020';ctx.fillRect(x+4,y+TILE-6,TILE-8,4);return;}
+const col=e.variant==='blue'?'#2060c0':e.variant==='green'?'#2a9a3a':'#c02020';
+const colD=e.variant==='blue'?'#103060':e.variant==='green'?'#176020':'#801010';
+// ローブ本体
+ctx.fillStyle=col;ctx.fillRect(x+3,y+10,TILE-6,TILE-14);
+// ローブ裾（波）
+ctx.fillStyle=colD;ctx.fillRect(x+3,y+TILE-6,TILE-6,2);
+// フード上部
+ctx.fillStyle=col;ctx.beginPath();ctx.arc(x+TILE/2,y+10,11,Math.PI,0);ctx.fill();
+ctx.fillStyle=colD;ctx.fillRect(x+3,y+9,TILE-6,2);
+// マスク
+ctx.fillStyle='#f5ecd4';ctx.fillRect(x+7,y+6,TILE-14,12);
+ctx.fillStyle='#d4c9a8';ctx.fillRect(x+7,y+16,TILE-14,2);
+// 目
+ctx.fillStyle='#000';ctx.fillRect(x+10,y+9,3,4);ctx.fillRect(x+TILE-13,y+9,3,4);
+// 口
+ctx.fillStyle='#000';ctx.fillRect(x+12,y+14,TILE-24,2);
+// 足
+const fo=e.walkFrame===0?[-2,1]:[1,-2];
+ctx.fillStyle='#4a2010';ctx.fillRect(x+4+fo[0],y+TILE-4,8,4);ctx.fillRect(x+TILE-12+fo[1],y+TILE-4,8,4);
+}
+
+function drawRex(e){const x=e.x,y=e.y,h=e.h,facing=e.facing||-1;
+if(e.state==='dead'){ctx.fillStyle='#6a3caa';ctx.fillRect(x+2,y+h-6,e.w-4,6);return;}
+const hurt=e.rexHurt;
+// 体
+ctx.fillStyle='#6a3caa';ctx.fillRect(x+2,y+h*0.35,e.w-4,h*0.5);
+ctx.fillStyle='#884ccc';ctx.fillRect(x+4,y+h*0.4,e.w-8,h*0.4);
+// 背びれ（2個または1個）
+ctx.fillStyle='#c070dd';
+if(!hurt){ctx.beginPath();ctx.moveTo(x+10,y+h*0.35);ctx.lineTo(x+14,y+4);ctx.lineTo(x+18,y+h*0.35);ctx.fill();
+ctx.beginPath();ctx.moveTo(x+e.w-18,y+h*0.35);ctx.lineTo(x+e.w-14,y+6);ctx.lineTo(x+e.w-10,y+h*0.35);ctx.fill();}
+else{ctx.beginPath();ctx.moveTo(x+e.w/2-4,y+h*0.35);ctx.lineTo(x+e.w/2,y+2);ctx.lineTo(x+e.w/2+4,y+h*0.35);ctx.fill();}
+// 頭（facing向き）
+const hx=facing>=0?x+e.w-12:x;
+ctx.fillStyle='#6a3caa';ctx.fillRect(hx,y+h*0.22,12,h*0.35);
+ctx.fillStyle='#884ccc';ctx.fillRect(hx+1,y+h*0.26,10,h*0.28);
+// 鼻
+ctx.fillStyle='#a060c8';
+if(facing>=0)ctx.fillRect(hx+10,y+h*0.35,4,5);else ctx.fillRect(hx-2,y+h*0.35,4,5);
+// 目
+ctx.fillStyle='#fff';ctx.fillRect(hx+(facing>=0?2:6),y+h*0.26,4,4);
+ctx.fillStyle='#000';ctx.fillRect(hx+(facing>=0?3:7),y+h*0.27,2,2);
+// 牙
+ctx.fillStyle='#fff';
+if(facing>=0)ctx.fillRect(hx+9,y+h*0.45,2,3);else ctx.fillRect(hx+1,y+h*0.45,2,3);
+// 足
+const fo=e.walkFrame===0?[-2,2]:[2,-2];
+ctx.fillStyle='#4a2078';ctx.fillRect(x+4+fo[0],y+h-4,8,4);ctx.fillRect(x+e.w-12+fo[1],y+h-4,8,4);
+}
+
+function drawBobomb(e){const x=e.x,y=e.y;
+if(e.state==='dead'){ctx.fillStyle='#2a2a2a';ctx.fillRect(x+2,y+TILE-6,TILE-4,6);return;}
+const lit=e.state==='lit';
+const flash=lit&&(e.litTimer<60?e.litTimer%6<3:e.litTimer%12<6);
+// 体
+ctx.fillStyle=flash?'#ff4400':'#1a1a1a';
+ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.4,0,Math.PI*2);ctx.fill();
+ctx.fillStyle=flash?'#ff8844':'#333';
+ctx.beginPath();ctx.arc(x+TILE*0.42,y+TILE*0.5,5,0,Math.PI*2);ctx.fill();
+// 導火線
+ctx.fillStyle='#aaa';ctx.fillRect(x+TILE/2-1,y+4,2,8);
+// 火花（点火時）
+if(lit){ctx.fillStyle=`hsl(${Math.random()*60},100%,${50+Math.random()*30}%)`;
+ctx.beginPath();ctx.arc(x+TILE/2,y+2,3+Math.random()*3,0,Math.PI*2);ctx.fill();
+for(let i=0;i<3;i++){ctx.fillStyle=`rgba(255,${100+Math.random()*155},0,${Math.random()})`;ctx.fillRect(x+TILE/2-1+Math.random()*4-2,y-2-Math.random()*4,2,2);}}
+// 目
+ctx.fillStyle='#fff';ctx.fillRect(x+10,y+TILE*0.42,4,5);ctx.fillRect(x+TILE-14,y+TILE*0.42,4,5);
+ctx.fillStyle='#000';ctx.fillRect(x+11,y+TILE*0.44,2,3);ctx.fillRect(x+TILE-13,y+TILE*0.44,2,3);
+// 足
+const fo=e.walkFrame===0?[-2,1]:[1,-2];
+ctx.fillStyle='#f5c040';ctx.fillRect(x+6+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE-13+fo[1],y+TILE-4,7,4);
+}
+
+function drawSpiny(e){const x=e.x,y=e.y;
+if(e.state==='dead'){ctx.fillStyle='#a82020';ctx.fillRect(x+4,y+TILE-8,TILE-8,8);return;}
+// 甲羅（赤・丸型）
+ctx.fillStyle='#a82020';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.42,Math.PI,0);ctx.fill();
+ctx.fillRect(x+4,y+TILE*0.55,TILE-8,TILE*0.35);
+ctx.fillStyle='#d03030';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.3,Math.PI,0);ctx.fill();
+// トゲ（背中に6本）
+ctx.fillStyle='#fff';
+for(let i=0;i<5;i++){const sx=x+5+i*5;
+ctx.beginPath();ctx.moveTo(sx,y+TILE*0.45);ctx.lineTo(sx+2,y+3);ctx.lineTo(sx+4,y+TILE*0.45);ctx.closePath();ctx.fill();}
+// 頭（甲羅の下から覗く）
+ctx.fillStyle='#f5c080';ctx.fillRect(x+TILE*0.3,y+TILE*0.72,TILE*0.4,TILE*0.2);
+// 目
+ctx.fillStyle='#fff';ctx.fillRect(x+9,y+TILE*0.72,4,4);ctx.fillRect(x+TILE-13,y+TILE*0.72,4,4);
+ctx.fillStyle='#000';ctx.fillRect(x+10,y+TILE*0.74,2,3);ctx.fillRect(x+TILE-12,y+TILE*0.74,2,3);
+// 足
+const fo=e.walkFrame===0?[-2,1]:[1,-2];
+ctx.fillStyle='#e09030';ctx.fillRect(x+5+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE-12+fo[1],y+TILE-4,7,4);
+}
+
+function drawSpikeTop(e){const x=e.x,y=e.y;
+// 天井這い：殻が上、体が下
+// 殻（硬い茶色）
+ctx.fillStyle='#6b3410';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.42,0,Math.PI);ctx.fill();
+ctx.fillRect(x+4,y+TILE*0.2,TILE-8,TILE*0.35);
+ctx.fillStyle='#8b4a1a';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.3,0,Math.PI);ctx.fill();
+// トゲ（下向き5本）
+ctx.fillStyle='#fff';
+for(let i=0;i<5;i++){const sx=x+5+i*5;
+ctx.beginPath();ctx.moveTo(sx,y+TILE*0.65);ctx.lineTo(sx+2,y+TILE-3);ctx.lineTo(sx+4,y+TILE*0.65);ctx.closePath();ctx.fill();}
+// 頭（上）
+ctx.fillStyle='#f5c080';ctx.fillRect(x+TILE*0.3,y+4,TILE*0.4,TILE*0.2);
+// 目
+ctx.fillStyle='#fff';ctx.fillRect(x+9,y+6,4,4);ctx.fillRect(x+TILE-13,y+6,4,4);
+ctx.fillStyle='#000';ctx.fillRect(x+10,y+7,2,3);ctx.fillRect(x+TILE-12,y+7,2,3);
+// 脚（上・天井に吸着）
+const fo=e.walkFrame===0?[-2,1]:[1,-2];
+ctx.fillStyle='#a8602a';ctx.fillRect(x+5+fo[0],y,7,5);ctx.fillRect(x+TILE-12+fo[1],y,7,5);
+}
+
+function drawPokey(e){const x=e.x,y=e.y;
+const segs=e.segments||3;
+// 体（黄色いサボテン、複数段）
+for(let i=0;i<segs;i++){
+  const sy=y+i*TILE;
+  ctx.fillStyle='#e5c84a';ctx.beginPath();ctx.arc(x+TILE/2,sy+TILE/2,TILE*0.42,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f5d85a';ctx.beginPath();ctx.arc(x+TILE/2,sy+TILE/2,TILE*0.32,0,Math.PI*2);ctx.fill();
+  // トゲ
+  ctx.fillStyle='#8b6420';
+  for(let j=0;j<4;j++){const a=(j/4)*Math.PI*2+(i%2)*0.4;const px=x+TILE/2+Math.cos(a)*TILE*0.4;const py=sy+TILE/2+Math.sin(a)*TILE*0.4;
+  ctx.beginPath();ctx.moveTo(px-2,py-2);ctx.lineTo(px+Math.cos(a)*5,py+Math.sin(a)*5);ctx.lineTo(px+2,py+2);ctx.closePath();ctx.fill();}
+}
+// 頭（顔、最上段）
+const headY=y;
+ctx.fillStyle='#000';ctx.fillRect(x+10,headY+8,4,5);ctx.fillRect(x+TILE-14,headY+8,4,5);
+ctx.fillStyle='#f5d85a';ctx.fillRect(x+11,headY+9,2,3);ctx.fillRect(x+TILE-13,headY+9,2,3);
+// 口
+ctx.fillStyle='#7a2020';ctx.fillRect(x+12,headY+18,TILE-24,3);
+}
+
+function drawFuzzy(e){const x=e.x,y=e.y;
+const pulse=1+Math.sin(G.frame*0.2)*0.1;
+// レール表示（簡易・うす線）
+if(e.railX1!==undefined){
+  ctx.strokeStyle='rgba(120,120,140,0.3)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(e.railX1+TILE/2,e.railY1+TILE/2);ctx.lineTo(e.railX2+TILE/2,e.railY2+TILE/2);ctx.stroke();
+  ctx.setLineDash([]);
+}
+// 本体（黒い毛玉）
+ctx.fillStyle='#1a1a1a';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE/2,TILE*0.4*pulse,0,Math.PI*2);ctx.fill();
+// 毛のギザギザ
+ctx.fillStyle='#2a2a2a';
+for(let i=0;i<12;i++){const a=(i/12)*Math.PI*2+G.frame*0.03;
+const px=x+TILE/2+Math.cos(a)*TILE*0.44*pulse;const py=y+TILE/2+Math.sin(a)*TILE*0.44*pulse;
+ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();}
+// 目
+ctx.fillStyle='#fff';ctx.fillRect(x+10,y+10,5,5);ctx.fillRect(x+TILE-15,y+10,5,5);
+ctx.fillStyle='#000';ctx.fillRect(x+11,y+11,3,3);ctx.fillRect(x+TILE-14,y+11,3,3);
+}
+
+function drawMontyMole(e){const x=e.x,y=e.y;
+if(e.state==='hidden'){
+  // 土の盛り上がり
+  ctx.fillStyle='#8b5a2a';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.8,TILE*0.5,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#5a3a1a';
+  for(let i=0;i<4;i++)ctx.fillRect(x+6+i*5,y+TILE-8,3,4);
+  return;
+}
+if(e.state==='emerge'){
+  // 半分顔を出す
+  const _h=Math.max(0,1-(e.emergeT||0)/30);
+  ctx.fillStyle='#8b5a2a';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.8,TILE*0.5,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#6a4020';ctx.fillRect(x+6,y+TILE-TILE*_h,TILE-12,TILE*_h);
+  ctx.fillStyle='#3a2410';ctx.fillRect(x+10,y+TILE-TILE*_h+4,5,4);ctx.fillRect(x+TILE-15,y+TILE-TILE*_h+4,5,4);
+  return;
+}
+if(e.state==='dead'){ctx.fillStyle='#6a4020';ctx.fillRect(x+2,y+TILE-6,TILE-4,6);return;}
+// 歩き状態（茶色モグラ）
+ctx.fillStyle='#6a4020';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.55,TILE*0.42,Math.PI,0);ctx.fill();
+ctx.fillRect(x+4,y+TILE*0.5,TILE-8,TILE*0.4);
+ctx.fillStyle='#8b5a2a';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.5,TILE*0.32,Math.PI,0);ctx.fill();
+// 目
+ctx.fillStyle='#fff';ctx.fillRect(x+9,y+TILE*0.35,4,4);ctx.fillRect(x+TILE-13,y+TILE*0.35,4,4);
+ctx.fillStyle='#000';ctx.fillRect(x+10,y+TILE*0.38,2,3);ctx.fillRect(x+TILE-12,y+TILE*0.38,2,3);
+// 鼻
+ctx.fillStyle='#d0807a';
+if((e.facing||-1)<0)ctx.fillRect(x+2,y+TILE*0.5,5,4);else ctx.fillRect(x+TILE-7,y+TILE*0.5,5,4);
+// 爪
+ctx.fillStyle='#fff';
+const fo=e.walkFrame===0?[-2,1]:[1,-2];
+ctx.fillRect(x+5+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE-12+fo[1],y+TILE-4,7,4);
+}
+
 function drawParticles(){for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)}ctx.globalAlpha=1}
 function drawScorePopups(){for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y)}ctx.globalAlpha=1;ctx.textAlign='left'}
 
@@ -2349,7 +2682,7 @@ for(const c of coinItems){if(c.collected||c._psHidden)continue;if(c.type==='fire
 if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(pc.x+TILE<G.cam||pc.x>G.cam+W)continue;drawCoinItem(pc.x,pc.y);}}
 // Enemies
 for(const e of enemies){if(!e.alive||e.x+e.w<G.cam-10||e.x>G.cam+W+10)continue;const _sx=e.shakeX||0;if(_sx)e.x+=_sx;
-if(e.type==='koopa'||e.type==='parakoopa')drawKoopa(e);else if(e.type==='buzzy')drawBuzzy(e);else if(e.type==='hammerBro')drawHammerBro(e);else if(e.type==='cactus')drawCactus(e);else if(e.type==='lakitu')drawLakitu(e);else if(e.type==='cheepH'||e.type==='cheepV')drawCheep(e);else if(e.type==='firePlant')drawFirePlant(e);else if(e.type==='plantFire')drawPlantFireball(e);else if(e.type==='penguin')drawPenguin(e);else if(e.type==='teresa')drawTeresa(e);else if(e.type==='thwomp')drawThwomp(e);else if(e.type==='blooper')drawBlooper(e);else if(e.type==='dryBones')drawDryBones(e);else if(e.type==='angrySun')drawAngrySun(e);else if(e.type==='chuck')drawChuck(e);
+if(e.type==='koopa'||e.type==='parakoopa'||e.type==='parakoopaR')drawKoopa(e);else if(e.type==='buzzy')drawBuzzy(e);else if(e.type==='hammerBro')drawHammerBro(e);else if(e.type==='cactus')drawCactus(e);else if(e.type==='lakitu')drawLakitu(e);else if(e.type==='cheepH'||e.type==='cheepV')drawCheep(e);else if(e.type==='firePlant')drawFirePlant(e);else if(e.type==='plantFire')drawPlantFireball(e);else if(e.type==='penguin')drawPenguin(e);else if(e.type==='teresa')drawTeresa(e);else if(e.type==='thwomp')drawThwomp(e);else if(e.type==='blooper')drawBlooper(e);else if(e.type==='dryBones')drawDryBones(e);else if(e.type==='angrySun')drawAngrySun(e);else if(e.type==='chuck')drawChuck(e);else if(e.type==='shyGuy')drawShyGuy(e);else if(e.type==='rex')drawRex(e);else if(e.type==='bobomb')drawBobomb(e);else if(e.type==='spiny')drawSpiny(e);else if(e.type==='spikeTop')drawSpikeTop(e);else if(e.type==='pokey')drawPokey(e);else if(e.type==='fuzzy')drawFuzzy(e);else if(e.type==='montyMole')drawMontyMole(e);
 else drawGoomba(e.x,e.y,e.state==='dead',e.walkFrame);if(_sx)e.x-=_sx;}
 if(G.currentLevel!==3&&!G.ugMode&&flagPole.x-G.cam>-200&&flagPole.x-G.cam<W+200)drawFlag();
 // Bowser

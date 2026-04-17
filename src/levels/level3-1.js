@@ -160,6 +160,10 @@ pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
+// ★ 新敵（CP後・ヘイホー×2）
+enemies.push({x:4450,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'red',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+enemies.push({x:5050,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'blue',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:3600,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

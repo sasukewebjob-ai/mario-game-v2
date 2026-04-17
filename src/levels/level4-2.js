@@ -155,4 +155,8 @@ export function buildLevel_4_2(){
   enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
   enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
+  // ★ トゲゾー（CP後・地面 2200-2450）
+  enemies.push({x:2400,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'spiny',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+  // ★ ファジー（CP後・レール沿い）
+  enemies.push({x:2500,y:H-5*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,type:'fuzzy',state:'walk',railX1:2500,railY1:H-5*TILE,railX2:2700,railY2:H-7*TILE,t:0,speed:0.012});
 }

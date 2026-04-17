@@ -204,4 +204,6 @@ export function buildLevel_8_1(){
   // ★ 追いかけ壁（飛行船の爆発が迫る）
   G.chasingWall={x:-300,speed:0.95,triggerX:2400,active:false}; // チェックポイント(x=2200)通過後に起動
 
+  // ★ ボム兵（CP後）
+  enemies.push({x:2800,y:H-2*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'bobomb',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1,litTimer:0});
 }

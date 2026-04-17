@@ -170,6 +170,9 @@ pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
+// ★ ポケッキー（CP後・砂漠の多段サボテン）
+enemies.push({x:5000,y:H-4*TILE,w:TILE,h:TILE*3,vx:-0.8,vy:0,alive:true,type:'pokey',state:'walk',segments:3,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:2800,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }

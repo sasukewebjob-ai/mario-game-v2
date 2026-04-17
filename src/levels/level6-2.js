@@ -210,6 +210,11 @@ pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
+// ★ トゲゾー（CP後）
+enemies.push({x:4300,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'spiny',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+// ★ ファジー（CP後・氷洞のレール）
+enemies.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,type:'fuzzy',state:'walk',railX1:4400,railY1:H-5*TILE,railX2:4600,railY2:H-7*TILE,t:0,speed:0.012});
+
 // ピノキオ部屋ワープ天井パイプ（ゴール階段手前 x=7180, addRow(7150,H-5T)上からジャンプで入れる）
 pipes.push({x:7180,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
 }
