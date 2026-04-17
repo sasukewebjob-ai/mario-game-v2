@@ -1284,7 +1284,7 @@ mario.vy=-9;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'dust');
 if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'){e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}
 else if(e.type==='rex'){if(!e.rexHurt){e.rexHurt=true;e.h=TILE*0.5;e.y+=TILE*0.5;e.vx=(e.vx>=0?1:-1)*Math.max(Math.abs(e.vx)*1.8,2.2);mario.inv=30;}else{e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}}
 else if(e.type==='koopa'||e.type==='buzzy'){if(e.state==='walk'){e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300}else if(e.state==='shell'&&Math.abs(e.vx)<0.5)e.vx=mario.facing*8;else{e.vx=0;e.shellTimer=300}}}
-else if(e.state==='shell'&&Math.abs(e.vx)<0.5){if(isDash&&!mario.heldShell){mario.heldShell=e;sfx('stomp');mario.inv=10;}else{e.vx=mario.facing*8;sfx('stomp');mario.inv=10;}}else if(mario.inv===0)killMario()}
+else if(e.state==='shell'){if(isDash&&!mario.heldShell){mario.heldShell=e;e.vx=0;sfx('stomp');mario.inv=30;}else if(Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10;}else if(mario.inv===0)killMario();}else if(mario.inv===0)killMario()}
 if(e.state==='shell'){e.shellTimer--;if(e.shellTimer<=0){e.state='walk';e.vx=e.type==='buzzy'?-1.6:-1.3;e.h=e.type==='koopa'?TILE*1.2:e.type==='buzzy'?TILE*0.85:TILE}}}
 // Piranhas
 for(const pr of piranhas){if(!pr.alive)continue;const t=G.frame*0.03+pr.phase;
