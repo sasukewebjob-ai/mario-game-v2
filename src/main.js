@@ -970,6 +970,7 @@ for(const e of enemies){if(!e.alive)continue;if(e.type==='miniBowser')continue;/
 if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
 // 休眠スポーン: カメラ右端+8タイル先に入るまで physics をスキップ（parakoopa/lakitu は自前ロジックで動くので除外）
 if(e.type!=='parakoopa'&&e.type!=='lakitu'&&e.type!=='cheepH'&&e.type!=='cheepV'&&e.type!=='firePlant'&&e.type!=='plantFire'&&e.type!=='blooper'&&e.type!=='angrySun'&&!e.activated){if(G.cam+W+TILE*8<e.x)continue;e.activated=true;}
+if(e.frozen)continue; // 凍結中は全処理スキップ（凍結専用セクションで対応）
 if(e.type==='parakoopa'&&e.flying){e.x+=e.vx;if(e.x+e.w<-100){e.alive=false;continue}e.y=e.baseY+Math.sin(G.frame*0.05+(e.phase||0))*22;if((mario.inv===0||G.starTimer>0)&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.alive=false;G.score+=200;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y,'star');spawnScorePopup(e.x+8,e.y-8,200,'#FFD700');continue}if(mario.y+mario.h-mario.vy<=e.y+e.h*0.4){e.flying=false;e.type='koopa';e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300;mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;G.score+=200;updateHUD();spawnParticle(e.x+16,e.y,'dust');spawnScorePopup(e.x+8,e.y-8,200,'#e74c3c')}else killMario()}continue}
 // ラキチュウ AI (空中追跡 + ノコノコ投下)
 if(e.type==='lakitu'){
