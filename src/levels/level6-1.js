@@ -93,7 +93,7 @@ export function buildLevel_6_1(){
   pipes.push({x:6800,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   // ワープ土管（地下へ）
   pipes.push({x:1100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice1'});
-  pipes.push({x:3400,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice2'});
+  pipes.push({x:3400,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fallIce1'});
   // パックンフラワー
   pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
 

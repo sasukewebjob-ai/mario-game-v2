@@ -443,6 +443,128 @@ ci(55,H-9*TILE,6,48);ci(640,H-7*TILE,3,32);
 // 敵
 enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(kp(220));
 
+// ════════════════════════════════════════
+// 落下チャレンジ（ground pipe新バリアント: 上から入って下に落下）
+// W=800 H=450 の単一画面、lowGravity+ブロック迷路で落下ゲーム化
+// ════════════════════════════════════════
+
+}else if(variant==='fallWater1'){
+// ★ 5-1: 水中コイン渓谷 ★ 海藻の柱をジグザグ回避
+G.fallMode=true;G.lowGravity=true;
+// 天井を一部開ける（落下開始点を作る）
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*5&&p.x<=TILE*8)platforms.splice(i,1);}
+// 4層のジグザグ足場（海藻柱イメージ）
+addRow(0,   H-10*TILE, 14,'brick');           // 上層: 右に隙間(x≥14T)→ 448〜
+addRow(6*TILE,H-7*TILE, 14,'brick');          // 中上: 左に隙間(x<192)
+addRow(0,   H-5*TILE, 10,'brick');            // 中下: 右に隙間(x≥320)
+addRow(W-7*TILE,H-4*TILE, 4,'brick');         // 最下: 左に隙間（出口土管前まで・歩行高さに配置）
+// ジグザグの各ギャップ沿いにコイン
+for(let i=0;i<4;i++)coinItems.push({x:14*TILE+8+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:30+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:10*TILE+i*26,y:H-6*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:30+i*24,y:H-5*TILE,collected:false});
+// 報酬: 最下段にキノコ＆スター
+platforms.push(qM(140,H-6*TILE));
+platforms.push({x:300,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+
+}else if(variant==='fallWater2'){
+// ★ 5-2: 深海の隧道 ★ 細い通路を縫って落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*11&&p.x<=TILE*14)platforms.splice(i,1);}
+// 狭い蛇腹通路
+addRow(0,    H-10*TILE, 9, 'brick');  // 左から9ブロック→右隙間
+addRow(5*TILE, H-8*TILE, 13,'brick'); // 左5〜18: 右端塞ぐ→左隙間
+addRow(0,    H-6*TILE, 12,'brick');   // 左12: 右隙間
+addRow(4*TILE,H-4*TILE, 14,'brick');  // 左4〜: 左隙間
+// コイン
+for(let i=0;i<4;i++)coinItems.push({x:9*TILE+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:30+i*24,y:H-9*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:12*TILE+i*24,y:H-7*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:30+i*24,y:H-5*TILE,collected:false});
+// 報酬
+platforms.push(qM(200,H-3*TILE));
+platforms.push(rh1());
+
+}else if(variant==='fallIce1'){
+// ★ 6-1: 氷柱の谷 ★ 氷柱をかわして落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*4&&p.x<=TILE*7)platforms.splice(i,1);}
+// 氷柱ブロック（上層から下に向かって突き出す）
+for(let y=0;y<4;y++)addB(3*TILE,TILE+y*TILE,'brick');
+for(let y=0;y<4;y++)addB(10*TILE,TILE+y*TILE,'brick');
+for(let y=0;y<3;y++)addB(16*TILE,TILE+y*TILE,'brick');
+for(let y=0;y<3;y++)addB(6*TILE,H-9*TILE+y*TILE,'brick');
+for(let y=0;y<3;y++)addB(13*TILE,H-9*TILE+y*TILE,'brick');
+for(let y=0;y<3;y++)addB(19*TILE,H-9*TILE+y*TILE,'brick');
+// 中層プラットフォーム
+addRow(2*TILE,H-5*TILE,4,'brick');
+addRow(11*TILE,H-5*TILE,4,'brick');
+addRow(17*TILE,H-5*TILE,4,'brick');
+// コイン（氷柱の間に配置）
+for(let i=0;i<7;i++)coinItems.push({x:4*TILE+i*TILE,y:H-6*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:8*TILE+i*24,y:H-7*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:15*TILE+i*24,y:H-7*TILE,collected:false});
+platforms.push(qM(250,H-6*TILE));
+
+}else if(variant==='fallIce2'){
+// ★ 6-2: 凍土クレバス ★ 氷壁の細い隙間を落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*7&&p.x<=TILE*10)platforms.splice(i,1);}
+// 4段のクレバス（ジグザグ）
+addRow(0,    H-10*TILE, 7,  'brick'); // 左隙間→右
+addRow(11*TILE,H-10*TILE, 8, 'brick');
+addRow(3*TILE, H-7*TILE, 14, 'brick'); // 細長
+addRow(0,    H-4*TILE, 5,  'brick');
+addRow(10*TILE,H-4*TILE, 9, 'brick');
+// コイン
+for(let i=0;i<3;i++)coinItems.push({x:7*TILE+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:30+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:W-3*TILE-i*24-16,y:H-8*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:5*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(180,H-6*TILE));
+platforms.push({x:420,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+
+}else if(variant==='fallFort1'){
+// ★ 7-1: 溶岩降下 ★ 溶岩の隙間を縫って落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*5&&p.x<=TILE*8)platforms.splice(i,1);}
+// 4段: 片側通行の迷路
+addRow(0,   H-10*TILE, 11,'brick');
+addRow(13*TILE,H-10*TILE, 6,'brick');
+addRow(4*TILE,H-7*TILE, 15,'brick');
+addRow(0,   H-4*TILE, 8,'brick');
+addRow(14*TILE,H-4*TILE, 5,'brick');
+// 溶岩炎（落下を阻害。2ヶ所のみ、ギャップ外に配置）
+lavaFlames.push({x:11*TILE+8,y:H-7*TILE,w:22,maxH:60,curH:0,phase:0,period:120});
+lavaFlames.push({x:8*TILE+8,y:H-4*TILE,w:22,maxH:60,curH:0,phase:60,period:120});
+// コイン
+for(let i=0;i<5;i++)coinItems.push({x:11*TILE+8+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:30+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:W-TILE-i*24-16,y:H-8*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:9*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(200,H-6*TILE));
+platforms.push(rh1());
+
+}else if(variant==='fallFort2'){
+// ★ 7-2: 砲撃回廊 ★ 狭い通路を砲撃をかわして落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*9&&p.x<=TILE*12)platforms.splice(i,1);}
+// 中央に縦の細い通路を形成（両側に壁）
+for(let y=0;y<3;y++)addRow(0,H-12*TILE+y*TILE,8,'brick');        // 左上ブロック塊
+for(let y=0;y<3;y++)addRow(14*TILE,H-12*TILE+y*TILE,5,'brick');  // 右上ブロック塊
+for(let y=0;y<2;y++)addRow(0,H-7*TILE+y*TILE,6,'brick');
+for(let y=0;y<2;y++)addRow(16*TILE,H-7*TILE+y*TILE,3,'brick');
+addRow(4*TILE,H-4*TILE,11,'brick');
+// 壁からのキャノン（2基、反対向き）
+cannons.push({x:7*TILE,y:H-9*TILE,w:TILE,h:TILE*2,fireRate:200,timer:0,leftFacing:true});
+cannons.push({x:12*TILE,y:H-6*TILE,w:TILE,h:TILE*2,fireRate:200,timer:100});
+// 中央通路にコイン
+for(let i=0;i<4;i++)coinItems.push({x:9*TILE+i*24,y:H-10*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:10*TILE+i*24,y:H-6*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:5*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(250,H-6*TILE));
+platforms.push({x:400,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋
 G.pinoRoom=true;

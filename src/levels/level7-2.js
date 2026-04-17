@@ -96,7 +96,7 @@ export function buildLevel_7_2(){
   pipes.push({x:6050, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   // ワープ土管（地下へ）
   pipes.push({x:1400, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fortress3'});
-  pipes.push({x:2700, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fortress4'});
+  pipes.push({x:2700, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'fallFort2'});
   // パックンフラワー（ワープ土管以外）
   pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
 
