@@ -23,6 +23,8 @@ export function buildLevel_2_2(){
     platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // Zone 1 (0-1500)
+  // x=200: yoshiEgg（スタート地点）
+  platforms.push({x:200,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
   // x=300: hasMush（pushのみ）, x=332-396: addRow
   addRow(332,H-6*TILE,3,'brick');
   addRow(650,H-5*TILE,3,'brick');
