@@ -1068,6 +1068,8 @@ if(e.type==='bobomb'){
   }
   e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}
   e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}
+  // gap落下時、lit中なら強制爆発
+  if(e.y>H+50&&e.state==='lit'){e.litTimer=0;}
   if(e.y>H+100){e.alive=false;continue;}
   if(e.onGround){e.walkTimer++;if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%2;}
     const _ax=e.vx>0?e.x+e.w+2:e.x-2,_ay=e.y+e.h+2;
@@ -1111,7 +1113,7 @@ if(e.type==='pokey'){
   if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){
     if(G.starTimer>0){e.alive=false;G.score+=500;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,500,'#FFD700');continue;}
     const _mBot=mario.y+mario.h;
-    if(_mBot-mario.vy<=e.y+TILE*0.5){
+    if(_mBot-mario.vy<=e.y+TILE*0.9){
       mario.vy=-9;sfx('stomp');G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;
       e.segments--;
       if(e.segments<=0){e.alive=false;G.score+=300;G.stageKills++;G.totalKills++;spawnParticle(e.x+16,e.y+16,'dust');spawnScorePopup(e.x+8,e.y-8,300,'#e74c3c');updateHUD();}
@@ -1200,7 +1202,7 @@ if(e.type==='cheepH'||e.type==='cheepV'||e.type==='firePlant'){if(mario.inv===0)
 const mBot=mario.y+mario.h;if(mBot-mario.vy<=e.y+e.h*0.4){G.combo++;G.comboTimer=60;if(G.combo>G.stageMaxCombo)G.stageMaxCombo=G.combo;const cs=G.combo<=1?200:G.combo===2?400:G.combo===3?800:G.combo===4?1600:0;if(G.combo>=5){G.lives++;sfx('1up');spawnScorePopup(e.x+8,e.y-8,'1UP!','#2ecc71')}else{G.score+=cs;spawnScorePopup(e.x+8,e.y-8,cs,'#e74c3c')}
 mario.vy=-9;sfx('stomp');updateHUD();spawnParticle(e.x+16,e.y+16,'dust');
 if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'){e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}
-else if(e.type==='rex'){if(!e.rexHurt){e.rexHurt=true;e.h=TILE*0.5;e.y+=TILE*0.5;e.vx=(e.vx>=0?1:-1)*Math.max(Math.abs(e.vx)*1.8,2.2);}else{e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}}
+else if(e.type==='rex'){if(!e.rexHurt){e.rexHurt=true;e.h=TILE*0.5;e.y+=TILE*0.5;e.vx=(e.vx>=0?1:-1)*Math.max(Math.abs(e.vx)*1.8,2.2);mario.inv=30;}else{e.state='dead';e.squishT=28;G.stageKills++;G.totalKills++;}}
 else if(e.type==='koopa'||e.type==='buzzy'){if(e.state==='walk'){e.state='shell';e.vx=0;e.h=TILE*0.7;e.shellTimer=300}else if(e.state==='shell'&&Math.abs(e.vx)<0.5)e.vx=mario.facing*8;else{e.vx=0;e.shellTimer=300}}}
 else if(e.state==='shell'&&Math.abs(e.vx)<0.5){e.vx=mario.facing*8;sfx('stomp');mario.inv=10}else if(mario.inv===0)killMario()}
 if(e.state==='shell'){e.shellTimer--;if(e.shellTimer<=0){e.state='walk';e.vx=e.type==='buzzy'?-1.6:-1.3;e.h=e.type==='koopa'?TILE*1.2:e.type==='buzzy'?TILE*0.85:TILE}}}
