@@ -207,8 +207,7 @@ export function buildLevel_6_3(){
   // ★ 上空パタパタ（2段JMP対策）
   enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
   enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
-  // 追いかけ壁（氷床スライド + 壁で難度最大）
-  G.chasingWall={x:-200,speed:0.95,triggerX:3700,active:false};
+  // 追いかけ壁は8-1/8-2のみ実装（このステージでは使用しない）
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:3400,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});
