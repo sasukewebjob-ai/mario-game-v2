@@ -58,7 +58,13 @@ movingPlats.push(
   {x:1700,y:H-7*TILE,w:TILE*2,h:12,type:'v',oy:H-7*TILE, range:90,spd:1.3},
   {x:2000,y:H-8*TILE,w:TILE*2,h:12,type:'v',oy:H-8*TILE, range:80,spd:1.5},
   {x:2600,y:H-7*TILE,w:TILE*2,h:12,type:'v',oy:H-7*TILE, range:85,spd:1.4},
-  {x:2980,y:H-8*TILE,w:TILE*2,h:12,type:'v',oy:H-8*TILE, range:90,spd:1.6}
+  {x:2980,y:H-8*TILE,w:TILE*2,h:12,type:'v',oy:H-8*TILE, range:90,spd:1.6},
+  // ★ 最下段コイン（縦コイン柱底部 H-3*TILE）の下に長い動く足場を追加
+  {x:250, y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:250, range:120,spd:1.3},
+  {x:800, y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:800, range:120,spd:1.4},
+  {x:1400,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:1400,range:130,spd:1.3},
+  {x:2000,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:2000,range:130,spd:1.5},
+  {x:2550,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:2550,range:120,spd:1.3}
 );
 
 // ── 重力反転エリア（4つ・幅80px・縦断）────────────────────────

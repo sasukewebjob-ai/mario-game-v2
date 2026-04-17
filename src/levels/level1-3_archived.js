@@ -33,7 +33,13 @@ movingPlats.push(
   {x:1770,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1770,range:80,spd:1.8},
   {x:1930,y:H-8*TILE,w:TILE*3,h:12,type:'v',oy:H-8*TILE,range:100,spd:1.6},
   {x:2060,y:H-5*TILE,w:TILE*3,h:12,type:'h',ox:2060,range:60,spd:2.1},
-  {x:2170,y:H-3*TILE,w:TILE*3,h:12,type:'v',oy:H-3*TILE,range:50,spd:1.5}
+  {x:2170,y:H-3*TILE,w:TILE*3,h:12,type:'v',oy:H-3*TILE,range:50,spd:1.5},
+  // ★ 最下段コイン列（H-3*TILE）の下に長い動く足場を追加
+  {x:250, y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:250, range:110,spd:1.3},
+  {x:750, y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:750, range:120,spd:1.4},
+  {x:1250,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:1250,range:120,spd:1.3},
+  {x:1750,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:1750,range:130,spd:1.5},
+  {x:2100,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:2100,range:100,spd:1.3}
 );
 
 // パタパタ 5体（適度な間隔で配置）
