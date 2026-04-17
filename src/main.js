@@ -165,13 +165,13 @@ buildUnderground(p.variant||'coin');
 // 地下スポーン(x=60)周辺200px以内の敵を除去（即死防止）
 for(let i=enemies.length-1;i>=0;i--){if(enemies[i].x<260)enemies.splice(i,1);}
 G.cam=0;mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;G.ugMode=true;G.score+=500;sfx('flag');stopBGM();try{startBGM()}catch(ex){}}
-function exitUnderground(){if(!G.savedOW)return;if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}platforms.length=0;platforms.push(...G.savedOW.platforms);pipes.length=0;pipes.push(...G.savedOW.pipes);coinItems.length=0;coinItems.push(...G.savedOW.coinItems);enemies.length=0;enemies.push(...G.savedOW.enemies);mushrooms.length=0;mushrooms.push(...G.savedOW.mushrooms);piranhas.length=0;piranhas.push(...G.savedOW.piranhas);movingPlats.length=0;movingPlats.push(...(G.savedOW.movingPlats||[]));springs.length=0;springs.push(...(G.savedOW.springs||[]));cannons.length=0;cannons.push(...(G.savedOW.cannons||[]));bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;chainChomps.push(...(G.savedOW.chainChomps||[]));jumpBlocks.length=0;jumpBlocks.push(...(G.savedOW.jumpBlocks||[]));pipos.length=0;pipos.push(...(G.savedOW.pipos||[]));gravityZones.length=0;gravityZones.push(...(G.savedOW.gravityZones||[]));windZones.length=0;windZones.push(...(G.savedOW.windZones||[]));windParticles.length=0;iceBalls.length=0;marioHammers.length=0;G.darkMode=G.savedOW.darkMode||false;G.chasingWall=G.savedOW.chasingWall||null;G.gravityFlipped=false;
+function exitUnderground(skipBonus){if(!G.savedOW)return;if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}platforms.length=0;platforms.push(...G.savedOW.platforms);pipes.length=0;pipes.push(...G.savedOW.pipes);coinItems.length=0;coinItems.push(...G.savedOW.coinItems);enemies.length=0;enemies.push(...G.savedOW.enemies);mushrooms.length=0;mushrooms.push(...G.savedOW.mushrooms);piranhas.length=0;piranhas.push(...G.savedOW.piranhas);movingPlats.length=0;movingPlats.push(...(G.savedOW.movingPlats||[]));springs.length=0;springs.push(...(G.savedOW.springs||[]));cannons.length=0;cannons.push(...(G.savedOW.cannons||[]));bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;chainChomps.push(...(G.savedOW.chainChomps||[]));jumpBlocks.length=0;jumpBlocks.push(...(G.savedOW.jumpBlocks||[]));pipos.length=0;pipos.push(...(G.savedOW.pipos||[]));gravityZones.length=0;gravityZones.push(...(G.savedOW.gravityZones||[]));windZones.length=0;windZones.push(...(G.savedOW.windZones||[]));windParticles.length=0;iceBalls.length=0;marioHammers.length=0;G.darkMode=G.savedOW.darkMode||false;G.chasingWall=G.savedOW.chasingWall||null;G.gravityFlipped=false;
 // 出口(元のパイプ位置)周辺200px以内の敵を除去（即死防止）
 const _exitX=G.savedOW.mx;for(let i=enemies.length-1;i>=0;i--){if(Math.abs(enemies[i].x-_exitX)<200)enemies.splice(i,1);}
 G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;G.waterMode=G.savedOW.waterMode||false;
 // 天井パイプから入った場合：パイプ底から自然落下。通常パイプ：上に飛び出す
 if(G.savedOW.ceilingEntry){mario.y=G.savedOW.my+4;mario.vy=4;}
-else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
+else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;if(!skipBonus)G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
 // ピノキオ部屋をリセット
 G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoSpeechText='';}
 
@@ -962,6 +962,17 @@ if(G.pinoRoom){
           G.score+=2000;sfx('stomp');updateHUD();
           spawnScorePopup(e.x+24,e.y-8,2000,'#ff4400');
           for(let i=0;i<20;i++)spawnParticle(e.x+24,e.y+32,'star');
+          // 撃破ボーナス: 250コインシャワー（1コイン=5コイン分×50枚）
+          spawnScorePopup(W/2,H/2-40,'VICTORY! +250コイン','#FFD700');
+          for(let _ci=0;_ci<50;_ci++){
+            coinItems.push({
+              x:TILE*2+8+Math.random()*(W-TILE*4-16),y:-TILE*(1+Math.random()*4),
+              vx:(Math.random()-0.5)*4,vy:1.5+Math.random()*3,
+              type:'firecoin',gravity:0.28,timer:700,
+              collected:false,noLand:true,coinValue:5
+            });
+          }
+          sfx('1up');
         } else {
           G.score+=500;updateHUD();
           spawnScorePopup(e.x+24,e.y-8,500,'#e74c3c');
@@ -969,7 +980,15 @@ if(G.pinoRoom){
           e.vy=-14;e.vx=(mario.x<e.x?-1:1)*_spd*1.1;e.onGround=false;
         }
       }
-      else if(mario.inv===0)killMario();
+      else if(mario.inv===0){
+        // 中ボス敗北 → 元ステージへ戻る（残機減らさない）
+        mario.inv=120;
+        spawnScorePopup(W/2,H/2,'DEFEATED... STAGEに戻る','#ff4444');
+        sfx('die');stopBGM();
+        e.state='dead';e.alive=false;
+        G.shakeX=10;G.shakeY=10;
+        setTimeout(()=>{if(G.pinoRoom&&G.ugMode)exitUnderground(true);},1200);
+      }
     }
     // ファイア/アイス/ハンマーは無効（踏み限定）
     // ファイアボールの命中時は跳ね返すのみ
