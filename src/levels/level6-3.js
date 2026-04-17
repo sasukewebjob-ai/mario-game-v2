@@ -122,7 +122,7 @@ export function buildLevel_6_3(){
   cannons.push({x:5000,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:120});
 
   // 移動足場（氷の深淵越え）
-  movingPlats.push({x:2060,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:2060,range:85, spd:1.5,prevX:2060});
+  movingPlats.push({x:2060,y:H-4*TILE,w:TILE*4,h:12,type:'h',ox:2060,range:85, spd:1.5,prevX:2060});
   movingPlats.push({x:3760,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3760,range:90, spd:1.7,prevX:3760});
   movingPlats.push({x:5560,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5560,range:80, spd:1.9,prevX:5560});
 
