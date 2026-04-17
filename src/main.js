@@ -343,7 +343,7 @@ yoshiEggs.push({x:mario.x+(mario.facing===1?mario.w:0),y:mario.y+10,w:16,h:16,vx
 sfx('yoshi_egg');return}
 if(yoshi.tongueOut<=0){yoshi.tongueOut=20;yoshi.tongueLen=0;sfx('yoshi_tongue')}
 }
-function spawnYoshiEgg(x,y){yoshiItems.push({x,y:y-TILE,w:24,h:24,vy:-6,hatchTimer:90,hatched:false,onGround:false})}
+function spawnYoshiEgg(x,y){yoshiItems.push({x,y:y-TILE,w:24,h:24,vy:-6,hatchTimer:75,hatched:false,onGround:false})}
 function mountYoshi(){yoshi.mounted=true;sfx('yoshi_mount');spawnScorePopup(mario.x,mario.y-20,'YOSHI!','#2ecc71')}
 function dismountYoshi(hurt){
 yoshi.mounted=false;yoshi.tongueOut=0;yoshi.tongueLen=0;yoshi.eatTarget=null;yoshi.chewTimer=0;
