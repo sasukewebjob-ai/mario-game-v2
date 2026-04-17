@@ -145,7 +145,7 @@ const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
 const speedBonus=Math.min(Math.abs(mario.vx)*0.15,1.5);
 const _hj=G.highJump?1.25:1;
 if(yoshi.mounted&&yoshi.alive){mario.vy=(isDash?-16:-14.5)*_hj-speedBonus;yoshi.flutterTimer=12}
-else{const _lj=G.character==='luigi'?1.5:0;mario.vy=(isDash?-15.5:-14)*_hj-speedBonus-_lj}
+else{mario.vy=(isDash?-15.5:-14)*_hj-speedBonus}
 mario.onGround=false;mario.hipDrop=false;sfx('jump');
 for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h,isDash?'star':'dust');
 }
@@ -432,8 +432,8 @@ function _gpShopNext(){
 function _gpDoJump(){
   if(G.state!=='play'||mario.dead)return;
   if(mario.onGround||(G.waterMode&&G.swimCooldown<=0)){G.doubleJumpUsed=false;doJump();}
-  else if(mario.wallContact!==0&&!mario.onGround){mario.vy=(G.highJump?-16:-13)-(G.character==='luigi'?1.5:0);mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
-  else if(G.doubleJump&&!G.doubleJumpUsed&&!mario.onGround){G.doubleJumpUsed=true;mario.vy=(G.highJump?-16:-13)-(G.character==='luigi'?1.5:0);mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
+  else if(mario.wallContact!==0&&!mario.onGround){mario.vy=(G.highJump?-16:-13);mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
+  else if(G.doubleJump&&!G.doubleJumpUsed&&!mario.onGround){G.doubleJumpUsed=true;mario.vy=(G.highJump?-16:-13);mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
 }
 function pollGamepad(){
   const gps=navigator.getGamepads();let gp=null;
@@ -542,14 +542,14 @@ if(p.type==='pswitch_block'){return}// temp P-Switch blocks are not hittable
 if(p.type==='yoshiEgg'&&!p.hit){p.hit=true;p.type='question';sfx('qblock');blockAnims.push({p,t:0});spawnYoshiEgg(p.x,p.y);return}
 if(p.type==='hidden'&&!p.hit){p.hit=true;p.type='question';sfx('qblock');blockAnims.push({p,t:0});if(p.has1UP){mushrooms.push({x:p.x+4,y:p.y-TILE,w:24,h:TILE,vx:1.5,vy:0,alive:true,type:'1up'});sfx('1up')}return}
 if(p.type==='question'&&!p.hit){
-if(p.coinBlock&&p.hitsLeft>0){p.hitsLeft--;if(p.hitsLeft<=0)p.hit=true;sfx('coin');blockAnims.push({p,t:0});spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700');G.score+=200;G.coins++;updateHUD()}
+if(p.coinBlock&&p.hitsLeft>0){p.hitsLeft--;if(p.hitsLeft<=0)p.hit=true;sfx('coin');blockAnims.push({p,t:0});spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700');G.score+=200;G.coins+=(G.character==='luigi'?2:1);updateHUD()}
 else if(p.has1UP){p.hit=true;sfx('qblock');blockAnims.push({p,t:0});mushrooms.push({x:p.x+4,y:p.y-TILE,w:24,h:TILE,vx:1.5,vy:0,alive:true,type:'1up'});sfx('1up')}
 else if(p.hasStar){p.hit=true;sfx('power');blockAnims.push({p,t:0});mushrooms.push({x:p.x+4,y:p.y-TILE,w:24,h:24,alive:true,type:'star'})}
 else{p.hit=true;sfx('qblock');blockAnims.push({p,t:0});
 if(p.hasMega){mushrooms.push({x:p.x+4,y:p.y-TILE,w:28,h:TILE+8,vx:1.5,vy:0,alive:true,type:'mega'})}
 else if(p.hasHammer){mushrooms.push({x:p.x+4,y:p.y-TILE,w:24,h:24,alive:true,type:'hammerSuit'})}
 else if(p.hasMush){if(mario.power==='none')mushrooms.push({x:p.x+4,y:p.y-TILE,w:24,h:TILE,vx:1.5,vy:0,alive:true,type:'mushroom'});else mushrooms.push({x:p.x+4,y:p.y-TILE,w:24,h:24,alive:true,type:G.iceMode?'iceFlower':'flower'})}
-else{spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700');G.score+=200;G.coins++;sfx('coin');updateHUD()}}}
+else{spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700');G.score+=200;G.coins+=(G.character==='luigi'?2:1);sfx('coin');updateHUD()}}}
 else if(p.type==='brick'){if(mario.big){sfx('break');G.score+=50;updateHUD();spawnParticle(p.x+16,p.y,'brick');spawnScorePopup(p.x+16,p.y-8,50,'#e67e22');const idx=platforms.indexOf(p);if(idx!==-1)platforms.splice(idx,1)}else{blockAnims.push({p,t:0})}}}
 
 // === GAME MANAGEMENT ===
@@ -633,7 +633,7 @@ if(G.starTimer>0){G.starTimer--;if(G.frame%3===0)spawnParticle(mario.x+13,mario.
 // P-Switch timer
 if(G.pswitchTimer>0){G.pswitchTimer--;if(G.pswitchTimer<=180&&G.pswitchTimer>0&&G.frame%30===0)sfx('pswitch_tick');if(G.pswitchTimer<=0)deactivatePSwitch();
 // P-Switch coin collection (bricks turned into coins)
-if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(overlap(mario.x,mario.y,mario.w,mario.h,pc.x,pc.y,TILE,TILE)){pc.collected=true;G.coins++;G.score+=200;sfx('coin');updateHUD();spawnScorePopup(pc.x+8,pc.y-8,200,'#FFD700');spawnParticle(pc.x+16,pc.y,'coin');}}}}
+if(G._psCoins){for(const pc of G._psCoins){if(pc.collected)continue;if(overlap(mario.x,mario.y,mario.w,mario.h,pc.x,pc.y,TILE,TILE)){pc.collected=true;G.coins+=(G.character==='luigi'?2:1);G.score+=200;sfx('coin');updateHUD();spawnScorePopup(pc.x+8,pc.y-8,200,'#FFD700');spawnParticle(pc.x+16,pc.y,'coin');}}}}
 if(G.comboTimer>0){G.comboTimer--;if(G.comboTimer<=0)G.combo=0}
 // Bullet Bill Cannons
 for(const cn of cannons){if(cn.dead)continue;cn.timer--;if(cn.timer<=0){cn.timer=cn.fireRate;if(Math.abs(mario.x-cn.x)<600){const dir=mario.x>cn.x?1:-1;bulletBills.push({x:cn.x+(dir>0?cn.w:-20),y:cn.y+4,w:20,h:16,vx:dir*4,alive:true});try{beep(80,.15,'sawtooth',.15);beep(60,.2,'sawtooth',.1,.1)}catch(ex){}}}}
@@ -761,7 +761,7 @@ if(mario.sliding){
 }
 const spd=G.waterMode?(isDash?3.5:2.2):(isDash?6.5:3.8);
 const goL=keys['ArrowLeft']||keys['KeyA']||btn.left||gpad.left;const goR=keys['ArrowRight']||keys['KeyD']||btn.right||gpad.right;
-const _af=G.iceMode?0.042:G.character==='luigi'?0.20:0.25,_ff=G.iceMode?0.9895:G.character==='luigi'?0.84:0.78;
+const _af=G.iceMode?0.042:0.25,_ff=G.iceMode?0.9895:0.78;
 if(mario.crouching){mario.vx*=_ff;}else if(goL){mario.vx+=(-spd-mario.vx)*_af;mario.facing=-1}else if(goR){mario.vx+=(spd-mario.vx)*_af;mario.facing=1}else mario.vx*=_ff;
 if(G.ugMode&&mario.x<0)mario.x=0;if(G.ugMode&&mario.x+mario.w>W)mario.x=W-mario.w;if(G.ugMode)G.cam=0;
 // Flutter jump (Yoshi)
@@ -770,8 +770,8 @@ if(!G.waterMode&&!(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy<-
 mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else{if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;if(p.type==='hidden'&&!p.hit)continue;cX(mario,p)}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cX(mario,p)}
-const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:G.character==='luigi'?GRAVITY*0.88:GRAVITY);mario.vy+=_grav;
-if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{if(mario.vy>(G.waterMode?3.5:G.lowGravity?9:G.character==='luigi'?13:15))mario.vy=G.waterMode?3.5:G.lowGravity?9:G.character==='luigi'?13:15;}
+const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);mario.vy+=_grav;
+if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{if(mario.vy>(G.waterMode?3.5:G.lowGravity?9:15))mario.vy=G.waterMode?3.5:G.lowGravity?9:15;}
 mario.y+=mario.vy;mario.onGround=false;
 if(G.gravityFlipped&&mario.y<0){mario.y=0;mario.vy=0;mario.onGround=true;}
 if(G.waterMode&&mario.y<TILE){mario.y=TILE;mario.vy=0;}
@@ -946,10 +946,10 @@ if(G.pinoRoom){
 
 // Coins
 for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}
-if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(c.noLand){if(c.x<TILE*2){c.x=TILE*2;if(c.vx<0)c.vx=-c.vx;}if(c.x+14>W-TILE*2){c.x=W-TILE*2-14;if(c.vx>0)c.vx=-c.vx;}}if(!c.noLand&&!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){const _cv=c.coinValue||1;c.collected=true;G.coins=Math.min(1999,G.coins+_cv);G.score+=100*_cv;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,`+${_cv}C`,'#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
+if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(c.noLand){if(c.x<TILE*2){c.x=TILE*2;if(c.vx<0)c.vx=-c.vx;}if(c.x+14>W-TILE*2){c.x=W-TILE*2-14;if(c.vx>0)c.vx=-c.vx;}}if(!c.noLand&&!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){const _cv=c.coinValue||1;c.collected=true;G.coins=Math.min(1999,G.coins+_cv*(G.character==='luigi'?2:1));G.score+=100*_cv;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,`+${_cv}C`,'#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
 if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
-if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins++;G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
+if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins+=(G.character==='luigi'?2:1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
 // Mushrooms etc
 for(const m of mushrooms){if(!m.alive)continue;
 if(m.type==='flower'||m.type==='iceFlower'||m.type==='hammerSuit'||m.type==='star'||m.type==='mega'){if(m.type==='star')m.bobY=(m.bobY||0)+0.1;
@@ -3212,7 +3212,8 @@ ctx.fillStyle='#FBD000';ctx.fillRect(mx-3,my+16,7,6);ctx.fillRect(mx+24,my+16,7,
 ctx.fillStyle='#6B3410';ctx.fillRect(mx+2,my+26,12,6);ctx.fillRect(mx+14,my+26,12,6);}
 ctx.fillStyle=_isMario?'#fff':'#888';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
 ctx.fillText('MARIO',_cMx+_cW/2,_cY+_cH-5);
-if(_isMario){ctx.fillStyle='#FFD700';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cMx+_cW/2,_cY+_cH+9);}
+if(_isMario){ctx.fillStyle='#FFD700';ctx.font='bold 8px monospace';ctx.fillText('▶ ノーマル',_cMx+_cW/2,_cY+_cH+10);}
+else{ctx.fillStyle='#886000';ctx.font='bold 7px monospace';ctx.fillText('ノーマル',_cMx+_cW/2,_cY+_cH+10);}
 // --- LUIGIボックス ---
 ctx.fillStyle=_isLuigi?'#0a4a1a':'#031008';ctx.fillRect(_cLx,_cY,_cW,_cH);
 ctx.strokeStyle=_isLuigi?'#44ff88':'#155520';ctx.lineWidth=_isLuigi?2:1;ctx.strokeRect(_cLx,_cY,_cW,_cH);ctx.lineWidth=1;
@@ -3230,8 +3231,10 @@ ctx.fillStyle='#FBD000';ctx.fillRect(mx-3,my+16,7,6);ctx.fillRect(mx+24,my+16,7,
 ctx.fillStyle='#6B3410';ctx.fillRect(mx+2,my+26,12,6);ctx.fillRect(mx+14,my+26,12,6);}
 ctx.fillStyle=_isLuigi?'#fff':'#5a9a5a';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
 ctx.fillText('LUIGI',_cLx+_cW/2,_cY+_cH-5);
-if(_isLuigi){ctx.fillStyle='#55ff88';ctx.font='bold 6px monospace';ctx.fillText('▶ NOW PLAYING',_cLx+_cW/2,_cY+_cH+9);}
-ctx.fillStyle='#555';ctx.font='5px monospace';ctx.fillText('[R]or[L]キー または クリックで切替',W/2,_cY+_cH+20);}
+if(_isLuigi){ctx.fillStyle='#55ff88';ctx.font='bold 8px monospace';ctx.fillText('▶ イージー',_cLx+_cW/2,_cY+_cH+10);}
+else{ctx.fillStyle='#2a6a3a';ctx.font='bold 7px monospace';ctx.fillText('イージー',_cLx+_cW/2,_cY+_cH+10);}
+ctx.fillStyle='#55cc88';ctx.font='6px monospace';ctx.fillText('※ イージー（LUIGI）はコイン獲得2倍',W/2,_cY+_cH+22);
+ctx.fillStyle='#555';ctx.font='5px monospace';ctx.fillText('[R]or[L]キー または クリックで切替',W/2,_cY+_cH+32);}
 const _bw=72,_bh=24,_gap=8,_rowH=30,_startY=116;
 const _ws2=getWorlds();
 _ws2.forEach((_w,_wi)=>{
