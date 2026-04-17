@@ -159,8 +159,8 @@ export function buildLevel_3_2(){
     pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy:-6,alive:true,bounceCount:0});
   });
 
-  // ワンワン (3体)
-  [{x:1300},{x:4600},{x:6600}].forEach(({x})=>{
+  // ワンワン (2体) ※冒頭のx=1300は撤去
+  [{x:4600},{x:6600}].forEach(({x})=>{
     chainChomps.push({x,y:H-TILE-36,w:36,h:36,postX:x,postY:H-TILE-36,
       vx:0,vy:0,phase:Math.random()*Math.PI*2,state:'idle',lungeTimer:0,alive:true});
   });
