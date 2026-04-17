@@ -83,13 +83,18 @@ export function buildLevel_4_1(){
   mp(1000, H-7*TILE, TILE*2, 45,  2.0);
   mp(1400, H-4*TILE, TILE*3, 100, 1.6);
   mp(1540, H-6*TILE, TILE*2, 55,  2.2);
-  mp(1980, H-3*TILE, TILE*4, 85,  1.3);
+  mp(1980, H-3*TILE, TILE*6, 85,  1.3);
   mp(2110, H-6*TILE, TILE*2, 50,  2.1);
   mp(2600, H-4*TILE, TILE*3, 100, 1.7);
   mp(2740, H-7*TILE, TILE*2, 60,  2.3);
   mp(3200, H-4*TILE, TILE*3, 88,  1.5);
   mp(3310, H-6*TILE, TILE*2, 65,  2.1);
   mp(3420, H-4*TILE, TILE*2, 48,  2.7);
+  // ★ 各ギャップの最下段に長い動く足場を追加（プレイしやすさUP）
+  mp(880,  H-3*TILE, TILE*5, 80,  1.2);
+  mp(1400, H-3*TILE, TILE*5, 100, 1.2);
+  mp(2620, H-3*TILE, TILE*5, 100, 1.3);
+  mp(3220, H-3*TILE, TILE*5, 100, 1.3);
 
   // 入れない土管（5本）
   [{x:590,ph:3},{x:1150,ph:3},{x:1830,ph:3},{x:2440,ph:3},{x:2960,ph:3}].forEach(({x,ph})=>{
@@ -163,10 +168,8 @@ export function buildLevel_4_1(){
   // ★ 装飾土管
   pipes.push({x:200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:2500,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-  pipes.push({x:1000,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   pipes.push({x:1700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   piranhas.push({x:2524,baseY:5*TILE,y:5*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
-  pipes.push({x:3350,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   pipes.push({x:4750,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   // 上空パタパタ削減（2体→0）
 

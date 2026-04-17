@@ -97,6 +97,12 @@ export function buildLevel_4_2(){
   movingPlats.push({x:2630,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:2630,range:90, spd:2.4,prevX:2630});
   movingPlats.push({x:3070,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:3070,range:120,spd:2.0,prevX:3070});
   movingPlats.push({x:3250,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:3250,range:90, spd:2.6,prevX:3250});
+  // ★ 各ギャップの最下段に長い動く足場を追加（プレイしやすさUP）
+  movingPlats.push({x:820, y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:820, range:100,spd:1.3,prevX:820});
+  movingPlats.push({x:1280,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:1280,range:120,spd:1.3,prevX:1280});
+  movingPlats.push({x:1880,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:1880,range:120,spd:1.4,prevX:1880});
+  movingPlats.push({x:2480,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:2480,range:120,spd:1.4,prevX:2480});
+  movingPlats.push({x:3080,y:H-3*TILE,w:TILE*5,h:12,type:'h',ox:3080,range:130,spd:1.4,prevX:3080});
 
   // 敵（スタート直後 x<600 は安全）
   // クリボー ×5
@@ -140,10 +146,8 @@ export function buildLevel_4_2(){
   // ★ 装飾土管
   pipes.push({x:200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   pipes.push({x:2300,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-  pipes.push({x:900,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   pipes.push({x:1700,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   piranhas.push({x:2324,baseY:5*TILE,y:5*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
-  pipes.push({x:3350,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   pipes.push({x:4750,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   // 上空パタパタ削減（2体→0）
 
