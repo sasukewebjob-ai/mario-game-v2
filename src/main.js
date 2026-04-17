@@ -830,9 +830,7 @@ if(mario.inv>0)mario.inv--;
 // === YOSHI UPDATE ===
 // Yoshi items (hatching eggs)
 for(let i=yoshiItems.length-1;i>=0;i--){const yi=yoshiItems[i];
-if(!yi.onGround){yi.vy+=GRAVITY;yi.y+=yi.vy;
-  for(const p of[...platforms,...pipes]){const bo=p.bounceOffset||0,py=p.y-bo;if(yi.vy>=0&&yi.x+yi.w>p.x&&yi.x<p.x+p.w&&yi.y+yi.h>py&&yi.y+yi.h-yi.vy<=py+4){yi.y=py-yi.h;yi.vy=0;yi.onGround=true;break;}}
-  if(!yi.onGround&&yi.y>=H-TILE-yi.h){yi.y=H-TILE-yi.h;yi.vy=0;yi.onGround=true}}
+if(!yi.onGround){yi.vy+=GRAVITY;yi.y+=yi.vy;if(yi.y>=H-TILE-yi.h){yi.y=H-TILE-yi.h;yi.vy=0;yi.onGround=true}}
 if(yi.onGround){yi.hatchTimer--;if(yi.hatchTimer<=0&&!yi.hatched){yi.hatched=true;
 yoshi.x=yi.x;yoshi.y=yi.y-yoshi.h+yi.h;yoshi.alive=true;yoshi.mounted=false;yoshi.runAway=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.facing=1;yoshi.vx=0;yoshi.vy=0;yoshi.idleTimer=0;yoshi.eatTarget=null;yoshi.chewTimer=0;
 sfx('power');for(let j=0;j<15;j++)spawnParticle(yi.x+12,yi.y,'star');yoshiItems.splice(i,1)}}}
