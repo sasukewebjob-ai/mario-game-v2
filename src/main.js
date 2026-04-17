@@ -828,6 +828,8 @@ if(!yoshi.eatTarget){
   const _tR=10;
   // 敵チェック（舌先に正確にヒット）
   for(const e of enemies){if(!e.alive||e.state==='dead')continue;
+    // ヨッシーが食えない敵（トゲ/爆発/ボス級/大型）
+    if(e.type==='spiny'||e.type==='spikeTop'||e.type==='fuzzy'||e.type==='bobomb'||e.type==='cactus'||e.type==='thwomp'||e.type==='teresa'||e.type==='pokey'||e.type==='chuck'||e.type==='angrySun'||e.type==='miniBowser')continue;
     if(overlap(tx-_tR,ty-_tR,_tR*2,_tR*2,e.x,e.y,e.w,e.h)){
       const _ec=e.type==='goomba'?'#8B4513':e.type==='koopa_red'||e.type==='koopa_red_fly'?'#c0392b':'#27ae60';
       yoshi.eatTarget={color:_ec};e.state='dead';e.squishT=1;e.alive=false;
