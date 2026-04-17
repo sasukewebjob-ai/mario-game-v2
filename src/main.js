@@ -931,7 +931,7 @@ if(G.pinoRoom){
     if(e.hurtTimer>0)e.hurtTimer--;
     // HPに応じた速度（3→2→1 で段階的に加速）
     const _spd=e.hp>=3?2.5:e.hp===2?3.8:5.2;
-    const _jmpVy=e.hp>=3?-12:e.hp===2?-15:-17.5;
+    const _jmpVy=e.hp>=3?-8:e.hp===2?-10:-12;
     e.vy+=GRAVITY;e.x+=e.vx;e.y+=e.vy;e.onGround=false;
     for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(e.x,e.y,e.w,e.h,p.x,py,p.w,p.h)&&e.vy>=0&&e.y+e.h/2<py+p.h/2){e.y=py-e.h;e.vy=0;e.onGround=true;break;}}
     // 壁反射（画面全体を飛び回る）
@@ -976,8 +976,8 @@ if(G.pinoRoom){
         } else {
           G.score+=500;updateHUD();
           spawnScorePopup(e.x+24,e.y-8,500,'#e74c3c');
-          // HP減ったら即高ジャンプで反撃
-          e.vy=-14;e.vx=(mario.x<e.x?-1:1)*_spd*1.1;e.onGround=false;
+          // HP減ったら即ジャンプで反撃（画面内に収まる高さ）
+          e.vy=-10;e.vx=(mario.x<e.x?-1:1)*_spd*1.1;e.onGround=false;
         }
       }
       else if(mario.inv===0){
