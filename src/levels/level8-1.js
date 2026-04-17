@@ -100,11 +100,11 @@ export function buildLevel_8_1(){
   // 高台キャノン: addRow(350,H-5T)上 と addRow(900,H-5T)上
   cannons.push({x:390,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:280,timer:40});  // Ship A 高台(H-5T列の上)
   cannons.push({x:940,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:260,timer:100}); // Ship A 高台(H-5T列の上)
-  cannons.push({x:2000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:250,timer:60});
+  cannons.push({x:2000, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:250,timer:60}); // CP手前:上部配置
   cannons.push({x:2800, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:130});
   cannons.push({x:4000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:80});
   // +5基
-  cannons.push({x:560,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:275,timer:25});  // Ship A 地上
+  cannons.push({x:560,  y:H-TILE*9,w:TILE,h:TILE*2,fireRate:275,timer:25});  // Ship A 上空(CP手前:上部配置)
   cannons.push({x:1840, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:255,timer:85});  // Ship B addRow(1800,H-7T)上
   cannons.push({x:2620, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:245,timer:155}); // Ship B 地上(checkpoint±300外)
   cannons.push({x:3540, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:250,timer:50});  // Ship C addRow(3500,H-7T)上

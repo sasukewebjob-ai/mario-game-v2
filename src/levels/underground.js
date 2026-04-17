@@ -343,13 +343,23 @@ enemies.push(gm(150));enemies.push(bz(300));enemies.push(gm(420));enemies.push(g
 }else if(variant==='bowser_final'){
 // ★8-3 クッパ最終決戦★ クッパHP=7 + ピーチ救出
 for(let i=pipes.length-1;i>=0;i--){if(pipes[i].isExit)pipes.splice(i,1);}
-addRow(80,H-8*TILE,2,'brick');addRow(250,H-8*TILE,2,'brick');addRow(420,H-8*TILE,2,'brick');
-platforms.push({x:80, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:314,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-platforms.push({x:484,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:200,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:150,y:H-11*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-for(let i=0;i<20;i++)coinItems.push({x:55+i*30,y:H-7*TILE,collected:false});
+// ── キノコ(?)ブロック×5個（画面中段に配置）──
+platforms.push({x:80, y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:200,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:320,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:440,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+platforms.push({x:560,y:H-6*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+// ── クッパ周辺の多彩な足場 ──
+// 横移動足場（中段・左右）
+movingPlats.push({x:120,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:120,range:40,spd:1.2,prevX:120});
+movingPlats.push({x:500,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:500,range:40,spd:1.4,prevX:500});
+// 縦移動足場（中央・高低差）
+movingPlats.push({x:300,y:H-8*TILE,w:TILE*2,h:12,type:'v',oy:H-8*TILE,range:70,spd:1.5,prevY:H-8*TILE});
+// 足場用固定ブロック（クッパが歩ける高台）
+addRow(60, H-4*TILE,1,'brick');
+addRow(600,H-4*TILE,1,'brick');
+// コイン（参加意欲誘う）
+for(let i=0;i<10;i++)coinItems.push({x:55+i*60,y:H-9*TILE,collected:false});
 G.bowserArenaX=-1;
 G.bowserLeftX=TILE*2;
 G.bowserRightX=W-TILE*3;
