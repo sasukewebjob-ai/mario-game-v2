@@ -1139,7 +1139,11 @@ if(e.type==='montyMole'){
     if(!mario.dead&&Math.abs(mario.x+mario.w/2-(e.x+e.w/2))<240){e.state='emerge';e.emergeT=30;try{beep(120,.08,'square',.15)}catch(_ex){}}
   } else if(e.state==='emerge'){
     e.emergeT--;
-    if(e.emergeT<=0){e.state='walk';e.facing=mario.x<e.x?-1:1;e.vx=e.facing*2.8;e.vy=-6;}
+    if(e.emergeT<=0){
+      // マリオと重なっていたら walk 切替をキャンセルし hidden に戻す（理不尽ダメージ回避）
+      if(overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){e.state='hidden';}
+      else{e.state='walk';e.facing=mario.x<e.x?-1:1;e.vx=e.facing*2.8;e.vy=-6;}
+    }
   } else if(e.state==='walk'){
     e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p);}
     e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null);}
@@ -1174,6 +1178,15 @@ if(e.type==='spikeTop'){
 }
 if(e.type==='firePlant'){if(e.frozen)continue;if(e.fireTimer===undefined)e.fireTimer=120;e.fireTimer--;if(e.fireTimer<=0&&Math.abs(mario.x-e.x)<500){e.fireTimer=80+Math.floor(Math.random()*60);const _fpd=mario.x<e.x?-1:1;enemies.push({x:e.x+(_fpd>0?e.w:0),y:e.y+e.h/2-6,w:14,h:14,vx:_fpd*3.5,vy:0,type:'plantFire',alive:true,activated:true});try{beep(200,.06,'sawtooth',.12);beep(280,.08,'sawtooth',.1,.06)}catch(_ex){}}if(G.starTimer>0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){e.state='dead';e.squishT=20;G.score+=300;sfx('stomp');updateHUD();spawnParticle(e.x+12,e.y+16,'star');spawnScorePopup(e.x+8,e.y-8,300,'#FFD700')}else if(!mario.dead&&mario.inv===0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h))killMario();continue;}
 if(e.type==='plantFire'){e.x+=e.vx;e.vy+=(G.waterMode?0:0.2);e.y+=e.vy;if(e.x<G.cam-120||e.x>G.cam+W+120||e.y<-60||e.y>H+60){e.alive=false;continue}if(!mario.dead&&mario.inv===0&&overlap(mario.x,mario.y,mario.w,mario.h,e.x,e.y,e.w,e.h)){if(G.starTimer>0){e.alive=false}else killMario();e.alive=false;}continue;}
+// === shyGuy variant='blue': 一定距離歩き → 停止 → 再歩行 ===
+if(e.type==='shyGuy'&&e.variant==='blue'){
+  if(e.moveTimer===undefined)e.moveTimer=120;
+  e.moveTimer--;
+  if(e.moveTimer<=0){
+    if(e._savedVx!==undefined){e.vx=e._savedVx;e._savedVx=undefined;e.moveTimer=100+Math.floor(Math.random()*60);}
+    else{e._savedVx=(e.vx!==0?e.vx:(e.facing===1?1.3:-1.3));e.vx=0;e.moveTimer=50+Math.floor(Math.random()*30);}
+  }
+}
 e.x+=e.vx;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cX(e,p)}
 e.vy+=GRAVITY;e.y+=e.vy;e.onGround=false;for(const p of[...platforms,...pipes]){if(Math.abs((p.x+p.w/2)-e.x)>220)continue;cY(e,p,null)}
 if(e.y>H+100){e.alive=false;continue}
