@@ -16,16 +16,19 @@ if(!_isFall){
 for(let x=0;x<W;x+=TILE){platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 if(x>0&&x<W-TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0})}
 }else{
-// 落下ルーム: 天井の大半を開放（入口）、底に床、左右に全高の壁
+// 落下ルーム: プレイ領域 x=1T〜x=9T（横幅9タイル=288px）、右側15列は完全に埋めて狭い縦シャフト化
+// 底に床、天井は入口用に中央開放、左壁1列＋右フィル15列
 for(let x=0;x<W;x+=TILE)platforms.push({x,y:_fRoomH-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
-// 天井（入口として中央開放）
-for(let x=0;x<W;x+=TILE){if(x>=TILE*5&&x<=TILE*9)continue;platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});}
-// 左右壁（全高）
-for(let wy=0;wy<_fRoomH;wy+=TILE){platforms.push({x:0,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});}
+// 天井（プレイ領域内の x=3T〜x=7T を入口として開放）
+for(let x=0;x<W;x+=TILE){if(x>=TILE*3&&x<=TILE*7)continue;platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});}
+// 左壁（1列全高）
+for(let wy=0;wy<_fRoomH;wy+=TILE)platforms.push({x:0,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+// 右フィル（15列全高: x=10T〜x=24T）
+for(let rx=10*TILE;rx<W;rx+=TILE)for(let wy=0;wy<_fRoomH;wy+=TILE)platforms.push({x:rx,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 }
 // ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
 if(variant!=='pinocchio'&&variant!=='pinocchio_fail'){
-  if(_isFall)pipes.push({x:W-4*TILE,y:_fRoomH-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+  if(_isFall)pipes.push({x:5*TILE,y:_fRoomH-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
   else pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
 }
 // ピノキオ部屋は右壁・左壁を床まで完全に埋める（出口パイプ不在＋敵脱走防止）
@@ -470,122 +473,73 @@ G.fallMode=true;G.lowGravity=true;
 G.autoScrollY=1.6; // 縦の強制スクロール速度（px/frame）
 G.camY=0;
 const FH=G.fallRoomH; // =1800 (4画面分)
-// 共通: 7段のジグザグ足場（y=4T〜y=48T、間隔6〜7T）
-// 各行 [sx, n] — sx=TILE(左寄り, 右側ギャップ) or 5TILE(右寄り, 左側ギャップ) or 変種
-const _rowDefs={
-  // 1-1: 草原の落とし穴 - 綺麗な交互ジグザグ
-  fallGrass1:[[TILE,17],[5*TILE,18],[TILE,17],[5*TILE,18],[TILE,17],[5*TILE,18],[TILE,17]],
-  // 1-2: クリボー坑道 - 中央通路型
-  fallGrass2:[[TILE,9],[14*TILE,9],[TILE,9],[14*TILE,9],[TILE,9],[14*TILE,9],[TILE,9]],
-  // 1-3: 空中回廊 - 短い浮島が散在
-  fallGrass3:[[3*TILE,4],[13*TILE,4],[7*TILE,4],[2*TILE,4],[16*TILE,4],[6*TILE,5],[13*TILE,5]],
-  // 1-4: 城の地下牢 - 廊下型（両端ギャップ）
-  fallGrass4:[[3*TILE,13],[3*TILE,13],[3*TILE,13],[3*TILE,13],[3*TILE,13],[3*TILE,13],[3*TILE,13]],
-  // 2-1: 砂漠の井戸 - 右シフトで螺旋状
-  fallDesert1:[[TILE,16],[6*TILE,17],[TILE,17],[6*TILE,16],[TILE,15],[6*TILE,17],[TILE,16]],
-  // 2-2: ピラミッド内部 - 中央狭窄→広く
-  fallDesert2:[[3*TILE,4],[13*TILE,4],[5*TILE,13],[TILE,7],[14*TILE,5],[TILE,17],[5*TILE,18]],
-  // 2-3: 砂嵐の底 - 長めの壁＋ギャップ交互
-  fallDesert3:[[TILE,15],[7*TILE,16],[TILE,14],[8*TILE,15],[TILE,16],[7*TILE,16],[TILE,17]],
-  // 3-1: 川の滝壺 - ゆったり4段
-  fallRiver1:[[TILE,18],[5*TILE,18],[TILE,18],[5*TILE,18],[TILE,18],[5*TILE,18],[TILE,18]],
-  // 3-2: 森の洞窟 - 枝が交互に出る
-  fallForest1:[[TILE,10],[13*TILE,6],[TILE,12],[14*TILE,5],[TILE,8],[11*TILE,8],[4*TILE,15]],
-  // 5-1: 水中コイン渓谷 - 海藻柱（細い）
-  fallWater1:[[TILE,14],[6*TILE,14],[TILE,10],[9*TILE,10],[TILE,12],[7*TILE,12],[TILE,16]],
-  // 5-2: 深海の隧道 - 蛇腹通路
-  fallWater2:[[TILE,9],[5*TILE,13],[TILE,12],[4*TILE,14],[TILE,13],[6*TILE,13],[TILE,11]],
-  // 6-1: 氷柱の谷 - 短い棚が多い
-  fallIce1:[[TILE,5],[10*TILE,5],[16*TILE,5],[4*TILE,4],[12*TILE,4],[2*TILE,4],[17*TILE,4]],
-  // 6-2: 凍土クレバス - 左右ジグザグ
-  fallIce2:[[TILE,7],[11*TILE,8],[3*TILE,14],[TILE,5],[10*TILE,9],[TILE,8],[5*TILE,16]],
-  // 7-1: 溶岩降下 - 長い壁＋短いギャップ
-  fallFort1:[[TILE,11],[13*TILE,6],[4*TILE,15],[TILE,8],[14*TILE,5],[TILE,15],[4*TILE,15]],
-  // 7-2: 砲撃回廊 - 中央通路形成
-  fallFort2:[[TILE,8],[14*TILE,5],[TILE,6],[16*TILE,3],[TILE,9],[14*TILE,5],[4*TILE,15]],
-};
-const _rowYs=[4*TILE,11*TILE,18*TILE,25*TILE,32*TILE,39*TILE,46*TILE]; // 128,352,576,800,1024,1248,1472
-const _rows=_rowDefs[variant]||_rowDefs.fallGrass1;
-for(let i=0;i<_rows.length;i++){
-  const [sx,n]=_rows[i];const y=_rowYs[i];
-  addRow(sx,y,n,'brick');
-  // 各行のギャップにコイン（左ギャップ/右ギャップ/中央を自動判定）
-  const _blockEnd=sx+n*TILE;
-  const _gapLX=sx-TILE; // 左壁(TILE)の右端=TILE。左側ギャップ範囲は TILE〜sx
-  if(sx>2*TILE){
-    // 左側ギャップあり → TILE+8 から sx-24 に2〜3枚
-    for(let c=0;c<3&&TILE+8+c*28<sx;c++)coinItems.push({x:TILE+8+c*28,y:y+4,collected:false});
-  }
-  if(_blockEnd<W-2*TILE){
-    // 右側ギャップあり → _blockEnd+8 から W-TILE-24 に2〜3枚
-    for(let c=0;c<3&&_blockEnd+8+c*28<W-TILE-12;c++)coinItems.push({x:_blockEnd+8+c*28,y:y+4,collected:false});
-  }
+// プレイ領域: x=TILE(32) 〜 x=10*TILE(320) の9タイル幅288px
+// 障害物ブロックは基本なし、コイン＆敵のみで構成
+const PX_MIN=TILE,PX_MAX=10*TILE; // プレイ領域範囲
+// === 縦のコイン配置（落下中に連続回収） ===
+// 中央縦列（ずっと取れる）
+for(let y=3*TILE;y<FH-4*TILE;y+=TILE){
+  coinItems.push({x:4*TILE+8,y,collected:false});
+  coinItems.push({x:6*TILE+8,y,collected:false});
 }
-// === コイン大量配置: 各段の間の空間にぎっしり ===
-// 段間(y=_rowYs[i]〜_rowYs[i+1])の中央にコイン列・コインアーチ
-for(let i=0;i<_rowYs.length-1;i++){
-  const _midY=(_rowYs[i]+_rowYs[i+1])/2;
-  // 横コイン列（落下中にすくい取る用）
-  for(let c=0;c<8;c++)coinItems.push({x:3*TILE+c*56,y:_midY-TILE/2,collected:false});
-  // ランダム縦コイン（2本）
-  const _cx1=(2+((i*7)%12))*TILE+8;
-  for(let c=0;c<3;c++)coinItems.push({x:_cx1,y:_midY-40+c*20,collected:false});
+// 左端・右端の縦列（位置取り次第）
+for(let y=5*TILE;y<FH-5*TILE;y+=TILE*2){
+  coinItems.push({x:TILE+16,y,collected:false});
+  coinItems.push({x:8*TILE+16,y,collected:false});
 }
-// 各障害物の上に小コインクラスタ
-for(let i=0;i<_rows.length;i++){
-  const [sx,n]=_rows[i];const y=_rowYs[i];
-  for(let c=0;c<n&&c<5;c++)coinItems.push({x:sx+c*48+8,y:y-20,collected:false});
+// ジグザグコインライン（横から横へS字）
+for(let i=0;i<20;i++){
+  const _yy=6*TILE+i*TILE*2;if(_yy>FH-6*TILE)break;
+  const _xx=2*TILE+Math.sin(i*0.6)*2*TILE+3*TILE;
+  coinItems.push({x:_xx,y:_yy,collected:false});
 }
-// === 敵配置: 飛ぶパラパタ＋プラットフォーム上のクリボー/メット ===
-// パラパタ（上空・中空・下空に3匹、画面幅を飛ぶ）
-for(let i=0;i<3;i++){
-  const _py=_rowYs[1+i*2]-TILE*2;
-  enemies.push({x:W/2-TILE,y:_py,w:TILE,h:TILE*1.2,vx:(i%2===0?-1.5:1.5),vy:0,alive:true,
-    type:'parakoopa',flying:true,baseY:_py,phase:i*0.8,
+// === 飛ぶ敵（パラパタ/パラパタ色違い）: 4層に配置、狭い幅を横に飛ぶ ===
+for(let i=0;i<4;i++){
+  const _py=8*TILE+i*10*TILE;
+  if(_py>FH-5*TILE)break;
+  enemies.push({x:5*TILE,y:_py,w:TILE,h:TILE*1.2,vx:i%2===0?-1.2:1.2,vy:0,alive:true,
+    type:'parakoopa',flying:true,baseY:_py,phase:i*0.7,
     state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:i%2===0?-1:1,activated:true});
 }
-// プラットフォーム上にクリボー/メット（段2・段4・段6の各段中央上）
-const _pEnemies=[_rows[1],_rows[3],_rows[5]];
-for(let i=0;i<_pEnemies.length;i++){
-  const [sx,n]=_pEnemies[i];const y=_rowYs[1+i*2];
-  if(n>=3){
-    const _ex=sx+Math.floor(n/2)*TILE;
-    const _etype=i===1?'koopa':(i===2&&variant.indexOf('fallFort')===0?'buzzy':'goomba');
-    enemies.push({x:_ex,y:y-TILE*1.2,w:TILE,h:_etype==='koopa'?TILE*1.2:TILE*0.9,vx:-1.2,vy:0,alive:true,
-      type:_etype,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1,activated:true});
-  }
+// === テーマ別敵＆ハザード（ステージ固有） ===
+if(variant==='fallGrass1'||variant==='fallGrass2'||variant==='fallGrass3'){
+  // 草原系: 追加パラパタ
+  for(let i=0;i<2;i++)enemies.push({x:3*TILE+i*3*TILE,y:15*TILE+i*8*TILE,w:TILE,h:TILE*1.2,vx:i===0?1.5:-1.5,vy:0,alive:true,type:'parakoopa',flying:true,baseY:15*TILE+i*8*TILE,phase:i*1.2,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:i===0?1:-1,activated:true});
 }
-// === テーマ別装飾・ハザード ===
 if(variant==='fallGrass4'||variant==='fallFort1'){
-  // 溶岩炎（廊下の罠）
-  lavaFlames.push({x:10*TILE+8,y:_rowYs[3]+TILE,w:22,maxH:55,curH:0,phase:0,period:130});
-  lavaFlames.push({x:14*TILE+8,y:_rowYs[5]+TILE,w:22,maxH:55,curH:0,phase:60,period:130});
+  // 城・砦: 溶岩炎（床のハザード。プレイ領域内の底付近のみ）
+  lavaFlames.push({x:2*TILE+8,y:FH-TILE,w:22,maxH:80,curH:0,phase:0,period:120});
+  lavaFlames.push({x:7*TILE+8,y:FH-TILE,w:22,maxH:80,curH:0,phase:60,period:120});
 }
 if(variant==='fallFort2'){
-  // キャノン（横撃ち）
-  cannons.push({x:2*TILE,y:_rowYs[2]-2*TILE,w:TILE,h:TILE*2,fireRate:200,timer:20});
-  cannons.push({x:W-3*TILE,y:_rowYs[4]-2*TILE,w:TILE,h:TILE*2,fireRate:220,timer:100});
-  cannons.push({x:2*TILE,y:_rowYs[5]-2*TILE,w:TILE,h:TILE*2,fireRate:210,timer:50});
+  // 砲撃回廊: 右壁(x=10T)側からキャノン弾、3段
+  cannons.push({x:10*TILE,y:13*TILE,w:TILE,h:TILE*2,fireRate:200,timer:30});
+  cannons.push({x:10*TILE,y:28*TILE,w:TILE,h:TILE*2,fireRate:200,timer:100});
+  cannons.push({x:10*TILE,y:40*TILE,w:TILE,h:TILE*2,fireRate:200,timer:50});
 }
 if(variant==='fallIce1'||variant==='fallIce2'){
-  // 氷柱装飾: 天井から突き出すブロック列（通過可能な位置）
-  for(let y=0;y<3;y++)addB(9*TILE,TILE+y*TILE,'brick');
-  for(let y=0;y<3;y++)addB(15*TILE,TILE+y*TILE,'brick');
+  // 氷柱装飾: 天井から突き出すブロック列（狭いプレイ領域の視覚的アクセント）
+  for(let y=0;y<3;y++)addB(8*TILE,TILE+y*TILE,'brick');
 }
-// === 報酬ブロック（多め配置で旨味UP） ===
-// 段1下: キノコ
-platforms.push({x:W/2-TILE,y:_rowYs[0]+TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-// 段3下: スター
-platforms.push({x:W/2-TILE,y:(_rowYs[2]+_rowYs[3])/2,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-// 段4下: 追加キノコ（対角）
-platforms.push({x:W/2+TILE,y:(_rowYs[3]+_rowYs[4])/2,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-// 段5下: コインブロック（叩き放題）
-platforms.push({x:3*TILE,y:_rowYs[4]+TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-platforms.push({x:W-4*TILE,y:_rowYs[4]+TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-// 下段: 確実に取れる1UPブロック（隠しではなく通常）
-platforms.push({x:3*TILE,y:FH-6*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
+if(variant==='fallDesert1'||variant==='fallDesert2'||variant==='fallDesert3'){
+  // 砂漠系: 追加goomba風の落ちる敵（ここではparakoopaRで色違いにできるが、シンプルに追加parakoopa）
+  for(let i=0;i<2;i++)enemies.push({x:2*TILE+i*5*TILE,y:20*TILE+i*10*TILE,w:TILE,h:TILE*1.2,vx:-1.8,vy:0,alive:true,type:'parakoopa',flying:true,baseY:20*TILE+i*10*TILE,phase:i*1.5,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:-1,activated:true});
+}
+if(variant==='fallRiver1'||variant==='fallForest1'){
+  // 川・森: 追加パラパタ
+  for(let i=0;i<2;i++)enemies.push({x:4*TILE,y:18*TILE+i*12*TILE,w:TILE,h:TILE*1.2,vx:1.6,vy:0,alive:true,type:'parakoopa',flying:true,baseY:18*TILE+i*12*TILE,phase:i*0.9,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:1,activated:true});
+}
+// === 浮いている報酬ブロック（プラットフォーム扱いにならないよう小さく配置） ===
+// 中段（y=12T付近）: キノコ
+platforms.push({x:3*TILE,y:12*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+// 中下段（y=24T付近）: スター
+platforms.push({x:7*TILE,y:24*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+// 下段（y=36T付近）: コインブロック
+platforms.push({x:3*TILE,y:36*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
+// 最下段（y=FH-6T）: 1UPブロック
+platforms.push({x:7*TILE,y:FH-6*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
 // 到達ボーナスコイン列（出口パイプ前の床上）
-for(let i=0;i<14;i++)coinItems.push({x:2*TILE+i*32,y:FH-2*TILE-8,collected:false});
+for(let i=0;i<8;i++)coinItems.push({x:TILE+8+i*32,y:FH-2*TILE-8,collected:false});
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋

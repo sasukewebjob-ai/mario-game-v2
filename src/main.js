@@ -167,8 +167,8 @@ buildUnderground(p.variant||'coin');
 for(let i=enemies.length-1;i>=0;i--){if(enemies[i].x<260)enemies.splice(i,1);}
 G.cam=0;
 if(G.fallMode){
-  // 落下チャレンジ：画面上部中央にスポーン、初速で自然落下
-  mario.x=6*TILE+8;mario.y=TILE+4;mario.vx=0;mario.vy=2;
+  // 落下チャレンジ：プレイ領域中央(x=5T)にスポーン、初速で自然落下
+  mario.x=5*TILE;mario.y=TILE+4;mario.vx=0;mario.vy=2;
 }else{
   mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;
 }
