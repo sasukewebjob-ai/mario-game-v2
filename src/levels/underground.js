@@ -467,6 +467,8 @@ enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(k
 
 }else if(variant&&variant.indexOf('fall')===0){
 G.fallMode=true;G.lowGravity=true;
+G.autoScrollY=1.6; // 縦の強制スクロール速度（px/frame）
+G.camY=0;
 const FH=G.fallRoomH; // =1800 (4画面分)
 // 共通: 7段のジグザグ足場（y=4T〜y=48T、間隔6〜7T）
 // 各行 [sx, n] — sx=TILE(左寄り, 右側ギャップ) or 5TILE(右寄り, 左側ギャップ) or 変種
@@ -519,7 +521,41 @@ for(let i=0;i<_rows.length;i++){
     for(let c=0;c<3&&_blockEnd+8+c*28<W-TILE-12;c++)coinItems.push({x:_blockEnd+8+c*28,y:y+4,collected:false});
   }
 }
-// テーマ別装飾・ハザード
+// === コイン大量配置: 各段の間の空間にぎっしり ===
+// 段間(y=_rowYs[i]〜_rowYs[i+1])の中央にコイン列・コインアーチ
+for(let i=0;i<_rowYs.length-1;i++){
+  const _midY=(_rowYs[i]+_rowYs[i+1])/2;
+  // 横コイン列（落下中にすくい取る用）
+  for(let c=0;c<8;c++)coinItems.push({x:3*TILE+c*56,y:_midY-TILE/2,collected:false});
+  // ランダム縦コイン（2本）
+  const _cx1=(2+((i*7)%12))*TILE+8;
+  for(let c=0;c<3;c++)coinItems.push({x:_cx1,y:_midY-40+c*20,collected:false});
+}
+// 各障害物の上に小コインクラスタ
+for(let i=0;i<_rows.length;i++){
+  const [sx,n]=_rows[i];const y=_rowYs[i];
+  for(let c=0;c<n&&c<5;c++)coinItems.push({x:sx+c*48+8,y:y-20,collected:false});
+}
+// === 敵配置: 飛ぶパラパタ＋プラットフォーム上のクリボー/メット ===
+// パラパタ（上空・中空・下空に3匹、画面幅を飛ぶ）
+for(let i=0;i<3;i++){
+  const _py=_rowYs[1+i*2]-TILE*2;
+  enemies.push({x:W/2-TILE,y:_py,w:TILE,h:TILE*1.2,vx:(i%2===0?-1.5:1.5),vy:0,alive:true,
+    type:'parakoopa',flying:true,baseY:_py,phase:i*0.8,
+    state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:i%2===0?-1:1,activated:true});
+}
+// プラットフォーム上にクリボー/メット（段2・段4・段6の各段中央上）
+const _pEnemies=[_rows[1],_rows[3],_rows[5]];
+for(let i=0;i<_pEnemies.length;i++){
+  const [sx,n]=_pEnemies[i];const y=_rowYs[1+i*2];
+  if(n>=3){
+    const _ex=sx+Math.floor(n/2)*TILE;
+    const _etype=i===1?'koopa':(i===2&&variant.indexOf('fallFort')===0?'buzzy':'goomba');
+    enemies.push({x:_ex,y:y-TILE*1.2,w:TILE,h:_etype==='koopa'?TILE*1.2:TILE*0.9,vx:-1.2,vy:0,alive:true,
+      type:_etype,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1,activated:true});
+  }
+}
+// === テーマ別装飾・ハザード ===
 if(variant==='fallGrass4'||variant==='fallFort1'){
   // 溶岩炎（廊下の罠）
   lavaFlames.push({x:10*TILE+8,y:_rowYs[3]+TILE,w:22,maxH:55,curH:0,phase:0,period:130});
@@ -536,17 +572,20 @@ if(variant==='fallIce1'||variant==='fallIce2'){
   for(let y=0;y<3;y++)addB(9*TILE,TILE+y*TILE,'brick');
   for(let y=0;y<3;y++)addB(15*TILE,TILE+y*TILE,'brick');
 }
-if(variant==='fallWater1'||variant==='fallWater2'){
-  // 海藻装飾＋追加コイン
-  for(let i=0;i<8;i++)coinItems.push({x:W/2-100+i*30,y:FH-6*TILE,collected:false});
-}
-// 中段報酬ブロック（必ず取れる位置、段3〜4の間に配置）
-platforms.push({x:W/2-TILE,y:(_rowYs[2]+_rowYs[3])/2,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-platforms.push({x:W/2+TILE,y:(_rowYs[2]+_rowYs[3])/2,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-// 下段報酬: 1UP隠しブロック（底付近）
-platforms.push({x:3*TILE,y:FH-6*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-// 到達ボーナスコイン列（出口パイプ前）
-for(let i=0;i<10;i++)coinItems.push({x:5*TILE+i*28,y:FH-3*TILE,collected:false});
+// === 報酬ブロック（多め配置で旨味UP） ===
+// 段1下: キノコ
+platforms.push({x:W/2-TILE,y:_rowYs[0]+TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+// 段3下: スター
+platforms.push({x:W/2-TILE,y:(_rowYs[2]+_rowYs[3])/2,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+// 段4下: 追加キノコ（対角）
+platforms.push({x:W/2+TILE,y:(_rowYs[3]+_rowYs[4])/2,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+// 段5下: コインブロック（叩き放題）
+platforms.push({x:3*TILE,y:_rowYs[4]+TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
+platforms.push({x:W-4*TILE,y:_rowYs[4]+TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
+// 下段: 確実に取れる1UPブロック（隠しではなく通常）
+platforms.push({x:3*TILE,y:FH-6*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
+// 到達ボーナスコイン列（出口パイプ前の床上）
+for(let i=0;i<14;i++)coinItems.push({x:2*TILE+i*32,y:FH-2*TILE-8,collected:false});
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋

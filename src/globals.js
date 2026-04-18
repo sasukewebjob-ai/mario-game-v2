@@ -68,7 +68,7 @@ export const G={
   // 新機能
   heldItem:null,stageDamaged:false,clearedStages:[],
   // 落下チャレンジモード（地面土管の新バリアント）
-  fallMode:false,fallTimer:0,fallCoins:0,camY:0,fallRoomH:1800,
+  fallMode:false,fallTimer:0,fallCoins:0,camY:0,fallRoomH:1800,autoScrollY:0,
   // キャラクター・タイム
   character:'mario',stageStartTime:0,stageTimes:{}
 };
