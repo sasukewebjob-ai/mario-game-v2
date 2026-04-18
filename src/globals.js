@@ -12,6 +12,7 @@ export const marioHammers=[];
 export const gravityZones=[];
 export const windZones=[];
 export const windParticles=[];
+export const rings=[];
 
 export const mario={x:80,y:H-3*TILE,w:26,h:32,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,big:false,power:'none',wallContact:0,wallContactTimer:0,hipDrop:false,sliding:false,slideTimer:0,crouching:false,heldShell:null};
 export const yoshi={x:0,y:0,w:30,h:40,vx:0,vy:0,alive:false,mounted:false,facing:1,walkFrame:0,walkTimer:0,tongueOut:0,tongueLen:0,tongueMaxLen:90,eatCount:0,eggsReady:0,onGround:false,runAway:false,runTimer:0,flutterTimer:0,idleTimer:0,eatTarget:null,chewTimer:0};
@@ -69,6 +70,7 @@ export const G={
   heldItem:null,stageDamaged:false,clearedStages:[],
   // 落下チャレンジモード（地面土管の新バリアント）
   fallMode:false,fallTimer:0,fallCoins:0,camY:0,fallRoomH:1800,autoScrollY:0,
+  fallNoRise:false,fallTheme:null,
   // キャラクター・タイム
   character:'mario',stageStartTime:0,stageTimes:{}
 };

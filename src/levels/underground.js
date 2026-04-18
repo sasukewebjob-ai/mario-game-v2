@@ -1,7 +1,7 @@
 import {platforms,pipes,coinItems,enemies,mushrooms,fireballs,piranhas,
   particles,scorePopups,blockAnims,movingPlats,springs,hammers,
   cannons,bulletBills,yoshiEggs,yoshiItems,lavaFlames,bowserFire,
-  chainChomps,jumpBlocks,pipos,gravityZones,windZones,
+  chainChomps,jumpBlocks,pipos,gravityZones,windZones,rings,
   yoshi,peach,bowser,G,H,TILE,LW,BOWSER_STATS,pinoObj,chests} from '../globals.js';
 import {addB,addRow,addStair,addStairD} from '../builders.js';
 
@@ -469,70 +469,190 @@ enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(k
 // ════════════════════════════════════════
 
 }else if(variant&&variant.indexOf('fall')===0){
-G.fallMode=true;G.lowGravity=true;
-G.autoScrollY=1.6; // 縦の強制スクロール速度（px/frame）
+// ════════════════════════════════════════
+// 落下土管：水中化＋上昇封じ、15 variant個別に特色化
+// ════════════════════════════════════════
+G.fallMode=true;G.lowGravity=true;G.waterMode=true;G.fallNoRise=true;G.fallTheme=variant;
+G.autoScrollY=0.8; // 水中化で減速（旧1.6）
 G.camY=0;
-const FH=G.fallRoomH; // =1800 (4画面分)
-// プレイ領域: x=TILE(32) 〜 x=10*TILE(320) の9タイル幅288px
-// 障害物ブロックは基本なし、コイン＆敵のみで構成
-const PX_MIN=TILE,PX_MAX=10*TILE; // プレイ領域範囲
-// === 縦のコイン配置（落下中に連続回収） ===
-// 中央縦列（ずっと取れる）
-for(let y=3*TILE;y<FH-4*TILE;y+=TILE){
-  coinItems.push({x:4*TILE+8,y,collected:false});
-  coinItems.push({x:6*TILE+8,y,collected:false});
-}
-// 左端・右端の縦列（位置取り次第）
-for(let y=5*TILE;y<FH-5*TILE;y+=TILE*2){
-  coinItems.push({x:TILE+16,y,collected:false});
-  coinItems.push({x:8*TILE+16,y,collected:false});
-}
-// ジグザグコインライン（横から横へS字）
-for(let i=0;i<20;i++){
-  const _yy=6*TILE+i*TILE*2;if(_yy>FH-6*TILE)break;
-  const _xx=2*TILE+Math.sin(i*0.6)*2*TILE+3*TILE;
-  coinItems.push({x:_xx,y:_yy,collected:false});
-}
-// === 飛ぶ敵（parakoopaR=左右跳ね返りタイプ）: 4層に配置、プレイ領域内で往復 ===
-for(let i=0;i<4;i++){
-  const _py=8*TILE+i*10*TILE;
-  if(_py>FH-5*TILE)break;
-  enemies.push({x:5*TILE,y:_py,w:TILE,h:TILE*1.2,vx:i%2===0?-1.2:1.2,vy:0,alive:true,
-    type:'parakoopaR',flying:true,baseX:5*TILE,baseY:_py,range:3*TILE,phase:i*0.7,
-    state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:i%2===0?-1:1,activated:true});
-}
-// === テーマ別敵＆ハザード（ステージ固有） ===
-if(variant==='fallGrass1'||variant==='fallGrass2'||variant==='fallGrass3'){
-  for(let i=0;i<2;i++)enemies.push({x:5*TILE,y:15*TILE+i*8*TILE,w:TILE,h:TILE*1.2,vx:i===0?1.5:-1.5,vy:0,alive:true,type:'parakoopaR',flying:true,baseX:5*TILE,baseY:15*TILE+i*8*TILE,range:3*TILE,phase:i*1.2,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:i===0?1:-1,activated:true});
-}
-if(variant==='fallGrass4'||variant==='fallFort1'){
-  // 城・砦: 底の両端に溶岩炎（出口パイプx=5T〜7T は避ける）
-  lavaFlames.push({x:TILE+12,y:FH-TILE,w:22,maxH:80,curH:0,phase:0,period:120});
-  lavaFlames.push({x:8*TILE+12,y:FH-TILE,w:22,maxH:80,curH:0,phase:60,period:120});
-}
-if(variant==='fallFort2'){
-  // 砲撃回廊: 右フィル内縁(x=9T+8)からキャノン弾、3段（プレイ領域内に配置）
-  cannons.push({x:9*TILE+12,y:13*TILE,w:TILE,h:TILE*2,fireRate:200,timer:30});
-  cannons.push({x:9*TILE+12,y:28*TILE,w:TILE,h:TILE*2,fireRate:200,timer:100});
-  cannons.push({x:9*TILE+12,y:40*TILE,w:TILE,h:TILE*2,fireRate:200,timer:50});
-}
-if(variant==='fallDesert1'||variant==='fallDesert2'||variant==='fallDesert3'){
-  for(let i=0;i<2;i++)enemies.push({x:5*TILE,y:20*TILE+i*10*TILE,w:TILE,h:TILE*1.2,vx:-1.8,vy:0,alive:true,type:'parakoopaR',flying:true,baseX:5*TILE,baseY:20*TILE+i*10*TILE,range:3*TILE,phase:i*1.5,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:-1,activated:true});
-}
-if(variant==='fallRiver1'||variant==='fallForest1'){
-  for(let i=0;i<2;i++)enemies.push({x:5*TILE,y:18*TILE+i*12*TILE,w:TILE,h:TILE*1.2,vx:1.6,vy:0,alive:true,type:'parakoopaR',flying:true,baseX:5*TILE,baseY:18*TILE+i*12*TILE,range:3*TILE,phase:i*0.9,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:1,activated:true});
-}
-// === 報酬ブロック: 底付近のみ配置（強制スクロール時の着地即死を回避） ===
-// 底の床に着地した後、出口パイプ手前でジャンプして取る構成
-// 1UPブロック（壁に配置: x=1T 左端、y=FH-4T）
+const FH=G.fallRoomH; // =1800
+const PX_MIN=TILE,PX_MAX=10*TILE;
+
+// ── fall 専用ヘルパー ──
+const fR=(x,y,col,sz)=>({x,y,w:sz||48,h:sz||48,passed:false,color:col||'#ffff66',phase:Math.random()*Math.PI*2});
+const fF=(x,y,dir,range)=>({x,y,w:TILE,h:TILE*1.2,vx:dir*1.2,vy:0,alive:true,type:'parakoopaR',flying:true,baseX:x,baseY:y,range:range||3*TILE,phase:Math.random()*Math.PI,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,facing:dir,activated:true});
+const fBl=(x,y)=>({x,y,w:24,h:20,vx:0,vy:0,type:'blooper',alive:true});
+const fDec=(x,y,w,col)=>({x,y,w:w||TILE,h:10,type:'ground',color:col||'#4a7a4a',bounceOffset:0});
+const fSolid=(x,y,w,h,col)=>({x,y,w:w||TILE,h:h||TILE,type:'ground',color:col||'#6a8a3a',bounceOffset:0});
+
+// === 底の報酬＋到達ボーナスコイン列（全variant共通） ===
 platforms.push({x:TILE,y:FH-4*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
-// スターブロック（右端: x=8T、y=FH-4T）
 platforms.push({x:8*TILE,y:FH-4*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-// コインブロック（中央やや左: 出口前で叩ける位置）
 platforms.push({x:2*TILE,y:FH-3*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-platforms.push({x:9*TILE-TILE,y:FH-3*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-// 到達ボーナスコイン列（出口パイプ上空）
+platforms.push({x:7*TILE,y:FH-3*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
 for(let i=0;i<8;i++)coinItems.push({x:TILE+8+i*32,y:FH-5*TILE,collected:false});
+
+// === 中央軽めのコイン骨格（variantで増やす） ===
+for(let y=5*TILE;y<FH-6*TILE;y+=TILE*3)coinItems.push({x:5*TILE+8,y,collected:false});
+
+// ───────── 15 variant 個別 ─────────
+if(variant==='fallGrass1'){
+  // 草原1-1: 入門・リング多め・敵少なめ
+  const rz=[[2,7],[6,11],[3,16],[7,21],[2,27],[6,32],[4,38]];
+  for(const [rx,ry] of rz)rings.push(fR(rx*TILE,ry*TILE,'#7fff7f'));
+  for(let i=0;i<3;i++)enemies.push(fF(4*TILE,14*TILE+i*8*TILE,i%2?1:-1,2.5*TILE));
+  for(let i=0;i<5;i++)platforms.push(fDec(2*TILE+(i%2)*5*TILE,9*TILE+i*7*TILE,TILE*1.5,'#6fb06f'));
+  for(let i=0;i<8;i++)coinItems.push({x:2*TILE+(i%3)*2*TILE,y:8*TILE+i*3*TILE,collected:false});
+}
+else if(variant==='fallGrass2'){
+  // 草原1-2: 藻壁＋ノコノコ水泳
+  for(let y=5*TILE;y<FH-6*TILE;y+=TILE*5){
+    platforms.push(fSolid(TILE,y,TILE*1.8,TILE*0.75,'#3f6a3f'));
+    platforms.push(fSolid(PX_MAX-TILE*1.8,y+2.5*TILE,TILE*1.8,TILE*0.75,'#3f6a3f'));
+  }
+  for(let i=0;i<7;i++)rings.push(fR(3*TILE+(i%3)*TILE,7*TILE+i*4.5*TILE,'#a0ffa0'));
+  for(let i=0;i<4;i++)enemies.push(fF(5*TILE,12*TILE+i*6*TILE,i%2?1:-1,2*TILE));
+  for(let i=0;i<10;i++)coinItems.push({x:3*TILE+Math.sin(i*0.8)*2*TILE+TILE,y:7*TILE+i*3*TILE,collected:false});
+}
+else if(variant==='fallGrass3'){
+  // 草原1-3: ゲッソー1体＋葉っぱ足場
+  enemies.push(fBl(5*TILE,10*TILE));
+  for(let i=0;i<4;i++)enemies.push(fF(5*TILE,16*TILE+i*6*TILE,i%2?-1:1,2.5*TILE));
+  for(let i=0;i<6;i++)rings.push(fR(2*TILE+(i%3)*2.5*TILE,6*TILE+i*5*TILE,'#88ee88'));
+  for(let i=0;i<6;i++)platforms.push(fDec(2*TILE+(i%2)*4.5*TILE,11*TILE+i*5*TILE,TILE*1.3,'#5fa05f'));
+  for(let i=0;i<10;i++)coinItems.push({x:2*TILE+(i%4<2?0:5*TILE)+TILE,y:8*TILE+i*2.8*TILE,collected:false});
+}
+else if(variant==='fallGrass4'){
+  // 草原1-4: 木の根の壁＋ツル（ジグザグ難所）
+  for(let i=0;i<6;i++){
+    const y=6*TILE+i*4*TILE;
+    if(i%2===0)platforms.push(fSolid(TILE,y,TILE*3,TILE*0.7,'#6b4423'));
+    else platforms.push(fSolid(PX_MAX-TILE*3,y,TILE*3,TILE*0.7,'#6b4423'));
+  }
+  for(let i=0;i<8;i++)platforms.push(fDec(4*TILE+Math.sin(i*0.9)*1.5*TILE,5*TILE+i*3.5*TILE,14,'#6b9a3a'));
+  for(let i=0;i<6;i++)rings.push(fR(4.5*TILE+(i%2?-2:2)*TILE,8*TILE+i*5*TILE,'#d0ff88'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,14*TILE+i*7*TILE,i%2?1:-1,2*TILE));
+  enemies.push(fBl(4*TILE,24*TILE));
+}
+else if(variant==='fallDesert1'){
+  // 砂漠2-1: 砂柱（縦壁）を左右交互に避ける
+  for(let i=0;i<5;i++){
+    const y=6*TILE+i*6*TILE;
+    platforms.push(fSolid(i%2?TILE:PX_MAX-TILE*2.2,y,TILE*2.2,TILE*1.3,'#d4a460'));
+  }
+  for(let i=0;i<7;i++)rings.push(fR(4*TILE+(i%2?-1.5:1.5)*TILE,8*TILE+i*4*TILE,'#ffddaa'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,14*TILE+i*7*TILE,i%2?1:-1,2*TILE));
+  for(let i=0;i<10;i++)coinItems.push({x:3*TILE+(i%3)*1.5*TILE,y:7*TILE+i*2.8*TILE,collected:false});
+}
+else if(variant==='fallDesert2'){
+  // 砂漠2-2: 横砂流ゾーン（windZones で流される）
+  for(let i=0;i<3;i++){
+    const y=8*TILE+i*9*TILE;
+    windZones.push({x:TILE,y,w:9*TILE,h:3*TILE,force:i%2?1.5:-1.5});
+    platforms.push(fDec(TILE,y+TILE,9*TILE,'#e0b870'));
+  }
+  for(let i=0;i<7;i++)rings.push(fR(2*TILE+(i%4)*1.8*TILE,6*TILE+i*4.5*TILE,'#ffcc88'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,16*TILE+i*7*TILE,-1,2*TILE));
+  for(let i=0;i<4;i++)platforms.push(fSolid(i%2?TILE+4:PX_MAX-TILE-4,11*TILE+i*7*TILE,TILE*0.8,TILE*0.8,'#6c7a3a'));
+}
+else if(variant==='fallDesert3'){
+  // 砂漠2-3: サンゴトゲ＋砂竜巻
+  for(let y=7*TILE;y<FH-5*TILE;y+=TILE*4){
+    platforms.push(fSolid(TILE,y,TILE*0.9,TILE,'#c67a3a'));
+    platforms.push(fSolid(PX_MAX-TILE*0.9,y+2*TILE,TILE*0.9,TILE,'#c67a3a'));
+  }
+  windZones.push({x:TILE,y:13*TILE,w:9*TILE,h:2*TILE,force:1.8});
+  windZones.push({x:TILE,y:26*TILE,w:9*TILE,h:2*TILE,force:-1.8});
+  for(let i=0;i<7;i++)rings.push(fR(3*TILE+(i%3)*1.5*TILE,6*TILE+i*4.5*TILE,'#ffaa66'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,15*TILE+i*7*TILE,i%2?1:-1,2.5*TILE));
+}
+else if(variant==='fallRiver1'){
+  // 川3-1: 滝・ゲッソー+ノコノコ+滝の装飾
+  for(let i=0;i<3;i++)enemies.push(fBl(2.5*TILE+(i%2)*4.5*TILE,8*TILE+i*7*TILE));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,16*TILE+i*6*TILE,i%2?-1:1,2*TILE));
+  for(let i=0;i<8;i++)rings.push(fR(3*TILE+Math.sin(i*1.2)*1.8*TILE,6*TILE+i*4*TILE,'#88ccff'));
+  for(let y=5*TILE;y<FH-5*TILE;y+=TILE*2){
+    platforms.push(fDec(Math.random()<0.5?TILE:PX_MAX-TILE,y,TILE,'#3a8ec0'));
+  }
+  for(let i=0;i<12;i++)coinItems.push({x:2*TILE+(i%5)*TILE,y:9*TILE+Math.floor(i/5)*5*TILE,collected:false});
+}
+else if(variant==='fallForest1'){
+  // 森3-2: 地底湖・ツタ網＋光る胞子（コイン多め）
+  for(let i=0;i<8;i++){
+    const y=5*TILE+i*4*TILE;
+    platforms.push(fDec(i%2?TILE+4:PX_MAX-TILE*1.5-4,y,TILE*1.5,'#2f7a2f'));
+  }
+  for(let i=0;i<20;i++){
+    const _yy=4*TILE+i*2.5*TILE;if(_yy>FH-6*TILE)break;
+    coinItems.push({x:3*TILE+Math.sin(i*0.7)*2*TILE+TILE,y:_yy,collected:false});
+  }
+  for(let i=0;i<7;i++)rings.push(fR(2.5*TILE+(i%3)*2*TILE,7*TILE+i*4.5*TILE,'#b0ffa0'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,14*TILE+i*7*TILE,i%2?1:-1,2.2*TILE));
+  enemies.push(fBl(5*TILE,28*TILE));
+}
+else if(variant==='fallWater1'){
+  // 水5-1: 海底遺跡・石柱＋ゲッソー大群
+  for(let i=0;i<5;i++){
+    const y=6*TILE+i*5*TILE;
+    platforms.push(fSolid(i%2?TILE:PX_MAX-TILE*2.5,y,TILE*2.5,TILE*1.5,'#6a6a8a'));
+  }
+  for(let i=0;i<6;i++)enemies.push(fBl(3*TILE+(i%3)*2*TILE,10*TILE+i*4.5*TILE));
+  for(let i=0;i<6;i++)rings.push(fR(4*TILE+(i%2?-1.5:1.5)*TILE,8*TILE+i*4.5*TILE,'#66aaff'));
+}
+else if(variant==='fallWater2'){
+  // 水5-2: 珊瑚礁・プクプク+毒サンゴ+魚群
+  for(let i=0;i<6;i++){
+    const y=6*TILE+i*4*TILE;
+    const x=i%3===0?TILE:(i%3===1?PX_MAX-TILE*1.3:5*TILE-TILE*0.7);
+    platforms.push(fSolid(x,y,TILE*1.3,TILE*0.8,'#ff6680'));
+  }
+  for(let i=0;i<4;i++)enemies.push(fBl(5*TILE,12*TILE+i*6*TILE));
+  for(let i=0;i<7;i++)rings.push(fR(3*TILE+(i%3)*1.7*TILE,7*TILE+i*4.5*TILE,'#88ffff'));
+  // 魚群コイン
+  for(let i=0;i<18;i++)coinItems.push({x:TILE+8+(i%9)*TILE,y:9*TILE+Math.floor(i/9)*10*TILE,collected:false});
+}
+else if(variant==='fallIce1'){
+  // 氷6-1: 氷ブロック＋凍結コイン
+  for(let i=0;i<7;i++){
+    const y=5*TILE+i*4*TILE;
+    const x=i%2?3*TILE:6*TILE;
+    platforms.push(fSolid(x,y,TILE*1.5,TILE*0.5,'#a0e0ff'));
+  }
+  for(let i=0;i<7;i++)rings.push(fR(4*TILE+(i%2?-1:1)*TILE,7*TILE+i*4.5*TILE,'#ccffff'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,14*TILE+i*7*TILE,i%2?1:-1,2*TILE));
+  for(let i=0;i<14;i++)coinItems.push({x:2*TILE+(i%5)*TILE,y:8*TILE+Math.floor(i/5)*3.5*TILE,collected:false});
+}
+else if(variant==='fallIce2'){
+  // 氷6-2: 浮遊氷足場で左右分岐
+  for(let i=0;i<9;i++){
+    const y=5*TILE+i*3.5*TILE;
+    const x=(i%3===0)?2*TILE:(i%3===1?5*TILE:7*TILE);
+    movingPlats.push({x,y,w:TILE*1.5,h:12,type:'h',ox:x,range:TILE*0.7,spd:0.4,prevX:x,oy:y,vy:0,color:'#b0e0ff'});
+  }
+  for(let i=0;i<7;i++)rings.push(fR(2*TILE+(i%4)*1.5*TILE,6*TILE+i*4.5*TILE,'#aaeeff'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,16*TILE+i*7*TILE,i%2?-1:1,2*TILE));
+}
+else if(variant==='fallFort1'){
+  // 砦7-1: 溶岩炎縦＋熱水の演出
+  lavaFlames.push({x:TILE+12,y:FH-TILE,w:22,maxH:100,curH:0,phase:0,period:110});
+  lavaFlames.push({x:8*TILE+12,y:FH-TILE,w:22,maxH:100,curH:0,phase:55,period:110});
+  lavaFlames.push({x:TILE+12,y:22*TILE,w:22,maxH:80,curH:0,phase:30,period:100});
+  lavaFlames.push({x:8*TILE+12,y:22*TILE,w:22,maxH:80,curH:0,phase:80,period:100});
+  for(let i=0;i<5;i++)rings.push(fR(3*TILE+(i%3)*1.8*TILE,7*TILE+i*5*TILE,'#ffcc33'));
+  for(let i=0;i<3;i++)enemies.push(fF(5*TILE,12*TILE+i*8*TILE,i%2?1:-1,2*TILE));
+  for(let i=0;i<4;i++)platforms.push(fSolid(4.5*TILE,10*TILE+i*6*TILE,TILE,TILE*0.5,'#ff6020'));
+}
+else if(variant==='fallFort2'){
+  // 砦7-2: キャノン3段＋溶岩柱
+  cannons.push({x:9*TILE+12,y:13*TILE,w:TILE,h:TILE*2,fireRate:180,timer:30});
+  cannons.push({x:9*TILE+12,y:28*TILE,w:TILE,h:TILE*2,fireRate:180,timer:100});
+  cannons.push({x:9*TILE+12,y:40*TILE,w:TILE,h:TILE*2,fireRate:180,timer:50});
+  for(let i=0;i<3;i++){
+    lavaFlames.push({x:TILE+12,y:9*TILE+i*9*TILE,w:22,maxH:60,curH:0,phase:i*40,period:100});
+  }
+  for(let i=0;i<5;i++)rings.push(fR(3*TILE+(i%2)*2*TILE,8*TILE+i*5.5*TILE,'#ff8833'));
+  for(let i=0;i<2;i++)enemies.push(fF(4*TILE,18*TILE+i*9*TILE,i%2?1:-1,2*TILE));
+}
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
 // ★ ピノキオの部屋 ★ 空テーマの選択部屋
