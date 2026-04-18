@@ -836,7 +836,9 @@ if(mario.hipDrop&&mario.onGround){mario.hipDrop=false;G.shakeX=5;G.shakeY=5;try{
   for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'||e.type==='rex'||e.type==='spiny'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}else if(e.type==='bobomb'&&e.state==='walk'){e.state='lit';e.litTimer=180;G.score+=100;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,100,'#ff4400');}}}
 }
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
-if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}
+{const _deathY=G.fallMode?G.fallRoomH+40:H+40;if(mario.y>_deathY){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}}
+// 落下モード: カメラYをマリオに追従
+if(G.fallMode){G.camY=Math.max(0,Math.min(mario.y-H*0.3,G.fallRoomH-H));}else{G.camY=0;}
 if(G.autoScroll>0&&mario.x<G.cam+10)killMario(true); // 強制スクロール挟まれ即死
 if(mario.inv>0)mario.inv--;
 
@@ -2639,7 +2641,7 @@ ctx.fillRect(x+5+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE-12+fo[1],y+TILE-4,7,4);
 }
 
 function drawParticles(){for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)}ctx.globalAlpha=1}
-function drawScorePopups(){for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y)}ctx.globalAlpha=1;ctx.textAlign='left'}
+function drawScorePopups(){const _cy=G.fallMode?G.camY:0;for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y-_cy)}ctx.globalAlpha=1;ctx.textAlign='left'}
 
 function drawOverlay(title,sub,bgColor){
 ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(0,0,W,H);
@@ -2672,7 +2674,7 @@ if(_wt==='airship'){
   // 稲光フラッシュ（既存BGの補強：まれに画面全体が白くなる）
   if(G.frame%600<2){ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(0,0,W,H);}
 }}
-ctx.save();ctx.translate(-G.cam,0);
+ctx.save();ctx.translate(-G.cam,G.fallMode?-G.camY:0);
 // Lava flames (draw below blocks)
 for(const f of lavaFlames){if(f.curH<2||f.x+f.w<G.cam-10||f.x>G.cam+W+10)continue;
 const ft=H-TILE-f.curH;
