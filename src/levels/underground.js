@@ -448,6 +448,149 @@ enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(k
 // W=800 H=450 の単一画面、lowGravity+ブロック迷路で落下ゲーム化
 // ════════════════════════════════════════
 
+}else if(variant==='fallGrass1'){
+// ★ 1-1: 緑の落とし穴 ★ 草原の穴ぼこを落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*5&&p.x<=TILE*8)platforms.splice(i,1);}
+addRow(0,   H-9*TILE, 12,'brick');                       // 上段: 右隙間
+addRow(10*TILE,H-6*TILE, 9,'brick');                     // 中段: 左隙間
+addRow(0,   H-4*TILE, 6,'brick');                        // 下段: 右隙間
+for(let i=0;i<5;i++)coinItems.push({x:12*TILE+8+i*24,y:H-10*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:30+i*24,y:H-7*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:7*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(200,H-5*TILE));
+platforms.push(rh1());
+
+}else if(variant==='fallGrass2'){
+// ★ 1-2: クリボー坑道 ★ 草原の小洞窟
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*11&&p.x<=TILE*14)platforms.splice(i,1);}
+addRow(4*TILE, H-9*TILE, 10,'brick');                    // 上段: 両端隙間
+addRow(0,    H-6*TILE, 7,'brick');                       // 中段: 右隙間
+addRow(12*TILE,H-6*TILE, 7,'brick');                     // 中段右: 中央隙間と続く
+addRow(3*TILE, H-3*TILE, 12,'brick');                    // 下段: 両端隙間（歩ける）
+for(let i=0;i<4;i++)coinItems.push({x:30+i*24,y:H-10*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:14*TILE+i*24,y:H-10*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:8*TILE+i*24,y:H-7*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:4*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(180,H-5*TILE));
+enemies.push(gm(500));
+
+}else if(variant==='fallGrass3'){
+// ★ 1-3: 空中回廊 ★ 雲海の落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*3&&p.x<=TILE*6)platforms.splice(i,1);}
+// 雲プラットフォーム（散らばった短い足場）
+addRow(3*TILE, H-10*TILE, 3,'brick');
+addRow(10*TILE, H-10*TILE, 3,'brick');
+addRow(16*TILE, H-10*TILE, 3,'brick');
+addRow(6*TILE, H-7*TILE, 3,'brick');
+addRow(13*TILE, H-7*TILE, 3,'brick');
+addRow(0, H-4*TILE, 4,'brick');
+addRow(8*TILE, H-4*TILE, 4,'brick');
+addRow(16*TILE, H-4*TILE, 4,'brick');
+for(let i=0;i<3;i++)coinItems.push({x:4*TILE+i*TILE,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:7*TILE+i*TILE,y:H-8*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:5*TILE+i*TILE,y:H-5*TILE,collected:false});
+platforms.push(qM(250,H-5*TILE));
+platforms.push({x:480,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+
+}else if(variant==='fallGrass4'){
+// ★ 1-4: 城の地下牢 ★ 城の地下廊下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*9&&p.x<=TILE*12)platforms.splice(i,1);}
+addRow(0, H-10*TILE, 9,'brick');
+addRow(13*TILE, H-10*TILE, 6,'brick');
+addRow(3*TILE, H-7*TILE, 13,'brick');                    // 長い廊下: 両端隙間
+addRow(0, H-4*TILE, 5,'brick');
+addRow(11*TILE, H-4*TILE, 8,'brick');
+// 溶岩炎（ハザード）
+lavaFlames.push({x:10*TILE+8,y:H-7*TILE,w:22,maxH:55,curH:0,phase:0,period:130});
+for(let i=0;i<3;i++)coinItems.push({x:9*TILE+8+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:30+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:W-3*TILE-i*28,y:H-8*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:6*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(200,H-5*TILE));
+
+}else if(variant==='fallDesert1'){
+// ★ 2-1: 砂漠の井戸 ★ 砂丘の隙間を落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*5&&p.x<=TILE*8)platforms.splice(i,1);}
+addRow(0, H-9*TILE, 11,'brick');
+addRow(13*TILE, H-6*TILE, 6,'brick');
+addRow(0, H-6*TILE, 8,'brick');
+addRow(10*TILE, H-3*TILE, 8,'brick');
+addRow(3*TILE, H-4*TILE, 4,'brick');
+for(let i=0;i<4;i++)coinItems.push({x:11*TILE+8+i*24,y:H-10*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:9*TILE+i*24,y:H-7*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:7*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(140,H-5*TILE));
+platforms.push(rh1());
+
+}else if(variant==='fallDesert2'){
+// ★ 2-2: ピラミッド内部 ★ 三角形の罠
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*11&&p.x<=TILE*14)platforms.splice(i,1);}
+// ピラミッド状の壁
+addRow(14*TILE, H-10*TILE, 5,'brick');
+addRow(0, H-7*TILE, 8,'brick');
+addRow(12*TILE, H-7*TILE, 7,'brick');
+addRow(4*TILE, H-4*TILE, 11,'brick');
+// 上段トゲ（ハザード: 地上パイポでもいいが簡単なロジックでブロック型）
+for(let i=0;i<3;i++)coinItems.push({x:11*TILE+8+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:8*TILE+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:30+i*24,y:H-5*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:W-3*TILE-i*28,y:H-5*TILE,collected:false});
+platforms.push(qM(180,H-5*TILE));
+platforms.push({x:420,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+
+}else if(variant==='fallDesert3'){
+// ★ 2-3: 砂嵐の底 ★ 砂漠ボス前の試練
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*9&&p.x<=TILE*12)platforms.splice(i,1);}
+addRow(0, H-10*TILE, 7,'brick');
+addRow(13*TILE, H-10*TILE, 6,'brick');
+addRow(5*TILE, H-7*TILE, 9,'brick');                     // 中段: 両端隙間
+addRow(0, H-4*TILE, 4,'brick');
+addRow(10*TILE, H-4*TILE, 9,'brick');
+for(let i=0;i<3;i++)coinItems.push({x:7*TILE+8+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:30+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:W-3*TILE-i*28,y:H-8*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:5*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(200,H-5*TILE));
+enemies.push(gm(500));
+
+}else if(variant==='fallRiver1'){
+// ★ 3-1: 川の滝壺 ★ 水しぶきをかわして落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*5&&p.x<=TILE*8)platforms.splice(i,1);}
+addRow(0, H-10*TILE, 13,'brick');                        // 上段: 右隙間
+addRow(10*TILE, H-7*TILE, 9,'brick');                    // 中段: 左隙間
+addRow(0, H-5*TILE, 8,'brick');                          // 下段: 右隙間
+addRow(12*TILE, H-3*TILE, 7,'brick');                    // 最下段: 左隙間
+for(let i=0;i<4;i++)coinItems.push({x:13*TILE+8+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:30+i*24,y:H-8*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:10*TILE+i*24,y:H-6*TILE,collected:false});
+for(let i=0;i<5;i++)coinItems.push({x:3*TILE+i*24,y:H-5*TILE,collected:false});
+platforms.push(qM(180,H-4*TILE));
+
+}else if(variant==='fallForest1'){
+// ★ 3-2: 森の洞窟 ★ 木の枝を縫って落下
+G.fallMode=true;G.lowGravity=true;
+for(let i=platforms.length-1;i>=0;i--){const p=platforms[i];if(p.y===0&&p.x>=TILE*11&&p.x<=TILE*14)platforms.splice(i,1);}
+// 交互に突き出す枝（左右）
+addRow(0, H-10*TILE, 8,'brick');
+addRow(13*TILE, H-8*TILE, 6,'brick');
+addRow(0, H-6*TILE, 10,'brick');
+addRow(14*TILE, H-4*TILE, 5,'brick');
+addRow(4*TILE, H-3*TILE, 8,'brick');
+for(let i=0;i<4;i++)coinItems.push({x:8*TILE+i*24,y:H-11*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:10*TILE+i*24,y:H-9*TILE,collected:false});
+for(let i=0;i<4;i++)coinItems.push({x:10*TILE+i*24,y:H-7*TILE,collected:false});
+for(let i=0;i<3;i++)coinItems.push({x:11*TILE+i*28,y:H-4*TILE,collected:false});
+platforms.push(qM(250,H-4*TILE));
+platforms.push(rh1());
+
 }else if(variant==='fallWater1'){
 // ★ 5-1: 水中コイン渓谷 ★ 海藻の柱をジグザグ回避
 G.fallMode=true;G.lowGravity=true;

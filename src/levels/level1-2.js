@@ -46,7 +46,7 @@ addRow(400,H-4*TILE,2,'brick');addRow(1800,H-6*TILE,3,'brick');
 addRow(3800,H-8*TILE,2,'q');addRow(5000,H-6*TILE,2,'brick');
 
 // Pipes
-[[700,2,false],[1400,3,'goomba'],[2200,2,false],[4050,3,'mushroom'],[5700,2,false],[6300,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
+[[700,2,false],[1400,3,'fallGrass2'],[2200,2,false],[4050,3,'mushroom'],[5700,2,false],[6300,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
 // Piranhas
 pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
