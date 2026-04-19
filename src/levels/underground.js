@@ -28,7 +28,7 @@ for(let rx=10*TILE;rx<W;rx+=TILE)for(let wy=0;wy<_fRoomH;wy+=TILE)platforms.push
 }
 // ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
 if(variant!=='pinocchio'&&variant!=='pinocchio_fail'){
-  if(_isFall)pipes.push({x:5*TILE,y:_fRoomH-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+  if(_isFall)pipes.push({x:7*TILE,y:_fRoomH-3*TILE,w:3*TILE,h:2*TILE,bounceOffset:0,isWarp:false,isExit:true,horizontal:true});
   else pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
 }
 // ピノキオ部屋は右壁・左壁を床まで完全に埋める（出口パイプ不在＋敵脱走防止）
@@ -485,11 +485,7 @@ const fBl=(x,y)=>({x,y,w:24,h:20,vx:0,vy:0,type:'blooper',alive:true});
 const fDec=(x,y,w,col)=>({x,y,w:w||TILE,h:10,type:'ground',color:col||'#4a7a4a',bounceOffset:0});
 const fSolid=(x,y,w,h,col)=>({x,y,w:w||TILE,h:h||TILE,type:'ground',color:col||'#6a8a3a',bounceOffset:0});
 
-// === 底の報酬＋到達ボーナスコイン列（全variant共通） ===
-platforms.push({x:TILE,y:FH-4*TILE,w:TILE,h:TILE,type:'question',hit:false,has1UP:true,bounceOffset:0});
-platforms.push({x:8*TILE,y:FH-4*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-platforms.push({x:2*TILE,y:FH-3*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
-platforms.push({x:7*TILE,y:FH-3*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:10,bounceOffset:0});
+// === 到達ボーナスコイン列（全variant共通） ===
 for(let i=0;i<8;i++)coinItems.push({x:TILE+8+i*32,y:FH-5*TILE,collected:false});
 
 // === 中央軽めのコイン骨格（variantで増やす） ===
