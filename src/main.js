@@ -156,7 +156,7 @@ if(G.ugMode){
   // EXワープパイプ（ピノキオ部屋から）
   for(const p of pipes){if(!p.isExWarp)continue;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+4;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){G.exStageFrom={world:G.currentWorld,level:G.currentLevel};startExStage(p.exNum||1);return;}}
   for(const p of pipes){if(!p.isGoalPipe)continue;const _tol2=4;const onTop2=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol2;const above2=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop2&&above2){sfx('flag');stopBGM();G.goalSlide={phase:'pipeGoal',t:0};mario.vx=0;mario.vy=0;for(let _gi=0;_gi<20;_gi++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}}
-  for(const p of pipes){if(!p.isExit)continue;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+4;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){exitUnderground();return}}return}
+  for(const p of pipes){if(!p.isExit)continue;if(p.horizontal){const touchLeft=mario.x+mario.w>=p.x-4&&mario.x+mario.w<=p.x+8;const vOverlap=mario.y+mario.h>p.y&&mario.y<p.y+p.h;if(touchLeft&&vOverlap){exitUnderground();return}}else{const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+4;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){exitUnderground();return}}}return}
 for(const p of pipes){if(!p.isGoalPipe)continue;const _tol=G.waterMode?10:4;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){sfx('flag');stopBGM();G.goalSlide={phase:'pipeGoal',t:0};mario.vx=0;mario.vy=0;for(let _gi=0;_gi<20;_gi++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}}
 for(const p of pipes){if(!p.isWarp||p.used)continue;const _ugKey=`${G.currentWorld}-${G.currentLevel}-${p.x}`;if(G.usedUndergrounds&&G.usedUndergrounds.has(_ugKey))continue;const _tol=G.waterMode?10:4;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){p.used=true;p.ugKey=_ugKey;enterUnderground(p);return}}
 }
@@ -1898,8 +1898,21 @@ ctx.fillStyle=`rgba(100,200,255,${_pbPulse})`;ctx.fillRect(x,py,TILE,TILE);
 
 const _PCOLS={green:['#1E8C2A','#27AE60','#2ECC71'],red:['#7B241C','#C0392B','#E74C3C'],yellow:['#9A6B00','#D4AC0D','#F4D03F'],blue:['#1A4E7B','#2471A3','#5DADE2'],purple:['#5B2C6F','#8E44AD','#BB8FCE'],pink:['#880E4F','#D81B60','#F48FB1'],cyan:['#0D6E6E','#17A589','#76D7C4']};
 const _PCNAMES=['green','red','yellow','blue','purple','pink','cyan'];
-function drawPipe(x,y,w,h,ceil,color){
+function drawPipe(x,y,w,h,ceil,color,horizontal){
 const _c=_PCOLS[color||_PCNAMES[Math.floor(x/321)%7]]||_PCOLS.green;
+if(horizontal){
+  // 横向き土管（開口=左）
+  ctx.fillStyle=_c[0];ctx.fillRect(x,y,w,h);
+  ctx.fillStyle=_c[1];ctx.fillRect(x+2,y+2,w-2,h-4);
+  ctx.fillStyle=_c[2];ctx.fillRect(x+4,y+4,w-8,8);
+  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(x+4,y+6,w-8,3);
+  // 左リム（開口側）
+  ctx.fillStyle=_c[0];ctx.fillRect(x,y-4,16,h+8);
+  ctx.fillStyle=_c[1];ctx.fillRect(x+2,y-2,12,h+4);
+  ctx.fillStyle=_c[2];ctx.fillRect(x+3,y+3,8,8);
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+4,y+4,3,6);
+  return;
+}
 ctx.fillStyle=_c[0];ctx.fillRect(x,y,w,h);
 ctx.fillStyle=_c[1];ctx.fillRect(x+2,y+2,w-4,h-2);
 ctx.fillStyle=_c[2];ctx.fillRect(x+4,y+2,8,h-4);
@@ -2727,8 +2740,8 @@ if(G.checkpoint)drawCheckpoint(G.checkpoint);
 if(G.checkpoint2)drawCheckpoint(G.checkpoint2);
 // Piranhas (drawn before pipes so pipe covers them when inside)
 for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
-for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling,p.color);
-if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
+for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling,p.color,p.horizontal);
+if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';if(p.horizontal){ctx.fillText('▶ EXIT',p.x+12,p.y-10);}else{ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);}ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
 // Rings (落下土管ボーナスリング描画)
 if(G.fallMode){for(const r of rings){if(r.passed)continue;if(r.x+r.w<G.cam-20||r.x-20>G.cam+W)continue;const _cx=r.x+r.w/2,_cy=r.y+r.h/2,_pulse=1+0.09*Math.sin((G.frame+(r.phase||0))*0.15),_col=r.color||'#ffff66';ctx.save();ctx.shadowColor=_col;ctx.shadowBlur=12;ctx.strokeStyle=_col;ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(_cx,_cy,r.w/2*_pulse,r.h/2*_pulse,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(_cx,_cy,r.w/2*0.72*_pulse,r.h/2*0.72*_pulse,0,0,Math.PI*2);ctx.stroke();ctx.restore();}}
 // Gravity zones
