@@ -848,6 +848,8 @@ if(G.fallMode){
   G.camY=Math.min(Math.max(_advance,_target),G.fallRoomH-H);
   // マリオが画面上に押し出されたら死亡（強制スクロールに飲まれた状態）
   if(mario.y+mario.h<G.camY+4&&!mario.dead)killMario(true);
+  // 横向き出口土管に触れたら自動入場（DOWN不要・床接地中のみ）
+  if(!mario.dead&&mario.onGround){for(const p of pipes){if(!p.isExit||!p.horizontal)continue;const _tL=mario.x+mario.w>=p.x-6&&mario.x+mario.w<=p.x+10;const _vO=mario.y+mario.h>p.y&&mario.y<p.y+p.h;if(_tL&&_vO){exitUnderground();break;}}}
 }else{G.camY=0;}
 if(G.autoScroll>0&&mario.x<G.cam+10)killMario(true); // 強制スクロール挟まれ即死
 if(mario.inv>0)mario.inv--;

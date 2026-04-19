@@ -473,7 +473,7 @@ enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(k
 // 落下土管：水中化＋上昇封じ、15 variant個別に特色化
 // ════════════════════════════════════════
 G.fallMode=true;G.lowGravity=true;G.waterMode=true;G.fallNoRise=true;G.fallTheme=variant;
-G.autoScrollY=0.8; // 水中化で減速（旧1.6）
+G.autoScrollY=0.4; // 水中化でさらに減速（旧0.8→0.4：リング収集しやすく）
 G.camY=0;
 const FH=G.fallRoomH; // =1800
 const PX_MIN=TILE,PX_MAX=10*TILE;
