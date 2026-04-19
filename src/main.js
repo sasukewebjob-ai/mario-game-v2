@@ -171,6 +171,7 @@ G.cam=0;
 if(G.fallMode){
   // 落下チャレンジ：プレイ領域中央(x=5T)にスポーン、初速で自然落下
   mario.x=5*TILE;mario.y=TILE+4;mario.vx=0;mario.vy=2;
+  G.allRingsBonus=false;
 }else{
   mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;
 }
@@ -1073,7 +1074,7 @@ if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.tim
 if(G.coinMagnet&&!c.pop&&!G.fallMode){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins+=(G.character==='luigi'?2:1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
 // Rings (落下土管のボーナスリング: 楕円内を通過で+300点+3コイン)
-if(G.fallMode){const _mcx=mario.x+mario.w/2,_mcy=mario.y+mario.h/2;for(const r of rings){if(r.passed)continue;const _rcx=r.x+r.w/2,_rcy=r.y+r.h/2,_dx=_mcx-_rcx,_dy=_mcy-_rcy;if(Math.abs(_dx)<r.w/2-4&&Math.abs(_dy)<r.h/2-4){r.passed=true;G.score+=300;G.coins=Math.min(1999,G.coins+3);sfx('coin');updateHUD();spawnScorePopup(_rcx,_rcy-14,'+300','#ffff66');for(let _ri=0;_ri<12;_ri++)spawnParticle(_rcx,_rcy,'star');}}}
+if(G.fallMode){const _mcx=mario.x+mario.w/2,_mcy=mario.y+mario.h/2;for(const r of rings){if(r.passed)continue;const _rcx=r.x+r.w/2,_rcy=r.y+r.h/2,_dx=_mcx-_rcx,_dy=_mcy-_rcy;if(Math.abs(_dx)<r.w/2-4&&Math.abs(_dy)<r.h/2-4){r.passed=true;G.score+=300;G.coins=Math.min(1999,G.coins+3);sfx('coin');updateHUD();spawnScorePopup(_rcx,_rcy-14,'+300','#ffff66');for(let _ri=0;_ri<12;_ri++)spawnParticle(_rcx,_rcy,'star');if(!G.allRingsBonus&&rings.length>0&&rings.every(_r=>_r.passed)){G.allRingsBonus=true;G.lives++;sfx('1up');updateHUD();spawnScorePopup(mario.x+13,mario.y-24,'ALL RINGS 1UP!','#ff88ff');for(let _ri=0;_ri<24;_ri++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}}}}
 // Mushrooms etc
 for(const m of mushrooms){if(!m.alive)continue;
 if(m.type==='flower'||m.type==='iceFlower'||m.type==='hammerSuit'||m.type==='star'||m.type==='mega'){if(m.type==='star')m.bobY=(m.bobY||0)+0.1;
