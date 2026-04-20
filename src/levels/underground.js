@@ -469,10 +469,12 @@ const rh1f=()=>{const xs=[500,900,1400,1900,2400,2800];return h1(xs[Math.floor(M
 // 浮き足場（水平/垂直）
 const mp=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'h',ox:x,range:rg||100,spd:sp||1,prevX:x,oy:y,vy:0});
 const mpv=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'v',ox:x,range:rg||80,spd:sp||1,prevX:x,oy:y,vy:0});
+// 囲いブロック「│_底w_│」 底H-4T+両壁H-5Tで敵を閉じ込める
+const box=(x,w)=>{addRow(x+TILE,H-4*TILE,w,'brick');addB(x,H-5*TILE,'brick');addB(x+(w+1)*TILE,H-5*TILE,'brick');};
 
-// ══════ 共通ベース地形（全面再設計・落とし穴11／qM2／Pスイッチ1／1UP2）══════
-// 落とし穴11箇所（2T/3T幅、各穴の上に浮き足場1個）
-flr([[300,2],[580,2],[900,3],[1180,2],[1400,2],[1620,3],[1900,2],[2120,2],[2380,3],[2700,2],[2900,2]]);
+// ══════ 共通ベース地形（落とし穴14／qM2／Pスイッチ1／1UP2／囲いブロック3）══════
+// 落とし穴14箇所（2T/3T幅、各穴の上に浮き足場1個）
+flr([[250,2],[420,2],[600,2],[800,3],[1050,2],[1250,2],[1420,3],[1640,2],[1820,2],[2000,3],[2220,2],[2420,2],[2650,2],[2900,2]]);
 // 壊せるブロック列（20列・敵の足場・ブロック上に敵多数）
 // 低段(H-4T) 11列（落とし穴の間）
 addRow(400,H-4*TILE,3,'brick');
@@ -510,18 +512,25 @@ platforms.push(qC(2560,H-7*TILE,12));
  platforms.push(h1(_1ups[_i1][0],_1ups[_i1][1]));platforms.push(h1(_1ups[_i2][0],_1ups[_i2][1]));}
 // Pスイッチ 1個だけ（中央・H-6T高段ブロックと重複しないようH-5Tに配置）
 platforms.push(pB(1540,H-5*TILE));
-// 浮き足場×11（各落とし穴の上に1個ずつ）
-movingPlats.push(mp(316,H-5*TILE,TILE*2,60,1.3));
-movingPlats.push(mp(604,H-5*TILE,TILE*2,60,1.2));
-movingPlats.push(mp(924,H-6*TILE,TILE*2,80,1.3));
-movingPlats.push(mp(1204,H-5*TILE,TILE*2,60,1.4));
-movingPlats.push(mp(1424,H-6*TILE,TILE*2,60,1.2));
-movingPlats.push(mp(1644,H-6*TILE,TILE*2,80,1.3));
-movingPlats.push(mp(1924,H-5*TILE,TILE*2,60,1.1));
-movingPlats.push(mp(2144,H-6*TILE,TILE*2,60,1.3));
-movingPlats.push(mp(2404,H-6*TILE,TILE*2,80,1.4));
-movingPlats.push(mp(2724,H-5*TILE,TILE*2,60,1.2));
-movingPlats.push(mp(2924,H-5*TILE,TILE*2,60,1.3));
+// 浮き足場×14（各落とし穴の上に1個ずつ）
+movingPlats.push(mp(266,H-5*TILE,TILE*2,60,1.3));  // over [250,2]
+movingPlats.push(mp(436,H-5*TILE,TILE*2,60,1.2));  // over [420,2]
+movingPlats.push(mp(616,H-6*TILE,TILE*2,60,1.3));  // over [600,2]
+movingPlats.push(mp(820,H-6*TILE,TILE*2,80,1.4));  // over [800,3]
+movingPlats.push(mp(1066,H-5*TILE,TILE*2,60,1.3));  // over [1050,2]
+movingPlats.push(mp(1266,H-6*TILE,TILE*2,60,1.2));  // over [1250,2]
+movingPlats.push(mp(1436,H-6*TILE,TILE*2,80,1.3));  // over [1420,3]
+movingPlats.push(mp(1656,H-5*TILE,TILE*2,60,1.4));  // over [1640,2]
+movingPlats.push(mp(1836,H-6*TILE,TILE*2,60,1.1));  // over [1820,2]
+movingPlats.push(mp(2020,H-6*TILE,TILE*2,80,1.3));  // over [2000,3]
+movingPlats.push(mp(2236,H-5*TILE,TILE*2,60,1.4));  // over [2220,2]
+movingPlats.push(mp(2436,H-6*TILE,TILE*2,60,1.2));  // over [2420,2]
+movingPlats.push(mp(2666,H-5*TILE,TILE*2,60,1.3));  // over [2650,2]
+movingPlats.push(mp(2916,H-5*TILE,TILE*2,60,1.3));  // over [2900,2]
+// 囲いブロック×3（落ちる敵を閉じ込める）
+box(240,3);  // 底 272-368（3T）、左壁240、右壁368  → 中に敵2匹
+box(1130,3); // 底 1162-1258（3T）、左壁1130、右壁1258 → 中に敵2匹
+box(2670,2); // 底 2702-2766（2T）、左壁2670、右壁2766 → 中に敵1匹（隣ブロックと干渉しない）
 // コイン列（多め・260枚以上）
 ci(80,H-9*TILE,28,30);
 ci(410,H-6*TILE,12,32);ci(710,H-6*TILE,12,32);
@@ -533,122 +542,138 @@ ci(3010,H-6*TILE,8,32);
 ci(650,H-7*TILE,14,32);ci(1550,H-7*TILE,14,32);ci(2450,H-7*TILE,14,32);
 ci(500,H-8*TILE,10,32);ci(1100,H-8*TILE,10,32);ci(2150,H-8*TILE,10,32);
 
-// ══════ variantごとの特色（敵22体以上＋装飾）══════
-// 地面(H-2T)安全x: 450,780,1100,1320,1580,1820,2060,2290,2580,2830,3030
+// ══════ variantごとの特色（敵26体前後）══════
+// 【ブロック上は落ちない敵(bz/pg/dB)メイン】【地面は混在】【囲いブロック内はgm/kp閉じ込め】
+// 地面(H-2T)安全x: 350,520,720,960,1160,1340,1560,1760,1940,2140,2340,2550,2820,3040
 // 低段上(H-5T): 430,730,1050,1310,1530,1780,2040,2250,2530,2820,3020
 // 中段上(H-6T): 530,880,1380,1830,2330,2630
 // 高段上(H-7T): 680,1580,2480
+// 囲い内(H-5T): 290,340 [box240] / 1180,1230 [box1130] / 2720 [box2670]
 
 if(variant==='fallGrass1'){
-// 🌱 W1 草原: クリボー中心の入門
-enemies.push(gm(450));enemies.push(gm(780));enemies.push(gm(1100));enemies.push(gm(1320));enemies.push(kp(1580));enemies.push(gm(1820));enemies.push(gm(2060));enemies.push(kp(2290));enemies.push(gm(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(gm(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));enemies.push(kp(2330,H-6*TILE));
-enemies.push(gm(680,H-7*TILE));enemies.push(gm(2480,H-7*TILE));
+// 🌱 W1 草原: buzzyメイン・囲いにクリボー
+enemies.push(kp(350));enemies.push(bz(520));enemies.push(kp(720));enemies.push(bz(960));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(kp(1940));enemies.push(bz(2340));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallGrass2'){
-// 🌱 W1 草原2: ノコノコ多め
-enemies.push(kp(450));enemies.push(kp(780));enemies.push(gm(1100));enemies.push(kp(1320));enemies.push(kp(1580));enemies.push(kp(1820));enemies.push(gm(2060));enemies.push(kp(2290));enemies.push(kp(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(kp(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(kp(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(kp(530,H-6*TILE));enemies.push(kp(880,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(kp(2330,H-6*TILE));
-enemies.push(kp(680,H-7*TILE));enemies.push(kp(1580,H-7*TILE));
+// 🌱 W1 草原2: buzzy全面・囲いにノコノコ
+enemies.push(bz(350));enemies.push(kp(520));enemies.push(bz(720));enemies.push(kp(960));enemies.push(bz(1340));enemies.push(kp(1560));enemies.push(bz(1940));enemies.push(kp(2340));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(880,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(1580,H-7*TILE));
+enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
 else if(variant==='fallGrass3'){
-// 🌱 W1 草原3: バズ＋ノコノコ
-enemies.push(bz(450));enemies.push(bz(780));enemies.push(kp(1100));enemies.push(bz(1320));enemies.push(bz(1580));enemies.push(kp(1820));enemies.push(bz(2060));enemies.push(bz(2290));enemies.push(kp(2580));enemies.push(bz(2830));
-enemies.push(bz(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(kp(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(kp(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
+// 🌱 W1 草原3: bz統一
+enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2340));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
 else if(variant==='fallGrass4'){
-// 🌱 W1 草原4: ハンマーブロス2体
-enemies.push(hb(780));enemies.push(hb(2060));
-enemies.push(gm(450));enemies.push(kp(1100));enemies.push(gm(1320));enemies.push(kp(1580));enemies.push(gm(1820));enemies.push(kp(2290));enemies.push(gm(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(gm(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));
-enemies.push(gm(680,H-7*TILE));enemies.push(kp(2480,H-7*TILE));
+// 🌱 W1 草原4: ハンマーブロス2体＋bz
+enemies.push(hb(960));enemies.push(hb(2140));
+enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallDesert1'){
-// 🏜 W2 砂漠1: チャック突進
-enemies.push(ch(780,-1));enemies.push(ch(2060,-1));
-enemies.push(gm(450));enemies.push(kp(1100));enemies.push(gm(1320));enemies.push(gm(1580));enemies.push(kp(1820));enemies.push(gm(2290));enemies.push(kp(2580));enemies.push(gm(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(gm(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));
-enemies.push(kp(680,H-7*TILE));enemies.push(gm(2480,H-7*TILE));
+// 🏜 W2 砂漠1: チャック突進2体・囲いgm
+enemies.push(ch(960,-1));enemies.push(ch(2140,-1));
+enemies.push(bz(350));enemies.push(kp(520));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(kp(1560));enemies.push(bz(1940));enemies.push(kp(2820));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallDesert2'){
-// 🏜 W2 砂漠2: おこりんぼ太陽2体
+// 🏜 W2 砂漠2: おこりんぼ太陽2体＋bz
 enemies.push(aS(900,80));enemies.push(aS(2400,80));
-enemies.push(gm(450));enemies.push(kp(780));enemies.push(gm(1100));enemies.push(kp(1320));enemies.push(gm(1580));enemies.push(kp(1820));enemies.push(gm(2060));enemies.push(kp(2290));enemies.push(gm(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(gm(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));enemies.push(kp(2330,H-6*TILE));
-enemies.push(gm(680,H-7*TILE));enemies.push(kp(2480,H-7*TILE));
+enemies.push(bz(350));enemies.push(bz(520));enemies.push(kp(720));enemies.push(bz(960));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(kp(1940));enemies.push(bz(2340));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallDesert3'){
-// 🏜 W2 砂漠3: カロン3体＋クリボー
-enemies.push(dB(1100));enemies.push(dB(1820));enemies.push(dB(2580));
-enemies.push(gm(450));enemies.push(gm(780));enemies.push(kp(1320));enemies.push(gm(1580));enemies.push(kp(2060));enemies.push(gm(2290));enemies.push(gm(2830));
-enemies.push(gm(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(gm(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));
-enemies.push(gm(680,H-7*TILE));enemies.push(gm(2480,H-7*TILE));
+// 🏜 W2 砂漠3: カロン多数（dBは落ちない）
+enemies.push(dB(350));enemies.push(dB(720));enemies.push(dB(1340));enemies.push(dB(1940));enemies.push(dB(2550));
+enemies.push(bz(520));enemies.push(bz(960));enemies.push(bz(1560));enemies.push(bz(2820));
+enemies.push(dB(430,H-5*TILE));enemies.push(dB(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(dB(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(dB(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(dB(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallRiver1'){
-// 🌊 W3 川: 追加浮き足場＋ノコノコ多め
-movingPlats.push(mp(1100,H-4*TILE,TILE*2,120,1.5));movingPlats.push(mpv(2060,H-5*TILE,TILE*2,80,1.2));
-enemies.push(kp(450));enemies.push(kp(780));enemies.push(bz(1100));enemies.push(kp(1320));enemies.push(kp(1580));enemies.push(bz(1820));enemies.push(kp(2060));enemies.push(kp(2290));enemies.push(bz(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(kp(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(kp(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(kp(880,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(kp(2330,H-6*TILE));
-enemies.push(kp(680,H-7*TILE));enemies.push(kp(2480,H-7*TILE));
+// 🌊 W3 川: bzメイン・追加浮き足場
+movingPlats.push(mp(1160,H-4*TILE,TILE*2,100,1.5));movingPlats.push(mpv(2140,H-5*TILE,TILE*2,80,1.2));
+enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(kp(960));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2340));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(880,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
 else if(variant==='fallForest1'){
-// 🌳 W3 森: ハンマーブロス2体＋ノコノコ
-enemies.push(hb(1100));enemies.push(hb(2290));
-enemies.push(kp(450));enemies.push(kp(780));enemies.push(gm(1320));enemies.push(kp(1580));enemies.push(gm(1820));enemies.push(kp(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(gm(1050,H-5*TILE));enemies.push(kp(1310,H-5*TILE));enemies.push(gm(1780,H-5*TILE));enemies.push(kp(2250,H-5*TILE));enemies.push(gm(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));enemies.push(kp(2330,H-6*TILE));
-enemies.push(kp(680,H-7*TILE));enemies.push(gm(2480,H-7*TILE));
+// 🌳 W3 森: ハンマーブロス2体＋bz
+enemies.push(hb(960));enemies.push(hb(2140));
+enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallWater1'){
-// 🏖 W5 海辺1: サボテン小3体を飛越え
-enemies.push(ct(450,TILE*2));enemies.push(ct(1320,TILE*2));enemies.push(ct(2290,TILE*2));
-enemies.push(gm(780));enemies.push(kp(1100));enemies.push(kp(1580));enemies.push(gm(1820));enemies.push(kp(2060));enemies.push(gm(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(gm(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));
-enemies.push(gm(680,H-7*TILE));
+// 🏖 W5 海辺1: サボテン小3体＋bz
+enemies.push(ct(550,TILE*2));enemies.push(ct(1560,TILE*2));enemies.push(ct(2340,TILE*2));
+enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2550));enemies.push(bz(2820));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
 else if(variant==='fallWater2'){
-// 🏖 W5 海辺2: サボテン大3体を飛越え
-enemies.push(ct(450,TILE*4));enemies.push(ct(1320,TILE*4));enemies.push(ct(2290,TILE*4));
-enemies.push(kp(780));enemies.push(gm(1100));enemies.push(kp(1580));enemies.push(gm(1820));enemies.push(kp(2060));enemies.push(kp(2580));enemies.push(kp(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(gm(1050,H-5*TILE));enemies.push(kp(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(kp(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(kp(530,H-6*TILE));enemies.push(gm(1380,H-6*TILE));enemies.push(kp(1830,H-6*TILE));
-enemies.push(kp(680,H-7*TILE));
+// 🏖 W5 海辺2: サボテン大3体＋bz
+enemies.push(ct(550,TILE*4));enemies.push(ct(1560,TILE*4));enemies.push(ct(2340,TILE*4));
+enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2550));enemies.push(bz(2820));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
 else if(variant==='fallIce1'){
-// ❄ W6 氷1: ペンギン多数
-enemies.push(pg(450));enemies.push(pg(780));enemies.push(pg(1100));enemies.push(kp(1320));enemies.push(pg(1580));enemies.push(pg(1820));enemies.push(pg(2060));enemies.push(kp(2290));enemies.push(pg(2580));enemies.push(pg(2830));
-enemies.push(pg(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(pg(1780,H-5*TILE));enemies.push(kp(2250,H-5*TILE));enemies.push(pg(2820,H-5*TILE));
-enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(kp(1830,H-6*TILE));enemies.push(pg(2330,H-6*TILE));
+// ❄ W6 氷1: ペンギン多数（pgは落ちない）
+enemies.push(pg(350));enemies.push(pg(720));enemies.push(pg(960));enemies.push(pg(1340));enemies.push(pg(1560));enemies.push(pg(1940));enemies.push(pg(2340));enemies.push(pg(2820));
+enemies.push(pg(430,H-5*TILE));enemies.push(pg(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(pg(1780,H-5*TILE));enemies.push(pg(2250,H-5*TILE));enemies.push(pg(2530,H-5*TILE));
+enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(pg(1830,H-6*TILE));enemies.push(pg(2330,H-6*TILE));
 enemies.push(pg(680,H-7*TILE));enemies.push(pg(2480,H-7*TILE));
+enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
 else if(variant==='fallIce2'){
-// ❄ W6 氷2: ペンギン＋カロン
-enemies.push(pg(450));enemies.push(pg(1100));enemies.push(pg(1580));enemies.push(pg(2060));enemies.push(pg(2580));enemies.push(pg(2830));
-enemies.push(dB(780));enemies.push(dB(1320));enemies.push(dB(1820));enemies.push(dB(2290));
-enemies.push(pg(430,H-5*TILE));enemies.push(pg(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(pg(1780,H-5*TILE));enemies.push(pg(2250,H-5*TILE));enemies.push(pg(2820,H-5*TILE));
-enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(pg(1830,H-6*TILE));
-enemies.push(pg(680,H-7*TILE));
+// ❄ W6 氷2: ペンギン＋カロン（全て落ちない敵）
+enemies.push(pg(350));enemies.push(pg(720));enemies.push(pg(1340));enemies.push(pg(1560));enemies.push(pg(1940));enemies.push(pg(2820));
+enemies.push(dB(520));enemies.push(dB(960));enemies.push(dB(2140));enemies.push(dB(2550));
+enemies.push(pg(430,H-5*TILE));enemies.push(dB(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(dB(1780,H-5*TILE));enemies.push(pg(2250,H-5*TILE));enemies.push(dB(2530,H-5*TILE));
+enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(dB(1830,H-6*TILE));enemies.push(pg(2330,H-6*TILE));
+enemies.push(dB(680,H-7*TILE));enemies.push(pg(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallFort1'){
-// 🔥 W7 砦1: ドッスン＋ハンマーブロス＋溶岩炎
+// 🔥 W7 砦1: ドッスン3体＋ハンマーブロス2体＋溶岩炎
 lavaFlames.push({x:950,y:H-TILE,w:22,maxH:90,curH:0,phase:0,period:120});
 lavaFlames.push({x:2080,y:H-TILE,w:22,maxH:90,curH:0,phase:60,period:120});
 enemies.push(tw(500));enemies.push(tw(1500));enemies.push(tw(2600));
-enemies.push(hb(780));enemies.push(hb(2290));
-enemies.push(kp(450));enemies.push(gm(1100));enemies.push(kp(1320));enemies.push(gm(1580));enemies.push(kp(1820));enemies.push(gm(2060));enemies.push(kp(2580));enemies.push(gm(2830));
-enemies.push(kp(430,H-5*TILE));enemies.push(gm(730,H-5*TILE));enemies.push(kp(1050,H-5*TILE));enemies.push(gm(1310,H-5*TILE));enemies.push(kp(1780,H-5*TILE));enemies.push(gm(2250,H-5*TILE));enemies.push(kp(2820,H-5*TILE));
-enemies.push(kp(530,H-6*TILE));enemies.push(gm(1830,H-6*TILE));
-enemies.push(kp(680,H-7*TILE));
+enemies.push(hb(960));enemies.push(hb(2140));
+enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
+enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 else if(variant==='fallFort2'){
 // 🔥 W7 砦2: キャノン＋ドッスン＋カロン＋溶岩炎
@@ -658,11 +683,12 @@ cannons.push({x:2560,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:120});
 lavaFlames.push({x:1060,y:H-TILE,w:22,maxH:100,curH:0,phase:30,period:110});
 lavaFlames.push({x:2060,y:H-TILE,w:22,maxH:100,curH:0,phase:60,period:110});
 enemies.push(tw(380));enemies.push(tw(2400));
-enemies.push(dB(1100));enemies.push(dB(1580));enemies.push(dB(2580));
-enemies.push(gm(450));enemies.push(kp(780));enemies.push(kp(1320));enemies.push(gm(1820));enemies.push(kp(2290));enemies.push(gm(2830));
-enemies.push(gm(430,H-5*TILE));enemies.push(kp(730,H-5*TILE));enemies.push(gm(1050,H-5*TILE));enemies.push(kp(1310,H-5*TILE));enemies.push(gm(1780,H-5*TILE));enemies.push(kp(2250,H-5*TILE));enemies.push(gm(2820,H-5*TILE));
-enemies.push(gm(530,H-6*TILE));enemies.push(kp(1380,H-6*TILE));enemies.push(gm(1830,H-6*TILE));
-enemies.push(gm(680,H-7*TILE));
+enemies.push(dB(1160));enemies.push(dB(1560));enemies.push(dB(2550));
+enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2820));
+enemies.push(dB(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(dB(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(dB(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(dB(2530,H-5*TILE));
+enemies.push(bz(530,H-6*TILE));enemies.push(dB(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
+enemies.push(bz(680,H-7*TILE));
+enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
