@@ -8,10 +8,14 @@ import {addB,addRow,addStair,addStairD} from '../builders.js';
 export function buildUnderground(variant){
 chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
 // 共通構造: 床・天井・出口パイプ・右壁
-const W=800;
-// 床・天井
-for(let x=0;x<W;x+=TILE){platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
-if(x>0&&x<W-TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0})}
+const _isFall=variant&&variant.indexOf('fall')===0;
+const W=_isFall?3200:800; // 落下ミニダンジョンは4倍長
+// 天井（全variant共通）
+for(let x=TILE;x<W-TILE;x+=TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+// 床（通常variantのみ全面。fallは各variantで穴付き床を設置する）
+if(!_isFall){
+  for(let x=0;x<W;x+=TILE)platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+}
 // ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
 if(variant!=='pinocchio'&&variant!=='pinocchio_fail'){
   pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
@@ -451,143 +455,125 @@ enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(k
 // ════════════════════════════════════════
 
 }else if(variant&&variant.indexOf('fall')===0){
-// カロン生成ヘルパー
+// ══════ ミニダンジョン共通ヘルパー ══════
 const dB=(x)=>({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false});
-// チャック生成ヘルパー
 const ch=(x,dir)=>({x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:(dir||-1)*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:dir||-1,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0});
-// おこりんぼ太陽
 const aS=(x,y)=>({x,y:y??80,w:32,h:32,vx:0,vy:0,type:'angrySun',alive:true,state:'orbit'});
-// サボテン（hで大小指定）
 const ct=(x,h)=>({x,y:H-TILE-(h||TILE*4),w:TILE,h:h||TILE*4,vx:-0.6,vy:0,alive:true,type:'cactus',state:'walk',walkFrame:0,walkTimer:0});
+// 穴付き床（gaps=[[x始,幅T],...]）。即死の落とし穴
+const flr=(gaps)=>{for(let x=0;x<W;x+=TILE){let inG=false;for(const [gx,gw] of gaps)if(x>=gx&&x<gx+gw*TILE){inG=true;break;}if(!inG)platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});}};
+// Pブロック
+const pB=(x,y)=>({x,y,w:TILE,h:TILE,type:'pswitch',hit:false,bounceOffset:0});
+// 4倍長用ランダム隠し1UP
+const rh1f=()=>{const xs=[500,900,1400,1900,2400,2800];return h1(xs[Math.floor(Math.random()*xs.length)],H-9*TILE);};
+// 浮き足場（水平/垂直）
+const mp=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'h',ox:x,range:rg||100,spd:sp||1,prevX:x,oy:y,vy:0});
+const mpv=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'v',ox:x,range:rg||80,spd:sp||1,prevX:x,oy:y,vy:0});
 
+// ══════ 共通ベース地形（全variant適用）══════
+// 落とし穴4箇所（2T/3T幅、マリオ走りジャンプで越えられる）
+flr([[480,2],[1200,3],[1900,2],[2500,3]]);
+// 壊せるブロック（大量）
+addRow(180,H-4*TILE,3,'brick');addRow(720,H-5*TILE,4,'brick');
+addRow(1320,H-4*TILE,3,'brick');addRow(1680,H-6*TILE,3,'brick');
+addRow(2240,H-5*TILE,4,'brick');addRow(2800,H-4*TILE,3,'brick');
+// ？ブロック 3個（キノコ）
+platforms.push(qM(310,H-5*TILE));platforms.push(qM(1780,H-7*TILE));platforms.push(qM(2900,H-5*TILE));
+// 連打コインブロック
+platforms.push(qC(1400,H-7*TILE,10));
+// 隠し1UPキノコ
+platforms.push(rh1f());
+// 隠しコインブロック
+platforms.push(h1(1080,H-8*TILE));platforms.push(h1(2360,H-9*TILE));
+// Pブロック
+platforms.push(pB(2000,H-5*TILE));
+// 浮き足場（落とし穴の上を渡る）
+movingPlats.push(mp(504,H-5*TILE,TILE*2,80,1.3));
+movingPlats.push(mp(1220,H-6*TILE,TILE*2,100,1.2));
+movingPlats.push(mp(1924,H-5*TILE,TILE*2,70,1.4));
+movingPlats.push(mp(2524,H-6*TILE,TILE*2,90,1.1));
+// コイン列（大量）
+ci(200,H-6*TILE,22,32);ci(760,H-7*TILE,18,36);
+ci(1340,H-8*TILE,18,32);ci(1720,H-8*TILE,16,36);
+ci(2240,H-7*TILE,20,32);ci(2820,H-6*TILE,16,36);
+
+// ══════ variantごとの特色（敵＋装飾）══════
 if(variant==='fallGrass1'){
-// 草原1: クリボー中心の入門部屋
-addRow(120,H-4*TILE,3,'brick');addRow(320,H-5*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(210,H-5*TILE));platforms.push(qM(440,H-6*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,22,32);ci(80,H-9*TILE,18,38);
-enemies.push(gm(180));enemies.push(gm(360));enemies.push(gm(540));enemies.push(kp(620));
+// 🌱 W1 草原: クリボー中心の入門
+enemies.push(gm(280));enemies.push(gm(800));enemies.push(kp(900));enemies.push(gm(1350));enemies.push(gm(1700));enemies.push(kp(1980));enemies.push(gm(2300));enemies.push(gm(2700));enemies.push(kp(2900));enemies.push(gm(3000));
 }
 else if(variant==='fallGrass2'){
-// 草原2: ノコノコ多め
-addRow(130,H-5*TILE,3,'brick');addRow(350,H-6*TILE,2,'brick');addRow(540,H-4*TILE,3,'brick');
-platforms.push(qM(230,H-6*TILE));platforms.push(qM(490,H-5*TILE));
-platforms.push(rh1());
-ci(55,H-8*TILE,20,35);ci(80,H-10*TILE,16,40);
-enemies.push(gm(170));enemies.push(kp(280));enemies.push(kp(450));enemies.push(gm(560));enemies.push(gm(640));
+// 🌱 W1 草原2: ノコノコ多め
+enemies.push(gm(280));enemies.push(kp(700));enemies.push(kp(900));enemies.push(gm(1350));enemies.push(kp(1700));enemies.push(gm(2000));enemies.push(kp(2300));enemies.push(kp(2700));enemies.push(gm(2900));enemies.push(kp(3000));
 }
 else if(variant==='fallGrass3'){
-// 草原3: バズ（トゲゾーパタパタ代替）＋ノコノコ
-addRow(130,H-4*TILE,2,'brick');addRow(310,H-6*TILE,3,'brick');addRow(520,H-4*TILE,2,'brick');
-platforms.push(qM(200,H-5*TILE));platforms.push(qM(580,H-6*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,22,32);ci(80,H-9*TILE,18,38);
-enemies.push(bz(160));enemies.push(kp(300));enemies.push(kp(450));enemies.push(gm(580));enemies.push(gm(640));
+// 🌱 W1 草原3: バズ＋ノコノコ
+enemies.push(bz(280));enemies.push(bz(800));enemies.push(kp(900));enemies.push(gm(1350));enemies.push(bz(1700));enemies.push(kp(1980));enemies.push(gm(2300));enemies.push(bz(2700));enemies.push(kp(2900));enemies.push(gm(3000));
 }
 else if(variant==='fallGrass4'){
-// 草原4: ハンマーブロス登場
-addRow(130,H-5*TILE,3,'brick');addRow(360,H-7*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(230,H-6*TILE));platforms.push(qM(500,H-5*TILE));
-platforms.push(rh1());
-ci(55,H-8*TILE,22,32);ci(80,H-10*TILE,16,38);
-enemies.push(hb(320));enemies.push(gm(180));enemies.push(gm(450));enemies.push(gm(620));
+// 🌱 W1 草原4: ハンマーブロス登場
+enemies.push(hb(600));enemies.push(hb(2000));enemies.push(gm(280));enemies.push(gm(900));enemies.push(kp(1350));enemies.push(gm(1700));enemies.push(gm(2300));enemies.push(kp(2700));enemies.push(gm(3000));
 }
 else if(variant==='fallDesert1'){
-// 砂漠1: チャック（突進）＋クリボー
-addRow(120,H-4*TILE,3,'brick');addRow(350,H-5*TILE,2,'brick');addRow(540,H-4*TILE,3,'brick');
-platforms.push(qM(210,H-5*TILE));platforms.push(qM(480,H-7*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,20,34);ci(80,H-9*TILE,18,38);
-enemies.push(ch(400,-1));enemies.push(gm(160));enemies.push(gm(600));enemies.push(kp(280));
+// 🏜 W2 砂漠1: チャック（突進）＋クリボー
+enemies.push(ch(700,-1));enemies.push(ch(2100,-1));enemies.push(gm(280));enemies.push(kp(900));enemies.push(gm(1350));enemies.push(gm(1700));enemies.push(kp(2400));enemies.push(gm(2700));enemies.push(gm(3000));
 }
 else if(variant==='fallDesert2'){
-// 砂漠2: おこりんぼ太陽＋クリボー
-addRow(130,H-5*TILE,3,'brick');addRow(340,H-6*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(220,H-6*TILE));platforms.push(qM(490,H-5*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,20,34);ci(80,H-9*TILE,18,38);
-enemies.push(aS(400,80));
-enemies.push(gm(170));enemies.push(gm(450));enemies.push(kp(590));
+// 🏜 W2 砂漠2: おこりんぼ太陽2体
+enemies.push(aS(900,80));enemies.push(aS(2400,80));
+enemies.push(gm(280));enemies.push(kp(700));enemies.push(gm(900));enemies.push(kp(1350));enemies.push(gm(1700));enemies.push(kp(2100));enemies.push(gm(2300));enemies.push(gm(2700));enemies.push(kp(3000));
 }
 else if(variant==='fallDesert3'){
-// 砂漠3: カロン×2＋クリボー
-addRow(120,H-4*TILE,2,'brick');addRow(120,H-6*TILE,2,'brick');addRow(540,H-4*TILE,2,'brick');addRow(540,H-6*TILE,2,'brick');
-platforms.push(qM(320,H-5*TILE));platforms.push(qM(420,H-7*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,20,34);ci(80,H-9*TILE,18,38);
-enemies.push(dB(280));enemies.push(dB(450));
-enemies.push(gm(200));enemies.push(gm(620));
+// 🏜 W2 砂漠3: カロン3体＋クリボー
+enemies.push(dB(400));enemies.push(dB(1350));enemies.push(dB(2400));enemies.push(gm(280));enemies.push(gm(700));enemies.push(kp(900));enemies.push(gm(1700));enemies.push(gm(2100));enemies.push(kp(2700));enemies.push(gm(3000));
 }
 else if(variant==='fallRiver1'){
-// 川: ノコノコ多め＋バズ
-addRow(130,H-5*TILE,3,'brick');addRow(340,H-6*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(220,H-6*TILE));platforms.push(qM(490,H-5*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,22,32);ci(80,H-9*TILE,18,38);
-enemies.push(kp(180));enemies.push(kp(340));enemies.push(bz(450));enemies.push(kp(580));enemies.push(gm(640));
+// 🌊 W3 川: 追加浮き足場＋ノコノコ多め
+movingPlats.push(mp(1060,H-4*TILE,TILE*2,120,1.5));movingPlats.push(mpv(2040,H-5*TILE,TILE*2,80,1.2));
+enemies.push(kp(280));enemies.push(kp(700));enemies.push(bz(900));enemies.push(kp(1350));enemies.push(kp(1700));enemies.push(bz(2000));enemies.push(kp(2300));enemies.push(kp(2700));enemies.push(bz(2900));enemies.push(kp(3000));
 }
 else if(variant==='fallForest1'){
-// 森: ハンマーブロス＋ノコノコ
-addRow(130,H-4*TILE,3,'brick');addRow(340,H-5*TILE,2,'brick');addRow(540,H-4*TILE,3,'brick');
-platforms.push(qM(220,H-5*TILE));platforms.push(qM(500,H-6*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,20,34);ci(80,H-9*TILE,18,38);
-enemies.push(hb(380));enemies.push(kp(180));enemies.push(kp(580));enemies.push(gm(640));
+// 🌳 W3 森: ハンマーブロス2体＋ノコノコ
+enemies.push(hb(1100));enemies.push(hb(2500));enemies.push(kp(280));enemies.push(kp(700));enemies.push(gm(900));enemies.push(kp(1350));enemies.push(gm(1700));enemies.push(kp(2000));enemies.push(gm(2300));enemies.push(kp(2700));enemies.push(gm(3000));
 }
 else if(variant==='fallWater1'){
-// 海辺1: サボテン小×2を飛び越え
-addRow(120,H-5*TILE,3,'brick');addRow(520,H-5*TILE,3,'brick');
-platforms.push(qM(220,H-6*TILE));platforms.push(qM(500,H-7*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,22,32);ci(80,H-9*TILE,18,38);
-enemies.push(ct(300,TILE*2));enemies.push(ct(430,TILE*2));
-enemies.push(gm(180));enemies.push(gm(620));
+// 🏖 W5 海辺1: サボテン小3体を飛越え
+enemies.push(ct(400,TILE*2));enemies.push(ct(1350,TILE*2));enemies.push(ct(2400,TILE*2));
+enemies.push(gm(280));enemies.push(gm(700));enemies.push(gm(900));enemies.push(kp(1700));enemies.push(gm(2000));enemies.push(kp(2700));enemies.push(gm(3000));
 }
 else if(variant==='fallWater2'){
-// 海辺2: サボテン大×2を飛び越え
-addRow(120,H-6*TILE,3,'brick');addRow(540,H-6*TILE,3,'brick');
-platforms.push(qM(230,H-7*TILE));platforms.push(qM(500,H-8*TILE));
-platforms.push(rh1());
-ci(55,H-8*TILE,22,32);ci(80,H-10*TILE,18,38);
-enemies.push(ct(290,TILE*4));enemies.push(ct(420,TILE*4));
-enemies.push(kp(180));enemies.push(kp(620));
+// 🏖 W5 海辺2: サボテン大3体を飛越え
+enemies.push(ct(400,TILE*4));enemies.push(ct(1350,TILE*4));enemies.push(ct(2400,TILE*4));
+enemies.push(kp(280));enemies.push(kp(700));enemies.push(gm(900));enemies.push(kp(1700));enemies.push(gm(2000));enemies.push(kp(2700));enemies.push(kp(3000));
 }
 else if(variant==='fallIce1'){
-// 氷1: ペンギン＋ノコノコ
-addRow(130,H-4*TILE,3,'brick');addRow(340,H-5*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(230,H-5*TILE));platforms.push(qM(490,H-6*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,22,32);ci(80,H-9*TILE,18,38);
-enemies.push(pg(180));enemies.push(pg(600));enemies.push(kp(340));enemies.push(kp(460));
+// ❄ W6 氷1: ペンギン多数
+enemies.push(pg(280));enemies.push(pg(900));enemies.push(pg(1700));enemies.push(pg(2300));enemies.push(pg(3000));
+enemies.push(kp(700));enemies.push(kp(1350));enemies.push(kp(2000));enemies.push(gm(2700));
 }
 else if(variant==='fallIce2'){
-// 氷2: ペンギン＋カロン
-addRow(130,H-5*TILE,3,'brick');addRow(340,H-6*TILE,2,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(220,H-6*TILE));platforms.push(qM(500,H-5*TILE));
-platforms.push(rh1());
-ci(55,H-8*TILE,20,34);ci(80,H-10*TILE,18,38);
-enemies.push(pg(170));enemies.push(pg(450));enemies.push(dB(280));enemies.push(dB(580));
+// ❄ W6 氷2: ペンギン＋カロン
+enemies.push(pg(280));enemies.push(pg(900));enemies.push(pg(1700));enemies.push(pg(2400));enemies.push(pg(3000));
+enemies.push(dB(400));enemies.push(dB(1350));enemies.push(dB(2100));enemies.push(dB(2700));
 }
 else if(variant==='fallFort1'){
-// 砦1: ドッスン＋ハンマーブロス
-addRow(130,H-4*TILE,3,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(220,H-5*TILE));platforms.push(qM(490,H-6*TILE));
-platforms.push(rh1());
-ci(55,H-7*TILE,20,34);ci(80,H-9*TILE,18,38);
-enemies.push(tw(380));
-enemies.push(hb(240));
-enemies.push(kp(600));
+// 🔥 W7 砦1: ドッスン＋ハンマーブロス＋溶岩炎
+lavaFlames.push({x:950,y:H-TILE,w:22,maxH:90,curH:0,phase:0,period:120});
+lavaFlames.push({x:2080,y:H-TILE,w:22,maxH:90,curH:0,phase:60,period:120});
+enemies.push(tw(500));enemies.push(tw(1500));enemies.push(tw(2600));
+enemies.push(hb(800));enemies.push(hb(2200));
+enemies.push(kp(280));enemies.push(kp(1350));enemies.push(kp(3000));
 }
 else if(variant==='fallFort2'){
-// 砦2: キャノン＋ドッスン＋カロン
-addRow(130,H-5*TILE,3,'brick');addRow(520,H-4*TILE,3,'brick');
-platforms.push(qM(220,H-6*TILE));platforms.push(qM(470,H-5*TILE));
-platforms.push(rh1());
-ci(55,H-8*TILE,20,34);ci(80,H-10*TILE,18,38);
-cannons.push({x:680,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:30});
-enemies.push(tw(300));
-enemies.push(dB(420));
-enemies.push(gm(180));
+// 🔥 W7 砦2: キャノン＋ドッスン＋カロン＋溶岩炎
+cannons.push({x:640,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:30});
+cannons.push({x:1600,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:80});
+cannons.push({x:2560,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:120});
+lavaFlames.push({x:1060,y:H-TILE,w:22,maxH:100,curH:0,phase:30,period:110});
+lavaFlames.push({x:2060,y:H-TILE,w:22,maxH:100,curH:0,phase:60,period:110});
+enemies.push(tw(380));enemies.push(tw(2400));
+enemies.push(dB(900));enemies.push(dB(1700));enemies.push(dB(2800));
+enemies.push(gm(280));enemies.push(gm(3000));
 }
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
