@@ -71,6 +71,8 @@ export const G={
   // 落下チャレンジモード（地面土管の新バリアント）
   fallMode:false,fallTimer:0,fallCoins:0,camY:0,fallRoomH:1800,autoScrollY:0,
   fallNoRise:false,fallTheme:null,allRingsBonus:false,
+  // 落下ミニダンジョン（横長3200px、カメラ追従・x制約拡張が必要）
+  fallVariant:false,
   // キャラクター・タイム
   character:'mario',stageStartTime:0,stageTimes:{}
 };
