@@ -90,7 +90,7 @@ export function buildLevel_2_1(){
   platforms.push({x:1600,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
 
   // パイプ（ワープ2本、通常2本）
-  [[500,2,'desert1'],[1400,3,false],[3100,2,'fallDesert1'],[4300,3,'yoshi2'],[5600,2,false]].forEach(([px,ph,warp])=>{
+  [[500,2,'desert1'],[1400,3,false],[3100,2,'pipeDesert1'],[4300,3,'yoshi2'],[5600,2,false]].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
   pipes.forEach((p,i)=>{if(p.isWarp)return;
     piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});

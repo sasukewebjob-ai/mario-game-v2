@@ -139,7 +139,7 @@ const _bs=BOWSER_STATS[1];Object.assign(bowser,{alive:true,x:9000,y:H-TILE-72,w:
 // ★ ハンマースーツ
 platforms.push({x:4500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 // ★ 装飾土管
-pipes.push({x:2700,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:true,variant:'fallGrass4'});
+pipes.push({x:2700,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:true,variant:'pipeGrass4'});
 // 城の天井土管は撤去（落とし穴上の火柱との競合回避）
 // ★ 上空パタパタ（2段JMP対策）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});

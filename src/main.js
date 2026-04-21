@@ -141,7 +141,7 @@ e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.code]=false});
 
 function doJump(){
-if(G.waterMode){if(G.fallNoRise){G.swimCooldown=8;return}mario.vy=-3.5;G.swimCooldown=14;for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');return}
+if(G.waterMode){mario.vy=-3.5;G.swimCooldown=14;for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');return}
 const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
 const speedBonus=Math.min(Math.abs(mario.vx)*0.15,1.5);
 const _hj=G.highJump?1.25:1;
@@ -160,23 +160,17 @@ if(G.ugMode){
 for(const p of pipes){if(!p.isGoalPipe)continue;const _tol=G.waterMode?10:4;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){sfx('flag');stopBGM();G.goalSlide={phase:'pipeGoal',t:0};mario.vx=0;mario.vy=0;for(let _gi=0;_gi<20;_gi++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');return}}
 for(const p of pipes){if(!p.isWarp||p.used)continue;const _ugKey=`${G.currentWorld}-${G.currentLevel}-${p.x}`;if(G.usedUndergrounds&&G.usedUndergrounds.has(_ugKey))continue;const _tol=G.waterMode?10:4;const onTop=mario.y+mario.h>=p.y-2&&mario.y+mario.h<=p.y+_tol;const above=mario.x+mario.w>p.x&&mario.x<p.x+p.w;if(onTop&&above){p.used=true;p.ugKey=_ugKey;enterUnderground(p);return}}
 }
-function enterUnderground(p){if(G.pswitchTimer>0)deactivatePSwitch();G.autoScroll=0;G.savedOW={platforms:[...platforms],pipes:[...pipes],coinItems:[...coinItems],enemies:[...enemies],mushrooms:[...mushrooms],piranhas:[...piranhas],movingPlats:[...movingPlats],springs:[...springs],cannons:[...cannons],chainChomps:[...chainChomps],jumpBlocks:[...jumpBlocks],pipos:[...pipos],gravityZones:[...gravityZones],windZones:[...windZones],rings:[...rings],chasingWall:G.chasingWall?{...G.chasingWall}:null,cam:G.cam,mx:mario.x,my:mario.y,waterMode:G.waterMode,darkMode:G.darkMode,lowGravity:G.lowGravity,ugKey:p.ugKey||null,ceilingEntry:!!p.ceiling};G.waterMode=false;G.darkMode=false;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.fallMode=false;G.lowGravity=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;
-// 落下ミニダンジョン（横長3200px）判定フラグ
-G.fallVariant=!!(p.variant&&p.variant.indexOf('fall')===0);
-// 落下土管は入った瞬間に再入不可化（死亡後・チェックポイント再開でも戻れない）
-if(p.variant&&p.variant.indexOf('fall')===0&&p.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(p.ugKey);}
+function enterUnderground(p){if(G.pswitchTimer>0)deactivatePSwitch();G.autoScroll=0;G.savedOW={platforms:[...platforms],pipes:[...pipes],coinItems:[...coinItems],enemies:[...enemies],mushrooms:[...mushrooms],piranhas:[...piranhas],movingPlats:[...movingPlats],springs:[...springs],cannons:[...cannons],chainChomps:[...chainChomps],jumpBlocks:[...jumpBlocks],pipos:[...pipos],gravityZones:[...gravityZones],windZones:[...windZones],rings:[...rings],chasingWall:G.chasingWall?{...G.chasingWall}:null,cam:G.cam,mx:mario.x,my:mario.y,waterMode:G.waterMode,darkMode:G.darkMode,lowGravity:G.lowGravity,ugKey:p.ugKey||null,ceilingEntry:!!p.ceiling};G.waterMode=false;G.darkMode=false;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.lowGravity=false;
+// 土管ミニダンジョン（横長3200px）判定フラグ
+G.pipeDungeon=!!(p.variant&&p.variant.indexOf('pipe')===0);
+// 土管ミニダンジョンは入った瞬間に再入不可化（死亡後・チェックポイント再開でも戻れない）
+if(G.pipeDungeon&&p.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(p.ugKey);}
 platforms.length=0;pipes.length=0;coinItems.length=0;enemies.length=0;mushrooms.length=0;piranhas.length=0;movingPlats.length=0;springs.length=0;cannons.length=0;bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;bowserShockwaves.length=0;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;rings.length=0;
 buildUnderground(p.variant||'coin');
 // 地下スポーン(x=60)周辺200px以内の敵を除去（即死防止）
 for(let i=enemies.length-1;i>=0;i--){if(enemies[i].x<260)enemies.splice(i,1);}
 G.cam=0;
-if(G.fallMode){
-  // 落下チャレンジ：プレイ領域中央(x=5T)にスポーン、初速で自然落下
-  mario.x=5*TILE;mario.y=TILE+4;mario.vx=0;mario.vy=2;
-  G.allRingsBonus=false;
-}else{
-  mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;
-}
+mario.x=60;mario.y=H-3*TILE;mario.vx=0;mario.vy=0;
 G.ugMode=true;G.score+=500;sfx('flag');stopBGM();try{startBGM()}catch(ex){}}
 function exitUnderground(skipBonus){if(!G.savedOW)return;if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}platforms.length=0;platforms.push(...G.savedOW.platforms);pipes.length=0;pipes.push(...G.savedOW.pipes);coinItems.length=0;coinItems.push(...G.savedOW.coinItems);enemies.length=0;enemies.push(...G.savedOW.enemies);mushrooms.length=0;mushrooms.push(...G.savedOW.mushrooms);piranhas.length=0;piranhas.push(...G.savedOW.piranhas);movingPlats.length=0;movingPlats.push(...(G.savedOW.movingPlats||[]));springs.length=0;springs.push(...(G.savedOW.springs||[]));cannons.length=0;cannons.push(...(G.savedOW.cannons||[]));bulletBills.length=0;hammers.length=0;yoshiEggs.length=0;yoshiItems.length=0;lavaFlames.length=0;chainChomps.length=0;chainChomps.push(...(G.savedOW.chainChomps||[]));jumpBlocks.length=0;jumpBlocks.push(...(G.savedOW.jumpBlocks||[]));pipos.length=0;pipos.push(...(G.savedOW.pipos||[]));gravityZones.length=0;gravityZones.push(...(G.savedOW.gravityZones||[]));windZones.length=0;windZones.push(...(G.savedOW.windZones||[]));windParticles.length=0;iceBalls.length=0;marioHammers.length=0;rings.length=0;rings.push(...(G.savedOW.rings||[]));G.darkMode=G.savedOW.darkMode||false;G.chasingWall=G.savedOW.chasingWall||null;G.gravityFlipped=false;
 // 出口(元のパイプ位置)周辺200px以内の敵を除去（即死防止）
@@ -184,7 +178,7 @@ const _exitX=G.savedOW.mx;for(let i=enemies.length-1;i>=0;i--){if(Math.abs(enemi
 G.cam=G.savedOW.cam;mario.x=G.savedOW.mx;G.waterMode=G.savedOW.waterMode||false;
 // 天井パイプから入った場合：パイプ底から自然落下。通常パイプ：上に飛び出す
 if(G.savedOW.ceilingEntry){mario.y=G.savedOW.my+4;mario.vy=4;}
-else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;G.fallMode=false;G.fallVariant=false;G.fallNoRise=false;G.fallTheme=null;G.lowGravity=G.savedOW.lowGravity||false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;if(!skipBonus)G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
+else{mario.y=G.savedOW.my-TILE*2;mario.vy=G.waterMode?-3:-10;}G.ugMode=false;G.pipeDungeon=false;G.lowGravity=G.savedOW.lowGravity||false;if(G.savedOW.ugKey){if(!G.usedUndergrounds)G.usedUndergrounds=new Set();G.usedUndergrounds.add(G.savedOW.ugKey);}G.savedOW=null;if(!skipBonus)G.score+=1000;updateHUD();sfx('flag');stopBGM();try{startBGM()}catch(ex){}
 // ピノキオ部屋をリセット
 G.pinoRoom=false;pinoObj.alive=false;G.pinoFlagReady=false;G.pinoFlagDelay=0;G.pinoSpeechText='';}
 
@@ -207,7 +201,7 @@ function startExStage(num){num=num||1;
 }
 function giveUpExStage(){
   if(!G.isExStage||mario.dead)return;
-  G.paused=false;G.isExStage=false;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;
+  G.paused=false;G.isExStage=false;G.lowGravity=false;G.pipeDungeon=false;
   if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}
   flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;
   G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;
@@ -434,7 +428,7 @@ function _gpShopNext(){
   if(!G.nextStage)return;
   const _sb=G.shopBought||{};
   let _ns=G.nextStage;
-  G.currentWorld=_ns.world;G.currentLevel=_ns.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.usedUndergrounds=new Set();G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ns.build();fireballs.length=0;bowserFire.length=0;bowserShockwaves.length=0;resetMario();
+  G.currentWorld=_ns.world;G.currentLevel=_ns.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.usedUndergrounds=new Set();G.lowGravity=false;G.pipeDungeon=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ns.build();fireballs.length=0;bowserFire.length=0;bowserShockwaves.length=0;resetMario();
   if(_sb.hammer){mario.big=true;mario.h=48;mario.y-=16;mario.power='hammer';}
   else if(_sb.ice){mario.big=true;mario.h=48;mario.y-=16;mario.power='ice';}
   else if(_sb.fire){mario.big=true;mario.h=48;mario.y-=16;mario.power='fire';}
@@ -451,8 +445,8 @@ function _gpShopNext(){
 function _gpDoJump(){
   if(G.state!=='play'||mario.dead)return;
   if(mario.onGround||(G.waterMode&&G.swimCooldown<=0)){G.doubleJumpUsed=false;doJump();}
-  else if(mario.wallContact!==0&&!mario.onGround&&!G.fallMode){mario.vy=(G.highJump?-16:-13);mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
-  else if(G.doubleJump&&!G.doubleJumpUsed&&!mario.onGround&&!G.fallMode){G.doubleJumpUsed=true;mario.vy=(G.highJump?-16:-13);mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
+  else if(mario.wallContact!==0&&!mario.onGround){mario.vy=(G.highJump?-16:-13);mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
+  else if(G.doubleJump&&!G.doubleJumpUsed&&!mario.onGround){G.doubleJumpUsed=true;mario.vy=(G.highJump?-16:-13);mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
 }
 function pollGamepad(){
   const gps=navigator.getGamepads();let gp=null;
@@ -587,15 +581,15 @@ else{spawnParticle(p.x+16,p.y,'coin');spawnScorePopup(p.x+16,p.y-8,200,'#FFD700'
 else if(p.type==='brick'){if(mario.big){sfx('break');G.score+=50;updateHUD();spawnParticle(p.x+16,p.y,'brick');spawnScorePopup(p.x+16,p.y-8,50,'#e67e22');const idx=platforms.indexOf(p);if(idx!==-1)platforms.splice(idx,1)}else{blockAnims.push({p,t:0})}}}
 
 // === GAME MANAGEMENT ===
-function startFromStage(id){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;G.usedUndergrounds=new Set();yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.stageStartTime=performance.now();G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
-function startGame(){G.usedUndergrounds=new Set();G.exStageUsed=false;G.ex1Cleared=false;G.ex2Used=false;G.exStageNum=1;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;G.clearedStages=[];G.stageTimes={};_saveInfo=null;try{localStorage.removeItem('mario_v2_save');}catch(_e){}
+function startFromStage(id){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;G.usedUndergrounds=new Set();yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.lowGravity=false;G.pipeDungeon=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.stageStartTime=performance.now();G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function startGame(){G.usedUndergrounds=new Set();G.exStageUsed=false;G.ex1Cleared=false;G.ex2Used=false;G.exStageNum=1;G.lowGravity=false;G.pipeDungeon=false;G.clearedStages=[];G.stageTimes={};_saveInfo=null;try{localStorage.removeItem('mario_v2_save');}catch(_e){}
 // ゲームオーバー→完全リセット：全モードフラグ/タイマー/特殊配列をクリア
 G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;
 G.currentWorld=1;G.currentLevel=1;flagPole.x=LW-500;
 G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint=null;G.checkpointReached=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.autoScroll=0;G.goalSlide=null;G.ugMode=false;G.savedOW=null;G.starTimer=0;G.combo=0;G.comboTimer=0;
 iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;bowserShockwaves.length=0;
 const _sg=getStage(1,1);if(_sg){_sg.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.heldItem=null;G.stageDamaged=false;G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.stageStartTime=performance.now();G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
-function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageStartTime=performance.now();G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
+function restartCurrentLevel(){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _rs=getStage(G.currentWorld,G.currentLevel);if(_rs){flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.lowGravity=false;G.pipeDungeon=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_rs.build();}mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageStartTime=performance.now();G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.shield=0;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;if(G.timerTick)clearInterval(G.timerTick);updateHUD();try{AC.resume()}catch(e){}}
 function killMario(force=false){
 if(mario.dead)return;
 if(!force&&(G.starTimer>0||mario.inv>0||G.megaTimer>0))return;
@@ -613,7 +607,7 @@ G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.hi
 G.lives--;G.combo=0;sfx('die');stopBGM();mario.dead=true;mario.vy=-11;G.shakeX=8;G.shakeY=8;updateHUD();
 setTimeout(()=>{
 // EXステージ失敗→ピノキオ部屋へ戻る（残機減少を打ち消す）
-if(G.isExStage){G.lives++;G.isExStage=false;G.exStageFailed=true;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;
+if(G.isExStage){G.lives++;G.isExStage=false;G.exStageFailed=true;G.lowGravity=false;G.pipeDungeon=false;
   G.savedOW=G.exSavedOW||{cam:0,mx:80,my:H-TILE,waterMode:false,ugKey:null};G.exSavedOW=null;
   if(G.pswitchTimer>0){G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;}
   flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;
@@ -643,7 +637,7 @@ let _saveInfo=null;(function(){try{const _r=localStorage.getItem('mario_v2_save'
 (function(){try{const _c=localStorage.getItem('mario_v2_char');if(_c==='luigi'||_c==='mario')G.character=_c;}catch(e){}})();
 function hasSave(){return!!_saveInfo;}
 function saveGame(){const _sid=getStage(G.currentWorld,G.currentLevel)?.id;const _nid=G.nextStage?G.nextStage.id:(_sid||1);_saveInfo={score:G.score,coins:G.coins,lives:G.lives,nextStageId:_nid,clearedStages:[...G.clearedStages],stageTimes:{...G.stageTimes},character:G.character,ex1Cleared:G.ex1Cleared,ex2Used:G.ex2Used,exStageUsed:G.exStageUsed,savedAt:new Date().toISOString()};try{localStorage.setItem('mario_v2_save',JSON.stringify(_saveInfo));}catch(e){}}
-function loadSave(){if(!_saveInfo)return;G.score=_saveInfo.score||0;G.coins=Math.min(3000,_saveInfo.coins||0);G.lives=Math.max(1,_saveInfo.lives||3);G.clearedStages=Array.isArray(_saveInfo.clearedStages)?[..._saveInfo.clearedStages]:[];G.stageTimes={..._saveInfo.stageTimes||{}};G.character=_saveInfo.character||'mario';try{localStorage.setItem('mario_v2_char',G.character);}catch(_e){}G.ex1Cleared=!!_saveInfo.ex1Cleared;G.ex2Used=!!_saveInfo.ex2Used;G.exStageUsed=!!_saveInfo.exStageUsed;G.exStageNum=1;G.isExStage=false;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;updateHUD();startFromStage(getStageById(_saveInfo.nextStageId||1)?(_saveInfo.nextStageId||1):1);}
+function loadSave(){if(!_saveInfo)return;G.score=_saveInfo.score||0;G.coins=Math.min(3000,_saveInfo.coins||0);G.lives=Math.max(1,_saveInfo.lives||3);G.clearedStages=Array.isArray(_saveInfo.clearedStages)?[..._saveInfo.clearedStages]:[];G.stageTimes={..._saveInfo.stageTimes||{}};G.character=_saveInfo.character||'mario';try{localStorage.setItem('mario_v2_char',G.character);}catch(_e){}G.ex1Cleared=!!_saveInfo.ex1Cleared;G.ex2Used=!!_saveInfo.ex2Used;G.exStageUsed=!!_saveInfo.exStageUsed;G.exStageNum=1;G.isExStage=false;G.lowGravity=false;G.pipeDungeon=false;updateHUD();startFromStage(getStageById(_saveInfo.nextStageId||1)?(_saveInfo.nextStageId||1):1);}
 
 // === UPDATE ===
 function update(){
@@ -658,13 +652,13 @@ if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario
   // 花火（スコア下1桁が1,3,6）
   const _ld=G.score%10;if(_ld===1||_ld===3||_ld===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
   // EXステージクリア → 元ステージをクリア扱いにする
-  if(G.isExStage&&G.exStageFrom){if(G.exStageNum===1)G.ex1Cleared=true;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;const _ef=G.exStageFrom;G.isExStage=false;G.exStageFrom=null;G.currentWorld=_ef.world;G.currentLevel=_ef.level;}
+  if(G.isExStage&&G.exStageFrom){if(G.exStageNum===1)G.ex1Cleared=true;G.lowGravity=false;G.pipeDungeon=false;const _ef=G.exStageFrom;G.isExStage=false;G.exStageFrom=null;G.currentWorld=_ef.world;G.currentLevel=_ef.level;}
   {const _cId=getStage(G.currentWorld,G.currentLevel)?.id;if(_cId){if(!G.clearedStages.includes(_cId))G.clearedStages.push(_cId);const _et=Math.round((performance.now()-G.stageStartTime)/1000);if(!G.stageTimes[_cId]||_et<G.stageTimes[_cId])G.stageTimes[_cId]=_et;}}
   const _ns=getNextStage(G.currentWorld,G.currentLevel);if(_ns){G.nextStage=_ns;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};saveGame();}else{G.state='win';for(let i=0;i<30;i++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),i*60)}}}else if(G.goalSlide.phase==='pipeGoal'){if(G.goalSlide.t>60){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
   if(!G.stageDamaged){G.coins=Math.min(3000,G.coins+30);G.score+=5000;updateHUD();spawnScorePopup(mario.x+13,mario.y-30,'PERFECT! +30C','#FFD700');for(let _pf2=0;_pf2<30;_pf2++)spawnParticle(mario.x+(Math.random()-0.5)*40,mario.y-Math.random()*60,'star');try{beep(880,.1,'sine',.15);beep(1100,.1,'sine',.15,.1);beep(1320,.1,'sine',.15,.2)}catch(ex){}}
   const _ld2=G.score%10;if(_ld2===1||_ld2===3||_ld2===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
   // EXステージパイプゴール→元ステージクリア
-  if(G.isExStage&&G.exStageFrom){if(G.exStageNum===1)G.ex1Cleared=true;G.lowGravity=false;G.fallMode=false;G.fallVariant=false;G.autoScrollY=0;G.fallNoRise=false;G.fallTheme=null;const _ef2=G.exStageFrom;G.isExStage=false;G.exStageFrom=null;G.currentWorld=_ef2.world;G.currentLevel=_ef2.level;}
+  if(G.isExStage&&G.exStageFrom){if(G.exStageNum===1)G.ex1Cleared=true;G.lowGravity=false;G.pipeDungeon=false;const _ef2=G.exStageFrom;G.isExStage=false;G.exStageFrom=null;G.currentWorld=_ef2.world;G.currentLevel=_ef2.level;}
   {const _cId2=getStage(G.currentWorld,G.currentLevel)?.id;if(_cId2){if(!G.clearedStages.includes(_cId2))G.clearedStages.push(_cId2);const _et2=Math.round((performance.now()-G.stageStartTime)/1000);if(!G.stageTimes[_cId2]||_et2<G.stageTimes[_cId2])G.stageTimes[_cId2]=_et2;}}
   const _ns2=getNextStage(G.currentWorld,G.currentLevel);if(_ns2){G.nextStage=_ns2;G.state='shop';G.shopCursor=0;G.shopBought={};G.shopConfirm=null;try{startBGM()}catch(ex){};saveGame();}else{G.state='win';for(let _pi=0;_pi<30;_pi++)setTimeout(()=>spawnParticle(mario.x,H-TILE-100+Math.random()*80,'star'),_pi*60)}}}updateParticles();return}
 // Moving platforms
@@ -810,15 +804,15 @@ if(G.megaTimer>0)spd*=0.7;
 const goL=keys['ArrowLeft']||keys['KeyA']||btn.left||gpad.left;const goR=keys['ArrowRight']||keys['KeyD']||btn.right||gpad.right;
 const _af=G.iceMode?0.042:0.25,_ff=G.iceMode?0.9895:0.78;
 if(mario.crouching){mario.vx*=_ff;}else if(goL){mario.vx+=(-spd-mario.vx)*_af;mario.facing=-1}else if(goR){mario.vx+=(spd-mario.vx)*_af;mario.facing=1}else mario.vx*=_ff;
-if(G.ugMode&&mario.x<0)mario.x=0;{const _ugW=G.fallVariant?3200:W;if(G.ugMode&&mario.x+mario.w>_ugW)mario.x=_ugW-mario.w;}if(G.ugMode&&!G.fallVariant)G.cam=0;
+if(G.ugMode&&mario.x<0)mario.x=0;{const _ugW=G.pipeDungeon?3200:W;if(G.ugMode&&mario.x+mario.w>_ugW)mario.x=_ugW-mario.w;}if(G.ugMode&&!G.pipeDungeon)G.cam=0;
 // Flutter jump (Yoshi)
 if(yoshi.mounted&&yoshi.alive&&yoshi.flutterTimer>0&&(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy>0){mario.vy*=0.6;yoshi.flutterTimer--;if(G.frame%2===0)spawnParticle(mario.x+13,mario.y+mario.h,'dust')}
 if(!G.waterMode&&!(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy<-4)mario.vy+=1.2;
-mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else if(G.ugMode&&G.fallVariant){if(mario.x<0)mario.x=0;if(mario.x+mario.w>3200)mario.x=3200-mario.w;G.cam=Math.max(0,Math.min(mario.x-W/3,3200-W));}else if(G.ugMode){G.cam=0;}else{if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
+mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else if(G.ugMode&&G.pipeDungeon){if(mario.x<0)mario.x=0;if(mario.x+mario.w>3200)mario.x=3200-mario.w;G.cam=Math.max(0,Math.min(mario.x-W/3,3200-W));}else if(G.ugMode){G.cam=0;}else{if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;if(p.type==='hidden'&&!p.hit)continue;cX(mario,p)}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cX(mario,p)}
-const _grav=G.gravityFlipped?-GRAVITY:(G.fallMode?0.05:G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);mario.vy+=_grav;
-if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{const _maxVy=G.fallMode?1.8:G.waterMode?3.5:G.lowGravity?9:15;if(mario.vy>_maxVy)mario.vy=_maxVy;}
+const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);mario.vy+=_grav;
+if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{const _maxVy=G.waterMode?3.5:G.lowGravity?9:15;if(mario.vy>_maxVy)mario.vy=_maxVy;}
 mario.y+=mario.vy;mario.onGround=false;
 if(G.gravityFlipped&&mario.y<0){mario.y=0;mario.vy=0;mario.onGround=true;}
 if(G.waterMode&&mario.y<TILE){mario.y=TILE;mario.vy=0;}
@@ -847,19 +841,7 @@ if(mario.hipDrop&&mario.onGround){mario.hipDrop=false;G.shakeX=5;G.shakeY=5;try{
   for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'||e.type==='rex'||e.type==='spiny'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}else if(e.type==='bobomb'&&e.state==='walk'){e.state='lit';e.litTimer=180;G.score+=100;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,100,'#ff4400');}}}
 }
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
-{const _deathY=G.fallMode?G.fallRoomH+40:H+40;if(mario.y>_deathY){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}}
-// 落下モード: カメラ追従＋最低強制スクロール（マリオが止まっていても下降）
-if(G.fallMode){
-  // マリオに追従（マリオを画面上30%付近に配置）。カメラは下向きにしか動かない。
-  const _target=Math.max(G.camY,mario.y-H*0.3);
-  // 最低でもautoScrollYのペースで下降（マリオ停止時の圧力）
-  const _advance=G.camY+G.autoScrollY;
-  G.camY=Math.min(Math.max(_advance,_target),G.fallRoomH-H);
-  // マリオが画面上に押し出されたら死亡（強制スクロールに飲まれた状態）
-  if(mario.y+mario.h<G.camY+4&&!mario.dead)killMario(true);
-  // 横向き出口土管に触れたら自動入場（DOWN不要・床接地中のみ）
-  if(!mario.dead&&mario.onGround){for(const p of pipes){if(!p.isExit||!p.horizontal)continue;const _tL=mario.x+mario.w>=p.x-6&&mario.x+mario.w<=p.x+10;const _vO=mario.y+mario.h>p.y&&mario.y<p.y+p.h;if(_tL&&_vO){exitUnderground();break;}}}
-}else{G.camY=0;}
+{if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}}
 if(G.autoScroll>0&&mario.x<G.cam+10)killMario(true); // 強制スクロール挟まれ即死
 if(mario.inv>0)mario.inv--;
 
@@ -1079,10 +1061,8 @@ if(G.pinoRoom){
 for(const c of coinItems){if(c.collected)continue;if(c.type==='frozendrop'){c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.timer<=0){c.collected=true;continue}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,16,16)){c.collected=true;sfx('coin');G.score+=100;updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#44bbff');spawnParticle(c.x+8,c.y,'coin')}continue}
 if(c.type==='firecoin'){if(!c.onGround)c.vy+=c.gravity;c.x+=c.vx;c.y+=c.vy;c.timer--;if(c.y>H+20||c.timer<=0){c.collected=true;continue}c.onGround=false;if(c.vy>=0&&c.y+14>=H-TILE){c.y=H-TILE-14;c.vy=0;c.onGround=true;}if(c.noLand){if(c.x<TILE*2){c.x=TILE*2;if(c.vx<0)c.vx=-c.vx;}if(c.x+14>W-TILE*2){c.x=W-TILE*2-14;if(c.vx>0)c.vx=-c.vx;}}if(!c.noLand&&!c.onGround){for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(c.vy>=0&&c.x+12>p.x&&c.x+2<p.x+p.w&&c.y+14>py&&c.y<py+p.h/2){c.y=py-14;c.vy=0;c.onGround=true;break;}}}if(c.onGround){c.vx*=0.88;if(Math.abs(c.vx)<0.05)c.vx=0;}if(!c.noCollect&&overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,14,14)){const _cv=c.coinValue||1;c.collected=true;G.coins=Math.min(3000,G.coins+_cv*(G.character==='luigi'?2:1));G.score+=100*_cv;sfx('coin');updateHUD();spawnScorePopup(c.x+7,c.y-4,`+${_cv}C`,'#FFD700');spawnParticle(c.x+7,c.y,'coin')}continue}if(c.pop){c.popY+=c.popVy;c.popVy+=0.4;c.life--;if(c.life<=0)c.collected=true;continue}
 // コイン磁石
-if(G.coinMagnet&&!c.pop&&!G.fallMode){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
+if(G.coinMagnet&&!c.pop){const _dx=mario.x+13-c.x,_dy=mario.y+mario.h/2-c.y,_dist=Math.sqrt(_dx*_dx+_dy*_dy);if(_dist<150&&_dist>2){const _pull=3/Math.max(_dist,20)*150;c.x+=_dx/_dist*Math.min(_pull,5);c.y+=_dy/_dist*Math.min(_pull,5);}}
 if(overlap(mario.x,mario.y,mario.w,mario.h,c.x,c.y,TILE,TILE)){c.collected=true;G.coins+=(G.character==='luigi'?2:1);G.score+=100;sfx('coin');updateHUD();spawnScorePopup(c.x+8,c.y,'+100','#FFD700');spawnParticle(c.x+8,c.y,'coin')}}
-// Rings (落下土管のボーナスリング: 楕円内を通過で+300点+3コイン)
-if(G.fallMode){const _mcx=mario.x+mario.w/2,_mcy=mario.y+mario.h/2;for(const r of rings){if(r.passed)continue;const _rcx=r.x+r.w/2,_rcy=r.y+r.h/2,_dx=_mcx-_rcx,_dy=_mcy-_rcy;if(Math.abs(_dx)<r.w/2-4&&Math.abs(_dy)<r.h/2-4){r.passed=true;G.score+=300;G.coins=Math.min(3000,G.coins+3);sfx('coin');updateHUD();spawnScorePopup(_rcx,_rcy-14,'+300','#ffff66');for(let _ri=0;_ri<12;_ri++)spawnParticle(_rcx,_rcy,'star');if(!G.allRingsBonus&&rings.length>0&&rings.every(_r=>_r.passed)){G.allRingsBonus=true;G.lives++;sfx('1up');updateHUD();spawnScorePopup(mario.x+13,mario.y-24,'ALL RINGS 1UP!','#ff88ff');for(let _ri=0;_ri<24;_ri++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}}}}
 // Mushrooms etc
 for(const m of mushrooms){if(!m.alive)continue;
 if(m.type==='flower'||m.type==='iceFlower'||m.type==='hammerSuit'||m.type==='star'||m.type==='mega'){if(m.type==='star')m.bobY=(m.bobY||0)+0.1;
@@ -1428,7 +1408,7 @@ if(G.peachChase.catchT>120){G.peachChase=null;peach.alive=false;G.score+=1000+G.
 }
 // Lava flames（周期を1.8倍に延長してゆっくり出現）
 for(const f of lavaFlames){f.phase++;const _per=f.period*1.8;const cyc=f.phase%_per,rise=Math.floor(_per*0.28),stay=Math.floor(_per*0.18);if(cyc<rise){f.curH=Math.min(f.maxH,(cyc/rise)*f.maxH*1.1)}else if(cyc<rise+stay){f.curH=f.maxH}else{f.curH=Math.max(0,f.curH-f.maxH/(rise*0.7))}if(f.curH>12){const ft=H-TILE-f.curH;if(mario.inv===0&&G.starTimer===0&&mario.x+mario.w>f.x-2&&mario.x<f.x+f.w+2&&mario.y+mario.h>ft&&mario.y<H-TILE)killMario()}}
-if(G.ugMode&&G.state==='play'&&!G.peachChase&&!bowser.alive&&!G.fallVariant&&mario.x>W-1.5*TILE&&mario.onGround)exitUnderground();
+if(G.ugMode&&G.state==='play'&&!G.peachChase&&!bowser.alive&&!G.pipeDungeon&&mario.x>W-1.5*TILE&&mario.onGround)exitUnderground();
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
 // クッパ前チェックポイント（2つ目）
 if(G.checkpoint2&&!G.checkpoint2.reached&&mario.x>G.checkpoint2.x){G.checkpoint2.reached=true;G.checkpointReached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint2.x,G.checkpoint2.y-TILE*3,'CHECK!','#ff4444');for(let i=0;i<10;i++)spawnParticle(G.checkpoint2.x+8,G.checkpoint2.y-TILE*2,'star')}
@@ -1575,7 +1555,7 @@ if(G.ugMode&&G.pinoRoom){
 }
 if(G.ugMode){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-  if(G.fallVariant){
+  if(G.pipeDungeon){
     // SMB 1-2風: 青い石レンガ背景タイル（パララックス）
     const _ts=TILE,_px=-(Math.floor(G.cam*0.5)%_ts);
     for(let _y=0;_y<H;_y+=_ts){
@@ -1853,23 +1833,7 @@ ctx.fillStyle='rgba(255,255,255,0.22)';ctx.fillRect(x+1,py+1,TILE-2,3);
 ctx.fillStyle='rgba(0,0,0,0.22)';ctx.fillRect(x,py+TILE-3,TILE,3);
 return;
 }
-if(G.fallMode&&G.fallTheme){
-let c1='#4a8a3a',c2='#6aaa5a',c3='#2a5a2a';
-const _ft=G.fallTheme;
-if(_ft.indexOf('Grass')>0){c1='#4a8a3a';c2='#6aaa5a';c3='#2a5a2a';}
-else if(_ft.indexOf('Desert')>0){c1='#c4a060';c2='#e4c080';c3='#8a6a30';}
-else if(_ft.indexOf('Water')>0){c1='#4a6a8a';c2='#6a8aaa';c3='#2a4a6a';}
-else if(_ft.indexOf('Ice')>0){c1='#78acd0';c2='#a8dcfc';c3='#487c9c';}
-else if(_ft.indexOf('Fort')>0){c1='#5a3048';c2='#8a5078';c3='#300820';}
-else if(_ft.indexOf('River')>0){c1='#3a7ab0';c2='#5a9ad0';c3='#1a4a80';}
-else if(_ft.indexOf('Forest')>0){c1='#2f6a2f';c2='#4f8a4f';c3='#1f4a1f';}
-ctx.fillStyle=c1;ctx.fillRect(x,py,TILE,TILE);
-ctx.fillStyle=c2;ctx.fillRect(x+1,py+1,TILE-2,3);
-ctx.fillStyle=c3;ctx.fillRect(x+1,py+4,TILE-2,TILE-5);
-ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(x+2,py+2,TILE-4,2);
-return;
-}
-if(G.fallVariant){
+if(G.pipeDungeon){
 // SMB 1-2風: 青い石レンガ（地下ダンジョン）
 ctx.fillStyle='#4a78e0';ctx.fillRect(x,py,TILE,TILE);
 ctx.fillStyle='#80acf8';ctx.fillRect(x+1,py+1,TILE-2,3);
@@ -1894,7 +1858,7 @@ ctx.fillStyle='#E09060';ctx.fillRect(x+1,py+1,TILE-2,3);
 ctx.fillStyle='#D07030';ctx.fillRect(x+1,py+4,TILE-2,TILE-5);
 ctx.fillStyle='#A04000';ctx.fillRect(x,py+TILE/2,TILE,1);ctx.fillRect(x+TILE/2,py,1,TILE/2);ctx.fillRect(x+TILE/4,py+TILE/2+1,1,TILE/2-1);ctx.fillRect(x+3*TILE/4,py+TILE/2+1,1,TILE/2-1);
 }}else if(type==='brick'){
-if(G.fallVariant){
+if(G.pipeDungeon){
 // SMB 1-2風: 青い石レンガブロック
 ctx.fillStyle='#4a78e0';ctx.fillRect(x,py,TILE,TILE);
 ctx.fillStyle='#80acf8';ctx.fillRect(x+1,py+1,TILE-2,TILE-2);
@@ -2731,7 +2695,7 @@ ctx.fillRect(x+5+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE-12+fo[1],y+TILE-4,7,4);
 }
 
 function drawParticles(){for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)}ctx.globalAlpha=1}
-function drawScorePopups(){const _cy=G.fallMode?G.camY:0;for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y-_cy)}ctx.globalAlpha=1;ctx.textAlign='left'}
+function drawScorePopups(){for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y)}ctx.globalAlpha=1;ctx.textAlign='left'}
 
 function drawOverlay(title,sub,bgColor){
 ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(0,0,W,H);
@@ -2764,7 +2728,7 @@ if(_wt==='airship'){
   // 稲光フラッシュ（既存BGの補強：まれに画面全体が白くなる）
   if(G.frame%600<2){ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(0,0,W,H);}
 }}
-ctx.save();ctx.translate(-G.cam,G.fallMode?-G.camY:0);
+ctx.save();ctx.translate(-G.cam,0);
 // Lava flames (draw below blocks)
 for(const f of lavaFlames){if(f.curH<2||f.x+f.w<G.cam-10||f.x>G.cam+W+10)continue;
 const ft=H-TILE-f.curH;
@@ -2785,8 +2749,6 @@ if(G.checkpoint2)drawCheckpoint(G.checkpoint2);
 for(const pr of piranhas)if(pr.alive)drawPiranha(pr);
 for(const p of pipes){if(p.x+p.w<G.cam-10||p.x>G.cam+W+10)continue;drawPipe(p.x,p.y,p.w,p.h,p.ceiling,p.color,p.horizontal);
 if(p.isExit){ctx.fillStyle='rgba(255,255,100,'+(0.5+Math.sin(G.frame*0.08)*0.4)+')';ctx.font='bold 14px monospace';ctx.textAlign='center';if(p.horizontal){ctx.fillText('▶ EXIT',p.x+12,p.y-10);}else{ctx.fillText('▼ EXIT',p.x+p.w/2,p.y-6);}ctx.textAlign='left'}if(p.isGoalPipe){ctx.fillStyle='rgba(255,215,0,'+(0.6+Math.sin(G.frame*0.1)*0.35)+')';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('★',p.x+p.w/2,p.y-8);ctx.textAlign='left'}}
-// Rings (落下土管ボーナスリング描画)
-if(G.fallMode){for(const r of rings){if(r.passed)continue;if(r.x+r.w<G.cam-20||r.x-20>G.cam+W)continue;const _cx=r.x+r.w/2,_cy=r.y+r.h/2,_pulse=1+0.09*Math.sin((G.frame+(r.phase||0))*0.15),_col=r.color||'#ffff66';ctx.save();ctx.shadowColor=_col;ctx.shadowBlur=12;ctx.strokeStyle=_col;ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(_cx,_cy,r.w/2*_pulse,r.h/2*_pulse,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(_cx,_cy,r.w/2*0.72*_pulse,r.h/2*0.72*_pulse,0,0,Math.PI*2);ctx.stroke();ctx.restore();}}
 // Gravity zones
 for(const gz of gravityZones){if(gz.x+gz.w<G.cam||gz.x>G.cam+W)continue;
 ctx.fillStyle='rgba(160,80,255,0.08)';ctx.fillRect(gz.x,gz.y,gz.w,gz.h);

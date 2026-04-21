@@ -45,7 +45,7 @@ export function buildLevel_5_1(){
   // 土管1: warp→water1 (コイン部屋)
   pipes.push({x:1800,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water1'});
   // 土管2: warp→水中コイン渓谷（落下チャレンジ）
-  pipes.push({x:4400,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'fallWater1'});
+  pipes.push({x:4400,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'pipeWater1'});
   // ゴール（フラッグポール）
   flagPole.x=6900;
 

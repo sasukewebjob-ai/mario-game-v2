@@ -8,12 +8,12 @@ import {addB,addRow,addStair,addStairD} from '../builders.js';
 export function buildUnderground(variant){
 chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
 // 共通構造: 床・天井・出口パイプ・右壁
-const _isFall=variant&&variant.indexOf('fall')===0;
-const W=_isFall?3200:800; // 落下ミニダンジョンは4倍長
+const _isPipe=variant&&variant.indexOf('pipe')===0;
+const W=_isPipe?3200:800; // 土管ミニダンジョンは4倍長
 // 天井（全variant共通）
 for(let x=TILE;x<W-TILE;x+=TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
-// 床（通常variantのみ全面。fallは各variantで穴付き床を設置する）
-if(!_isFall){
+// 床（通常variantのみ全面。土管ミニダンジョンは各variantで穴付き床を設置する）
+if(!_isPipe){
   for(let x=0;x<W;x+=TILE)platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 }
 // ピノキオ部屋は出口パイプを共通設置しない（報酬クリア後に別途生成）
@@ -449,13 +449,24 @@ ci(55,H-9*TILE,6,48);ci(640,H-7*TILE,3,32);
 // 敵
 enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(kp(220));
 
-// ════════════════════════════════════════
-// 落下ボーナス（15 variant）: 横長の超短縮ボーナス部屋
-// 共通: 壊せるブロック多数＋？×2＋隠し1UP＋大量コイン＋特色敵
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// ◆◆◆ 土管ミニダンジョン（全15 variant / W=3200px） ◆◆◆
+// ════════════════════════════════════════════════════════════
+// 命名: pipeGrass1-4 / pipeDesert1-3 / pipeRiver1 / pipeForest1
+//      / pipeWater1-2 / pipeIce1-2 / pipeFort1-2
+// 共通ベース: 床（14穴）・壊せるブロック20列・？×2・qC×3・隠し1UP×2・Pスイッチ×1
+//           ・浮き足場×14・囲いブロック×3・コイン260枚超
+// ヘルパー:   dB=カロン / ch=チャック / aS=怒り太陽 / ct=サボテン
+//           flr=穴付き床 / pB=Pスイッチ / rh1p=4倍長版ランダム1UP
+//           mp/mpv=浮き足場(h/v) / box=囲いブロック
+// 修正ポイント索引:
+//   ヘルパー定義      → L460-473付近
+//   共通ベース地形    → L475-543付近
+//   variant別の敵配置 → L553以降（各variantごとに「enemies.push のみ」が並ぶ）
+// ════════════════════════════════════════════════════════════
 
-}else if(variant&&variant.indexOf('fall')===0){
-// ══════ ミニダンジョン共通ヘルパー ══════
+}else if(variant&&variant.indexOf('pipe')===0){
+// ══════ 土管ミニダンジョン共通ヘルパー ══════
 const dB=(x)=>({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false});
 const ch=(x,dir)=>({x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:(dir||-1)*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:dir||-1,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0});
 const aS=(x,y)=>({x,y:y??80,w:32,h:32,vx:0,vy:0,type:'angrySun',alive:true,state:'orbit'});
@@ -464,8 +475,8 @@ const ct=(x,h)=>({x,y:H-TILE-(h||TILE*4),w:TILE,h:h||TILE*4,vx:-0.6,vy:0,alive:t
 const flr=(gaps)=>{for(let x=0;x<W;x+=TILE){let inG=false;for(const [gx,gw] of gaps)if(x>=gx&&x<gx+gw*TILE){inG=true;break;}if(!inG)platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});}};
 // Pブロック
 const pB=(x,y)=>({x,y,w:TILE,h:TILE,type:'pswitch',hit:false,bounceOffset:0});
-// 4倍長用ランダム隠し1UP
-const rh1f=()=>{const xs=[500,900,1400,1900,2400,2800];return h1(xs[Math.floor(Math.random()*xs.length)],H-9*TILE);};
+// 4倍長用ランダム隠し1UP（土管ミニダンジョン用）
+const rh1p=()=>{const xs=[500,900,1400,1900,2400,2800];return h1(xs[Math.floor(Math.random()*xs.length)],H-9*TILE);};
 // 浮き足場（水平/垂直）
 const mp=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'h',ox:x,range:rg||100,spd:sp||1,prevX:x,oy:y,vy:0});
 const mpv=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'v',ox:x,range:rg||80,spd:sp||1,prevX:x,oy:y,vy:0});
@@ -550,7 +561,8 @@ ci(500,H-8*TILE,10,32);ci(1100,H-8*TILE,10,32);ci(2150,H-8*TILE,10,32);
 // 高段上(H-7T): 680,1580,2480
 // 囲い内(H-5T): 290,340 [box240] / 1180,1230 [box1130] / 2720 [box2670]
 
-if(variant==='fallGrass1'){
+// ──────── pipeGrass1 (W1草原1) ────────
+if(variant==='pipeGrass1'){
 // 🌱 W1 草原: buzzyメイン・囲いにクリボー
 enemies.push(kp(350));enemies.push(bz(520));enemies.push(kp(720));enemies.push(bz(960));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(kp(1940));enemies.push(bz(2340));
 enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
@@ -558,7 +570,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallGrass2'){
+// ──────── pipeGrass2 (W1草原2) ────────
+else if(variant==='pipeGrass2'){
 // 🌱 W1 草原2: buzzy全面・囲いにノコノコ
 enemies.push(bz(350));enemies.push(kp(520));enemies.push(bz(720));enemies.push(kp(960));enemies.push(bz(1340));enemies.push(kp(1560));enemies.push(bz(1940));enemies.push(kp(2340));
 enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
@@ -566,7 +579,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(880,H-6*TILE));enemies.push(bz(13
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(1580,H-7*TILE));
 enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
-else if(variant==='fallGrass3'){
+// ──────── pipeGrass3 (W1草原3) ────────
+else if(variant==='pipeGrass3'){
 // 🌱 W1 草原3: bz統一
 enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2340));
 enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
@@ -574,7 +588,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
-else if(variant==='fallGrass4'){
+// ──────── pipeGrass4 (W1草原4) ────────
+else if(variant==='pipeGrass4'){
 // 🌱 W1 草原4: ハンマーブロス2体＋bz
 enemies.push(hb(960));enemies.push(hb(2140));
 enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
@@ -583,7 +598,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallDesert1'){
+// ──────── pipeDesert1 (W2砂漠1) ────────
+else if(variant==='pipeDesert1'){
 // 🏜 W2 砂漠1: チャック突進2体・囲いgm
 enemies.push(ch(960,-1));enemies.push(ch(2140,-1));
 enemies.push(bz(350));enemies.push(kp(520));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(kp(1560));enemies.push(bz(1940));enemies.push(kp(2820));
@@ -592,7 +608,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallDesert2'){
+// ──────── pipeDesert2 (W2砂漠2) ────────
+else if(variant==='pipeDesert2'){
 // 🏜 W2 砂漠2: おこりんぼ太陽2体＋bz
 enemies.push(aS(900,80));enemies.push(aS(2400,80));
 enemies.push(bz(350));enemies.push(bz(520));enemies.push(kp(720));enemies.push(bz(960));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(kp(1940));enemies.push(bz(2340));
@@ -601,7 +618,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(2
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallDesert3'){
+// ──────── pipeDesert3 (W2砂漠3) ────────
+else if(variant==='pipeDesert3'){
 // 🏜 W2 砂漠3: カロン多数（dBは落ちない）
 enemies.push(dB(350));enemies.push(dB(720));enemies.push(dB(1340));enemies.push(dB(1940));enemies.push(dB(2550));
 enemies.push(bz(520));enemies.push(bz(960));enemies.push(bz(1560));enemies.push(bz(2820));
@@ -610,7 +628,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(dB(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallRiver1'){
+// ──────── pipeRiver1 (W3川) ────────
+else if(variant==='pipeRiver1'){
 // 🌊 W3 川: bzメイン・追加浮き足場
 movingPlats.push(mp(1160,H-4*TILE,TILE*2,100,1.5));movingPlats.push(mpv(2140,H-5*TILE,TILE*2,80,1.2));
 enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(kp(960));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2340));
@@ -619,7 +638,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(880,H-6*TILE));enemies.push(bz(18
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
-else if(variant==='fallForest1'){
+// ──────── pipeForest1 (W3森) ────────
+else if(variant==='pipeForest1'){
 // 🌳 W3 森: ハンマーブロス2体＋bz
 enemies.push(hb(960));enemies.push(hb(2140));
 enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
@@ -628,7 +648,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallWater1'){
+// ──────── pipeWater1 (W5海辺1) ────────
+else if(variant==='pipeWater1'){
 // 🏖 W5 海辺1: サボテン小3体＋bz
 enemies.push(ct(550,TILE*2));enemies.push(ct(1560,TILE*2));enemies.push(ct(2340,TILE*2));
 enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2550));enemies.push(bz(2820));
@@ -637,7 +658,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
-else if(variant==='fallWater2'){
+// ──────── pipeWater2 (W5海辺2) ────────
+else if(variant==='pipeWater2'){
 // 🏖 W5 海辺2: サボテン大3体＋bz
 enemies.push(ct(550,TILE*4));enemies.push(ct(1560,TILE*4));enemies.push(ct(2340,TILE*4));
 enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2550));enemies.push(bz(2820));
@@ -646,7 +668,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
-else if(variant==='fallIce1'){
+// ──────── pipeIce1 (W6氷1) ────────
+else if(variant==='pipeIce1'){
 // ❄ W6 氷1: ペンギン多数（pgは落ちない）
 enemies.push(pg(350));enemies.push(pg(720));enemies.push(pg(960));enemies.push(pg(1340));enemies.push(pg(1560));enemies.push(pg(1940));enemies.push(pg(2340));enemies.push(pg(2820));
 enemies.push(pg(430,H-5*TILE));enemies.push(pg(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(pg(1780,H-5*TILE));enemies.push(pg(2250,H-5*TILE));enemies.push(pg(2530,H-5*TILE));
@@ -654,7 +677,8 @@ enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(pg(1
 enemies.push(pg(680,H-7*TILE));enemies.push(pg(2480,H-7*TILE));
 enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
 }
-else if(variant==='fallIce2'){
+// ──────── pipeIce2 (W6氷2) ────────
+else if(variant==='pipeIce2'){
 // ❄ W6 氷2: ペンギン＋カロン（全て落ちない敵）
 enemies.push(pg(350));enemies.push(pg(720));enemies.push(pg(1340));enemies.push(pg(1560));enemies.push(pg(1940));enemies.push(pg(2820));
 enemies.push(dB(520));enemies.push(dB(960));enemies.push(dB(2140));enemies.push(dB(2550));
@@ -663,7 +687,8 @@ enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(dB(1
 enemies.push(dB(680,H-7*TILE));enemies.push(pg(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallFort1'){
+// ──────── pipeFort1 (W7砦1) ────────
+else if(variant==='pipeFort1'){
 // 🔥 W7 砦1: ドッスン3体＋ハンマーブロス2体＋溶岩炎
 lavaFlames.push({x:950,y:H-TILE,w:22,maxH:90,curH:0,phase:0,period:120});
 lavaFlames.push({x:2080,y:H-TILE,w:22,maxH:90,curH:0,phase:60,period:120});
@@ -675,7 +700,8 @@ enemies.push(bz(530,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
 enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
 enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
 }
-else if(variant==='fallFort2'){
+// ──────── pipeFort2 (W7砦2) ────────
+else if(variant==='pipeFort2'){
 // 🔥 W7 砦2: キャノン＋ドッスン＋カロン＋溶岩炎
 cannons.push({x:640,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:30});
 cannons.push({x:1600,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:80});

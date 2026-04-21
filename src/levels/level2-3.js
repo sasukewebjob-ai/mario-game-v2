@@ -181,7 +181,7 @@ export function buildLevel_2_3(){
   // ★ ハンマースーツ
   platforms.push({x:4700,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管
-  pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:true,variant:'fallDesert3'});
+  pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:true,variant:'pipeDesert3'});
   // 城の天井土管は撤去（落とし穴上の火柱との競合回避）
   // ★ 上空パタパタ（2段JMP対策）
   enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});

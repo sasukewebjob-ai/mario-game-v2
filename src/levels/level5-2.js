@@ -48,7 +48,7 @@ export function buildLevel_5_2(){
   // 土管1: warp→water3
   pipes.push({x:2000,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'water3'});
   // 土管2: warp→深海の隧道（落下チャレンジ）
-  pipes.push({x:4800,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'fallWater2'});
+  pipes.push({x:4800,y:H-TILE-4*TILE,w:TILE*2,h:4*TILE,bounceOffset:0,isWarp:true,variant:'pipeWater2'});
   // ゴール（フラッグポール）
   flagPole.x=7200;
 

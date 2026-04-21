@@ -81,7 +81,7 @@ export function buildLevel_3_2(){
   // パイプ (ワープ×2: forest1/forest2、通常×2 — 高さをバラバラにしてオリジナリティを演出)
   // ph=3の巨大ワープ管(x=800)、ph=2の通常管(x=2500)、ph=4の超高ワープ管(x=4200)、ph=2の通常管(x=6400)
   // ※旧x=6000はギャップ内に浮いていたため x=6400 に修正
-  [[800,3,'forest1'],[2500,2,false],[3500,3,'fallForest1'],[4200,4,'forest2'],[6400,2,false]].forEach(([px,ph,warp])=>{
+  [[800,3,'forest1'],[2500,2,false],[3500,3,'pipeForest1'],[4200,4,'forest2'],[6400,2,false]].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
   pipes.forEach((p,i)=>{if(p.isWarp)return;
     piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*2})});
