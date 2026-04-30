@@ -517,10 +517,10 @@ platforms.push(qM(2160,H-7*TILE));
 platforms.push(qC(820,H-7*TILE,12));
 platforms.push(qC(1680,H-8*TILE,12));
 platforms.push(qC(2560,H-7*TILE,12));
-// 隠し1UPブロック×2（ランダム位置・重複防止）
-{const _1ups=[[450,H-8*TILE],[770,H-9*TILE],[1070,H-8*TILE],[1800,H-9*TILE],[2250,H-8*TILE],[2750,H-9*TILE]];
- const _i1=Math.floor(Math.random()*_1ups.length);let _i2=Math.floor(Math.random()*_1ups.length);if(_i2===_i1)_i2=(_i2+3)%_1ups.length;
- platforms.push(h1(_1ups[_i1][0],_1ups[_i1][1]));platforms.push(h1(_1ups[_i2][0],_1ups[_i2][1]));}
+// 隠し1UPブロック×1（上部のみ・ランダム位置）
+{const _1ups=[[770,H-9*TILE],[1800,H-9*TILE],[2750,H-9*TILE]];
+ const _i1=Math.floor(Math.random()*_1ups.length);
+ platforms.push(h1(_1ups[_i1][0],_1ups[_i1][1]));}
 // Pスイッチ 1個だけ（中央・H-6T高段ブロックと重複しないようH-5Tに配置）
 platforms.push(pB(1540,H-5*TILE));
 // 浮き足場×14（各落とし穴の上に1個ずつ）

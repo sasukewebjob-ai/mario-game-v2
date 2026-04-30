@@ -1083,7 +1083,10 @@ else{upgradeMario('mushroom');G.score+=1000;updateHUD();spawnScorePopup(mario.x+
 // Enemies
 for(const e of enemies){if(!e.alive)continue;if(e.type==='miniBowser')continue;// pinoRoomループで処理
 // マリオが持ち上げ中のshellはマリオに追従
-if(e===mario.heldShell){e.x=mario.x+(mario.facing===1?mario.w-4:-e.w+4);e.y=mario.y+mario.h-e.h-2;e.vx=0;e.vy=0;e.shellTimer=300;continue;}
+if(e===mario.heldShell){e.x=mario.x+(mario.facing===1?mario.w-4:-e.w+4);e.y=mario.y+mario.h-e.h-2;e.vx=0;e.vy=0;e.shellTimer=300;
+// マリオ3仕様: 持っている甲羅が敵に接触したら敵を倒す（甲羅は維持）
+for(const o of enemies){if(o===e||!o.alive||o.state==='dead'||o.frozen)continue;if(overlap(e.x,e.y,e.w,e.h,o.x,o.y,o.w,o.h)){o.state='dead';o.squishT=20;G.score+=200;sfx('stomp');updateHUD();spawnScorePopup(o.x+8,o.y-8,200,'#e74c3c');spawnParticle(o.x+16,o.y+16,'dust');}}
+continue;}
 if(e.state==='dead'){e.squishT--;if(e.squishT<=0)e.alive=false;continue}
 // 休眠スポーン: カメラ右端+8タイル先に入るまで physics をスキップ（parakoopa/lakitu は自前ロジックで動くので除外）
 if(e.type!=='parakoopa'&&e.type!=='lakitu'&&e.type!=='cheepH'&&e.type!=='cheepV'&&e.type!=='firePlant'&&e.type!=='plantFire'&&e.type!=='blooper'&&e.type!=='angrySun'&&!e.activated){if(G.cam+W+TILE*8<e.x)continue;e.activated=true;}
