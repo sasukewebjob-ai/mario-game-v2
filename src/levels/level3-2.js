@@ -117,7 +117,7 @@ export function buildLevel_3_2(){
   // 地上敵 (goomba / koopa / cactus / hammerBro)
   [{x:380,t:'goomba'},{x:520,t:'cactus'},
    {x:800,t:'koopa'},{x:1000,t:'cactus'},{x:1150,t:'goomba'},{x:1380,t:'hammerBro'},
-   {x:2100,t:'goomba'},{x:2250,t:'cactus'},{x:2500,t:'koopa'},
+   {x:2100,t:'goomba'},{x:2500,t:'koopa'},  // ★ x=2250サボテンはピノキオ部屋パイプ(x=2200)真下のため撤去
    {x:2800,t:'cactus'},{x:2960,t:'hammerBro'},
    {x:3480,t:'goomba'},{x:3380,t:'cactus'},{x:4120,t:'koopa'},
    {x:4200,t:'cactus'},{x:4380,t:'hammerBro'},{x:4580,t:'goomba'},
