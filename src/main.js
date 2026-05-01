@@ -48,7 +48,8 @@ G.cam=0;
 }
 function upgradeMario(type,_fromStock=false){
 // アイテムストック: すでに特殊パワー(fire/hammer/ice)持ちかつスロット空きがあれば保存
-if(!_fromStock&&mario.big&&mario.power!=='none'&&mario.power!=='big'&&G.heldItem===null){
+// メガ中(G.megaTimer>0)はストックせず直接パワー更新→メガ復帰時に新パワーが反映される
+if(!_fromStock&&G.megaTimer===0&&mario.big&&mario.power!=='none'&&mario.power!=='big'&&G.heldItem===null){
   G.heldItem=(type==='hammer')?'hammer':(type==='flower')?'flower':'mushroom';
   spawnScorePopup(mario.x+13,mario.y-10,'STORED!','#66ccff');sfx('coin');return;
 }
@@ -3261,20 +3262,6 @@ if(G.pswitchTimer>0&&G.state==='play'){
   ctx.strokeStyle='#aaccff';ctx.lineWidth=1;ctx.strokeRect(W/2-102,8,204,14);
   ctx.fillStyle='#fff';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
   ctx.fillText(`P-SWITCH ${Math.ceil(G.pswitchTimer/60)}s`,W/2,32);ctx.textAlign='left';
-}
-// 1-1 チュートリアルヒント（初回プレイの学習導線）
-if(G.state==='play'&&!mario.dead&&!G.ugMode&&G.currentWorld===1&&G.currentLevel===1&&mario.x<1500){
-  let _tip='';
-  if(mario.x<200)_tip='←→ MOVE   SPACE/↑ JUMP';
-  else if(mario.x<500)_tip='↑ ハテナ ? ブロックを叩こう！';
-  else if(mario.x<900)_tip='上から踏んで敵を倒そう';
-  else if(mario.x<1300)_tip='SHIFT 押しながらでダッシュ';
-  if(_tip){
-    const _tipA=Math.min(1,(1500-mario.x)/200);
-    ctx.fillStyle=`rgba(0,0,0,${0.55*_tipA})`;ctx.fillRect(W/2-160,H-78,320,22);
-    ctx.fillStyle=`rgba(255,255,200,${_tipA})`;ctx.font='bold 9px "Press Start 2P",monospace';ctx.textAlign='center';
-    ctx.fillText(_tip,W/2,H-63);ctx.textAlign='left';
-  }
 }
 // 撃破カウンター
 if(G.state==='play'&&!mario.dead){
