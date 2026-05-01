@@ -870,8 +870,8 @@ if(!yoshi.eatTarget){
   const tx=yoshi.x+(yoshi.facing===1?yoshi.w:0)+yoshi.facing*yoshi.tongueLen;const ty=yoshi.y+15;
   const _tR=10;
   // 敵チェック（舌先に正確にヒット）
-  for(const e of enemies){if(!e.alive||e.state==='dead')continue;
-    // ヨッシーが食えない敵（トゲ/爆発/ボス級/大型）
+  for(const e of enemies){if(!e.alive||e.state==='dead'||e.frozen)continue;
+    // ヨッシーが食えない敵（トゲ/爆発/ボス級/大型・凍結中）
     if(e.type==='spiny'||e.type==='spikeTop'||e.type==='fuzzy'||e.type==='bobomb'||e.type==='thwomp'||e.type==='teresa'||e.type==='pokey'||e.type==='chuck'||e.type==='angrySun'||e.type==='miniBowser')continue;
     if(overlap(tx-_tR,ty-_tR,_tR*2,_tR*2,e.x,e.y,e.w,e.h)){
       const _ec=e.type==='goomba'?'#8B4513':e.type==='koopa_red'||e.type==='koopa_red_fly'?'#c0392b':'#27ae60';
@@ -1400,7 +1400,7 @@ if(G.peachChase&&peach.alive){
 G.peachChase.t++;
 if(!peach.caught){
 peach.x+=peach.vx;peach.walkTimer++;if(peach.walkTimer>7){peach.walkTimer=0;peach.walkFrame=(peach.walkFrame+1)%2;}
-mario.vx=3;mario.x+=3;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3;}
+mario.vx=0;mario.x+=3;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3;}
 G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));
 if(mario.x+mario.w>=peach.x){peach.caught=true;peach.vx=0;G.peachChase.catchT=0;sfx('power');for(let pi=0;pi<20;pi++)spawnParticle(peach.x+15,peach.y+20,'star');}
 }else{
