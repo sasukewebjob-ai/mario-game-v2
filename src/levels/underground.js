@@ -725,7 +725,7 @@ platforms.push({x:384,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush
 if(variant==='pinocchio_fail'){
   // 失敗状態：出口パイプのみ、キノピオが一言
   // 防御的リセット（前回の状態が残っていても安全に）
-  G.chestOpened=false;G.pinoReward=-1;G.pinoNeed=0;
+  G.chestOpened=false;G.pinoReward=-1;G.pinoNeed=0;G.pinoFlagReady=false;G.pinoFlagDelay=0;
   pipes.push({x:704,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
   pinoObj.alive=true;pinoObj.x=660;pinoObj.y=H-TILE-pinoObj.h;pinoObj.vx=0;pinoObj.vy=0;pinoObj.facing=-1;pinoObj.frame=0;pinoObj.frameTimer=0;
   G.pinoState='exfail';

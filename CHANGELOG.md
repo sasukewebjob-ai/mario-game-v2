@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-05-01
+
+### [fix] 5エージェント徹底バグ調査の結果反映
+**ファイル:** `src/main.js`, `src/levels/underground.js`
+
+5つの並列エージェントによる多角的バグ調査を実施。報告された候補をUltraThink検証し、実コードで確認できた真のバグのみ修正。
+
+**修正内容:**
+
+| 箇所 | 問題 | 修正 |
+|---|---|---|
+| `restartCurrentLevel()` (main.js) | 死亡後の再開で `G.checkpoint` / `G.checkpointReached` / `G.starTimer` / `G.autoScroll` が初期化されず、前ステージの状態が残留する可能性 | 4フラグの初期化を関数冒頭に追加 |
+| `exitUnderground()` (main.js) | 地下から出た時に `fireballs` / `bowserFire` がクリアされず、地下で発射した飛び道具が地上に残存 | `bulletBills.length=0` の直後に2配列のクリアを追加 |
+| `pinocchio_fail` variant (underground.js) | EX失敗で戻った際に `G.pinoFlagReady` / `G.pinoFlagDelay` が未リセット（前回ピノキオ部屋で報酬8を選んだ状態の残留リスク） | 防御的リセットを追加 |
+
+**検証で誤検出と判明した報告（修正不要）:**
+- キノピオ部屋EX→pinoRoom復帰のパワー喪失：CHANGELOG既記載の修正済み
+- miniBowser hurtTimer/inv の非対称：inv=90 > hurtTimer=75 でマリオ有利側
+- koopa踏み後の continue 忘れ：if/else if 連鎖で同フレーム重複は発生しない
+- shell化直後の inv 不足：踏みのバウンス vy=-9 で分離・shellロジックに inv あり
+- type:'fall' 残骸：moving platform の現役機能（main.js でハンドラあり）
+
+---
+
 ## 2026-04-07
 
 ### [fix] ヨッシーの顔がマリオに隠れるバグ修正
