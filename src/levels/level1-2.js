@@ -66,28 +66,26 @@ for(let i=0;i<30;i++)coinItems.push({x:200+i*230,y:H-10*TILE,collected:false});
 gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
 // Extra coins to reach 300+
 for(let i=0;i<220;i++)coinItems.push({x:120+i*34,y:H-6*TILE,collected:false});
-// Enemies
-[{x:300,t:'goomba'},{x:380,t:'goomba'},{x:420,t:'goomba'},{x:480,t:'koopa'},
-{x:550,t:'goomba'},{x:600,t:'buzzy'},{x:680,t:'koopa'},{x:780,t:'goomba'},{x:820,t:'goomba'},
-{x:950,t:'hammerBro'},{x:1050,t:'goomba'},{x:1100,t:'buzzy'},{x:1150,t:'koopa'},{x:1200,t:'goomba'},
-{x:1300,t:'koopa'},{x:1350,t:'goomba'},{x:1450,t:'koopa'},{x:1500,t:'buzzy'},{x:1560,t:'goomba'},
-{x:1650,t:'koopa'},{x:1750,t:'goomba'},{x:1700,t:'buzzy'},{x:1950,t:'hammerBro'},
-{x:2050,t:'goomba'},{x:2100,t:'buzzy'},{x:2150,t:'koopa'},{x:2250,t:'goomba'},{x:2350,t:'koopa'},
-{x:2450,t:'buzzy'},{x:2550,t:'goomba'},{x:2650,t:'koopa'},{x:2750,t:'goomba'},{x:2800,t:'buzzy'},
-{x:2900,t:'koopa'},{x:3000,t:'goomba'},{x:3050,t:'goomba'},{x:3100,t:'buzzy'},
-{x:3200,t:'hammerBro'},{x:3480,t:'goomba'},{x:3400,t:'koopa'},
-{x:4120,t:'goomba'},{x:4220,t:'koopa'},{x:4320,t:'buzzy'},
-{x:4420,t:'goomba'},{x:4520,t:'goomba'},{x:4620,t:'koopa'},
-{x:4720,t:'buzzy'},{x:4150,t:'goomba'},{x:4250,t:'goomba'},
-{x:4500,t:'hammerBro'},{x:4600,t:'koopa'},{x:4650,t:'goomba'},{x:4750,t:'buzzy'},{x:4800,t:'koopa'},
-{x:4900,t:'goomba'},{x:4950,t:'goomba'},{x:5300,t:'buzzy'},{x:5350,t:'koopa'},{x:5400,t:'goomba'},
-{x:5500,t:'koopa'},{x:5550,t:'buzzy'},{x:5600,t:'goomba'},
-{x:5700,t:'hammerBro'},{x:5800,t:'goomba'},{x:5850,t:'koopa'},
-{x:5950,t:'goomba'},{x:6050,t:'buzzy'},{x:6100,t:'koopa'},
-{x:6200,t:'goomba'},{x:6250,t:'goomba'},{x:6400,t:'koopa'},{x:6500,t:'buzzy'},
-{x:6700,t:'goomba'},{x:6750,t:'koopa'},{x:6850,t:'buzzy'},{x:6900,t:'goomba'},
-{x:7100,t:'goomba'},{x:7150,t:'koopa'},{x:7200,t:'buzzy'},{x:7300,t:'koopa'},
-{x:400,t:'parakoopa'},{x:1200,t:'parakoopa'},{x:2500,t:'parakoopa'},{x:4200,t:'parakoopa'},{x:5800,t:'parakoopa'},{x:7000,t:'parakoopa'}
+// Enemies（密度バランス調整: 89→60前後）
+[{x:300,t:'goomba'},{x:480,t:'koopa'},
+{x:550,t:'goomba'},{x:680,t:'koopa'},{x:780,t:'goomba'},
+{x:1050,t:'goomba'},{x:1150,t:'koopa'},
+{x:1300,t:'koopa'},{x:1350,t:'goomba'},{x:1450,t:'koopa'},
+{x:1650,t:'koopa'},{x:1750,t:'goomba'},{x:1950,t:'hammerBro'},
+{x:2050,t:'goomba'},{x:2150,t:'koopa'},{x:2250,t:'goomba'},{x:2350,t:'koopa'},
+{x:2450,t:'buzzy'},{x:2650,t:'koopa'},{x:2800,t:'buzzy'},
+{x:2900,t:'koopa'},{x:3100,t:'buzzy'},
+{x:3200,t:'hammerBro'},{x:3480,t:'goomba'},
+{x:4120,t:'goomba'},{x:4320,t:'buzzy'},
+{x:4420,t:'goomba'},{x:4720,t:'buzzy'},
+{x:4500,t:'hammerBro'},{x:4600,t:'koopa'},{x:4750,t:'buzzy'},{x:4800,t:'koopa'},
+{x:5350,t:'koopa'},{x:5500,t:'koopa'},{x:5600,t:'goomba'},
+{x:5700,t:'hammerBro'},{x:5850,t:'koopa'},
+{x:6100,t:'koopa'},
+{x:6200,t:'goomba'},{x:6400,t:'koopa'},{x:6500,t:'buzzy'},
+{x:6700,t:'goomba'},{x:6850,t:'buzzy'},{x:6900,t:'goomba'},
+{x:7100,t:'goomba'},{x:7200,t:'buzzy'},{x:7300,t:'koopa'},
+{x:400,t:'parakoopa'},{x:2500,t:'parakoopa'},{x:5800,t:'parakoopa'},{x:7000,t:'parakoopa'}
 ].forEach(({x,t})=>{
 if(t==='hammerBro'){enemies.push({x,y:H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5+Math.random(),vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:60+Math.floor(Math.random()*60),jumpTimer:120+Math.floor(Math.random()*80)})}
 else if(t==='parakoopa'){const by=H-5*TILE;enemies.push({x,y:by,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:by,phase:Math.random()*Math.PI*2,shellTimer:0,walkFrame:0,walkTimer:0})}
@@ -135,9 +133,8 @@ pipes.push({x:6000,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 piranhas.push({x:4624,baseY:6*TILE,y:6*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 pipes.push({x:1050,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:3350,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-// ★ 上空パタパタ（2段JMP対策）
+// ★ 上空パタパタ（2段JMP対策、密度調整で2→1）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
-enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
 // ★ モンテ（CP後・地面突撃）
 enemies.push({x:4800,y:H-2*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,type:'montyMole',state:'hidden',walkFrame:0,walkTimer:0,onGround:false,facing:-1,emergeT:0});
