@@ -483,238 +483,265 @@ const mpv=(x,y,w,rg,sp)=>({x,y,w:w||TILE*2,h:12,type:'v',ox:x,range:rg||80,spd:s
 // 囲いブロック「│_底w_│」 底H-4T+両壁H-5Tで敵を閉じ込める
 const box=(x,w)=>{addRow(x+TILE,H-4*TILE,w,'brick');addB(x,H-5*TILE,'brick');addB(x+(w+1)*TILE,H-5*TILE,'brick');};
 
-// ══════ 共通ベース地形（落とし穴14／qM2／Pスイッチ1／1UP2／囲いブロック3）══════
-// 落とし穴14箇所（2T/3T幅、各穴の上に浮き足場1個）
-flr([[250,2],[420,2],[600,2],[800,3],[1050,2],[1250,2],[1420,3],[1640,2],[1820,2],[2000,3],[2220,2],[2420,2],[2650,2],[2900,2]]);
-// 壊せるブロック列（20列・敵の足場・ブロック上に敵多数）
-// 低段(H-4T) 11列（落とし穴の間）
-addRow(400,H-4*TILE,3,'brick');
-addRow(700,H-4*TILE,3,'brick');
-addRow(1020,H-4*TILE,3,'brick');
-addRow(1280,H-4*TILE,3,'brick');
-addRow(1500,H-4*TILE,3,'brick');
-addRow(1750,H-4*TILE,3,'brick');
-addRow(2000,H-4*TILE,4,'brick');
-addRow(2220,H-4*TILE,3,'brick');
-addRow(2500,H-4*TILE,3,'brick');
-addRow(2800,H-4*TILE,2,'brick');
-addRow(3000,H-4*TILE,2,'brick');
-// 中段(H-5T) 6列
-addRow(500,H-5*TILE,2,'brick');
-addRow(850,H-5*TILE,2,'brick');
-addRow(1350,H-5*TILE,3,'brick');
-addRow(1800,H-5*TILE,3,'brick');
-addRow(2300,H-5*TILE,2,'brick');
-addRow(2600,H-5*TILE,2,'brick');
-// 高段(H-6T) 3列
-addRow(650,H-6*TILE,3,'brick');
-addRow(1550,H-6*TILE,3,'brick');
-addRow(2450,H-6*TILE,3,'brick');
-// ？ブロック（キノコ）2個だけ
-platforms.push(qM(1100,H-7*TILE));
-platforms.push(qM(2160,H-7*TILE));
-// 連打コインブロック qC×3（30%削減でhitsLeft 12→8）
-platforms.push(qC(820,H-7*TILE,8));
-platforms.push(qC(1680,H-8*TILE,8));
-platforms.push(qC(2560,H-7*TILE,8));
-// 隠し1UPブロック×1（上部のみ・ランダム位置）
-{const _1ups=[[770,H-9*TILE],[1800,H-9*TILE],[2750,H-9*TILE]];
- const _i1=Math.floor(Math.random()*_1ups.length);
- platforms.push(h1(_1ups[_i1][0],_1ups[_i1][1]));}
-// Pスイッチ 1個だけ（中央・H-6T高段ブロックと重複しないようH-5Tに配置）
-platforms.push(pB(1540,H-5*TILE));
-// 浮き足場×14（各落とし穴の上に1個ずつ）
-movingPlats.push(mp(266,H-5*TILE,TILE*2,60,1.3));  // over [250,2]
-movingPlats.push(mp(436,H-5*TILE,TILE*2,60,1.2));  // over [420,2]
-movingPlats.push(mp(616,H-6*TILE,TILE*2,60,1.3));  // over [600,2]
-movingPlats.push(mp(820,H-6*TILE,TILE*2,80,1.4));  // over [800,3]
-movingPlats.push(mp(1066,H-5*TILE,TILE*2,60,1.3));  // over [1050,2]
-movingPlats.push(mp(1266,H-6*TILE,TILE*2,60,1.2));  // over [1250,2]
-movingPlats.push(mp(1436,H-6*TILE,TILE*2,80,1.3));  // over [1420,3]
-movingPlats.push(mp(1656,H-5*TILE,TILE*2,60,1.4));  // over [1640,2]
-movingPlats.push(mp(1836,H-6*TILE,TILE*2,60,1.1));  // over [1820,2]
-movingPlats.push(mp(2020,H-6*TILE,TILE*2,80,1.3));  // over [2000,3]
-movingPlats.push(mp(2236,H-5*TILE,TILE*2,60,1.4));  // over [2220,2]
-movingPlats.push(mp(2436,H-6*TILE,TILE*2,60,1.2));  // over [2420,2]
-movingPlats.push(mp(2666,H-5*TILE,TILE*2,60,1.3));  // over [2650,2]
-movingPlats.push(mp(2916,H-5*TILE,TILE*2,60,1.3));  // over [2900,2]
-// 囲いブロック×3（落ちる敵を閉じ込める）
-box(240,3);  // 底 272-368（3T）、左壁240、右壁368  → 中に敵2匹
-box(1130,3); // 底 1162-1258（3T）、左壁1130、右壁1258 → 中に敵2匹
-box(2670,2); // 底 2702-2766（2T）、左壁2670、右壁2766 → 中に敵1匹（隣ブロックと干渉しない）
-// コイン列（30%削減・散らして配置: 約185枚）
-ci(80,H-9*TILE,20,42);
-ci(410,H-6*TILE,8,45);ci(710,H-6*TILE,8,45);
-ci(1030,H-6*TILE,8,45);ci(1290,H-6*TILE,8,45);
-ci(1510,H-6*TILE,8,45);ci(1760,H-6*TILE,8,45);
-ci(2010,H-6*TILE,10,45);ci(2230,H-6*TILE,8,45);
-ci(2510,H-6*TILE,8,45);ci(2810,H-6*TILE,7,45);
-ci(3010,H-6*TILE,5,45);
-ci(650,H-7*TILE,10,48);ci(1550,H-7*TILE,10,48);ci(2450,H-7*TILE,10,48);
-ci(500,H-8*TILE,7,48);ci(1100,H-8*TILE,7,48);ci(2150,H-8*TILE,7,48);
+// ══════ 各variantが独自の地形・コイン・敵を構築（多彩構造化）══════
+// 共通基盤を廃止し、6人のクリエイター視点で15バリアントを別物に再設計
+// 落下足場ヘルパー（一部variantで使用）
+const fp=(x,y,w)=>({x,y,w:w||TILE*3,h:12,type:'fall',ox:x,oy:y,vy:0,fallTimer:0,falling:false,prevX:x});
 
-// ══════ variantごとの特色（敵26体前後）══════
-// 【ブロック上は落ちない敵(bz/pg/dB)メイン】【地面は混在】【囲いブロック内はgm/kp閉じ込め】
-// 地面(H-2T)安全x: 350,520,720,960,1160,1340,1560,1760,1940,2140,2340,2550,2820,3040
-// 低段上(H-5T): 430,730,1050,1310,1530,1780,2040,2250,2530,2820,3020
-// 中段上(H-6T): 530,880,1380,1830,2330,2630
-// 高段上(H-7T): 680,1580,2480
-// 囲い内(H-5T): 290,340 [box240] / 1180,1230 [box1130] / 2720 [box2670]
-
-// ──────── pipeGrass1 (W1草原1) ────────
+// ──────── pipeGrass1: 縦軸建築家「垂直跳躍チェーン」 ────────
 if(variant==='pipeGrass1'){
-// 🌱 W1 草原: buzzyメイン・囲いにクリボー
-enemies.push(kp(350));enemies.push(bz(520));enemies.push(kp(720));enemies.push(bz(960));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(kp(1940));enemies.push(bz(2340));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[300,2],[800,3],[1400,2],[2000,3],[2700,2]]);
+addRow(150,H-4*TILE,3,'brick');addRow(450,H-4*TILE,3,'brick');addRow(620,H-6*TILE,3,'brick');
+addRow(950,H-6*TILE,4,'brick');addRow(1200,H-4*TILE,3,'brick');addRow(1550,H-6*TILE,3,'brick');
+addRow(1750,H-4*TILE,3,'brick');addRow(2200,H-6*TILE,4,'brick');addRow(2400,H-4*TILE,3,'brick');addRow(2850,H-6*TILE,3,'brick');
+platforms.push(qM(750,H-7*TILE),qC(1100,H-8*TILE,8),h1(2700,H-9*TILE),pB(1900,H-5*TILE));
+ci(120,H-9*TILE,28,38);
+ci(160,H-3*TILE,4,30);ci(900,H-3*TILE,4,30);ci(1500,H-3*TILE,4,30);ci(2100,H-3*TILE,4,30);ci(2800,H-3*TILE,4,30);
+ci(160,H-5*TILE,3,32);ci(460,H-5*TILE,3,32);ci(1210,H-5*TILE,3,32);ci(1760,H-5*TILE,3,32);ci(2410,H-5*TILE,3,32);
+ci(630,H-7*TILE,4,32);ci(960,H-7*TILE,5,32);ci(1560,H-7*TILE,4,32);ci(2210,H-7*TILE,5,32);ci(2860,H-7*TILE,4,32);
+ci(150,H-8*TILE,3,32);ci(800,H-8*TILE,3,32);ci(1500,H-8*TILE,3,32);ci(2200,H-8*TILE,3,32);
+enemies.push(bz(620,H-7*TILE),bz(960,H-7*TILE),bz(1550,H-7*TILE),bz(2200,H-7*TILE),bz(2850,H-7*TILE));
+enemies.push(kp(220),kp(1100),kp(1700),kp(2500));
+enemies.push(gm(450,H-5*TILE),gm(1200,H-5*TILE),gm(1750,H-5*TILE),gm(2400,H-5*TILE));
 }
-// ──────── pipeGrass2 (W1草原2) ────────
+// ──────── pipeGrass2: 縦軸建築家「浮遊路線」 ────────
 else if(variant==='pipeGrass2'){
-// 🌱 W1 草原2: buzzy全面・囲いにノコノコ
-enemies.push(bz(350));enemies.push(kp(520));enemies.push(bz(720));enemies.push(kp(960));enemies.push(bz(1340));enemies.push(kp(1560));enemies.push(bz(1940));enemies.push(kp(2340));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(880,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(1580,H-7*TILE));
-enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
+flr([[200,2],[500,2],[850,3],[1200,2],[1500,3],[1850,2],[2150,3],[2500,2],[2800,2]]);
+movingPlats.push(mp(220,H-4*TILE,TILE*2,80,1.3),mp(540,H-4*TILE,TILE*2,80,1.4),
+  mpv(900,H-5*TILE,TILE*2,80,1.2),mpv(1240,H-4*TILE,TILE*2,100,1.5),
+  mp(1540,H-5*TILE,TILE*2,90,1.3),mp(1880,H-4*TILE,TILE*2,80,1.4),
+  mpv(2200,H-5*TILE,TILE*2,100,1.2),mp(2540,H-4*TILE,TILE*2,80,1.3),mp(2840,H-4*TILE,TILE*2,80,1.4));
+addRow(700,H-7*TILE,3,'brick');addRow(1300,H-7*TILE,3,'brick');addRow(2300,H-7*TILE,3,'brick');
+platforms.push(qC(1300,H-9*TILE,10),qM(2350,H-9*TILE),h1(2950,H-10*TILE),pB(720,H-8*TILE));
+ci(80,H-9*TILE,26,40);
+ci(240,H-5*TILE,3,30);ci(560,H-5*TILE,3,30);ci(920,H-6*TILE,3,30);ci(1260,H-5*TILE,3,30);
+ci(1560,H-6*TILE,3,30);ci(1900,H-5*TILE,3,30);ci(2220,H-6*TILE,3,30);ci(2560,H-5*TILE,3,30);ci(2860,H-5*TILE,3,30);
+ci(720,H-8*TILE,4,32);ci(1320,H-8*TILE,4,32);ci(2320,H-8*TILE,4,32);
+ci(120,H-3*TILE,4,30);ci(620,H-3*TILE,4,30);ci(1300,H-3*TILE,4,30);ci(1980,H-3*TILE,4,30);ci(2620,H-3*TILE,4,30);
+enemies.push(bz(720,H-8*TILE),bz(1320,H-8*TILE),bz(2320,H-8*TILE));
+enemies.push(kp(150),kp(620),kp(1080),kp(1480),kp(1780),kp(2080),kp(2480),kp(2780));
 }
-// ──────── pipeGrass3 (W1草原3) ────────
+// ──────── pipeGrass3: タイミング「シンクロノトーム」（位相同期） ────────
 else if(variant==='pipeGrass3'){
-// 🌱 W1 草原3: bz統一
-enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2340));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
+flr([[400,2],[800,2],[1200,2],[1600,2],[2000,2],[2400,2],[2800,2]]);
+movingPlats.push(mpv(700,H-4*TILE,TILE*2,120,1.0),mpv(1200,H-5*TILE,TILE*2,100,1.2),
+  mpv(1700,H-4*TILE,TILE*2,120,1.0),mpv(2200,H-5*TILE,TILE*2,100,1.2),
+  mpv(2700,H-3*TILE,TILE*2,80,1.4));
+addRow(150,H-5*TILE,4,'brick');addRow(900,H-5*TILE,4,'brick');addRow(1900,H-5*TILE,4,'brick');addRow(2900,H-5*TILE,3,'brick');
+platforms.push(qM(180,H-7*TILE),qC(1380,H-7*TILE,9),qC(2080,H-8*TILE,8),h1(2700,H-9*TILE),pB(1500,H-4*TILE));
+ci(60,H-9*TILE,26,42);
+ci(720,H-7*TILE,4,28);ci(1220,H-8*TILE,4,28);ci(1720,H-7*TILE,4,28);ci(2220,H-8*TILE,4,28);ci(2720,H-6*TILE,4,28);
+ci(160,H-6*TILE,4,32);ci(940,H-6*TILE,4,32);ci(1940,H-6*TILE,4,32);ci(2940,H-6*TILE,3,32);
+ci(180,H-3*TILE,3,30);ci(580,H-3*TILE,3,30);ci(980,H-3*TILE,3,30);ci(1380,H-3*TILE,3,30);ci(1780,H-3*TILE,3,30);ci(2180,H-3*TILE,3,30);ci(2580,H-3*TILE,3,30);
+enemies.push(bz(220),bz(1020),bz(2020),bz(2920));
+enemies.push(hb(450),hb(2450));
+enemies.push(kp(950,H-6*TILE),kp(1950,H-6*TILE));
 }
-// ──────── pipeGrass4 (W1草原4) ────────
+// ──────── pipeGrass4: タイミング「不規則レールランナー」（高速水平） ────────
 else if(variant==='pipeGrass4'){
-// 🌱 W1 草原4: ハンマーブロス2体＋bz
-enemies.push(hb(960));enemies.push(hb(2140));
-enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[350,3],[900,2],[1350,3],[1850,2],[2300,3],[2750,2]]);
+movingPlats.push(mp(500,H-5*TILE,TILE*2,200,1.8),mp(1000,H-6*TILE,TILE*2,150,1.5),
+  mp(1500,H-4*TILE,TILE*2,180,2.0),mp(2000,H-5*TILE,TILE*2,140,1.6),
+  mp(2450,H-3*TILE,TILE*2,120,1.9),mp(2900,H-5*TILE,TILE*2,100,1.4));
+addRow(200,H-7*TILE,3,'brick');addRow(700,H-7*TILE,3,'brick');addRow(1100,H-8*TILE,3,'brick');
+addRow(1700,H-7*TILE,3,'brick');addRow(2150,H-8*TILE,3,'brick');addRow(2600,H-7*TILE,3,'brick');
+platforms.push(qM(220,H-9*TILE),qC(1130,H-9*TILE,9),h1(2630,H-9*TILE),pB(1800,H-6*TILE));
+ci(80,H-9*TILE,28,38);
+ci(220,H-8*TILE,3,32);ci(720,H-8*TILE,3,32);ci(1120,H-9*TILE,3,32);ci(1720,H-8*TILE,3,32);ci(2170,H-9*TILE,3,32);ci(2620,H-8*TILE,3,32);
+ci(220,H-3*TILE,3,30);ci(720,H-3*TILE,3,30);ci(1180,H-3*TILE,3,30);ci(1700,H-3*TILE,3,30);ci(2200,H-3*TILE,3,30);ci(2620,H-3*TILE,3,30);
+ci(520,H-6*TILE,3,32);ci(1020,H-7*TILE,3,32);ci(1520,H-5*TILE,3,32);ci(2020,H-6*TILE,3,32);ci(2470,H-4*TILE,3,32);
+enemies.push(hb(550),hb(2050));
+enemies.push(kp(220),kp(700),kp(1100),kp(1700),kp(2150),kp(2600));
+enemies.push(bz(220,H-8*TILE),bz(720,H-8*TILE),bz(2620,H-8*TILE));
 }
-// ──────── pipeDesert1 (W2砂漠1) ────────
+// ──────── pipeDesert1: 謎解き「壁抜けの秘宝」（隠し下層通路） ────────
 else if(variant==='pipeDesert1'){
-// 🏜 W2 砂漠1: チャック突進2体・囲いgm
-enemies.push(ch(960,-1));enemies.push(ch(2140,-1));
-enemies.push(bz(350));enemies.push(kp(520));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(kp(1560));enemies.push(bz(1940));enemies.push(kp(2820));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[300,3],[800,4],[1500,5],[2200,2],[2700,2]]);
+addRow(280,H-4*TILE,5,'brick');addRow(780,H-4*TILE,6,'brick');addRow(1480,H-4*TILE,7,'brick');
+addRow(150,H-6*TILE,3,'brick');addRow(2300,H-5*TILE,3,'brick');addRow(2750,H-5*TILE,3,'brick');
+platforms.push(qM(400,H-5*TILE),qC(1200,H-6*TILE,7),h1(840,H-10*TILE),pB(1700,H-5*TILE));
+ci(80,H-9*TILE,22,42);
+ci(310,H-2*TILE,6,28);ci(810,H-2*TILE,8,28);ci(1510,H-2*TILE,10,28);
+ci(2350,H-6*TILE,5,30);ci(2810,H-6*TILE,5,30);
+ci(160,H-7*TILE,3,32);ci(800,H-7*TILE,4,32);ci(1500,H-7*TILE,5,32);ci(2300,H-6*TILE,3,32);
+ci(290,H-5*TILE,3,32);ci(790,H-5*TILE,3,32);ci(1490,H-5*TILE,3,32);
+enemies.push(dB(330),dB(820),dB(1530));
+enemies.push(gm(280),gm(1080),gm(1900),gm(2300),kp(2400),kp(2800));
 }
-// ──────── pipeDesert2 (W2砂漠2) ────────
+// ──────── pipeDesert2: 謎解き「太陽神殿」（3部屋＋angrySun） ────────
 else if(variant==='pipeDesert2'){
-// 🏜 W2 砂漠2: おこりんぼ太陽2体＋bz
-enemies.push(aS(900,80));enemies.push(aS(2400,80));
-enemies.push(bz(350));enemies.push(bz(520));enemies.push(kp(720));enemies.push(bz(960));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(kp(1940));enemies.push(bz(2340));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[250,2],[700,3],[1100,2],[1450,3],[1850,2],[2200,3],[2600,2],[2900,2]]);
+box(330,3);box(1140,3);box(1900,3);
+addRow(550,H-4*TILE,3,'brick');addRow(1300,H-4*TILE,3,'brick');addRow(2050,H-4*TILE,3,'brick');addRow(2680,H-4*TILE,3,'brick');
+platforms.push(qM(640,H-6*TILE),qM(1380,H-6*TILE),qC(2120,H-7*TILE,9),h1(2750,H-9*TILE),pB(2700,H-5*TILE));
+ci(60,H-9*TILE,24,40);
+ci(560,H-5*TILE,4,32);ci(1310,H-5*TILE,4,32);ci(2060,H-5*TILE,4,32);ci(2690,H-5*TILE,4,32);
+ci(360,H-3*TILE,4,28);ci(1170,H-3*TILE,4,28);ci(1930,H-3*TILE,4,28);
+ci(360,H-7*TILE,4,32);ci(1170,H-7*TILE,4,32);ci(1930,H-7*TILE,4,32);
+ci(140,H-3*TILE,4,30);ci(870,H-3*TILE,4,30);ci(1620,H-3*TILE,4,30);ci(2350,H-3*TILE,4,30);
+enemies.push(aS(380,80),aS(1180,100),aS(1950,80));
+enemies.push(gm(550),kp(1300),gm(2080),kp(2700));
+enemies.push(dB(620),dB(1380),dB(2150));
 }
-// ──────── pipeDesert3 (W2砂漠3) ────────
+// ──────── pipeDesert3: 謎解き「カロンの墓所」（多層dB群） ────────
 else if(variant==='pipeDesert3'){
-// 🏜 W2 砂漠3: カロン多数（dBは落ちない）
-enemies.push(dB(350));enemies.push(dB(720));enemies.push(dB(1340));enemies.push(dB(1940));enemies.push(dB(2550));
-enemies.push(bz(520));enemies.push(bz(960));enemies.push(bz(1560));enemies.push(bz(2820));
-enemies.push(dB(430,H-5*TILE));enemies.push(dB(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(dB(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(dB(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(dB(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[400,2],[800,2],[1200,2],[1600,2],[2000,2],[2400,2],[2800,2]]);
+addRow(150,H-5*TILE,4,'brick');addRow(550,H-5*TILE,4,'brick');addRow(950,H-5*TILE,4,'brick');
+addRow(1350,H-5*TILE,4,'brick');addRow(1750,H-5*TILE,4,'brick');addRow(2150,H-5*TILE,4,'brick');addRow(2550,H-5*TILE,4,'brick');addRow(2900,H-5*TILE,3,'brick');
+addRow(300,H-8*TILE,4,'brick');addRow(1100,H-8*TILE,4,'brick');addRow(1900,H-8*TILE,4,'brick');addRow(2700,H-8*TILE,4,'brick');
+platforms.push(qM(600,H-7*TILE),qC(820,H-7*TILE,10),h1(1900,H-10*TILE),pB(1200,H-2*TILE));
+ci(60,H-9*TILE,24,42);
+ci(180,H-6*TILE,4,30);ci(580,H-6*TILE,4,30);ci(980,H-6*TILE,4,30);ci(1380,H-6*TILE,4,30);
+ci(1780,H-6*TILE,4,30);ci(2180,H-6*TILE,4,30);ci(2580,H-6*TILE,4,30);
+ci(330,H-9*TILE,4,32);ci(1130,H-9*TILE,4,32);ci(1930,H-9*TILE,4,32);ci(2730,H-9*TILE,4,32);
+ci(180,H-3*TILE,3,30);ci(680,H-3*TILE,3,30);ci(1280,H-3*TILE,3,30);ci(1880,H-3*TILE,3,30);ci(2480,H-3*TILE,3,30);
+enemies.push(dB(220),dB(450),dB(680),dB(950),dB(1280),dB(1580),dB(1880),dB(2180),dB(2480),dB(2820));
+enemies.push(ct(1050,TILE*4),ct(2280,TILE*4));
 }
-// ──────── pipeRiver1 (W3川) ────────
+// ──────── pipeRiver1: 戦闘「甲羅ボウリング廊下」（kp連鎖） ────────
 else if(variant==='pipeRiver1'){
-// 🌊 W3 川: bzメイン・追加浮き足場
-movingPlats.push(mp(1160,H-4*TILE,TILE*2,100,1.5));movingPlats.push(mpv(2140,H-5*TILE,TILE*2,80,1.2));
-enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(kp(960));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2340));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(880,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
+flr([[2950,2]]);
+addRow(150,H-3*TILE,2,'brick');addRow(2700,H-3*TILE,2,'brick');
+addRow(500,H-4*TILE,3,'brick');addRow(1100,H-4*TILE,3,'brick');addRow(1700,H-4*TILE,3,'brick');addRow(2300,H-4*TILE,3,'brick');
+addRow(800,H-6*TILE,3,'brick');addRow(1400,H-6*TILE,3,'brick');addRow(2000,H-6*TILE,3,'brick');addRow(2600,H-6*TILE,3,'brick');
+platforms.push(qM(900,H-7*TILE),qC(1500,H-7*TILE,10),h1(2100,H-9*TILE),pB(2400,H-7*TILE));
+ci(80,H-9*TILE,26,42);
+ci(360,H-2*TILE,8,28);ci(900,H-2*TILE,8,28);ci(1500,H-2*TILE,8,28);ci(2100,H-2*TILE,8,28);
+ci(820,H-7*TILE,4,32);ci(1420,H-7*TILE,4,32);ci(2020,H-7*TILE,4,32);ci(2620,H-7*TILE,4,32);
+ci(520,H-5*TILE,3,32);ci(1120,H-5*TILE,3,32);ci(1720,H-5*TILE,3,32);ci(2320,H-5*TILE,3,32);
+enemies.push(kp(360),kp(450),kp(560),kp(680),kp(900),kp(1100),kp(1300),kp(1550),kp(1850),kp(2150),kp(2400),kp(2650));
+enemies.push(gm(530,H-5*TILE),gm(1130,H-5*TILE),gm(1730,H-5*TILE),gm(2330,H-5*TILE));
 }
-// ──────── pipeForest1 (W3森) ────────
+// ──────── pipeForest1: 戦闘「ハンマーブロス決闘場」（hb 3アリーナ） ────────
 else if(variant==='pipeForest1'){
-// 🌳 W3 森: ハンマーブロス2体＋bz
-enemies.push(hb(960));enemies.push(hb(2140));
-enemies.push(bz(350));enemies.push(bz(520));enemies.push(bz(720));enemies.push(kp(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));enemies.push(bz(2330,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[700,2],[1200,2],[1900,3],[2400,2]]);
+addRow(550,H-4*TILE,2,'brick');addRow(550,H-7*TILE,4,'brick');
+addRow(1300,H-5*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(1700,H-5*TILE,3,'brick');
+addRow(2100,H-4*TILE,3,'brick');addRow(2200,H-7*TILE,4,'brick');addRow(2600,H-4*TILE,3,'brick');
+platforms.push(qM(580,H-8*TILE),qC(1530,H-8*TILE,8),h1(2230,H-9*TILE),pB(1400,H-6*TILE));
+ci(80,H-9*TILE,24,42);
+ci(220,H-3*TILE,5,30);ci(900,H-3*TILE,5,30);ci(1330,H-6*TILE,4,32);ci(1530,H-8*TILE,4,32);
+ci(1730,H-6*TILE,4,32);ci(2230,H-8*TILE,5,32);ci(2700,H-3*TILE,5,30);
+ci(560,H-5*TILE,4,32);ci(560,H-8*TILE,4,32);ci(2110,H-5*TILE,4,32);ci(2610,H-5*TILE,4,32);
+enemies.push(hb(800),hb(2200),hb(2700));
+enemies.push(gm(220),kp(450),gm(1300),kp(1700),gm(2100),kp(2500));
+enemies.push(bz(580,H-8*TILE),bz(1530,H-8*TILE),bz(2230,H-8*TILE));
 }
-// ──────── pipeWater1 (W5海辺1) ────────
+// ──────── pipeWater1: ハザード「沈む足場の連鎖」（fall足場） ────────
 else if(variant==='pipeWater1'){
-// 🏖 W5 海辺1: サボテン小3体＋bz
-enemies.push(ct(550,TILE*2));enemies.push(ct(1560,TILE*2));enemies.push(ct(2340,TILE*2));
-enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2550));enemies.push(bz(2820));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(gm(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(gm(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
+flr([[200,3],[600,3],[1000,3],[1400,3],[1800,3],[2200,3],[2600,3]]);
+movingPlats.push(fp(200,H-4*TILE),fp(600,H-4*TILE),fp(1000,H-4*TILE),fp(1400,H-4*TILE));
+movingPlats.push(mp(1820,H-4*TILE,TILE*3,80,1.4),mp(2220,H-4*TILE,TILE*3,80,1.5),mp(2620,H-4*TILE,TILE*3,80,1.6));
+addRow(150,H-7*TILE,3,'brick');addRow(900,H-7*TILE,3,'brick');addRow(1700,H-7*TILE,3,'brick');addRow(2500,H-7*TILE,3,'brick');
+platforms.push(qM(170,H-9*TILE),qC(1750,H-8*TILE,8),h1(2920,H-9*TILE),pB(2900,H-3*TILE));
+ci(80,H-9*TILE,26,42);
+ci(220,H-5*TILE,4,28);ci(620,H-5*TILE,4,28);ci(1020,H-5*TILE,4,28);ci(1420,H-5*TILE,4,28);
+ci(1820,H-5*TILE,4,28);ci(2220,H-5*TILE,4,28);ci(2620,H-5*TILE,4,28);
+ci(170,H-8*TILE,3,30);ci(920,H-8*TILE,3,30);ci(1720,H-8*TILE,3,30);ci(2520,H-8*TILE,3,30);
+ci(180,H-3*TILE,3,30);ci(580,H-3*TILE,3,30);ci(980,H-3*TILE,3,30);ci(1380,H-3*TILE,3,30);ci(1780,H-3*TILE,3,30);ci(2580,H-3*TILE,3,30);
+enemies.push(ct(950,TILE*2),ct(1950,TILE*2),ct(2750,TILE*2));
+enemies.push(bz(170,H-8*TILE),bz(920,H-8*TILE),bz(1720,H-8*TILE),bz(2520,H-8*TILE));
+enemies.push(kp(450),kp(1450),kp(2450));
 }
-// ──────── pipeWater2 (W5海辺2) ────────
+// ──────── pipeWater2: ハザード「高所狭棚＆巨大穴」 ────────
 else if(variant==='pipeWater2'){
-// 🏖 W5 海辺2: サボテン大3体＋bz
-enemies.push(ct(550,TILE*4));enemies.push(ct(1560,TILE*4));enemies.push(ct(2340,TILE*4));
-enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(960));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2550));enemies.push(bz(2820));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
+flr([[200,4],[700,5],[1300,4],[1900,5],[2500,3]]);
+addRow(180,H-7*TILE,2,'brick');addRow(360,H-6*TILE,2,'brick');addRow(540,H-7*TILE,2,'brick');
+addRow(700,H-6*TILE,2,'brick');addRow(900,H-7*TILE,2,'brick');addRow(1100,H-6*TILE,2,'brick');
+addRow(1300,H-7*TILE,2,'brick');addRow(1500,H-6*TILE,2,'brick');addRow(1700,H-7*TILE,2,'brick');
+addRow(1900,H-6*TILE,2,'brick');addRow(2100,H-7*TILE,2,'brick');addRow(2300,H-6*TILE,2,'brick');
+addRow(2500,H-7*TILE,2,'brick');addRow(2700,H-6*TILE,2,'brick');addRow(2900,H-7*TILE,2,'brick');
+platforms.push(qM(560,H-9*TILE),qC(1530,H-9*TILE,8),h1(2710,H-9*TILE),pB(180,H-9*TILE));
+ci(60,H-9*TILE,24,40);
+ci(190,H-8*TILE,3,28);ci(370,H-7*TILE,3,28);ci(550,H-8*TILE,3,28);ci(710,H-7*TILE,3,28);
+ci(910,H-8*TILE,3,28);ci(1110,H-7*TILE,3,28);ci(1310,H-8*TILE,3,28);ci(1510,H-7*TILE,3,28);
+ci(1710,H-8*TILE,3,28);ci(1910,H-7*TILE,3,28);ci(2110,H-8*TILE,3,28);ci(2310,H-7*TILE,3,28);
+ci(2510,H-8*TILE,3,28);ci(2710,H-7*TILE,3,28);ci(2910,H-8*TILE,3,28);
+enemies.push(ct(180,TILE*4),ct(900,TILE*4),ct(1500,TILE*4),ct(2100,TILE*4),ct(2700,TILE*4));
+enemies.push(kp(370,H-7*TILE),kp(710,H-7*TILE),kp(1110,H-7*TILE),kp(1510,H-7*TILE),kp(1910,H-7*TILE),kp(2310,H-7*TILE));
 }
-// ──────── pipeIce1 (W6氷1) ────────
+// ──────── pipeIce1: ハザード「滑る大穴」（高速mp/mpv） ────────
 else if(variant==='pipeIce1'){
-// ❄ W6 氷1: ペンギン多数（pgは落ちない）
-enemies.push(pg(350));enemies.push(pg(720));enemies.push(pg(960));enemies.push(pg(1340));enemies.push(pg(1560));enemies.push(pg(1940));enemies.push(pg(2340));enemies.push(pg(2820));
-enemies.push(pg(430,H-5*TILE));enemies.push(pg(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(pg(1780,H-5*TILE));enemies.push(pg(2250,H-5*TILE));enemies.push(pg(2530,H-5*TILE));
-enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(pg(1830,H-6*TILE));enemies.push(pg(2330,H-6*TILE));
-enemies.push(pg(680,H-7*TILE));enemies.push(pg(2480,H-7*TILE));
-enemies.push(kp(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(kp(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(kp(2720,H-5*TILE));
+flr([[300,2],[700,3],[1200,2],[1700,3],[2300,2],[2800,2]]);
+movingPlats.push(mp(280,H-4*TILE,TILE*2,100,2.4),mp(680,H-4*TILE,TILE*2,120,2.5),mp(1180,H-4*TILE,TILE*2,100,2.6),
+  mp(1680,H-4*TILE,TILE*2,140,2.4),mp(2280,H-4*TILE,TILE*2,100,2.5),mp(2780,H-4*TILE,TILE*2,80,2.0));
+movingPlats.push(mpv(450,H-5*TILE,TILE*2,80,2.0),mpv(950,H-5*TILE,TILE*2,90,2.2),mpv(1450,H-5*TILE,TILE*2,80,2.0),
+  mpv(2050,H-5*TILE,TILE*2,90,2.2),mpv(2550,H-5*TILE,TILE*2,80,2.0));
+addRow(150,H-7*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(2900,H-7*TILE,3,'brick');
+platforms.push(qM(170,H-9*TILE),qC(1530,H-9*TILE,8),h1(2920,H-9*TILE),pB(900,H-7*TILE));
+ci(80,H-9*TILE,26,42);
+ci(180,H-8*TILE,3,30);ci(1530,H-8*TILE,3,30);ci(2930,H-8*TILE,3,30);
+ci(310,H-3*TILE,3,28);ci(720,H-3*TILE,3,28);ci(1220,H-3*TILE,3,28);ci(1720,H-3*TILE,3,28);ci(2320,H-3*TILE,3,28);ci(2820,H-3*TILE,3,28);
+ci(460,H-7*TILE,3,30);ci(960,H-7*TILE,3,30);ci(2060,H-7*TILE,3,30);ci(2560,H-7*TILE,3,30);
+ci(150,H-5*TILE,3,32);ci(1500,H-5*TILE,3,32);ci(2900,H-5*TILE,3,32);
+enemies.push(pg(150),pg(550),pg(1100),pg(1550),pg(2150),pg(2650));
+enemies.push(kp(220),kp(1300),kp(2400));
 }
-// ──────── pipeIce2 (W6氷2) ────────
+// ──────── pipeIce2: ハザード「動く足場ラッシュ」（mpv大量） ────────
 else if(variant==='pipeIce2'){
-// ❄ W6 氷2: ペンギン＋カロン（全て落ちない敵）
-enemies.push(pg(350));enemies.push(pg(720));enemies.push(pg(1340));enemies.push(pg(1560));enemies.push(pg(1940));enemies.push(pg(2820));
-enemies.push(dB(520));enemies.push(dB(960));enemies.push(dB(2140));enemies.push(dB(2550));
-enemies.push(pg(430,H-5*TILE));enemies.push(dB(730,H-5*TILE));enemies.push(pg(1050,H-5*TILE));enemies.push(pg(1310,H-5*TILE));enemies.push(dB(1780,H-5*TILE));enemies.push(pg(2250,H-5*TILE));enemies.push(dB(2530,H-5*TILE));
-enemies.push(pg(530,H-6*TILE));enemies.push(pg(1380,H-6*TILE));enemies.push(dB(1830,H-6*TILE));enemies.push(pg(2330,H-6*TILE));
-enemies.push(dB(680,H-7*TILE));enemies.push(pg(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+flr([[200,3],[700,3],[1200,3],[1700,3],[2200,3],[2700,3]]);
+movingPlats.push(mpv(220,H-3*TILE,TILE*2,80,2.5),mpv(420,H-4*TILE,TILE*2,90,2.8),
+  mpv(720,H-3*TILE,TILE*2,80,2.5),mpv(920,H-4*TILE,TILE*2,90,2.8),
+  mpv(1220,H-3*TILE,TILE*2,80,2.5),mpv(1420,H-4*TILE,TILE*2,90,2.8),
+  mpv(1720,H-3*TILE,TILE*2,80,2.5),mpv(1920,H-4*TILE,TILE*2,90,2.8),
+  mpv(2220,H-3*TILE,TILE*2,80,2.5),mpv(2420,H-4*TILE,TILE*2,90,2.8),
+  mpv(2720,H-3*TILE,TILE*2,80,2.5),mpv(2920,H-4*TILE,TILE*2,90,2.8));
+addRow(150,H-7*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(2900,H-7*TILE,3,'brick');
+platforms.push(qM(170,H-9*TILE),qC(1530,H-9*TILE,8),h1(2920,H-9*TILE),pB(450,H-7*TILE));
+ci(80,H-9*TILE,24,42);
+ci(440,H-6*TILE,3,28);ci(940,H-6*TILE,3,28);ci(1440,H-6*TILE,3,28);ci(1940,H-6*TILE,3,28);ci(2440,H-6*TILE,3,28);
+ci(180,H-8*TILE,3,30);ci(1530,H-8*TILE,3,30);ci(2930,H-8*TILE,3,30);
+ci(540,H-8*TILE,4,30);ci(1540,H-8*TILE,4,30);ci(2540,H-8*TILE,4,30);
+ci(150,H-5*TILE,3,32);ci(1500,H-5*TILE,3,32);ci(2900,H-5*TILE,3,32);
+ci(150,H-3*TILE,3,30);ci(1480,H-3*TILE,3,30);ci(2880,H-3*TILE,3,30);
+enemies.push(pg(550,H-5*TILE),pg(1050,H-5*TILE),pg(1550,H-5*TILE),pg(2050,H-5*TILE),pg(2550,H-5*TILE));
+enemies.push(dB(380),dB(880),dB(1380),dB(1880),dB(2380),dB(2880));
 }
-// ──────── pipeFort1 (W7砦1) ────────
+// ──────── pipeFort1: アクロバ「ドッスン回廊」（バネ＋tw＋火柱） ────────
 else if(variant==='pipeFort1'){
-// 🔥 W7 砦1: ドッスン3体＋ハンマーブロス2体＋溶岩炎
+flr([[400,2],[1100,3],[1900,2],[2600,2]]);
+springs.push({x:280,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:870,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:1020,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:1950,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:2100,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:2250,y:H-TILE-24,w:24,h:24,compressed:0});
+addRow(150,H-7*TILE,3,'brick');addRow(1300,H-7*TILE,3,'brick');addRow(2400,H-7*TILE,3,'brick');
+addRow(700,H-4*TILE,3,'brick');addRow(1500,H-4*TILE,3,'brick');addRow(2700,H-4*TILE,3,'brick');
+enemies.push(tw(550),tw(1700),tw(2900));
 lavaFlames.push({x:950,y:H-TILE,w:22,maxH:90,curH:0,phase:0,period:120});
 lavaFlames.push({x:2080,y:H-TILE,w:22,maxH:90,curH:0,phase:60,period:120});
-enemies.push(tw(500));enemies.push(tw(1500));enemies.push(tw(2600));
-enemies.push(hb(960));enemies.push(hb(2140));
-enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1560));enemies.push(bz(1940));enemies.push(bz(2820));
-enemies.push(bz(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(bz(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(bz(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(bz(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));enemies.push(bz(2480,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+platforms.push(qM(170,H-9*TILE),qC(1320,H-9*TILE,8),h1(2420,H-9*TILE),pB(720,H-6*TILE));
+ci(80,H-9*TILE,26,42);
+ci(170,H-8*TILE,3,30);ci(1320,H-8*TILE,3,30);ci(2420,H-8*TILE,3,30);
+ci(720,H-5*TILE,3,30);ci(1520,H-5*TILE,3,30);ci(2720,H-5*TILE,3,30);
+ci(280,H-5*TILE,3,28);ci(880,H-5*TILE,3,28);ci(1980,H-5*TILE,3,28);
+ci(180,H-3*TILE,3,30);ci(820,H-3*TILE,3,30);ci(1320,H-3*TILE,3,30);ci(2080,H-3*TILE,3,30);ci(2780,H-3*TILE,3,30);
+enemies.push(hb(450),hb(1850),hb(2500));
+enemies.push(bz(220),bz(1450),bz(2350));
 }
-// ──────── pipeFort2 (W7砦2) ────────
+// ──────── pipeFort2: アクロバ「キャノン火柱シンフォニー」 ────────
 else if(variant==='pipeFort2'){
-// 🔥 W7 砦2: キャノン＋ドッスン＋カロン＋溶岩炎
+flr([[300,2],[800,2],[1500,3],[2100,2],[2700,2]]);
 cannons.push({x:640,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:30});
 cannons.push({x:1600,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:80});
-cannons.push({x:2560,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:120});
+cannons.push({x:2360,y:H-3*TILE,w:TILE,h:TILE*2,fireRate:180,timer:120});
 lavaFlames.push({x:1060,y:H-TILE,w:22,maxH:100,curH:0,phase:30,period:110});
 lavaFlames.push({x:2060,y:H-TILE,w:22,maxH:100,curH:0,phase:60,period:110});
-enemies.push(tw(380));enemies.push(tw(2400));
-enemies.push(dB(1160));enemies.push(dB(1560));enemies.push(dB(2550));
-enemies.push(bz(350));enemies.push(bz(720));enemies.push(bz(1340));enemies.push(bz(1940));enemies.push(bz(2820));
-enemies.push(dB(430,H-5*TILE));enemies.push(bz(730,H-5*TILE));enemies.push(dB(1050,H-5*TILE));enemies.push(bz(1310,H-5*TILE));enemies.push(dB(1780,H-5*TILE));enemies.push(bz(2250,H-5*TILE));enemies.push(dB(2530,H-5*TILE));
-enemies.push(bz(530,H-6*TILE));enemies.push(dB(1380,H-6*TILE));enemies.push(bz(1830,H-6*TILE));
-enemies.push(bz(680,H-7*TILE));
-enemies.push(gm(290,H-5*TILE));enemies.push(kp(340,H-5*TILE));enemies.push(gm(1180,H-5*TILE));enemies.push(kp(1230,H-5*TILE));enemies.push(gm(2720,H-5*TILE));
+jumpBlocks.push(jb(420),jb(1280),jb(2200));
+springs.push({x:200,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:1200,y:H-TILE-24,w:24,h:24,compressed:0});
+addRow(150,H-6*TILE,3,'brick');addRow(900,H-6*TILE,3,'brick');addRow(1700,H-6*TILE,3,'brick');addRow(2400,H-6*TILE,3,'brick');
+addRow(450,H-8*TILE,3,'brick');addRow(1300,H-8*TILE,3,'brick');addRow(2200,H-8*TILE,3,'brick');
+platforms.push(qM(170,H-7*TILE),qC(920,H-7*TILE,8),h1(2420,H-7*TILE),pB(1730,H-7*TILE));
+ci(80,H-9*TILE,24,40);
+ci(170,H-7*TILE,3,30);ci(920,H-7*TILE,3,30);ci(1720,H-7*TILE,3,30);ci(2420,H-7*TILE,3,30);
+ci(470,H-9*TILE,3,30);ci(1320,H-9*TILE,3,30);ci(2220,H-9*TILE,3,30);
+ci(150,H-5*TILE,3,32);ci(900,H-5*TILE,3,32);ci(1700,H-5*TILE,3,32);ci(2400,H-5*TILE,3,32);
+ci(140,H-3*TILE,3,30);ci(840,H-3*TILE,3,30);ci(1640,H-3*TILE,3,30);ci(2340,H-3*TILE,3,30);
+enemies.push(tw(380),tw(2520));
+enemies.push(dB(550),dB(1150),dB(1850),dB(2750));
+enemies.push(bz(220),bz(1100),bz(1900),bz(2650));
 }
 
 }else if(variant==='pinocchio'||variant==='pinocchio_fail'){
