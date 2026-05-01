@@ -2,6 +2,54 @@
 
 ---
 
+## 2026-05-01 (4回目: 俯瞰視点5項目)
+
+### [feat/refactor] 俯瞰5エージェント分析の結果5項目を実装
+
+**変更ファイル:**
+- `src/main.js`（演出強化・チュートリアル・音響extract）
+- `src/audio.js`（新規、音響系を分離）
+- `src/levels/level1-2.js`（スポーン安全地帯違反を修正）
+- `tools/check-levels.js`（新規、レベル設計ルール検証）
+- `package.json`（npm run check 追加）
+
+**実装内容:**
+
+1. **#1 ボス撃破演出強化**
+   - 4箇所で重複していた撃破ブロックを `_defeatBowser()` ヘルパーに集約
+   - 演出追加: shake強化(22)、専用ジングル `sfx('bossWin')`、広域パーティクルバースト30個
+
+2. **#7 音量UI発見性改善**
+   - スタート画面に `M : MUTE  +/- : VOLUME  P : PAUSE` のテキスト追加
+   - ゲームパッド表示位置も調整
+
+3. **#6 1-1チュートリアル導線**
+   - W1-1限定で4段階のヒントオーバーレイ
+     - x<200: 移動・ジャンプ操作
+     - x<500: ハテナブロック誘導
+     - x<900: 敵踏みつけ
+     - x<1300: ダッシュ
+   - 1500px超で自然にフェードアウト
+
+4. **#10 音響モジュール分離**
+   - `src/audio.js` 新規作成: AC、beep、sfx（追加: bossWin/hiscore）、playGameOverJingle、playVictoryFanfare、BGM_NOTES x 11
+   - main.js は import で参照、scheduleBGM/startBGM/stopBGM はmutable状態と密結合のため残置
+   - モジュール数 35 → 36（audio.js追加）
+
+5. **#11 レベル設計ルール検証スクリプト**
+   - `tools/check-levels.js` 新規作成
+   - CLAUDE.md「レベル設計必須チェック」のうち静的解析可能な項目を検査
+     - ④ G.autoScroll=0 リセット記述
+     - ⑤ スポーン地点(x<350)の地上歩き敵
+     - ⑥ チェックポイント±300px の敵
+     - ⑦ コイン推定（簡易）
+   - `npm run check` で実行可能
+   - 検証で見つかった違反: level1-2.js x=300 ゴンバ（前回バランス調整時の残置）→ x=400 に移動
+
+**ビルド結果:** 400.28KB、エラーなし。違反検証 0件。
+
+---
+
 ## 2026-05-01 (3回目: バランス調整)
 
 ### [balance] 1-2 の敵密度を大幅削減

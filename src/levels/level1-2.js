@@ -66,8 +66,8 @@ for(let i=0;i<30;i++)coinItems.push({x:200+i*230,y:H-10*TILE,collected:false});
 gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
 // Extra coins to reach 300+
 for(let i=0;i<220;i++)coinItems.push({x:120+i*34,y:H-6*TILE,collected:false});
-// Enemies（密度バランス調整: 89→60前後）
-[{x:300,t:'goomba'},{x:480,t:'koopa'},
+// Enemies（密度バランス調整: 89→60前後、CLAUDE.md⑤遵守でx>=350）
+[{x:400,t:'goomba'},{x:480,t:'koopa'},
 {x:550,t:'goomba'},{x:680,t:'koopa'},{x:780,t:'goomba'},
 {x:1050,t:'goomba'},{x:1150,t:'koopa'},
 {x:1300,t:'koopa'},{x:1350,t:'goomba'},{x:1450,t:'koopa'},
