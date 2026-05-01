@@ -455,7 +455,7 @@ enemies.push(gm(150));enemies.push(gm(430));enemies.push(gm(580));enemies.push(k
 // 命名: pipeGrass1-4 / pipeDesert1-3 / pipeRiver1 / pipeForest1
 //      / pipeWater1-2 / pipeIce1-2 / pipeFort1-2
 // 共通ベース: 床（14穴）・壊せるブロック20列・？×2・qC×3・隠し1UP×2・Pスイッチ×1
-//           ・浮き足場×14・囲いブロック×3・コイン260枚超
+//           ・浮き足場×14・囲いブロック×3・コイン約185枚（30%減・散布配置）
 // ヘルパー:   dB=カロン / ch=チャック / aS=怒り太陽 / ct=サボテン
 //           flr=穴付き床 / pB=Pスイッチ / rh1p=4倍長版ランダム1UP
 //           mp/mpv=浮き足場(h/v) / box=囲いブロック
@@ -513,10 +513,10 @@ addRow(2450,H-6*TILE,3,'brick');
 // ？ブロック（キノコ）2個だけ
 platforms.push(qM(1100,H-7*TILE));
 platforms.push(qM(2160,H-7*TILE));
-// 連打コインブロック qC×3（コイン多めのため維持）
-platforms.push(qC(820,H-7*TILE,12));
-platforms.push(qC(1680,H-8*TILE,12));
-platforms.push(qC(2560,H-7*TILE,12));
+// 連打コインブロック qC×3（30%削減でhitsLeft 12→8）
+platforms.push(qC(820,H-7*TILE,8));
+platforms.push(qC(1680,H-8*TILE,8));
+platforms.push(qC(2560,H-7*TILE,8));
 // 隠し1UPブロック×1（上部のみ・ランダム位置）
 {const _1ups=[[770,H-9*TILE],[1800,H-9*TILE],[2750,H-9*TILE]];
  const _i1=Math.floor(Math.random()*_1ups.length);
@@ -542,16 +542,16 @@ movingPlats.push(mp(2916,H-5*TILE,TILE*2,60,1.3));  // over [2900,2]
 box(240,3);  // 底 272-368（3T）、左壁240、右壁368  → 中に敵2匹
 box(1130,3); // 底 1162-1258（3T）、左壁1130、右壁1258 → 中に敵2匹
 box(2670,2); // 底 2702-2766（2T）、左壁2670、右壁2766 → 中に敵1匹（隣ブロックと干渉しない）
-// コイン列（多め・260枚以上）
-ci(80,H-9*TILE,28,30);
-ci(410,H-6*TILE,12,32);ci(710,H-6*TILE,12,32);
-ci(1030,H-6*TILE,12,32);ci(1290,H-6*TILE,12,32);
-ci(1510,H-6*TILE,12,32);ci(1760,H-6*TILE,12,32);
-ci(2010,H-6*TILE,15,32);ci(2230,H-6*TILE,12,32);
-ci(2510,H-6*TILE,12,32);ci(2810,H-6*TILE,10,32);
-ci(3010,H-6*TILE,8,32);
-ci(650,H-7*TILE,14,32);ci(1550,H-7*TILE,14,32);ci(2450,H-7*TILE,14,32);
-ci(500,H-8*TILE,10,32);ci(1100,H-8*TILE,10,32);ci(2150,H-8*TILE,10,32);
+// コイン列（30%削減・散らして配置: 約185枚）
+ci(80,H-9*TILE,20,42);
+ci(410,H-6*TILE,8,45);ci(710,H-6*TILE,8,45);
+ci(1030,H-6*TILE,8,45);ci(1290,H-6*TILE,8,45);
+ci(1510,H-6*TILE,8,45);ci(1760,H-6*TILE,8,45);
+ci(2010,H-6*TILE,10,45);ci(2230,H-6*TILE,8,45);
+ci(2510,H-6*TILE,8,45);ci(2810,H-6*TILE,7,45);
+ci(3010,H-6*TILE,5,45);
+ci(650,H-7*TILE,10,48);ci(1550,H-7*TILE,10,48);ci(2450,H-7*TILE,10,48);
+ci(500,H-8*TILE,7,48);ci(1100,H-8*TILE,7,48);ci(2150,H-8*TILE,7,48);
 
 // ══════ variantごとの特色（敵26体前後）══════
 // 【ブロック上は落ちない敵(bz/pg/dB)メイン】【地面は混在】【囲いブロック内はgm/kp閉じ込め】
