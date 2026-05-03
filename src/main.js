@@ -961,14 +961,13 @@ if(G.pinoRoom){
     if(e.hurtTimer>0)e.hurtTimer--;
     // HPに応じた速度（3→2→1 で段階的に加速）
     const _spd=e.hp>=3?2.5:e.hp===2?3.8:5.2;
-    const _jmpVy=e.hp>=3?-8:e.hp===2?-10:-12;
     e.vy+=GRAVITY;e.x+=e.vx;e.y+=e.vy;e.onGround=false;
     for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(e.x,e.y,e.w,e.h,p.x,py,p.w,p.h)&&e.vy>=0&&e.y+e.h/2<py+p.h/2){e.y=py-e.h;e.vy=0;e.onGround=true;break;}}
     // 壁反射（画面全体を飛び回る）
     if(e.x<0){e.x=0;e.vx=_spd;}
     if(e.x+e.w>W){e.x=W-e.w;e.vx=-_spd;}
     e.facing=e.vx>=0?1:-1;
-    // 地上を歩き回る（ジャンプなし、方向転換のみ）
+    // 地上を歩き回る（時々2タイルの小ジャンプ）
     if(e.onGround){
       e.turnTimer=(e.turnTimer||0)-1;
       if(e.turnTimer<=0){
@@ -976,6 +975,13 @@ if(G.pinoRoom){
         if(Math.random()<0.3)e.vx=-Math.sign(e.vx||1)*_spd;
         else e.vx=(mario.x<e.x?-1:1)*_spd;
         e.turnTimer=60+Math.floor(Math.random()*60);
+      }
+      // 小ジャンプ（2タイル高）: HP減ると頻度UP
+      e.jumpTimer=(e.jumpTimer||0)-1;
+      if(e.jumpTimer<=0){
+        e.vy=-8.2;
+        const _jInt=e.hp>=3?120:e.hp===2?90:60;
+        e.jumpTimer=_jInt+Math.floor(Math.random()*60);
       }
     }
     // 速度維持
