@@ -44,6 +44,7 @@ const lf=(x,ph)=>({x,y:H-TILE,w:22,maxH:85,curH:0,phase:ph??0,period:130});
 const qM=(x,y)=>({x,y,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 const h1=(x,y)=>({x,y,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 const qC=(x,y,n)=>({x,y,w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:n||8,bounceOffset:0});
+const qH=(x,y)=>({x,y,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 const ci=(sx,y,n,sp)=>{for(let i=0;i<n;i++)coinItems.push({x:sx+i*(sp||24),y,collected:false})};
 // ランダム隠し1UP（每入室ごとに位置が変わる）
 const rh1=()=>{const xs=[200,260,330,390,450],ys=[H-8*TILE,H-9*TILE,H-10*TILE];return h1(xs[Math.floor(Math.random()*xs.length)],ys[Math.floor(Math.random()*ys.length)]);};
@@ -494,7 +495,7 @@ flr([[300,2],[800,3],[1400,2],[2000,3],[2700,2]]);
 addRow(150,H-4*TILE,3,'brick');addRow(450,H-4*TILE,3,'brick');addRow(620,H-6*TILE,3,'brick');
 addRow(950,H-6*TILE,4,'brick');addRow(1200,H-4*TILE,3,'brick');addRow(1550,H-6*TILE,3,'brick');
 addRow(1750,H-4*TILE,3,'brick');addRow(2200,H-6*TILE,4,'brick');addRow(2400,H-4*TILE,3,'brick');addRow(2850,H-6*TILE,3,'brick');
-platforms.push(qM(750,H-7*TILE),qC(1100,H-8*TILE,8),h1(2700,H-9*TILE),pB(1900,H-5*TILE));
+platforms.push(qM(750,H-7*TILE),qC(1100,H-8*TILE,8),h1(2700,H-9*TILE),pB(1900,H-5*TILE),qH(1500,H-9*TILE));
 ci(120,H-9*TILE,28,38);
 ci(160,H-3*TILE,4,30);ci(900,H-3*TILE,4,30);ci(1500,H-3*TILE,4,30);ci(2100,H-3*TILE,4,30);ci(2800,H-3*TILE,4,30);
 ci(160,H-5*TILE,3,32);ci(460,H-5*TILE,3,32);ci(1210,H-5*TILE,3,32);ci(1760,H-5*TILE,3,32);ci(2410,H-5*TILE,3,32);
@@ -512,7 +513,7 @@ movingPlats.push(mp(220,H-4*TILE,TILE*2,80,1.3),mp(540,H-4*TILE,TILE*2,80,1.4),
   mp(1540,H-5*TILE,TILE*2,90,1.3),mp(1880,H-4*TILE,TILE*2,80,1.4),
   mpv(2200,H-5*TILE,TILE*2,100,1.2),mp(2540,H-4*TILE,TILE*2,80,1.3),mp(2840,H-4*TILE,TILE*2,80,1.4));
 addRow(700,H-7*TILE,3,'brick');addRow(1300,H-7*TILE,3,'brick');addRow(2300,H-7*TILE,3,'brick');
-platforms.push(qC(1300,H-9*TILE,10),qM(2350,H-9*TILE),h1(2950,H-10*TILE),pB(720,H-8*TILE));
+platforms.push(qC(1300,H-9*TILE,10),qM(2350,H-9*TILE),h1(2950,H-10*TILE),pB(720,H-8*TILE),qH(1500,H-9*TILE));
 ci(80,H-9*TILE,26,40);
 ci(240,H-5*TILE,3,30);ci(560,H-5*TILE,3,30);ci(920,H-6*TILE,3,30);ci(1260,H-5*TILE,3,30);
 ci(1560,H-6*TILE,3,30);ci(1900,H-5*TILE,3,30);ci(2220,H-6*TILE,3,30);ci(2560,H-5*TILE,3,30);ci(2860,H-5*TILE,3,30);
@@ -528,7 +529,7 @@ movingPlats.push(mpv(700,H-4*TILE,TILE*2,120,1.0),mpv(1200,H-5*TILE,TILE*2,100,1
   mpv(1700,H-4*TILE,TILE*2,120,1.0),mpv(2200,H-5*TILE,TILE*2,100,1.2),
   mpv(2700,H-3*TILE,TILE*2,80,1.4));
 addRow(150,H-5*TILE,4,'brick');addRow(900,H-5*TILE,4,'brick');addRow(1900,H-5*TILE,4,'brick');addRow(2900,H-5*TILE,3,'brick');
-platforms.push(qM(180,H-7*TILE),qC(1380,H-7*TILE,9),qC(2080,H-8*TILE,8),h1(2700,H-9*TILE),pB(1500,H-4*TILE));
+platforms.push(qM(180,H-7*TILE),qC(1380,H-7*TILE,9),qC(2080,H-8*TILE,8),h1(2700,H-9*TILE),pB(1500,H-4*TILE),qH(1600,H-9*TILE));
 ci(60,H-9*TILE,26,42);
 ci(720,H-7*TILE,4,28);ci(1220,H-8*TILE,4,28);ci(1720,H-7*TILE,4,28);ci(2220,H-8*TILE,4,28);ci(2720,H-6*TILE,4,28);
 ci(160,H-6*TILE,4,32);ci(940,H-6*TILE,4,32);ci(1940,H-6*TILE,4,32);ci(2940,H-6*TILE,3,32);
@@ -545,7 +546,7 @@ movingPlats.push(mp(500,H-5*TILE,TILE*2,200,1.8),mp(1000,H-6*TILE,TILE*2,150,1.5
   mp(2450,H-3*TILE,TILE*2,120,1.9),mp(2900,H-5*TILE,TILE*2,100,1.4));
 addRow(200,H-7*TILE,3,'brick');addRow(700,H-7*TILE,3,'brick');addRow(1100,H-8*TILE,3,'brick');
 addRow(1700,H-7*TILE,3,'brick');addRow(2150,H-8*TILE,3,'brick');addRow(2600,H-7*TILE,3,'brick');
-platforms.push(qM(220,H-9*TILE),qC(1130,H-9*TILE,9),h1(2630,H-9*TILE),pB(1800,H-6*TILE));
+platforms.push(qM(220,H-9*TILE),qC(1130,H-9*TILE,9),h1(2630,H-9*TILE),pB(1800,H-6*TILE),qH(1500,H-9*TILE));
 ci(80,H-9*TILE,28,38);
 ci(220,H-8*TILE,3,32);ci(720,H-8*TILE,3,32);ci(1120,H-9*TILE,3,32);ci(1720,H-8*TILE,3,32);ci(2170,H-9*TILE,3,32);ci(2620,H-8*TILE,3,32);
 ci(220,H-3*TILE,3,30);ci(720,H-3*TILE,3,30);ci(1180,H-3*TILE,3,30);ci(1700,H-3*TILE,3,30);ci(2200,H-3*TILE,3,30);ci(2620,H-3*TILE,3,30);
@@ -559,7 +560,7 @@ else if(variant==='pipeDesert1'){
 flr([[300,3],[800,4],[1500,5],[2200,2],[2700,2]]);
 addRow(280,H-4*TILE,5,'brick');addRow(780,H-4*TILE,6,'brick');addRow(1480,H-4*TILE,7,'brick');
 addRow(150,H-6*TILE,3,'brick');addRow(2300,H-5*TILE,3,'brick');addRow(2750,H-5*TILE,3,'brick');
-platforms.push(qM(400,H-5*TILE),qC(1200,H-6*TILE,7),h1(840,H-10*TILE),pB(1700,H-5*TILE));
+platforms.push(qM(400,H-5*TILE),qC(1200,H-6*TILE,7),h1(840,H-10*TILE),pB(1700,H-5*TILE),qH(1500,H-9*TILE));
 ci(80,H-9*TILE,22,42);
 ci(310,H-2*TILE,6,28);ci(810,H-2*TILE,8,28);ci(1510,H-2*TILE,10,28);
 ci(2350,H-6*TILE,5,30);ci(2810,H-6*TILE,5,30);
@@ -573,7 +574,7 @@ else if(variant==='pipeDesert2'){
 flr([[250,2],[700,3],[1100,2],[1450,3],[1850,2],[2200,3],[2600,2],[2900,2]]);
 box(330,3);box(1140,3);box(1900,3);
 addRow(550,H-4*TILE,3,'brick');addRow(1300,H-4*TILE,3,'brick');addRow(2050,H-4*TILE,3,'brick');addRow(2680,H-4*TILE,3,'brick');
-platforms.push(qM(640,H-6*TILE),qM(1380,H-6*TILE),qC(2120,H-7*TILE,9),h1(2750,H-9*TILE),pB(2700,H-5*TILE));
+platforms.push(qM(640,H-6*TILE),qM(1380,H-6*TILE),qC(2120,H-7*TILE,9),h1(2750,H-9*TILE),pB(2700,H-5*TILE),qH(1500,H-9*TILE));
 ci(60,H-9*TILE,24,40);
 ci(560,H-5*TILE,4,32);ci(1310,H-5*TILE,4,32);ci(2060,H-5*TILE,4,32);ci(2690,H-5*TILE,4,32);
 ci(360,H-3*TILE,4,28);ci(1170,H-3*TILE,4,28);ci(1930,H-3*TILE,4,28);
@@ -589,7 +590,7 @@ flr([[400,2],[800,2],[1200,2],[1600,2],[2000,2],[2400,2],[2800,2]]);
 addRow(150,H-5*TILE,4,'brick');addRow(550,H-5*TILE,4,'brick');addRow(950,H-5*TILE,4,'brick');
 addRow(1350,H-5*TILE,4,'brick');addRow(1750,H-5*TILE,4,'brick');addRow(2150,H-5*TILE,4,'brick');addRow(2550,H-5*TILE,4,'brick');addRow(2900,H-5*TILE,3,'brick');
 addRow(300,H-8*TILE,4,'brick');addRow(1100,H-8*TILE,4,'brick');addRow(1900,H-8*TILE,4,'brick');addRow(2700,H-8*TILE,4,'brick');
-platforms.push(qM(600,H-7*TILE),qC(820,H-7*TILE,10),h1(1900,H-10*TILE),pB(1200,H-2*TILE));
+platforms.push(qM(600,H-7*TILE),qC(820,H-7*TILE,10),h1(1900,H-10*TILE),pB(1200,H-2*TILE),qH(1500,H-9*TILE));
 ci(60,H-9*TILE,24,42);
 ci(180,H-6*TILE,4,30);ci(580,H-6*TILE,4,30);ci(980,H-6*TILE,4,30);ci(1380,H-6*TILE,4,30);
 ci(1780,H-6*TILE,4,30);ci(2180,H-6*TILE,4,30);ci(2580,H-6*TILE,4,30);
@@ -604,7 +605,7 @@ flr([[2950,2]]);
 addRow(150,H-3*TILE,2,'brick');addRow(2700,H-3*TILE,2,'brick');
 addRow(500,H-4*TILE,3,'brick');addRow(1100,H-4*TILE,3,'brick');addRow(1700,H-4*TILE,3,'brick');addRow(2300,H-4*TILE,3,'brick');
 addRow(800,H-6*TILE,3,'brick');addRow(1400,H-6*TILE,3,'brick');addRow(2000,H-6*TILE,3,'brick');addRow(2600,H-6*TILE,3,'brick');
-platforms.push(qM(900,H-7*TILE),qC(1500,H-7*TILE,10),h1(2100,H-9*TILE),pB(2400,H-7*TILE));
+platforms.push(qM(900,H-7*TILE),qC(1500,H-7*TILE,10),h1(2100,H-9*TILE),pB(2400,H-7*TILE),qH(1900,H-9*TILE));
 ci(80,H-9*TILE,26,42);
 ci(360,H-2*TILE,8,28);ci(900,H-2*TILE,8,28);ci(1500,H-2*TILE,8,28);ci(2100,H-2*TILE,8,28);
 ci(820,H-7*TILE,4,32);ci(1420,H-7*TILE,4,32);ci(2020,H-7*TILE,4,32);ci(2620,H-7*TILE,4,32);
@@ -618,7 +619,7 @@ flr([[700,2],[1200,2],[1900,3],[2400,2]]);
 addRow(550,H-4*TILE,2,'brick');addRow(550,H-7*TILE,4,'brick');
 addRow(1300,H-5*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(1700,H-5*TILE,3,'brick');
 addRow(2100,H-4*TILE,3,'brick');addRow(2200,H-7*TILE,4,'brick');addRow(2600,H-4*TILE,3,'brick');
-platforms.push(qM(580,H-8*TILE),qC(1530,H-8*TILE,8),h1(2230,H-9*TILE),pB(1400,H-6*TILE));
+platforms.push(qM(580,H-8*TILE),qC(1530,H-8*TILE,8),h1(2230,H-9*TILE),pB(1400,H-6*TILE),qH(1900,H-9*TILE));
 ci(80,H-9*TILE,24,42);
 ci(220,H-3*TILE,5,30);ci(900,H-3*TILE,5,30);ci(1330,H-6*TILE,4,32);ci(1530,H-8*TILE,4,32);
 ci(1730,H-6*TILE,4,32);ci(2230,H-8*TILE,5,32);ci(2700,H-3*TILE,5,30);
@@ -633,7 +634,7 @@ flr([[200,3],[600,3],[1000,3],[1400,3],[1800,3],[2200,3],[2600,3]]);
 movingPlats.push(fp(200,H-4*TILE),fp(600,H-4*TILE),fp(1000,H-4*TILE),fp(1400,H-4*TILE));
 movingPlats.push(mp(1820,H-4*TILE,TILE*3,80,1.4),mp(2220,H-4*TILE,TILE*3,80,1.5),mp(2620,H-4*TILE,TILE*3,80,1.6));
 addRow(150,H-7*TILE,3,'brick');addRow(900,H-7*TILE,3,'brick');addRow(1700,H-7*TILE,3,'brick');addRow(2500,H-7*TILE,3,'brick');
-platforms.push(qM(170,H-9*TILE),qC(1750,H-8*TILE,8),h1(2920,H-9*TILE),pB(2900,H-3*TILE));
+platforms.push(qM(170,H-9*TILE),qC(1750,H-8*TILE,8),h1(2920,H-9*TILE),pB(2900,H-3*TILE),qH(1500,H-9*TILE));
 ci(80,H-9*TILE,26,42);
 ci(220,H-5*TILE,4,28);ci(620,H-5*TILE,4,28);ci(1020,H-5*TILE,4,28);ci(1420,H-5*TILE,4,28);
 ci(1820,H-5*TILE,4,28);ci(2220,H-5*TILE,4,28);ci(2620,H-5*TILE,4,28);
@@ -651,7 +652,7 @@ addRow(700,H-6*TILE,2,'brick');addRow(900,H-7*TILE,2,'brick');addRow(1100,H-6*TI
 addRow(1300,H-7*TILE,2,'brick');addRow(1500,H-6*TILE,2,'brick');addRow(1700,H-7*TILE,2,'brick');
 addRow(1900,H-6*TILE,2,'brick');addRow(2100,H-7*TILE,2,'brick');addRow(2300,H-6*TILE,2,'brick');
 addRow(2500,H-7*TILE,2,'brick');addRow(2700,H-6*TILE,2,'brick');addRow(2900,H-7*TILE,2,'brick');
-platforms.push(qM(560,H-9*TILE),qC(1530,H-9*TILE,8),h1(2710,H-9*TILE),pB(180,H-9*TILE));
+platforms.push(qM(560,H-9*TILE),qC(1530,H-9*TILE,8),h1(2710,H-9*TILE),pB(180,H-9*TILE),qH(1700,H-9*TILE));
 ci(60,H-9*TILE,24,40);
 ci(190,H-8*TILE,3,28);ci(370,H-7*TILE,3,28);ci(550,H-8*TILE,3,28);ci(710,H-7*TILE,3,28);
 ci(910,H-8*TILE,3,28);ci(1110,H-7*TILE,3,28);ci(1310,H-8*TILE,3,28);ci(1510,H-7*TILE,3,28);
@@ -668,7 +669,7 @@ movingPlats.push(mp(280,H-4*TILE,TILE*2,100,2.4),mp(680,H-4*TILE,TILE*2,120,2.5)
 movingPlats.push(mpv(450,H-5*TILE,TILE*2,80,2.0),mpv(950,H-5*TILE,TILE*2,90,2.2),mpv(1450,H-5*TILE,TILE*2,80,2.0),
   mpv(2050,H-5*TILE,TILE*2,90,2.2),mpv(2550,H-5*TILE,TILE*2,80,2.0));
 addRow(150,H-7*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(2900,H-7*TILE,3,'brick');
-platforms.push(qM(170,H-9*TILE),qC(1530,H-9*TILE,8),h1(2920,H-9*TILE),pB(900,H-7*TILE));
+platforms.push(qM(170,H-9*TILE),qC(1530,H-9*TILE,8),h1(2920,H-9*TILE),pB(900,H-7*TILE),qH(1700,H-9*TILE));
 ci(80,H-9*TILE,26,42);
 ci(180,H-8*TILE,3,30);ci(1530,H-8*TILE,3,30);ci(2930,H-8*TILE,3,30);
 ci(310,H-3*TILE,3,28);ci(720,H-3*TILE,3,28);ci(1220,H-3*TILE,3,28);ci(1720,H-3*TILE,3,28);ci(2320,H-3*TILE,3,28);ci(2820,H-3*TILE,3,28);
@@ -687,7 +688,7 @@ movingPlats.push(mpv(220,H-3*TILE,TILE*2,80,2.5),mpv(420,H-4*TILE,TILE*2,90,2.8)
   mpv(2220,H-3*TILE,TILE*2,80,2.5),mpv(2420,H-4*TILE,TILE*2,90,2.8),
   mpv(2720,H-3*TILE,TILE*2,80,2.5),mpv(2920,H-4*TILE,TILE*2,90,2.8));
 addRow(150,H-7*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(2900,H-7*TILE,3,'brick');
-platforms.push(qM(170,H-9*TILE),qC(1530,H-9*TILE,8),h1(2920,H-9*TILE),pB(450,H-7*TILE));
+platforms.push(qM(170,H-9*TILE),qC(1530,H-9*TILE,8),h1(2920,H-9*TILE),pB(450,H-7*TILE),qH(1700,H-9*TILE));
 ci(80,H-9*TILE,24,42);
 ci(440,H-6*TILE,3,28);ci(940,H-6*TILE,3,28);ci(1440,H-6*TILE,3,28);ci(1940,H-6*TILE,3,28);ci(2440,H-6*TILE,3,28);
 ci(180,H-8*TILE,3,30);ci(1530,H-8*TILE,3,30);ci(2930,H-8*TILE,3,30);
@@ -711,7 +712,7 @@ addRow(700,H-4*TILE,3,'brick');addRow(1500,H-4*TILE,3,'brick');addRow(2700,H-4*T
 enemies.push(tw(550),tw(1700),tw(2900));
 lavaFlames.push({x:950,y:H-TILE,w:22,maxH:90,curH:0,phase:0,period:120});
 lavaFlames.push({x:2080,y:H-TILE,w:22,maxH:90,curH:0,phase:60,period:120});
-platforms.push(qM(170,H-9*TILE),qC(1320,H-9*TILE,8),h1(2420,H-9*TILE),pB(720,H-6*TILE));
+platforms.push(qM(170,H-9*TILE),qC(1320,H-9*TILE,8),h1(2420,H-9*TILE),pB(720,H-6*TILE),qH(1500,H-9*TILE));
 ci(80,H-9*TILE,26,42);
 ci(170,H-8*TILE,3,30);ci(1320,H-8*TILE,3,30);ci(2420,H-8*TILE,3,30);
 ci(720,H-5*TILE,3,30);ci(1520,H-5*TILE,3,30);ci(2720,H-5*TILE,3,30);
@@ -733,7 +734,7 @@ springs.push({x:200,y:H-TILE-24,w:24,h:24,compressed:0});
 springs.push({x:1200,y:H-TILE-24,w:24,h:24,compressed:0});
 addRow(150,H-6*TILE,3,'brick');addRow(900,H-6*TILE,3,'brick');addRow(1700,H-6*TILE,3,'brick');addRow(2400,H-6*TILE,3,'brick');
 addRow(450,H-8*TILE,3,'brick');addRow(1300,H-8*TILE,3,'brick');addRow(2200,H-8*TILE,3,'brick');
-platforms.push(qM(170,H-7*TILE),qC(920,H-7*TILE,8),h1(2420,H-7*TILE),pB(1730,H-7*TILE));
+platforms.push(qM(170,H-7*TILE),qC(920,H-7*TILE,8),h1(2420,H-7*TILE),pB(1730,H-7*TILE),qH(1500,H-9*TILE));
 ci(80,H-9*TILE,24,40);
 ci(170,H-7*TILE,3,30);ci(920,H-7*TILE,3,30);ci(1720,H-7*TILE,3,30);ci(2420,H-7*TILE,3,30);
 ci(470,H-9*TILE,3,30);ci(1320,H-9*TILE,3,30);ci(2220,H-9*TILE,3,30);
