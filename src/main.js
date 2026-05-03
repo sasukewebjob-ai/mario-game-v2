@@ -3063,84 +3063,115 @@ if(G.pinoRoom&&G.state==='play'){
     const _ox=pinoObj.x-G.cam,_oy=pinoObj.y;
     const _flip=pinoObj.facing===-1;
     ctx.save();if(_flip){ctx.translate(_ox+pinoObj.w/2,_oy);ctx.scale(-1,1);ctx.translate(-pinoObj.w/2,0);}else{ctx.translate(_ox,_oy);}
-    // キノピオ（Toad）- きのこ型の帽子・青いベスト
-    // ── キノピオ（可愛いちびデザイン）──
-    // きのこ帽子：大きな赤いドーム（頭の大部分を占める）
-    ctx.fillStyle='#dd2200';
-    ctx.beginPath();ctx.arc(14,6,15,Math.PI,0);ctx.fill();
-    ctx.fillRect(0,6,28,10);
-    // 帽子のハイライト
-    ctx.fillStyle='rgba(255,255,255,0.25)';
-    ctx.beginPath();ctx.arc(10,3,5,Math.PI,0);ctx.fill();
-    // 白い水玉スポット（大き目で可愛く）
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(7,4,4.5,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(21,4,4.5,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(14,0,3,0,Math.PI*2);ctx.fill();
-    // スポットのシェーディング
-    ctx.fillStyle='rgba(220,220,220,0.4)';
-    ctx.beginPath();ctx.arc(8,5,2,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(22,5,2,0,Math.PI*2);ctx.fill();
-    // 帽子の縁（クリーム色）
-    ctx.fillStyle='#fff8e8';ctx.fillRect(0,15,28,4);
-    // 帽子縁のシャドウ
-    ctx.fillStyle='rgba(0,0,0,0.12)';ctx.fillRect(0,18,28,1);
-    // 顔（ぷっくり丸い・クリーム色）
-    ctx.fillStyle='#fff8e8';
-    ctx.beginPath();ctx.arc(14,26,12,0,Math.PI*2);ctx.fill();
-    ctx.fillRect(3,19,22,14);
-    // ほっぺ（ピンクのまる）
-    ctx.fillStyle='rgba(255,130,130,0.55)';
-    ctx.beginPath();ctx.arc(5,27,4,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(23,27,4,0,Math.PI*2);ctx.fill();
-    // 目（大きな黒い丸目 + 白ハイライト2個）
-    ctx.fillStyle='#111';
-    ctx.beginPath();ctx.arc(9,24,4.5,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(19,24,4.5,0,Math.PI*2);ctx.fill();
-    // 目の中の青いリング
-    ctx.fillStyle='#3366ee';
-    ctx.beginPath();ctx.arc(9,24,3,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(19,24,3,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#111';
-    ctx.beginPath();ctx.arc(9.5,24,1.8,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(19.5,24,1.8,0,Math.PI*2);ctx.fill();
-    // 白ハイライト（2か所）
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(10.5,22.5,1.2,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(20.5,22.5,1.2,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(8,25.5,0.7,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(18,25.5,0.7,0,Math.PI*2);ctx.fill();
-    // 口（かわいいアーチ笑顔）
-    ctx.strokeStyle='#aa3300';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.arc(14,29,4,0.1*Math.PI,0.9*Math.PI);ctx.stroke();ctx.lineWidth=1;
-    // 口角のドット
-    ctx.fillStyle='#aa3300';
-    ctx.beginPath();ctx.arc(10.5,29,1,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(17.5,29,1,0,Math.PI*2);ctx.fill();
-    // 胴体（青いベスト・小さくコンパクト）
-    ctx.fillStyle='#2255cc';ctx.fillRect(6,32,16,10);
-    ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(6,32,16,3);// ハイライト
-    // ベルト中央線
-    ctx.fillStyle='#fff';ctx.fillRect(13,32,2,10);
-    // ボタン（ゴールド）
+    // ──── キノピオ（Toad）SMB2/SMW準拠スプライト再現 ────
+    // パレット: 赤#D82800 / 白#F8F8F8 / 肌#FCE0C0 / 青#0058F8 / 茶#A04000
+    // プロポーション: 頭:体≒6:4（頭でっかち）/ 帽子横:縦≒5:3（横長ドーム）
+    // ── 帽子（赤いきのこドーム・横長楕円）──
+    ctx.fillStyle='#D82800';
+    ctx.beginPath();ctx.ellipse(14,12,15,11,0,Math.PI,0);ctx.fill();
+    ctx.fillRect(-1,11,30,5);
+    // 帽子下部のシェーディング
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.fillRect(-1,14,30,2);
+    // 帽子上部のハイライト
+    ctx.fillStyle='rgba(255,255,255,0.22)';
+    ctx.beginPath();ctx.ellipse(10,5,5,2.5,0,Math.PI,0);ctx.fill();
+    // ── 白い斑点5個（中央大1 + 側面中2 + 前面下小2）──
+    ctx.fillStyle='#F8F8F8';
+    // 中央上の大きい斑点
+    ctx.beginPath();ctx.ellipse(14,4,5,4,0,0,Math.PI*2);ctx.fill();
+    // 左右の中サイズ斑点
+    ctx.beginPath();ctx.arc(4,9,3.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(24,9,3.5,0,Math.PI*2);ctx.fill();
+    // 前面下の小斑点
+    ctx.beginPath();ctx.arc(8,13,2.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(20,13,2.2,0,Math.PI*2);ctx.fill();
+    // 斑点のソフトシェーディング（立体感）
+    ctx.fillStyle='rgba(0,0,0,0.08)';
+    ctx.beginPath();ctx.arc(15,5,3,0,Math.PI);ctx.fill();
+    // ── 帽子の縁（白い細帯）──
+    ctx.fillStyle='#F8F8F8';ctx.fillRect(-1,16,30,2.5);
+    // 縁の下影
+    ctx.fillStyle='rgba(0,0,0,0.22)';ctx.fillRect(-1,18.5,30,1);
+    // ── 顔（ピンク肌の丸顔）──
+    ctx.fillStyle='#FCE0C0';
+    ctx.beginPath();ctx.ellipse(14,26,11,8,0,0,Math.PI*2);ctx.fill();
+    ctx.fillRect(3,20,22,9);
+    // 顔下部の薄い影（顎ライン）
+    ctx.fillStyle='rgba(0,0,0,0.08)';
+    ctx.fillRect(4,30,20,1.5);
+    // ── 目（クラシック小ドット・縦長黒2×4px、wide-set）──
+    ctx.fillStyle='#000';
+    ctx.fillRect(8,23,2.5,4.5);
+    ctx.fillRect(17.5,23,2.5,4.5);
+    // ── 口（小さな黒い点1つ・SMB2準拠）──
+    ctx.fillStyle='#000';
+    ctx.beginPath();ctx.arc(14,30.5,0.9,0,Math.PI*2);ctx.fill();
+    // ── 胴体（白い体・SMW V字襟青ベスト）──
+    // 白い下地（ベストの下から見える首〜お腹）
+    ctx.fillStyle='#F8F8F8';
+    ctx.fillRect(7,31,14,12);
+    // 青いベスト（V字襟付き、両肩から下がるカット）
+    ctx.fillStyle='#0058F8';
+    ctx.beginPath();
+    ctx.moveTo(7,31);
+    ctx.lineTo(11,31);
+    ctx.lineTo(14,37);
+    ctx.lineTo(17,31);
+    ctx.lineTo(21,31);
+    ctx.lineTo(21,43);
+    ctx.lineTo(7,43);
+    ctx.closePath();
+    ctx.fill();
+    // ベスト上部のハイライト
+    ctx.fillStyle='rgba(255,255,255,0.20)';
+    ctx.fillRect(7,31,14,1.5);
+    // ベストの輪郭
+    ctx.fillStyle='rgba(0,0,0,0.20)';
+    ctx.fillRect(7,42,14,1);
+    // 金色のボタン2個（V襟下中央）
     ctx.fillStyle='#FFD700';
-    ctx.beginPath();ctx.arc(14,35,1.5,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(14,39,1.5,0,Math.PI*2);ctx.fill();
-    // 腕（アイドルアニメ：frame0=通常, frame1=手を振る）
+    ctx.beginPath();ctx.arc(14,39,1.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(14,41.5,1.1,0,Math.PI*2);ctx.fill();
+    // ボタンハイライト
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath();ctx.arc(13.7,38.7,0.4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(13.7,41.2,0.4,0,Math.PI*2);ctx.fill();
+    // ── 腕（肌色・frame別アニメ）──
     const _wf=pinoObj.frame;
-    ctx.fillStyle='#fff8e8';
-    if(_wf===0){// 通常
-      ctx.fillRect(-1,33,6,7);ctx.fillRect(23,33,6,7);
-      ctx.fillStyle='#fff';ctx.fillRect(-2,39,7,4);ctx.fillRect(23,39,7,4);
-    }else{// 手を振る（左腕が上がる）
-      ctx.fillRect(-3,27,6,7);ctx.fillRect(23,33,6,7);// 左腕が上
-      ctx.fillStyle='#fff';ctx.fillRect(-4,23,7,5);ctx.fillRect(23,39,7,4);// 左手が上
+    ctx.fillStyle='#FCE0C0';
+    if(_wf===0){
+      // 通常立ち（両腕下げ）
+      ctx.fillRect(0,33,6,8);
+      ctx.fillRect(22,33,6,8);
+      // 腕の影
+      ctx.fillStyle='rgba(0,0,0,0.10)';
+      ctx.fillRect(0,40,6,1);ctx.fillRect(22,40,6,1);
+    }else{
+      // 手を振るポーズ（左腕アップ）
+      ctx.fillRect(-2,26,6,8);
+      ctx.fillRect(22,33,6,8);
+      // 振り効果線
+      ctx.strokeStyle='rgba(255,255,255,0.55)';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(-4,23);ctx.lineTo(-1,20);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(2,21);ctx.lineTo(5,18);ctx.stroke();
+      ctx.lineWidth=1;
+      // 通常側の影
+      ctx.fillStyle='rgba(0,0,0,0.10)';
+      ctx.fillRect(22,40,6,1);
     }
-    // 靴（白い丸い靴・左右交互に小bounce）
-    ctx.fillStyle='#eeeeff';
-    ctx.beginPath();ctx.arc(9,44,5,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(19,44,5,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#aaaacc';ctx.fillRect(4,44,10,2);ctx.fillRect(14,44,10,2);
+    // ── 茶色い靴（クラシック準拠・横長楕円）──
+    ctx.fillStyle='#A04000';
+    ctx.beginPath();ctx.ellipse(8,46,5.5,3,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(20,46,5.5,3,0,0,Math.PI*2);ctx.fill();
+    // 靴のハイライト（つま先側）
+    ctx.fillStyle='rgba(255,200,150,0.4)';
+    ctx.fillRect(3.5,44.5,3,1);
+    ctx.fillRect(15.5,44.5,3,1);
+    // 靴底ライン
+    ctx.fillStyle='rgba(0,0,0,0.30)';
+    ctx.fillRect(3,47.5,11,0.8);
+    ctx.fillRect(15,47.5,11,0.8);
     ctx.restore();
     // ★ 吹き出し（大きめ・読みやすいフォント）
     if(G.pinoSpeechText){
