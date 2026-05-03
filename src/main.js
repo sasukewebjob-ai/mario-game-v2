@@ -11,7 +11,7 @@ import {buildUnderground} from './levels/underground.js';
 import {buildExStage} from './levels/level1-3_archived.js';
 import {buildExStage2} from './levels/level-ex2.js';
 import {STAGES,getStage,getNextStage,getStageById,getWorlds,getWorldStages} from './stages.js';
-import {AC,beep,sfx,playGameOverJingle,playVictoryFanfare,
+import {AC,beep,sfx,playGameOverJingle,playVictoryFanfare,playStageClearFanfare,
   THEME_NOTES,BIG_MARIO_NOTES,UG_NOTES,STAR_NOTES,CASTLE_NOTES,
   CASTLE_P2_NOTES,WATER_NOTES,PSWITCH_NOTES,FINAL_BOSS_NOTES,
   SHOP_NOTES,PINO_NOTES} from './audio.js';
@@ -629,7 +629,7 @@ G.shakeX*=0.8;G.shakeY*=0.8;if(Math.abs(G.shakeX)<0.1)G.shakeX=0;if(Math.abs(G.s
 for(let i=blockAnims.length-1;i>=0;i--){const b=blockAnims[i];b.t+=0.2;b.p.bounceOffset=Math.sin(b.t)*8*Math.max(0,1-b.t/Math.PI);if(b.t>Math.PI){b.p.bounceOffset=0;blockAnims.splice(i,1)}}
 if(G.state==='shop'){updateParticles();return}
 if(G.state==='intro'){G.introTimer--;updateParticles();if(G.introTimer<=0){G.state='play';if(G.timerTick)clearInterval(G.timerTick);G.timerTick=setInterval(()=>{if(G.state==='play'&&!G.paused){G.timeLeft--;if(G.timeLeft===99)sfx('timeWarning');if(G.timeLeft<=0){clearInterval(G.timerTick);killMario(true);}updateHUD()}},1000);try{startBGM()}catch(e2){}}return}
-if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario.x=flagPole.x-4;if(mario.y>=H-TILE-mario.h){mario.y=H-TILE-mario.h;G.goalSlide.phase='walk'}}else if(G.goalSlide.phase==='walk'){mario.x+=2;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}if(G.goalSlide.t>120){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
+if(G.goalSlide){G.goalSlide.t++;if(G.goalSlide.phase==='slide'){mario.y+=3;mario.x=flagPole.x-4;if(mario.y>=H-TILE-mario.h){mario.y=H-TILE-mario.h;G.goalSlide.phase='walk'}}else if(G.goalSlide.phase==='walk'){mario.x+=2;mario.facing=1;mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}if(G.goalSlide.t>240){G.goalSlide=null;G.score+=1000+G.timeLeft*50;clearInterval(G.timerTick);updateHUD();
   if(!G.stageDamaged){G.coins=Math.min(3000,G.coins+30);G.score+=5000;updateHUD();spawnScorePopup(mario.x+13,mario.y-30,'PERFECT! +30C','#FFD700');for(let _pf=0;_pf<30;_pf++)spawnParticle(mario.x+(Math.random()-0.5)*40,mario.y-Math.random()*60,'star');try{beep(880,.1,'sine',.15);beep(1100,.1,'sine',.15,.1);beep(1320,.1,'sine',.15,.2)}catch(ex){}}
   // 花火（スコア下1桁が1,3,6）
   const _ld=G.score%10;if(_ld===1||_ld===3||_ld===6){for(let _fw=0;_fw<6;_fw++)setTimeout(()=>{const _fx=mario.x+(Math.random()-0.5)*200,_fy=H-TILE-80-Math.random()*120;for(let _fp=0;_fp<15;_fp++)spawnParticle(_fx,_fy,'star');try{beep(600+Math.random()*400,.1,'sine',.1)}catch(ex){}},_fw*300);}
@@ -1403,7 +1403,7 @@ if(G.ugMode&&G.state==='play'&&!G.peachChase&&!bowser.alive&&!G.pipeDungeon&&mar
 if(G.checkpoint&&!G.checkpointReached&&mario.x>G.checkpoint.x){G.checkpointReached=true;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint.x,G.checkpoint.y-TILE*3,'CHECK!','#2ecc71');for(let i=0;i<10;i++)spawnParticle(G.checkpoint.x+8,G.checkpoint.y-TILE*2,'star')}
 // クッパ前チェックポイント（2つ目）
 if(G.checkpoint2&&!G.checkpoint2.reached&&mario.x>G.checkpoint2.x){G.checkpoint2.reached=true;G.checkpointReached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;G.checkpoint.reached=true;sfx('flag');spawnScorePopup(G.checkpoint2.x,G.checkpoint2.y-TILE*3,'CHECK!','#ff4444');for(let i=0;i<10;i++)spawnParticle(G.checkpoint2.x+8,G.checkpoint2.y-TILE*2,'star')}
-if(G.currentLevel!==3&&!G.ugMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+96){sfx('flag');stopBGM();if(mario.y<=H-TILE-flagPole.h+24){G.coins=Math.min(3000,G.coins+10);updateHUD();sfx('coin');for(let _fi=0;_fi<10;_fi++){const _fa=(_fi/9)*Math.PI*2;coinItems.push({x:mario.x+13+Math.cos(_fa)*20,y:mario.y+16,collected:false,pop:true,popVy:-4-Math.random()*3,popY:0,life:35});}spawnScorePopup(mario.x+13,mario.y-20,'+10C','#FFD700');}G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
+if(G.currentLevel!==3&&!G.ugMode&&!mario.dead&&mario.x+mario.w>=flagPole.x&&mario.x<=flagPole.x+96){sfx('flag');stopBGM();playStageClearFanfare();if(mario.y<=H-TILE-flagPole.h+24){G.coins=Math.min(3000,G.coins+10);updateHUD();sfx('coin');for(let _fi=0;_fi<10;_fi++){const _fa=(_fi/9)*Math.PI*2;coinItems.push({x:mario.x+13+Math.cos(_fa)*20,y:mario.y+16,collected:false,pop:true,popVy:-4-Math.random()*3,popY:0,life:35});}spawnScorePopup(mario.x+13,mario.y-20,'+10C','#FFD700');}G.goalSlide={phase:'slide',t:0};mario.vx=0;mario.vy=0}
 // Fireballs
 for(let i=fireballs.length-1;i>=0;i--){const fb=fireballs[i];if(!fb.alive){fireballs.splice(i,1);continue}
 fb.vy+=(G.waterMode?0:0.55);fb.x+=fb.vx;fb.y+=fb.vy;
