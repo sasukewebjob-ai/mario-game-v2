@@ -1134,7 +1134,7 @@ if(e.type==='teresa'){
 // === ドッスン（Thwomp）===
 if(e.type==='thwomp'){
   if(e.baseY===undefined)e.baseY=e.y;
-  if(e.state==='idle'){e.y=e.baseY;e.vy=0;const _inX=mario.x+mario.w>e.x&&mario.x<e.x+e.w;if(_inX&&mario.y>e.y+e.h){e.state='fall';try{beep(220,.06,'square',.15)}catch(ex){}}}
+  if(e.state==='idle'){e.y=e.baseY;e.vy=0;const _inX=mario.x+mario.w>e.x-16&&mario.x<e.x+e.w+16;if(_inX&&mario.y>e.y+e.h){e.state='fall';try{beep(220,.06,'square',.15)}catch(ex){}}}
   else if(e.state==='fall'){e.vy=Math.min(e.vy+2.5,22);e.y+=e.vy;let _landed=false;for(const p of platforms){const py=p.y-(p.bounceOffset||0);if(overlap(e.x+2,e.y,e.w-4,e.h,p.x,py,p.w,p.h)&&e.y+e.h/2<py+p.h/2){e.y=py-e.h;e.vy=0;_landed=true;break;}}if(!_landed&&e.y+e.h>=H-TILE){e.y=H-TILE-e.h;e.vy=0;_landed=true;}if(_landed){e.state='wait';e.waitTimer=55;G.shakeX=6;G.shakeY=6;try{beep(80,.25,'sawtooth',.22);beep(60,.3,'sawtooth',.18,.1)}catch(ex){}}}
   else if(e.state==='wait'){e.waitTimer--;if(e.waitTimer<=0)e.state='rise';}
   else if(e.state==='rise'){e.y=Math.max(e.baseY,e.y-1.5);if(e.y<=e.baseY){e.y=e.baseY;e.state='idle';}}
