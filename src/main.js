@@ -385,10 +385,10 @@ const _SHOP_ITEMS=[
   {key:'retryHeart',cost:200},{key:'star10',cost:200},
   {key:'1upSet',cost:250},
   {key:'1upSet6',cost:400},
-  {key:'doubleJump',cost:800},
-  {key:'magnet',cost:850},
-  {key:'star30',cost:1500},
-  {key:'bundle',cost:1600}
+  {key:'doubleJump',cost:600},
+  {key:'magnet',cost:650},
+  {key:'star30',cost:1000},
+  {key:'bundle',cost:1300}
 ];
 const _SINGLE_ONLY=new Set(['mushroom','fire','ice','hammer']);
 function _gpShopBuy(idx){
@@ -581,7 +581,7 @@ if(!force&&G.megaTimer>0){G.megaTimer=0;mario.power=G.megaPrevPower;mario.big=G.
 if(!force&&(mario.power==='fire'||mario.power==='ice'||mario.power==='hammer')){mario.power='big';mario.crouching=false;mario.inv=120;sfx('break');return}
 if(!force&&mario.power==='big'){mario.power='none';mario.big=false;mario.h=32;mario.crouching=false;mario.inv=120;sfx('break');return}
 // リトライハート: 死亡回避、その場復活
-if(G.retryHeart>0){G.retryHeart--;mario.inv=180;mario.vy=-10;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');return;}
+if(G.retryHeart>0){G.retryHeart--;mario.inv=240;mario.vy=-14;sfx('1up');sfx('power');try{beep(880,0.15,'square',0.2);beep(1320,0.2,'square',0.18,0.05);beep(1760,0.25,'triangle',0.15,0.12);}catch(e){}G.shakeX=22;G.shakeY=22;for(let i=0;i<50;i++)spawnParticle(mario.x+13+(Math.random()-0.5)*48,mario.y+16+(Math.random()-0.5)*48,'star');spawnScorePopup(mario.x+13,mario.y-20,'REVIVE!!','#ff3355');spawnScorePopup(mario.x+13,mario.y-44,`❤️ x${G.retryHeart}`,'#ff88aa');return;}
 if(yoshi.mounted&&yoshi.alive){yoshi.mounted=false;yoshi.alive=false;}
 // 死亡時に特殊効果リセット（チェックポイント復帰用に保存）
 const _svMagnet=G.coinMagnet,_svJump=G.doubleJump,_svRetry=G.retryHeart,_svHighJump=G.highJump;
@@ -823,7 +823,7 @@ if(mario.hipDrop&&mario.onGround){mario.hipDrop=false;G.shakeX=5;G.shakeY=5;try{
   for(const e of enemies){if(!e.alive||e.state==='dead')continue;if(Math.abs(e.x-mario.x)<TILE*2&&Math.abs(e.y-(mario.y+mario.h))<TILE){if(e.type==='goomba'||e.type==='hammerBro'||e.type==='cactus'||e.type==='penguin'||e.type==='shyGuy'||e.type==='rex'||e.type==='spiny'){e.state='dead';e.squishT=28;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,200,'#e74c3c');}else if(e.type==='bobomb'&&e.state==='walk'){e.state='lit';e.litTimer=180;G.score+=100;sfx('stomp');spawnScorePopup(e.x+16,e.y-8,100,'#ff4400');}}}
 }
 if(Math.abs(mario.vx)>0.5&&mario.onGround){mario.walkTimer++;if(mario.walkTimer>5){mario.walkTimer=0;mario.walkFrame=(mario.walkFrame+1)%3}}else if(mario.onGround)mario.walkFrame=0;
-{if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-10;mario.inv=180;sfx('1up');G.shakeX=10;G.shakeY=10;for(let i=0;i<20;i++)spawnParticle(mario.x+13,mario.y+16,'star');spawnScorePopup(mario.x+13,mario.y-20,'RETRY!','#ff4444');}else{killMario(true);}}}
+{if(mario.y>H+40){if(G.retryHeart>0){G.retryHeart--;mario.y=H-3*TILE;mario.x=Math.max(G.cam+32,mario.x);mario.vy=-14;mario.inv=240;sfx('1up');sfx('power');try{beep(880,0.15,'square',0.2);beep(1320,0.2,'square',0.18,0.05);beep(1760,0.25,'triangle',0.15,0.12);}catch(e){}G.shakeX=22;G.shakeY=22;for(let i=0;i<50;i++)spawnParticle(mario.x+13+(Math.random()-0.5)*48,mario.y+16+(Math.random()-0.5)*48,'star');spawnScorePopup(mario.x+13,mario.y-20,'REVIVE!!','#ff3355');spawnScorePopup(mario.x+13,mario.y-44,`❤️ x${G.retryHeart}`,'#ff88aa');}else{killMario(true);}}}
 if(G.autoScroll>0&&mario.x<G.cam+10)killMario(true); // 強制スクロール挟まれ即死
 if(mario.inv>0)mario.inv--;
 
@@ -3338,10 +3338,10 @@ const _shopItems=[
   {name:'STAR 10s',cost:200, key:'star10',   icon:'⭐', desc:'10秒無敵'},
   {name:'1UP x3',  cost:250, key:'1upSet',   icon:'💚x3',desc:'残機+3'},
   {name:'1UP x6',  cost:400, key:'1upSet6',  icon:'💚x6',desc:'残機+6 お得!'},
-  {name:'W-JUMP',  cost:800, key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ やられるまで'},
-  {name:'MAGNET',  cost:850, key:'magnet',    icon:'🧲', desc:'コイン吸引 やられるまで'},
-  {name:'STAR 30s',cost:1500,key:'star30',    icon:'🌟', desc:'30秒無敵!'},
-  {name:'SET 1600',cost:1600,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
+  {name:'W-JUMP',  cost:600, key:'doubleJump',icon:'⬆️x2',desc:'2段ジャンプ やられるまで'},
+  {name:'MAGNET',  cost:650, key:'magnet',    icon:'🧲', desc:'コイン吸引 やられるまで'},
+  {name:'STAR 30s',cost:1000,key:'star30',    icon:'🌟', desc:'30秒無敵!'},
+  {name:'SET 1300',cost:1300,key:'bundle',    icon:'🎁', desc:'磁石+2段JMP+RETRY'},
 ];
 const _cols=5,_siW=120,_siH=100,_siGap=10,_rowGap=10;
 const _siX0=(W-(_siW*_cols+_siGap*(_cols-1)))/2,_siY=86;
