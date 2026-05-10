@@ -84,9 +84,8 @@ export function buildLevel_7_3(){
   // Z4
   platforms.push({x:6000,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6000>5988 ✓
   platforms.push({x:6260,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6260>6246 ✓
-  // アリーナ内 ? ブロック（壁右側）
-  platforms.push({x:6980,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:7300,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // ※ アリーナ内 ? ブロックは下のクッパ配置セクション(L194-195)で
+  //   ドッスン落下範囲(6960-7024 / 7180-7244)を避ける位置に配置済み
 
   // 隠し1UP
   platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});

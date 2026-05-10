@@ -105,7 +105,7 @@ export function buildLevel_5_3(){
 
   // ヨッシーブロック（2個）
   platforms.push({x:1800,y:H-7*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
-  platforms.push({x:4500,y:H-7*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+  platforms.push({x:4760,y:H-7*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 
   // キノコブロック追加
   platforms.push({x:750, y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
