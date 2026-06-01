@@ -70,7 +70,7 @@ for(let i=0;i<220;i++)coinItems.push({x:100+i*35,y:H-6*TILE,collected:false});
 {x:2050,t:'koopa'},{x:2500,t:'goomba'},{x:2600,t:'goomba'},{x:2700,t:'goomba'},{x:2820,t:'goomba'},
 {x:2900,t:'goomba'},{x:3100,t:'koopa'},{x:3250,t:'goomba'},{x:3280,t:'goomba'},{x:3200,t:'goomba'},
 {x:3920,t:'goomba'},{x:4020,t:'goomba'},{x:4120,t:'goomba'},{x:4050,t:'goomba'},{x:4200,t:'koopa'},
-{x:4350,t:'goomba'},{x:4450,t:'goomba'},{x:4550,t:'goomba'},{x:5000,t:'goomba'},{x:5100,t:'goomba'},{x:5200,t:'goomba'},
+{x:4350,t:'goomba'},{x:4450,t:'goomba'},{x:4550,t:'goomba'},{x:4792,t:'goomba'},{x:5100,t:'goomba'},{x:5200,t:'goomba'},
 {x:5450,t:'koopa'},{x:5600,t:'goomba'},{x:5700,t:'goomba'},{x:5820,t:'goomba'},
 {x:5950,t:'goomba'},{x:6100,t:'goomba'},{x:6200,t:'goomba'},{x:6300,t:'goomba'},{x:6450,t:'koopa'},
 {x:6600,t:'goomba'},{x:6700,t:'goomba'},{x:6800,t:'goomba'},{x:6900,t:'goomba'},{x:7050,t:'goomba'},{x:7200,t:'goomba'},{x:7350,t:'goomba'},

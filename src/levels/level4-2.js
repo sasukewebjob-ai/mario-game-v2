@@ -101,18 +101,18 @@ export function buildLevel_4_2(){
 
   // 敵（スタート直後 x<600 は安全）
   // クリボー ×5
-  [700,1150,1480,2300,2900].forEach(x=>{
+  [700,1150,1272,2300,2900].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });
   // メット（buzzy）×13（地面10 + ブロック上3）
-  [760,1200,2120,2370,2970, 720,1150,1480,2250,2850].forEach(x=>{
+  [760,1176,1848,2370,2970, 720,1150,1272,2250,2850].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
   // ブロック上メット×3（Z1@150/Z2@650の2行を削除済み）
   [
-    {x:1480,y:H-8*TILE},  // addRow(1650,H-7T)上 ← moved outside checkpoint zone
+    {x:1576,y:H-8*TILE},  // addRow(1650,H-7T)上付近の足場へ(ギャップ上スポーン修正)
     {x:2232,y:H-6*TILE},  // addRow(2200,H-5T)上
     {x:2832,y:H-8*TILE},  // addRow(2800,H-7T)上
   ].forEach(({x,y})=>{

@@ -82,7 +82,7 @@ export function buildLevel_3_3(){
   [{x:620,t:'goomba'},{x:880,t:'koopa'},
    {x:1100,t:'koopa'},{x:1380,t:'koopa'},{x:1490,t:'goomba'},{x:1600,t:'goomba'},
    {x:2200,t:'koopa'},{x:2380,t:'koopa'},{x:2600,t:'hammerBro'},{x:2700,t:'goomba'},
-   {x:3480,t:'koopa'},{x:4120,t:'koopa'},{x:4220,t:'koopa'},
+   {x:3416,t:'koopa'},{x:4120,t:'koopa'},{x:4220,t:'koopa'},
    {x:4200,t:'goomba'},{x:4300,t:'goomba'},{x:4700,t:'goomba'},{x:4820,t:'koopa'},
    {x:5500,t:'koopa'},{x:5620,t:'hammerBro'},{x:5740,t:'goomba'},
    {x:5930,t:'koopa'},{x:6570,t:'koopa'}

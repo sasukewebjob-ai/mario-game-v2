@@ -71,7 +71,7 @@ export function buildLevel_4_3(){
   // 敵
   [{x:650,t:'koopa'},{x:900,t:'goomba'},{x:1200,t:'koopa'},
    {x:1500,t:'goomba'},{x:2250,t:'koopa'},{x:2450,t:'goomba'},
-   {x:2700,t:'koopa'},{x:3000,t:'goomba'},{x:3480,t:'koopa'},
+   {x:2700,t:'koopa'},{x:3000,t:'goomba'},{x:3416,t:'koopa'},
    {x:4120,t:'goomba'},{x:4300,t:'koopa'},{x:4550,t:'goomba'},
    {x:5600,t:'koopa'},{x:5850,t:'goomba'},{x:6570,t:'koopa'}
   ].forEach(({x,t})=>{

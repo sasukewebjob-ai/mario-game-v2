@@ -140,7 +140,7 @@ export function buildLevel_8_2(){
   });
 
   // メット（buzzy）×5
-  [600, 1400, 2400, 3350, 4400].forEach(ex=>{
+  [600, 1400, 2104, 3350, 4400].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });

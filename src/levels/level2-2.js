@@ -104,7 +104,7 @@ export function buildLevel_2_2(){
   [{x:350,t:'goomba'},{x:500,t:'goomba'},{x:750,t:'koopa'},
    {x:1000,t:'goomba'},{x:1100,t:'goomba'},{x:1350,t:'koopa'},
    {x:1550,t:'goomba'},{x:1650,t:'goomba'},{x:1850,t:'koopa'},{x:2050,t:'goomba'},{x:2250,t:'goomba'},
-   {x:2700,t:'goomba'},{x:2800,t:'goomba'},{x:3000,t:'koopa'},{x:3250,t:'goomba'},{x:3300,t:'goomba'},{x:3550,t:'koopa'},{x:3680,t:'goomba'},{x:4320,t:'goomba'},
+   {x:2700,t:'goomba'},{x:2800,t:'goomba'},{x:3000,t:'koopa'},{x:3250,t:'goomba'},{x:3300,t:'goomba'},{x:3550,t:'koopa'},{x:3680,t:'goomba'},{x:4392,t:'goomba'},
    {x:4500,t:'goomba'},{x:4650,t:'goomba'},{x:4750,t:'koopa'},{x:5050,t:'goomba'},{x:5150,t:'goomba'},{x:5300,t:'koopa'},{x:5650,t:'goomba'},{x:5800,t:'goomba'},
    {x:6200,t:'goomba'},{x:6350,t:'goomba'},{x:6500,t:'koopa'},{x:6600,t:'goomba'},{x:6750,t:'goomba'},{x:6900,t:'koopa'},{x:7050,t:'goomba'}
   ].forEach(({x,t})=>{

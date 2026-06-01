@@ -120,12 +120,12 @@ export function buildLevel_4_1(){
 
   // 敵（x<600 はスタート安全圏）
   // クリボー ×5
-  [690,1240,1600,2350,3060].forEach(x=>{
+  [690,1240,1400,2350,3060].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });
   // メット（buzzy）×15（地面10 + ブロック上5）
-  [810,1310,2240,2520,3130, 650,1200,1600,2280,2960].forEach(x=>{
+  [810,1278,2240,2520,3130, 650,1200,1400,2280,2960].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });

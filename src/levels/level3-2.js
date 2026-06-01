@@ -119,7 +119,7 @@ export function buildLevel_3_2(){
    {x:800,t:'koopa'},{x:1000,t:'cactus'},{x:1150,t:'goomba'},{x:1380,t:'hammerBro'},
    {x:2100,t:'goomba'},{x:2500,t:'koopa'},  // ★ x=2250サボテンはピノキオ部屋パイプ(x=2200)真下のため撤去
    {x:2800,t:'cactus'},{x:2960,t:'hammerBro'},
-   {x:3480,t:'goomba'},{x:3380,t:'cactus'},{x:4120,t:'koopa'},
+   {x:3480,t:'goomba'},{x:3100,t:'cactus'},{x:4120,t:'koopa'},
    {x:4200,t:'cactus'},{x:4380,t:'hammerBro'},{x:4580,t:'goomba'},
    {x:5180,t:'cactus'},{x:5350,t:'koopa'},{x:5600,t:'goomba'},
    {x:5760,t:'cactus'},
