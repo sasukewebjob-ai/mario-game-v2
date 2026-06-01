@@ -237,7 +237,7 @@ export function buildLevel_8_3(){
   // チェックポイント（Z2後半・周辺300px: 3200〜3800禁止済み ✓）
   G.checkpoint={x:3500,y:H-TILE,reached:false};
   // ★ ハンマースーツ
-  platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  platforms.push({x:4420,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管
   pipes.push({x:1200,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   // 城の天井土管は撤去（落とし穴上の火柱との競合回避）

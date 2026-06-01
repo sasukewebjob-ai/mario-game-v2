@@ -26,23 +26,23 @@ export function buildLevel_5_2(){
     platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // 岩礁（水中プラットフォーム）— 5-1より多め・高低差も大きい
-  addRow(250,  H-5*TILE, 4, 'ground');
-  addRow(700,  H-7*TILE, 3, 'ground');
-  addRow(1200, H-4*TILE, 5, 'ground');
-  addRow(1800, H-8*TILE, 3, 'ground');
-  addRow(2500, H-5*TILE, 5, 'ground');
-  addRow(3100, H-7*TILE, 4, 'ground');
-  addRow(3800, H-4*TILE, 5, 'ground');
-  addRow(4500, H-6*TILE, 4, 'ground');
-  addRow(5100, H-8*TILE, 3, 'ground');
-  addRow(5700, H-5*TILE, 5, 'ground');
-  addRow(6400, H-7*TILE, 4, 'ground');
+  addRow(250,  H-5*TILE, 4, 'g');
+  addRow(700,  H-7*TILE, 3, 'g');
+  addRow(1200, H-4*TILE, 5, 'g');
+  addRow(1800, H-8*TILE, 3, 'g');
+  addRow(2500, H-5*TILE, 5, 'g');
+  addRow(3100, H-7*TILE, 4, 'g');
+  addRow(3800, H-4*TILE, 5, 'g');
+  addRow(4500, H-6*TILE, 4, 'g');
+  addRow(5100, H-8*TILE, 3, 'g');
+  addRow(5700, H-5*TILE, 5, 'g');
+  addRow(6400, H-7*TILE, 4, 'g');
 
   // ★ Block Height Variety（水中の追加岩礁）
-  addRow(450,  H-8*TILE, 3, 'ground');   // 高めの岩礁
-  addRow(1500, H-4*TILE, 4, 'ground');   // 低めの岩礁
-  addRow(3300, H-6*TILE, 3, 'ground');   // 中位の岩礁
-  addRow(5400, H-4*TILE, 4, 'ground');   // 低めの岩礁
+  addRow(450,  H-8*TILE, 3, 'g');   // 高めの岩礁
+  addRow(1500, H-4*TILE, 4, 'g');   // 低めの岩礁
+  addRow(3300, H-6*TILE, 3, 'g');   // 中位の岩礁
+  addRow(5400, H-4*TILE, 4, 'g');   // 低めの岩礁
 
   // 土管3本
   // 土管1: warp→water3

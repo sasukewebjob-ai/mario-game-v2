@@ -121,6 +121,8 @@ if(e.code==='Equal'||e.code==='NumpadAdd'){G.bgmVolume=Math.min(1,G.bgmVolume+0.
 if(e.code==='Minus'||e.code==='NumpadSubtract'){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;}
 e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.code]=false});
+// タブが非アクティブになったら自動ポーズ（バックグラウンドでタイマーだけ進む問題の防止）
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G.state==='play'&&!mario.dead)G.paused=true;});
 
 function doJump(){
 if(G.waterMode){mario.vy=-3.5;G.swimCooldown=14;for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');return}
@@ -794,7 +796,7 @@ mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;if(p.type==='hidden'&&!p.hit)continue;cX(mario,p)}
 for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cX(mario,p)}
 const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);mario.vy+=_grav;
-if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{const _maxVy=G.waterMode?3.5:G.lowGravity?9:15;if(mario.vy>_maxVy)mario.vy=_maxVy;}
+if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{const _maxVy=G.waterMode?3.5:G.lowGravity?9:(mario.hipDrop?20:15);if(mario.vy>_maxVy)mario.vy=_maxVy;}
 mario.y+=mario.vy;mario.onGround=false;
 if(G.gravityFlipped&&mario.y<0){mario.y=0;mario.vy=0;mario.onGround=true;}
 if(G.waterMode&&mario.y<TILE){mario.y=TILE;mario.vy=0;}

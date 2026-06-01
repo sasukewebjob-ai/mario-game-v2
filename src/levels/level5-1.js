@@ -26,20 +26,20 @@ export function buildLevel_5_1(){
     platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 
   // 岩礁（水中のプラットフォーム）
-  addRow(320,  H-4*TILE, 5, 'ground');   // x=320〜448
-  addRow(900,  H-6*TILE, 4, 'ground');   // x=900〜1024
-  addRow(1650, H-5*TILE, 5, 'ground');   // x=1650〜1778
-  addRow(2600, H-4*TILE, 6, 'ground');   // x=2600〜2760
-  addRow(3400, H-7*TILE, 4, 'ground');   // x=3400〜3524
-  addRow(4050, H-5*TILE, 5, 'ground');   // x=4050〜4178
-  addRow(4900, H-4*TILE, 5, 'ground');   // x=4900〜5028
-  addRow(5700, H-6*TILE, 4, 'ground');   // x=5700〜5824
-  addRow(6300, H-5*TILE, 5, 'ground');   // x=6300〜6428
+  addRow(320,  H-4*TILE, 5, 'g');   // x=320〜448
+  addRow(900,  H-6*TILE, 4, 'g');   // x=900〜1024
+  addRow(1650, H-5*TILE, 5, 'g');   // x=1650〜1778
+  addRow(2600, H-4*TILE, 6, 'g');   // x=2600〜2760
+  addRow(3400, H-7*TILE, 4, 'g');   // x=3400〜3524
+  addRow(4050, H-5*TILE, 5, 'g');   // x=4050〜4178
+  addRow(4900, H-4*TILE, 5, 'g');   // x=4900〜5028
+  addRow(5700, H-6*TILE, 4, 'g');   // x=5700〜5824
+  addRow(6300, H-5*TILE, 5, 'g');   // x=6300〜6428
 
   // ★ Block Height Variety（水中の追加岩礁）
-  addRow(2000, H-4*TILE, 4, 'ground');   // 低めの岩礁
-  addRow(3800, H-8*TILE, 3, 'ground');   // 高めの岩礁
-  addRow(5300, H-6*TILE, 4, 'ground');   // 中位の岩礁
+  addRow(2000, H-4*TILE, 4, 'g');   // 低めの岩礁
+  addRow(3800, H-8*TILE, 3, 'g');   // 高めの岩礁
+  addRow(5300, H-6*TILE, 4, 'g');   // 中位の岩礁
 
   // 土管3本（下に↓押すと入れる）
   // 土管1: warp→water1 (コイン部屋)
