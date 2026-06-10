@@ -2199,9 +2199,18 @@ if(facing===1)ctx.fillRect(x+e.w-5,y+h*0.2,5,4);else ctx.fillRect(x,y+h*0.2,5,4)
 function drawBuzzy(e){const x=e.x,y=e.y;
 if(e.state==='shell'){ctx.fillStyle='#1a3d6d';ctx.beginPath();ctx.arc(x+e.w/2,y+e.h/2,e.w/2-2,0,Math.PI*2);ctx.fill();ctx.fillStyle='#2980b9';ctx.beginPath();ctx.arc(x+e.w/2,y+e.h/2,e.w/2-5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#1a3d6d';ctx.fillRect(x+8,y+4,3,e.h-8);if(Math.abs(e.vx)>1){ctx.fillStyle='rgba(255,255,255,0.3)';ctx.fillRect(x+6+Math.sin(G.frame*0.4)*6,y+3,3,e.h-6)}}
 else if(e.state==='dead'){ctx.fillStyle='#2c3e50';ctx.fillRect(x+4,y+TILE-8,TILE-8,8)}
-else{const h=e.h;ctx.fillStyle='#1a3d6d';ctx.fillRect(x+2,y+2,TILE-4,h*0.7);ctx.fillStyle='#2980b9';ctx.fillRect(x+4,y+4,TILE-8,h*0.6);ctx.fillStyle='#3498db';ctx.fillRect(x+8,y+4,5,h*0.5);
-ctx.fillStyle='#f5d76e';ctx.fillRect(x+4,y+h*0.5,10,h*0.3);ctx.fillStyle='#fff';ctx.fillRect(x+5,y+h*0.5,5,4);ctx.fillStyle='#000';ctx.fillRect(x+6,y+h*0.52,3,3);
-const fo=e.walkFrame===0?[-2,2]:[2,-2];ctx.fillStyle='#f5d76e';ctx.fillRect(x+4+fo[0],y+h-6,8,6);ctx.fillRect(x+18+fo[1],y+h-6,8,6)}}
+else{const h=e.h;
+// ドーム甲羅（縁取り + 2トーン + 艶ハイライト）
+ctx.fillStyle='#102a4d';ctx.beginPath();ctx.arc(x+TILE/2,y+h*0.5,TILE/2-2,Math.PI,0);ctx.fill();ctx.fillRect(x+2,y+h*0.5,TILE-4,h*0.25);
+ctx.fillStyle='#1a3d6d';ctx.beginPath();ctx.arc(x+TILE/2,y+h*0.5,TILE/2-4,Math.PI,0);ctx.fill();ctx.fillRect(x+4,y+h*0.5,TILE-8,h*0.2);
+ctx.fillStyle='#2980b9';ctx.beginPath();ctx.arc(x+TILE/2,y+h*0.5,TILE/2-8,Math.PI,0);ctx.fill();
+ctx.fillStyle='rgba(255,255,255,0.35)';ctx.beginPath();ctx.ellipse(x+11,y+h*0.26,5,2.5,-0.3,0,Math.PI*2);ctx.fill();
+// 顔 + 目
+ctx.fillStyle='#f5d76e';ctx.fillRect(x+4,y+h*0.55,10,h*0.28);
+ctx.fillStyle='#fff';ctx.fillRect(x+5,y+h*0.55,5,4);ctx.fillStyle='#000';ctx.fillRect(x+6,y+h*0.57,3,3);
+// 足
+const fo=e.walkFrame===0?[-2,2]:[2,-2];ctx.fillStyle='#f5d76e';ctx.fillRect(x+4+fo[0],y+h-6,8,6);ctx.fillRect(x+18+fo[1],y+h-6,8,6);
+ctx.fillStyle='#d0b050';ctx.fillRect(x+4+fo[0],y+h-2,8,2);ctx.fillRect(x+18+fo[1],y+h-2,8,2)}}
 
 function drawPiranha(pr){const x=pr.x,y=pr.y,cw=pr.w,ch=pr.h,cx=x+cw/2;
 const open=Math.sin(G.frame*0.12)>0;const gap=open?6:0;
