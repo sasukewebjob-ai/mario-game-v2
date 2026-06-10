@@ -100,7 +100,7 @@ export function buildLevel_6_2(){
   platforms.push({x:100, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:2400,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:4900,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:7000,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:6850,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0}); // ★ was 7000 (pit:7050直前) → 6850へ
 
   // ヨッシーブロック
   platforms.push({x:1300,y:H-9*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0}); // y=H-9T ✓

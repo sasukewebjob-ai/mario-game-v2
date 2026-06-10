@@ -56,10 +56,10 @@ export function buildLevel_4_2(){
   platforms.push({x:270, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z1
   platforms.push({x:300, y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
   platforms.push({x:720, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z2 ★ was 750 (addRow750と同x) → 720へ
-  platforms.push({x:770, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden（到達不可→到達可能な隠しブロックに）
+  platforms.push({x:660, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ was 770 (pit:800直前) → 660へ
   platforms.push({x:1115,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z2後半（x=1115: ブロック左寄り、敵x=1150と分離）
-  platforms.push({x:1158,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // Z2後半（x=1158: 隠し、縦積み解消）
-  platforms.push({x:1780,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ H-11T→H-9T,hidden
+  platforms.push({x:1610,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ was 1158 (micro-gap:1180直前の小島) → Z4地面1610へ
+  platforms.push({x:2240,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',  hit:false,has1UP:true, bounceOffset:0}); // ★ was 1780 (pit:1850直前) → Z5レンガ上空2240へ
   platforms.push({x:2310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // Z5
   platforms.push({x:2340,y:H-9*TILE, w:TILE,h:TILE,type:'question', hit:false,has1UP:true, bounceOffset:0});
   platforms.push({x:2910,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // Z6

@@ -44,27 +44,27 @@ export function buildLevel_4_1(){
   // Zone 2 (560-870): レンガ@670-734（パイプx=590-654の後），Q@720(H-5T), hidden@800(H-9T)
   addRow(670, H-6*TILE, 2,'brick');  // ★ was 600 → moved after pipe ends at 654
   platforms.push({x:720, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:800, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:760, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0}); // ★ was 800 (pit:870直前) → 760へ
 
   // Zone 3 (1110-1380): レンガ@1120-1152, Q@1220(H-7T), hidden@1300(H-9T)
   addRow(1120, H-5*TILE, 2,'brick');
   platforms.push({x:1220, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true, bounceOffset:0});
-  platforms.push({x:1300, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:1150, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0}); // ★ was 1300 (gap内1280-1360) → レンガ上空1150へ
 
   // Zone 4 (1660-1960): レンガ@1680-1744, Q@1800(H-5T), hidden@1900(H-9T)
   addRow(1680, H-7*TILE, 3,'brick');
-  platforms.push({x:1900, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:1820, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0}); // ★ was 1900 (pit:1960直前) → 1820へ
 
   // Zone 5 (2240-2580): レンガ@2260-2324, Q@2370(H-7T), hidden@2540(H-9T)
   // ★ Q was x=2400 (Hammer同x重なり) → 2370へ, hidden was x=2500 (パイプ2440-2504被り) → 2540へ
   addRow(2260, H-5*TILE, 3,'brick');
   platforms.push({x:2370, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:2540, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:2300, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0}); // ★ was 2540 (pit:2580直前) → レンガ上空2300へ
 
   // Zone 6 (2880-3180): レンガ@2900-2932, Q@3000(H-5T), hidden@3100(H-9T)
   addRow(2900, H-7*TILE, 2,'brick');
   platforms.push({x:3000, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true, bounceOffset:0});
-  platforms.push({x:3100, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  platforms.push({x:3060, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0}); // ★ was 3100 (pit:3180直前) → 3060へ
 
   // Zone 7 (3500+): レンガ + コインブロック + 階段
   addRow(3540, H-5*TILE, 2,'brick');
