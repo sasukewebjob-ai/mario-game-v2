@@ -12,6 +12,38 @@ const LEVEL_DIR = path.join(__dirname, '..', 'src', 'levels');
 
 const GROUND_ENEMIES = ['goomba','koopa','buzzy','rex','penguin','cactus','shyGuy'];
 
+// 城ステージ判定の正本: stages.js の bgmTheme:'castle'（"W-L" のセット）
+const castleSet = (() => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'src', 'stages.js'), 'utf8');
+  const set = new Set();
+  for (const m of src.matchAll(/world\s*:\s*(\d+)\s*,\s*level\s*:\s*(\d+)[^}]*bgmTheme\s*:\s*'castle'/g)) {
+    set.add(`${m[1]}-${m[2]}`);
+  }
+  return set;
+})();
+
+// コイン実数: 各レベルの build を実行して coinItems + ブロック由来コインを数える（静的推定はループ形式を数え落とすため）
+const realCoinCounts = new Map();
+{
+  const {coinItems, platforms} = await import(new URL('../src/globals.js', import.meta.url));
+  for (const f of fs.readdirSync(LEVEL_DIR)) {
+    const m = f.match(/^level(\d)-(\d)\.js$/);
+    if (!m) continue;
+    try {
+      const mod = await import(new URL(`../src/levels/${f}`, import.meta.url));
+      const fn = Object.values(mod).find(v => typeof v === 'function');
+      fn();
+      let blockCoins = 0;
+      for (const p of platforms) {
+        if (p.coinBlock) blockCoins += p.hitsLeft || 0;
+        else if ((p.type === 'question' || p.type === 'q' || p.type === 'hidden') &&
+                 !p.hasMush && !p.hasStar && !p.has1UP && !p.hasHammer && !p.hasYoshi && !p.hasFlower) blockCoins += 1;
+      }
+      realCoinCounts.set(f, coinItems.length + blockCoins);
+    } catch (e) { /* build失敗時は静的推定にフォールバック */ }
+  }
+}
+
 // 個別チェック関数（テキストレベルの静的解析）
 function checkAutoScrollReset(content) {
   return /G\.autoScroll\s*=\s*0/.test(content);
@@ -116,9 +148,12 @@ for (const file of files) {
   if (nearCP.length) {
     warnings.push(`⑥ チェックポイント±300px に敵: ${nearCP.join(', ')}`);
   }
-  const coinCount = estimateCoinCount(content);
-  if (!isCastleStage(content) && coinCount < 250) {
-    warnings.push(`⑦ コイン推定 ${coinCount}（300+推奨、城以外）`);
+  const wl = file.match(/^level(\d)-(\d)\.js$/);
+  const isCastle = (wl && castleSet.has(`${wl[1]}-${wl[2]}`)) || isCastleStage(content);
+  const real = realCoinCounts.get(file);
+  const coinCount = real ?? estimateCoinCount(content);
+  if (!isCastle && coinCount < 300) {
+    warnings.push(`⑦ コイン${real != null ? '実測' : '推定'} ${coinCount}（300+推奨、城以外）`);
   }
 
   if (issues.length || warnings.length) {
@@ -126,9 +161,9 @@ for (const file of files) {
     console.log(`[${file}]`);
     issues.forEach(i => { console.log('  ❌ ' + i); totalIssues++; });
     warnings.forEach(w => console.log('  ⚠️  ' + w));
-    summary.push({file, issues: issues.length, warnings: warnings.length, coins: coinCount});
+    summary.push({file, issues: issues.length, warnings: warnings.length, coins: coinCount, castle: isCastle});
   } else {
-    summary.push({file, issues: 0, warnings: 0, coins: coinCount});
+    summary.push({file, issues: 0, warnings: 0, coins: coinCount, castle: isCastle});
   }
 }
 
@@ -141,9 +176,9 @@ console.log(`違反(❌): ${totalIssues} 件`);
 const warnTotal = summary.reduce((a, b) => a + b.warnings, 0);
 console.log(`警告(⚠️ ): ${warnTotal} 件`);
 console.log('');
-console.log('コイン推定 BOTTOM5（城以外）:');
+console.log('コイン BOTTOM5（城以外・実測ベース）:');
 summary
-  .filter(s => !s.file.match(/level[1-8]-[34]\.js/))
+  .filter(s => !s.castle)
   .sort((a, b) => a.coins - b.coins)
   .slice(0, 5)
   .forEach(s => console.log(`  ${s.file}: ${s.coins}`));
