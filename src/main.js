@@ -2138,11 +2138,14 @@ ctx.restore();
 
 function drawGoomba(x,y,squished,wf){
 if(squished){ctx.fillStyle='#8B6914';ctx.fillRect(x+2,y+TILE-8,TILE-4,8);ctx.fillStyle='#A0822D';ctx.fillRect(x+4,y+TILE-6,TILE-8,4);return}
-// Mushroom head
-ctx.fillStyle='#8B4513';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.35,TILE/2,Math.PI,0);ctx.fill();
-ctx.fillStyle='#A0522D';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.35,TILE/2-2,Math.PI,0);ctx.fill();
-// Body
+// Mushroom head（縁取り + 2トーン + ハイライト）
+ctx.fillStyle='#6b3410';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.35,TILE/2,Math.PI,0);ctx.fill();
+ctx.fillStyle='#8B4513';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.35,TILE/2-1.5,Math.PI,0);ctx.fill();
+ctx.fillStyle='#A0522D';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE*0.35,TILE/2-4,Math.PI,0);ctx.fill();
+ctx.fillStyle='rgba(255,255,255,0.25)';ctx.beginPath();ctx.ellipse(x+11,y+4,6,2.5,-0.3,0,Math.PI*2);ctx.fill();
+// Body + 影
 ctx.fillStyle='#DEB887';ctx.fillRect(x+6,y+TILE*0.35,TILE-12,TILE*0.35);
+ctx.fillStyle='#c09a60';ctx.fillRect(x+6,y+TILE*0.62,TILE-12,3);
 // Eyes (angry)
 ctx.fillStyle='#fff';ctx.fillRect(x+5,y+8,10,8);ctx.fillRect(x+17,y+8,10,8);
 ctx.fillStyle='#000';ctx.fillRect(x+8,y+10,6,5);ctx.fillRect(x+20,y+10,6,5);
@@ -2150,9 +2153,10 @@ ctx.fillStyle='#000';ctx.fillRect(x+8,y+10,6,5);ctx.fillRect(x+20,y+10,6,5);
 ctx.fillStyle='#000';ctx.fillRect(x+5,y+6,10,3);ctx.fillRect(x+17,y+6,10,3);
 // Mouth/fangs
 ctx.fillStyle='#000';ctx.fillRect(x+10,y+18,12,3);ctx.fillStyle='#fff';ctx.fillRect(x+12,y+18,3,3);ctx.fillRect(x+18,y+18,3,3);
-// Feet
+// Feet（2トーン）
 const fo=wf===0?[-2,2]:[2,-2];
-ctx.fillStyle='#000';ctx.fillRect(x+3+fo[0],y+TILE-8,10,8);ctx.fillRect(x+19+fo[1],y+TILE-8,10,8);
+ctx.fillStyle='#1a1a1a';ctx.fillRect(x+3+fo[0],y+TILE-8,10,8);ctx.fillRect(x+19+fo[1],y+TILE-8,10,8);
+ctx.fillStyle='#3a3a3a';ctx.fillRect(x+4+fo[0],y+TILE-8,8,3);ctx.fillRect(x+20+fo[1],y+TILE-8,8,3);
 }
 
 function drawKoopa(e){const x=e.x,y=e.y,h=e.h,facing=e.facing||1;
@@ -2346,13 +2350,22 @@ function drawCheckpoint(cp){ctx.fillStyle=cp.reached?'#2ecc71':'#888';ctx.fillRe
 function drawCheep(e){const x=e.x,y=e.y,dir=(e.vx||0)<0?-1:1;
 if(e.state==='dead'){ctx.globalAlpha=0.35;ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.ellipse(x+12,y+10,12,7,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;return}
 ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.ellipse(x+12,y+10,12,7,0,0,Math.PI*2);ctx.fill();
+// 白い腹
+ctx.fillStyle='#ffe8e0';ctx.beginPath();ctx.ellipse(x+12,y+13,9,4,0,0,Math.PI);ctx.fill();
+// 尾びれ（羽ばたきアニメ）
+const _ff=Math.sin(G.frame*0.25)*3;
 ctx.fillStyle='#c0392b';ctx.beginPath();
-if(dir<0){ctx.moveTo(x+22,y+5);ctx.lineTo(x+32,y+1);ctx.lineTo(x+32,y+19);ctx.closePath();}
-else{ctx.moveTo(x+2,y+5);ctx.lineTo(x-8,y+1);ctx.lineTo(x-8,y+19);ctx.closePath();}
+if(dir<0){ctx.moveTo(x+22,y+5);ctx.lineTo(x+32,y+1+_ff);ctx.lineTo(x+32,y+19+_ff);ctx.closePath();}
+else{ctx.moveTo(x+2,y+5);ctx.lineTo(x-8,y+1+_ff);ctx.lineTo(x-8,y+19+_ff);ctx.closePath();}
 ctx.fill();
+// 胸びれ（パタパタ）
+ctx.fillStyle='#ff7f6f';ctx.beginPath();
+if(dir<0){ctx.moveTo(x+14,y+12);ctx.lineTo(x+20,y+16+_ff);ctx.lineTo(x+12,y+15);}else{ctx.moveTo(x+10,y+12);ctx.lineTo(x+4,y+16+_ff);ctx.lineTo(x+12,y+15);}
+ctx.closePath();ctx.fill();
 const ex=dir<0?x+5:x+18;
 ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex,y+7,4,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#000';ctx.beginPath();ctx.arc(ex+(dir<0?1:-1),y+7,2.2,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex+(dir<0?2:-2),y+6,1,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#ff9999';ctx.beginPath();ctx.moveTo(x+12,y+3);ctx.lineTo(x+8,y-2);ctx.lineTo(x+16,y-2);ctx.closePath();ctx.fill();}
 
 function drawBlooper(e){const x=e.x,y=e.y;
@@ -2501,51 +2514,86 @@ ctx.fillStyle='#4CAF50';ctx.beginPath();ctx.arc(eg.x+6,eg.y+7,2,0,Math.PI*2);ctx
 
 function drawHammerBro(e){const x=e.x,y=e.y;
 if(e.state==='dead'){ctx.fillStyle='#556b2f';ctx.fillRect(x+4,y+e.h-10,TILE-8,10);return}
-ctx.fillStyle='#556b2f';ctx.fillRect(x+2,y,TILE-4,e.h*0.3);ctx.fillStyle='#6b8e23';ctx.fillRect(x+4,y+2,TILE-8,e.h*0.25);
-ctx.fillStyle='#8fbc8f';ctx.fillRect(x+4,y+e.h*0.3,TILE-8,e.h*0.4);
-ctx.fillStyle='#fff';ctx.fillRect(x+6,y+e.h*0.12,7,5);ctx.fillRect(x+18,y+e.h*0.12,7,5);
-ctx.fillStyle='#000';ctx.fillRect(x+8,y+e.h*0.14,4,3);ctx.fillRect(x+20,y+e.h*0.14,4,3);
+// ヘルメット（ドーム + つば + ハイライト）
+ctx.fillStyle='#1e4f1e';ctx.beginPath();ctx.arc(x+TILE/2,y+e.h*0.16,TILE/2-2,Math.PI,0);ctx.fill();
+ctx.fillStyle='#2d6b2d';ctx.beginPath();ctx.arc(x+TILE/2,y+e.h*0.16,TILE/2-4,Math.PI,0);ctx.fill();
+ctx.fillStyle='#1e4f1e';ctx.fillRect(x,y+e.h*0.14,TILE,4);
+ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+8,y+2,10,3);
+// 顔（タン色）+ 目
+ctx.fillStyle='#f0d060';ctx.fillRect(x+5,y+e.h*0.2,TILE-10,e.h*0.16);
+ctx.fillStyle='#fff';ctx.fillRect(x+7,y+e.h*0.21,6,5);ctx.fillRect(x+18,y+e.h*0.21,6,5);
+ctx.fillStyle='#000';ctx.fillRect(x+9,y+e.h*0.23,4,3);ctx.fillRect(x+20,y+e.h*0.23,4,3);
+// くちばし
+ctx.fillStyle='#e0b040';ctx.fillRect(x+12,y+e.h*0.31,8,4);
+// 甲羅（前面）+ 腹
+ctx.fillStyle='#145a14';ctx.fillRect(x+3,y+e.h*0.38,TILE-6,e.h*0.36);
+ctx.fillStyle='#27ae60';ctx.fillRect(x+5,y+e.h*0.4,TILE-10,e.h*0.3);
+ctx.fillStyle='#f0e0a0';ctx.fillRect(x+9,y+e.h*0.44,TILE-18,e.h*0.24);
+ctx.fillStyle='#d0c080';ctx.fillRect(x+9,y+e.h*0.56,TILE-18,2);
+// 足（オレンジブーツ）
 const fo=e.walkFrame===0?[-2,2]:[2,-2];
-ctx.fillStyle='#556b2f';ctx.fillRect(x+4+fo[0],y+e.h-8,10,8);ctx.fillRect(x+18+fo[1],y+e.h-8,10,8);
-ctx.fillStyle='#8fbc8f';ctx.fillRect(x+22,y-6,6,10);ctx.fillStyle='#666';ctx.fillRect(x+20,y-12,10,6);ctx.fillStyle='#888';ctx.fillRect(x+21,y-11,8,4)}
+ctx.fillStyle='#e67e22';ctx.fillRect(x+4+fo[0],y+e.h-8,10,8);ctx.fillRect(x+18+fo[1],y+e.h-8,10,8);
+ctx.fillStyle='#d35400';ctx.fillRect(x+4+fo[0],y+e.h-3,10,3);ctx.fillRect(x+18+fo[1],y+e.h-3,10,3);
+// 腕 + ハンマー（投げ構え）
+ctx.fillStyle='#f0d060';ctx.fillRect(x+22,y-4,6,10);
+ctx.fillStyle='#8b6914';ctx.fillRect(x+24,y-12,3,12);
+ctx.fillStyle='#666';ctx.fillRect(x+20,y-16,11,7);ctx.fillStyle='#999';ctx.fillRect(x+21,y-15,9,3)}
 
 function drawCactus(e){
 const x=e.x,y=e.y;
 if(e.state==='dead'){ctx.globalAlpha=0.45;ctx.fillStyle='#2d7a2d';ctx.fillRect(x+8,y+12,16,20);ctx.globalAlpha=1;return;}
 const af=e.walkFrame===0?0:2;
-// Arms
+// Arms（2トーン）
 ctx.fillStyle='#2d7a2d';ctx.fillRect(x,y+10+af,12,8);ctx.fillRect(x+20,y+12-af,12,8);
-// Body (extends to full height)
-ctx.fillRect(x+8,y+4,16,e.h-4);
+ctx.fillStyle='#3a9a3a';ctx.fillRect(x+1,y+11+af,10,3);ctx.fillRect(x+21,y+13-af,10,3);
+// Body（縁 + 本体 + ハイライト）
+ctx.fillStyle='#1a5c1a';ctx.fillRect(x+7,y+3,18,e.h-3);
+ctx.fillStyle='#2d7a2d';ctx.fillRect(x+8,y+4,16,e.h-4);
+ctx.fillStyle='#3a9a3a';ctx.fillRect(x+17,y+6,5,e.h-8);
 // Spikes
 ctx.fillStyle='#1a5c1a';
 ctx.beginPath();ctx.moveTo(x+14,y-2);ctx.lineTo(x+18,y+6);ctx.lineTo(x+10,y+6);ctx.closePath();ctx.fill();
 ctx.beginPath();ctx.moveTo(x,y+10+af);ctx.lineTo(x-4,y+14+af);ctx.lineTo(x,y+18+af);ctx.closePath();ctx.fill();
 ctx.beginPath();ctx.moveTo(x+32,y+12-af);ctx.lineTo(x+36,y+16-af);ctx.lineTo(x+32,y+20-af);ctx.closePath();ctx.fill();
-// Stripe (extends to full height)
+// 白い棘（体表のドット）
+ctx.fillStyle='rgba(255,255,250,0.8)';
+for(let i=0;i<Math.floor((e.h-12)/12);i++){ctx.fillRect(x+11,y+10+i*12,2,2);ctx.fillRect(x+20,y+15+i*12,2,2);}
+// Stripe
 ctx.fillStyle='#1f6e1f';ctx.fillRect(x+10,y+8,4,e.h-8);
-// Eyes
-ctx.fillStyle='#000';ctx.fillRect(x+10,y+10,4,4);ctx.fillRect(x+19,y+10,4,4);}
+// Eyes + 口
+ctx.fillStyle='#000';ctx.fillRect(x+10,y+10,4,4);ctx.fillRect(x+19,y+10,4,4);
+ctx.fillStyle='#fff';ctx.fillRect(x+11,y+11,1.5,1.5);ctx.fillRect(x+20,y+11,1.5,1.5);
+ctx.fillStyle='#000';ctx.fillRect(x+13,y+18,7,2);}
 
 function drawLakitu(e){
 const x=e.x,y=e.y;
 if(e.state==='dead'){ctx.globalAlpha=0.4;ctx.fillStyle='#dde';ctx.beginPath();ctx.arc(x+18,y+26,12,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;return;}
-// Cloud
-ctx.fillStyle='#e8e8f8';
+// Cloud（白＋下面シェード＋顔つき）
+ctx.fillStyle='#fff';
 ctx.beginPath();ctx.arc(x+8,y+28,9,0,Math.PI*2);ctx.fill();
 ctx.beginPath();ctx.arc(x+20,y+22,13,0,Math.PI*2);ctx.fill();
 ctx.beginPath();ctx.arc(x+32,y+28,9,0,Math.PI*2);ctx.fill();
 ctx.fillRect(x+2,y+28,36,10);
-// Shell
+ctx.fillStyle='#d8d8ec';ctx.fillRect(x+2,y+34,36,4);
+// 雲の顔（目＋ほっぺ）
+ctx.fillStyle='#222';ctx.fillRect(x+12,y+29,3,4);ctx.fillRect(x+25,y+29,3,4);
+ctx.fillStyle='#f8c0c0';ctx.fillRect(x+8,y+33,4,2);ctx.fillRect(x+28,y+33,4,2);
+// Shell（縁取り）
+ctx.fillStyle='#2f5c1a';ctx.fillRect(x+8,y+13,20,13);
 ctx.fillStyle='#4a7c2f';ctx.fillRect(x+9,y+14,18,12);
-// Head
+ctx.fillStyle='#6a9c4f';ctx.fillRect(x+11,y+15,6,4);
+// Head + 髪の毛
 ctx.fillStyle='#c8a050';ctx.fillRect(x+11,y+4,16,12);
-// Glasses
+ctx.fillStyle='#2d6b2d';ctx.fillRect(x+13,y+1,12,4);ctx.fillRect(x+16,y-2,6,4);
+// Glasses（ゴーグル風）+ ニヤリ口
 ctx.fillStyle='#222';ctx.fillRect(x+12,y+6,5,5);ctx.fillRect(x+19,y+6,5,5);ctx.fillRect(x+17,y+8,2,2);
+ctx.fillStyle='#7fdfff';ctx.fillRect(x+13,y+7,3,2);ctx.fillRect(x+20,y+7,3,2);
+ctx.fillStyle='#7a4a10';ctx.fillRect(x+14,y+13,9,2);
 // Fishing rod
 ctx.fillStyle='#8b6914';ctx.fillRect(x+24,y+8,3,20);ctx.fillRect(x+24,y+8,18,3);
+ctx.strokeStyle='#bbb';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+41,y+9);ctx.lineTo(x+41,y+6);ctx.stroke();
 // Dangling koopa shell
-ctx.fillStyle='#d4a020';ctx.fillRect(x+37,y+6,9,7);ctx.fillStyle='#4a7c2f';ctx.fillRect(x+36,y+10,11,5);}
+ctx.fillStyle='#d4a020';ctx.fillRect(x+37,y+6,9,7);ctx.fillStyle='#4a7c2f';ctx.fillRect(x+36,y+10,11,5);ctx.fillStyle='#6a9c4f';ctx.fillRect(x+37,y+11,4,2);}
 
 function drawShyGuy(e){const x=e.x,y=e.y;
 if(e.state==='dead'){ctx.fillStyle='#a01818';ctx.fillRect(x+2,y+TILE-8,TILE-4,8);ctx.fillStyle='#c02020';ctx.fillRect(x+4,y+TILE-6,TILE-8,4);return;}
