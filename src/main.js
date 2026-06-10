@@ -75,6 +75,9 @@ function spawnScorePopup(x,y,val,color='#fff'){scorePopups.push({x,y,val,vy:-1.8
 function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.18;p.life-=p.decay;if(p.life<=0)particles.splice(i,1)}for(let i=scorePopups.length-1;i>=0;i--){const p=scorePopups[i];p.y+=p.vy;p.vy*=0.95;p.life-=0.02;if(p.life<=0)scorePopups.splice(i,1)}}
 
 // === INPUT ===
+// BGM音量・ミュートの永続化（リロードしても設定が残るように）
+function saveAudioOpts(){try{localStorage.setItem('mario_v2_opts',JSON.stringify({v:G.bgmVolume,m:G.bgmMuted}));}catch(e){}}
+(function(){try{const _o=JSON.parse(localStorage.getItem('mario_v2_opts'));if(_o){if(typeof _o.v==='number')G.bgmVolume=Math.min(1,Math.max(0,_o.v));G.bgmMuted=!!_o.m;}}catch(e){}})();
 const keys={},btn={left:false,right:false,jump:false,dash:false,down:false};
 document.addEventListener('keydown',e=>{keys[e.code]=true;
 if(G.state==='start'){
@@ -116,9 +119,9 @@ if(G.state==='play'&&e.code==='KeyC'&&!mario.dead)useHeldItem();
 if(G.state==='play'&&e.code==='KeyX'&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction()}
 if(G.state==='play'&&(e.code==='ArrowDown'||e.code==='KeyS')&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry();
 // BGM音量操作
-if(e.code==='KeyM'){G.bgmMuted=!G.bgmMuted;if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;}
-if(e.code==='Equal'||e.code==='NumpadAdd'){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;}
-if(e.code==='Minus'||e.code==='NumpadSubtract'){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;}
+if(e.code==='KeyM'){G.bgmMuted=!G.bgmMuted;if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;saveAudioOpts();}
+if(e.code==='Equal'||e.code==='NumpadAdd'){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
+if(e.code==='Minus'||e.code==='NumpadSubtract'){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
 e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.code]=false});
 // タブが非アクティブになったら自動ポーズ（バックグラウンドでタイマーだけ進む問題の防止）
@@ -485,8 +488,8 @@ function pollGamepad(){
     if(G.paused&&G.isExStage&&jp('b')){giveUpExStage();}
     if(jp('select')&&!mario.dead)useHeldItem();
     if(jp('down')&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry();
-    if(jp('l')){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;}
-    if(jp('r')){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;}
+    if(jp('l')){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
+    if(jp('r')){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
   }
   else if(G.state==='dead'||G.state==='over'||G.state==='win'){
     if(jp('a')||jp('start')){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}
