@@ -118,7 +118,7 @@ export function buildLevel_7_1(){
   });
 
   // カロン（砦のガイコツ・チェックポイント±300外）
-  [{x:800},{x:1600},{x:2700},{x:4300},{x:5100},{x:6000},{x:6900}
+  [{x:776},{x:1600},{x:2700},{x:4300},{x:5100},{x:6000},{x:6900}
   ].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false}));
 
   // テレサ・ドッスン・キラーなし（暗闇ステージ入門のため）

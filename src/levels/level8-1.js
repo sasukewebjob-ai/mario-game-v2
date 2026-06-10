@@ -125,7 +125,7 @@ export function buildLevel_8_1(){
   // チェックポイント x=2200 から±300px: 1900〜2500 には敵を置かない
 
   // クリボー ×6
-  [500, 702, 1550, 2600, 3300, 4150].forEach(ex=>{
+  [500, 678, 1550, 2600, 3300, 4150].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });

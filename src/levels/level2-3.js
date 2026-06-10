@@ -91,7 +91,7 @@ export function buildLevel_2_3(){
    {x:1100,t:'goomba'},{x:1250,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},
    {x:1900,t:'koopa'},{x:2050,t:'goomba'},{x:2200,t:'goomba'},{x:2400,t:'koopa'},
    {x:2600,t:'goomba'},{x:2700,t:'hammerBro'},
-   {x:3004,t:'koopa'},{x:3820,t:'goomba'},{x:3920,t:'goomba'},
+   {x:2980,t:'koopa'},{x:3820,t:'goomba'},{x:3920,t:'goomba'},
    {x:4100,t:'goomba'},{x:4200,t:'koopa'},{x:4350,t:'hammerBro'},{x:4600,t:'goomba'},
    {x:5100,t:'koopa'},{x:5250,t:'goomba'},{x:5400,t:'goomba'},
    {x:5530,t:'koopa'},{x:6170,t:'goomba'}

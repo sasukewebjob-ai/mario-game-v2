@@ -125,7 +125,7 @@ export function buildLevel_3_1(){
    {x:5060,t:'goomba'},
    {x:5760,t:'cactus'},{x:5920,t:'koopa'},{x:6060,t:'goomba'},
    {x:6460,t:'cactus'},{x:6600,t:'goomba'},
-   {x:6716,t:'goomba'},{x:7160,t:'koopa'},{x:7310,t:'cactus'}
+   {x:6692,t:'goomba'},{x:7160,t:'koopa'},{x:7310,t:'cactus'}
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0};

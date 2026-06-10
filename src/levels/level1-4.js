@@ -49,7 +49,7 @@ for(let i=0;i<14;i++)coinItems.push({x:350+i*400,y:H-9*TILE,collected:false});
 [{x:620,t:'goomba'},{x:880,t:'koopa'},
 {x:1100,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},{x:1600,t:'goomba'},
 {x:2050,t:'koopa'},{x:2180,t:'goomba'},{x:2300,t:'goomba'},{x:2600,t:'koopa'},{x:2700,t:'goomba'},
-{x:3380,t:'koopa'},{x:4020,t:'goomba'},{x:4140,t:'koopa'},
+{x:3172,t:'koopa'},{x:4020,t:'goomba'},{x:4140,t:'koopa'},
 {x:4100,t:'goomba'},{x:4200,t:'goomba'},{x:4600,t:'goomba'},{x:4720,t:'koopa'},
 {x:5350,t:'koopa'},{x:5480,t:'goomba'},{x:5600,t:'goomba'},
 {x:5730,t:'koopa'},{x:6370,t:'goomba'}

@@ -128,7 +128,7 @@ export function buildLevel_7_3(){
   });
 
   // ノコノコ（城内巡回）
-  [550, 900, 1400, 1900, 2500, 3000, 4100, 4700, 5100, 5900, 6670].forEach(ex=>{
+  [550, 900, 1400, 1900, 2500, 3000, 4124, 4700, 5100, 5900, 6670].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });

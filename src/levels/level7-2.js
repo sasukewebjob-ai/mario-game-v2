@@ -140,7 +140,7 @@ export function buildLevel_7_2(){
     hammerTimer:70+Math.floor(Math.random()*60),jumpTimer:110+Math.floor(Math.random()*80),onGround:false});
 
   // カロン（砦の深部・チェックポイント±300外）
-  [{x:700},{x:1500},{x:2100},{x:2700},{x:4000},{x:5000},{x:6300},{x:7200}
+  [{x:700},{x:1500},{x:2100},{x:2700},{x:4000},{x:5000},{x:6180},{x:7200}
   ].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false}));
 
   // テレサ×5（砦内を漂う幽霊）

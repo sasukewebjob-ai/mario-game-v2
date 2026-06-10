@@ -150,7 +150,7 @@ export function buildLevel_8_3(){
   // ══════════════════════════════════════
 
   // カロン（氷城の守護者・チェックポイント±300外）
-  [600, 1200, 2000, 2800, 4200, 5000, 5800, 6300].forEach(ex=>{
+  [600, 1200, 2000, 2800, 4200, 5000, 6008, 6300].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
   });
 
