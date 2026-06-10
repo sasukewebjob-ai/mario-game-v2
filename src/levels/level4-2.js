@@ -27,6 +27,13 @@ export function buildLevel_4_2(){
     {s:1850,e:2200},
     {s:2450,e:2800},
     {s:3050,e:3450},
+    // ★ 長尺化 (2026-06-10): Z8-Z12 のギャップ（micro-gap連打が4-2の個性）
+    {s:3750,e:4150},
+    {s:4400,e:4480},  // micro-gap
+    {s:4750,e:5150},
+    {s:5400,e:5480},  // micro-gap
+    {s:5750,e:6100},
+    {s:6500,e:6800},
   ];
   for(let x=0;x<LW;x+=TILE)
     if(!gaps.some(g=>x>=g.s&&x<g.e))
@@ -46,8 +53,28 @@ export function buildLevel_4_2(){
   addRow(750, H-3*TILE, 2,'brick');   // Z2 (630-800) 低空
   addRow(1700, H-8*TILE, 2,'brick');  // Z4 (1600-1850) 高空
 
-  addStair(3700,6);
-  flagPole.x=3920;
+  // ★ 長尺化 (2026-06-10): Zone 8-12 (3750-7500)（階段3700を撤去して続行）
+  // Z8 (4150-4400)
+  addRow(4200, H-5*TILE, 3,'brick');
+  platforms.push({x:4310, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  // Z9 (4480-4750): CP2の休息地帯
+  addRow(4550, H-7*TILE, 2,'brick');
+  // Z10 (5150-5400)
+  addRow(5200, H-6*TILE, 3,'brick');
+  platforms.push({x:5320, y:H-8*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // Z11 (5480-5750)
+  platforms.push({x:5520, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0});
+  addRow(5600, H-3*TILE, 2,'brick');
+  // ギャップ5750-6100の上空に浮きレンガ（足場ルート）
+  addRow(5870, H-6*TILE, 3,'brick');
+  // Z12 (6100-6500 / 6800-7300)
+  addRow(6200, H-5*TILE, 2,'brick');
+  platforms.push({x:6320, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,coinBlock:true,hitsLeft:8,bounceOffset:0});
+  addRow(6900, H-5*TILE, 3,'brick');
+  pipes.push({x:4320,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,variant:null});
+  pipes.push({x:7050,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,variant:null});
+  addStair(7300,6);
+  flagPole.x=7500;
 
   // 特殊ブロック（addRow座標と必ず異なるx/yに配置）
   // addRow位置: Z3@1100(H-5T), Z4@1650(H-7T),
@@ -88,10 +115,16 @@ export function buildLevel_4_2(){
     [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-3*TILE,collected:false}));
     [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-9*TILE,collected:false}));
   });
-  // ★ ルール⑦対応の増量: 中空ライン + 最上空ライン（天井土管1700/2300を回避）+ ゴール前縦列
+  // ★ ルール⑦対応の増量: 中空ライン + 最上空ライン（天井土管1700/2300を回避）+ 縦列
   for(let i=0;i<25;i++) coinItems.push({x:320+i*145,y:H-6*TILE, collected:false});
   for(let i=0;i<22;i++) coinItems.push({x:350+i*160,y:H-12*TILE,collected:false});
   [H-2*TILE,H-3*TILE,H-4*TILE,H-5*TILE,H-6*TILE,H-8*TILE,H-9*TILE].forEach(cy=>coinItems.push({x:3520,y:cy,collected:false}));
+  // ★ 長尺化エリア (3700-7300) のコイン
+  for(let i=0;i<25;i++) coinItems.push({x:3700+i*145,y:H-9*TILE, collected:false});
+  for(let i=0;i<17;i++) coinItems.push({x:3850+i*200,y:H-11*TILE,collected:false});
+  for(let i=0;i<24;i++){const _cx=3750+i*150;if(_cx<5180||_cx>5296)coinItems.push({x:_cx,y:H-6*TILE, collected:false});} // 岩レンガ5200-5296を回避
+  [4300,5000,5700,6400,7100].forEach(cx=>coinItems.push({x:cx,y:H-2*TILE,collected:false}));
+  [4350,5050,5650,6450].forEach(cx=>coinItems.push({x:cx,y:H-10*TILE,collected:false}));
 
   // 動く足場（各ギャップに2個・速め）
   movingPlats.push({x:820, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:820, range:110,spd:1.8,prevX:820});
@@ -105,6 +138,14 @@ export function buildLevel_4_2(){
   movingPlats.push({x:3070,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:3070,range:120,spd:2.0,prevX:3070});
   movingPlats.push({x:3250,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:3250,range:90, spd:2.6,prevX:3250});
   // ★ 長い動く足場（TILE*5）はユーザー指示で撤去
+  // ★ 長尺化: Z8-Z12ギャップ用
+  movingPlats.push({x:3770,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:3770,range:110,spd:1.9,prevX:3770});
+  movingPlats.push({x:3950,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:3950,range:90, spd:2.3,prevX:3950});
+  movingPlats.push({x:4770,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:4770,range:110,spd:2.0,prevX:4770});
+  movingPlats.push({x:4950,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:4950,range:90, spd:2.4,prevX:4950});
+  movingPlats.push({x:5770,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:5770,range:100,spd:2.1,prevX:5770});
+  movingPlats.push({x:6520,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:6520,range:100,spd:2.2,prevX:6520});
+  movingPlats.push({x:6660,y:H-7*TILE,w:TILE*2,h:12,type:'h',ox:6660,range:60, spd:2.5,prevX:6660});
 
   // 敵（スタート直後 x<600 は安全）
   // クリボー ×5
@@ -140,6 +181,36 @@ export function buildLevel_4_2(){
   // チャージングチャック（チェックポイント±300外）
   [{x:700,facing:-1},{x:1150,facing:-1},{x:2300,facing:-1},{x:2950,facing:-1},{x:3500,facing:-1}
   ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
+
+  // ★ 長尺化エリアの敵（ギャップ外・CP2±300(4300-4900)に地上歩き敵を置かない）
+  [4180,5250,6250].forEach(x=>{
+    enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
+      type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
+  });
+  [4250,5300,6350,6900].forEach(x=>{
+    enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
+      type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
+  });
+  // トゲゾー（踏めない脅威）
+  [5650,6150].forEach(x=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'spiny',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1}));
+  // ファジー（ギャップ5750-6100のレール横断）
+  enemies.push({x:5800,y:H-5*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,type:'fuzzy',state:'walk',railX1:5800,railY1:H-5*TILE,railX2:6050,railY2:H-7*TILE,t:0,speed:0.012});
+  // ハンマーブロス（Z12の門番）
+  enemies.push({x:6230,y:H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5,vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:80,jumpTimer:150,onGround:false});
+  // チャック＋飛びノコノコ
+  [{x:5550,facing:-1},{x:6950,facing:-1}].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
+  [
+    {x:4950,baseY:H-5*TILE,phase:0.7},
+    {x:6650,baseY:H-6*TILE,phase:1.4},
+  ].forEach(({x,baseY,phase})=>{
+    enemies.push({x,y:baseY,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,
+      type:'parakoopa',flying:true,baseY,phase,
+      state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+  });
+  enemies.push({x:7000,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+
+  // ★ 第2チェックポイント（Z9休息地帯）
+  G.checkpoint2={x:4600,y:H-TILE,reached:false};
 
   // チェックポイント（Z4地面上）
   G.checkpoint={x:1800,y:H-TILE,reached:false};
