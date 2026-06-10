@@ -1924,6 +1924,9 @@ if(ceil){ctx.fillStyle=_c[0];ctx.fillRect(x-4,y+h-16,w+8,16);ctx.fillStyle=_c[1]
 else{ctx.fillStyle=_c[0];ctx.fillRect(x-4,y,w+8,16);ctx.fillStyle=_c[1];ctx.fillRect(x-2,y+2,w+4,12);ctx.fillStyle=_c[2];ctx.fillRect(x,y+3,8,8);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillRect(x+2,y+4,3,6);}
 }
 
+// 色の明暗シェード（キャラ描画の陰影用）。#abc / #aabbcc 両対応
+function _shade(hex,amt){let h=hex.slice(1);if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);const r=Math.min(255,Math.max(0,(n>>16)+amt)),g=Math.min(255,Math.max(0,((n>>8)&255)+amt)),b=Math.min(255,Math.max(0,(n&255)+amt));return 'rgb('+r+','+g+','+b+')';}
+
 function drawMario(mx,my,facing,wf,dead,big){
 ctx.save();
 if(mario.inv>0&&Math.floor(G.frame/4)%2===0){ctx.restore();return}
@@ -1935,69 +1938,118 @@ const _isLuigi=G.character==='luigi';
 const hatC=isIce?'#88ddff':isHammer?'#666':isFire?'#fff':(_isLuigi?'#27AE60':'#E52521');
 const shirtC=isIce?'#2288cc':isHammer?'#444':isFire?(_isLuigi?'#27AE60':'#E52521'):(_isLuigi?'#1a55bb':'#0050C8');
 const skinC='#FBD000',hairC=isHammer?'#444':'#6B3410',shoeC=isHammer?'#333':'#6B3410';
+const hatD=_shade(hatC,-55),hatL=_shade(hatC,40),shirtD=_shade(shirtC,-50),skinD=_shade(skinC,-50),shoeD=_shade(shoeC,-45);
+const embC=isFire?(_isLuigi?'#27AE60':'#E52521'):hatC==='#fff'?'#E52521':hatC; // 帽子エンブレムの文字色
+const _air=!mario.onGround&&!G.waterMode&&!mario.crouching; // ジャンプポーズ
 
-if(dead){ctx.fillStyle=hatC;ctx.fillRect(mx+4,my,20,7);ctx.fillStyle=skinC;ctx.fillRect(mx+6,my+7,16,8);ctx.fillStyle=shirtC;ctx.fillRect(mx+2,my+15,24,12);ctx.restore();return}
+// 帽子エンブレム（白丸 + M/L）。cx,cy=丸の中心
+const emblem=(cx,cy,r)=>{ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();ctx.fillStyle=embC;
+if(_isLuigi){ctx.fillRect(cx-2,cy-2.5,2,5);ctx.fillRect(cx-2,cy+1.5,4,1.5);}
+else{ctx.fillRect(cx-2.5,cy-2.5,1.5,5);ctx.fillRect(cx+1,cy-2.5,1.5,5);ctx.fillRect(cx-1,cy-1.5,2,2);}};
+
+if(dead){
+// 死亡ポーズ: X目 + 開いた口 + 両腕上げ
+ctx.fillStyle=hatC;ctx.fillRect(mx+4,my,20,7);ctx.fillStyle=hatD;ctx.fillRect(mx+4,my+5,20,2);
+ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+7,20,10);
+ctx.fillStyle='#000';ctx.fillRect(mx+8,my+9,4,4);ctx.fillRect(mx+16,my+9,4,4);
+ctx.fillStyle=skinC;ctx.fillRect(mx+9,my+10,2,2);ctx.fillRect(mx+17,my+10,2,2);
+ctx.fillStyle='#7a2c12';ctx.fillRect(mx+11,my+14,6,3);
+ctx.fillStyle=shirtC;ctx.fillRect(mx+2,my+17,24,10);ctx.fillStyle=shirtD;ctx.fillRect(mx+2,my+25,24,2);
+ctx.fillStyle='#fff';ctx.fillRect(mx-4,my+10,6,6);ctx.fillRect(mx+24,my+10,6,6);
+ctx.restore();return}
 if(big){
 if(mario.crouching){
 // Big Mario crouching (h=24px)
-ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);
+ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);ctx.fillStyle=hatL;ctx.fillRect(mx+8,my+1,12,2);
+ctx.fillStyle=hatC;ctx.fillRect(mx+18,my+5,10,3);ctx.fillStyle=hatD;ctx.fillRect(mx+18,my+7,10,1);
+emblem(mx+11,my+4,3.5);
 ctx.fillStyle=hairC;ctx.fillRect(mx+2,my+7,4,4);
 ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+9,20,8);
-ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+10,6,4);ctx.fillRect(mx+16,my+10,6,4);
-ctx.fillStyle='#000';ctx.fillRect(mx+10,my+11,4,3);ctx.fillRect(mx+18,my+11,4,3);
-ctx.fillStyle=hairC;ctx.fillRect(mx+6,my+15,16,2);
-ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+17,20,5);
-ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+19,3,2);ctx.fillRect(mx+16,my+19,3,2);
-ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+22,10,2);ctx.fillRect(mx+14,my+22,10,2);
+ctx.fillStyle='#fff';ctx.fillRect(mx+7,my+10,5,4);ctx.fillRect(mx+14,my+10,5,4);
+ctx.fillStyle='#000';ctx.fillRect(mx+9,my+11,3,3);ctx.fillRect(mx+16,my+11,3,3);
+ctx.fillStyle=skinC;ctx.fillRect(mx+19,my+12,7,5);ctx.fillStyle=skinD;ctx.fillRect(mx+19,my+15,7,2);
+ctx.fillStyle=hairC;ctx.fillRect(mx+13,my+15,12,2);
+ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+17,20,5);ctx.fillStyle=shirtD;ctx.fillRect(mx+4,my+20,20,2);
+ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+18,3,2);ctx.fillRect(mx+16,my+18,3,2);
 ctx.fillStyle=shoeC;ctx.fillRect(mx+2,my+22,10,2);ctx.fillRect(mx+14,my+22,10,2);
 if(isHammer){ctx.fillStyle='#888';ctx.fillRect(mx+2,my-4,24,8);ctx.fillStyle='#aaa';ctx.fillRect(mx+4,my-3,20,5);ctx.fillStyle='#666';ctx.fillRect(mx+6,my-6,16,4);}
 }else{
-// Hat
-ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,6);ctx.fillRect(mx+2,my+4,24,6);
-// Hair
-ctx.fillStyle=hairC;ctx.fillRect(mx+2,my+8,4,6);
-// Face
+// === Big Mario standing/walking/jumping ===
+// Hat（ドーム + つば前方 + ハイライト/影 + エンブレム）
+ctx.fillStyle=hatC;ctx.fillRect(mx+5,my,19,6);ctx.fillRect(mx+2,my+4,22,5);
+ctx.fillStyle=hatL;ctx.fillRect(mx+7,my+1,12,2);
+ctx.fillStyle=hatC;ctx.fillRect(mx+17,my+6,11,4);ctx.fillStyle=hatD;ctx.fillRect(mx+17,my+8,11,2);
+emblem(mx+11,my+4,4);
+// Hair（後頭部＋もみあげ）
+ctx.fillStyle=hairC;ctx.fillRect(mx+2,my+8,4,8);
+// Face + 耳 + あご影
 ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+10,20,12);
-// Eyes
-ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+12,6,5);ctx.fillRect(mx+16,my+12,6,5);
-ctx.fillStyle='#000';ctx.fillRect(mx+10,my+13,4,4);ctx.fillRect(mx+18,my+13,4,4);
-// Mustache
-ctx.fillStyle=hairC;ctx.fillRect(mx+6,my+18,16,3);
-// Shirt
-ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+22,20,14);
-// Overall buttons
-ctx.fillStyle='#FFD700';ctx.fillRect(mx+8,my+25,4,4);ctx.fillRect(mx+16,my+25,4,4);
-// Arms
-ctx.fillStyle=skinC;ctx.fillRect(mx-4,my+22,8,10);ctx.fillRect(mx+24,my+22,8,10);
-// Legs
+ctx.fillStyle=skinD;ctx.fillRect(mx+4,my+14,3,5);ctx.fillRect(mx+6,my+20,18,2);
+// Eyes（前方寄りの瞳）
+ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+11,5,6);ctx.fillRect(mx+15,my+11,5,6);
+ctx.fillStyle='#000';ctx.fillRect(mx+10,my+12,3,4);ctx.fillRect(mx+17,my+12,3,4);
+// 大きな鼻（前方に突出）
+ctx.fillStyle=skinC;ctx.fillRect(mx+19,my+14,8,6);
+ctx.fillStyle=skinD;ctx.fillRect(mx+19,my+18,8,2);
+// ヒゲ（鼻の下）
+ctx.fillStyle=hairC;ctx.fillRect(mx+13,my+19,12,3);ctx.fillRect(mx+12,my+20,2,2);
+// シャツ（腕含む）と オーバーオール
+ctx.fillStyle=hatC;ctx.fillRect(mx+4,my+22,20,5);
+ctx.fillStyle=shirtC;ctx.fillRect(mx+6,my+25,16,11);
+ctx.fillRect(mx+6,my+22,4,4);ctx.fillRect(mx+18,my+22,4,4); // 肩ストラップ
+ctx.fillStyle='#FFD700';ctx.fillRect(mx+7,my+24,3,3);ctx.fillRect(mx+18,my+24,3,3);
+ctx.fillStyle=shirtD;ctx.fillRect(mx+6,my+34,16,2);
+// 腕（ジャンプ中は前腕を上げる）+ 白手袋
+ctx.fillStyle=hatC;
+if(_air){ctx.fillRect(mx-4,my+20,7,9);ctx.fillRect(mx+23,my+12,7,12);
+ctx.fillStyle='#fff';ctx.fillRect(mx-5,my+26,8,6);ctx.fillRect(mx+23,my+7,8,6);}
+else{ctx.fillRect(mx-4,my+22,7,9);ctx.fillRect(mx+23,my+22,7,9);
+ctx.fillStyle='#fff';ctx.fillRect(mx-5,my+29,8,6);ctx.fillRect(mx+23,my+29,8,6);}
+// Legs + 2トーン靴
 const lo=wf===1?[-3,3]:wf===2?[3,-3]:[0,0];
 ctx.fillStyle=shirtC;ctx.fillRect(mx+4+lo[0],my+36,10,6);ctx.fillRect(mx+16+lo[1],my+36,10,6);
-ctx.fillStyle=shoeC;ctx.fillRect(mx+2+lo[0],my+42,12,6);ctx.fillRect(mx+14+lo[1],my+42,12,6);
+ctx.fillStyle=shoeC;ctx.fillRect(mx+1+lo[0],my+42,13,6);ctx.fillRect(mx+14+lo[1],my+42,13,6);
+ctx.fillStyle=shoeD;ctx.fillRect(mx+1+lo[0],my+46,13,2);ctx.fillRect(mx+14+lo[1],my+46,13,2);
 // ハンマースーツのヘルメット
 if(isHammer){ctx.fillStyle='#888';ctx.fillRect(mx+2,my-4,24,8);ctx.fillStyle='#aaa';ctx.fillRect(mx+4,my-3,20,5);ctx.fillStyle='#666';ctx.fillRect(mx+6,my-6,16,4);}
 }}else{
 if(mario.crouching){
 // Small Mario crouching (h=20px)
-ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,4);
+ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,4);ctx.fillStyle=hatL;ctx.fillRect(mx+8,my+1,12,1.5);
+ctx.fillStyle=hatC;ctx.fillRect(mx+17,my+4,10,3);ctx.fillStyle=hatD;ctx.fillRect(mx+17,my+6,10,1);
+emblem(mx+10,my+3.5,3);
 ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+7,20,7);
-ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+8,5,4);ctx.fillRect(mx+16,my+8,5,4);
-ctx.fillStyle='#000';ctx.fillRect(mx+10,my+9,3,3);ctx.fillRect(mx+17,my+9,3,3);
-ctx.fillStyle=hairC;ctx.fillRect(mx+6,my+12,14,2);
+ctx.fillStyle='#fff';ctx.fillRect(mx+7,my+8,4,4);ctx.fillRect(mx+14,my+8,4,4);
+ctx.fillStyle='#000';ctx.fillRect(mx+9,my+9,2,3);ctx.fillRect(mx+16,my+9,2,3);
+ctx.fillStyle=skinC;ctx.fillRect(mx+19,my+9,7,4);ctx.fillStyle=skinD;ctx.fillRect(mx+19,my+12,7,1);
+ctx.fillStyle=hairC;ctx.fillRect(mx+13,my+12,12,2);
 ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+14,20,4);
 ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+15,3,2);ctx.fillRect(mx+16,my+15,3,2);
 ctx.fillStyle=shoeC;ctx.fillRect(mx+2,my+18,10,2);ctx.fillRect(mx+14,my+18,10,2);
 }else{
-// Small Mario
-ctx.fillStyle=hatC;ctx.fillRect(mx+6,my,18,5);ctx.fillRect(mx+2,my+3,24,5);
+// === Small Mario ===
+ctx.fillStyle=hatC;ctx.fillRect(mx+5,my,18,5);ctx.fillRect(mx+2,my+3,22,4);
+ctx.fillStyle=hatL;ctx.fillRect(mx+7,my+1,11,1.5);
+ctx.fillStyle=hatC;ctx.fillRect(mx+16,my+5,10,3);ctx.fillStyle=hatD;ctx.fillRect(mx+16,my+6,10,2);
+emblem(mx+10,my+3.5,3);
+ctx.fillStyle=hairC;ctx.fillRect(mx+3,my+7,3,6);
 ctx.fillStyle=skinC;ctx.fillRect(mx+4,my+8,20,8);
-ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+9,5,4);ctx.fillRect(mx+16,my+9,5,4);
-ctx.fillStyle='#000';ctx.fillRect(mx+9,my+10,3,3);ctx.fillRect(mx+17,my+10,3,3);
-ctx.fillStyle=hairC;ctx.fillRect(mx+6,my+14,14,2);
+ctx.fillStyle=skinD;ctx.fillRect(mx+6,my+14,14,2);
+ctx.fillStyle='#fff';ctx.fillRect(mx+8,my+9,4,5);ctx.fillRect(mx+15,my+9,4,5);
+ctx.fillStyle='#000';ctx.fillRect(mx+10,my+10,2,3);ctx.fillRect(mx+17,my+10,2,3);
+ctx.fillStyle=skinC;ctx.fillRect(mx+19,my+11,7,5);ctx.fillStyle=skinD;ctx.fillRect(mx+19,my+14,7,2);
+ctx.fillStyle=hairC;ctx.fillRect(mx+13,my+14,12,2);
 ctx.fillStyle=shirtC;ctx.fillRect(mx+4,my+16,20,10);
+ctx.fillStyle=shirtD;ctx.fillRect(mx+4,my+24,20,2);
 ctx.fillStyle='#FFD700';ctx.fillRect(mx+9,my+18,3,3);ctx.fillRect(mx+16,my+18,3,3);
-ctx.fillStyle=skinC;ctx.fillRect(mx-3,my+16,7,6);ctx.fillRect(mx+24,my+16,7,6);
+ctx.fillStyle=shirtC;
+if(_air){ctx.fillRect(mx-3,my+15,6,5);ctx.fillRect(mx+23,my+8,6,9);
+ctx.fillStyle='#fff';ctx.fillRect(mx-4,my+19,6,4);ctx.fillRect(mx+23,my+4,6,4);}
+else{ctx.fillRect(mx-3,my+16,6,6);ctx.fillRect(mx+23,my+16,6,6);
+ctx.fillStyle='#fff';ctx.fillRect(mx-4,my+21,6,4);ctx.fillRect(mx+23,my+21,6,4);}
 const lo=wf===1?[-3,3]:wf===2?[3,-3]:[0,0];
 ctx.fillStyle=shoeC;ctx.fillRect(mx+2+lo[0],my+26,12,6);ctx.fillRect(mx+14+lo[1],my+26,12,6);
+ctx.fillStyle=shoeD;ctx.fillRect(mx+2+lo[0],my+30,12,2);ctx.fillRect(mx+14+lo[1],my+30,12,2);
 }}
 ctx.restore();
 }
