@@ -2057,17 +2057,26 @@ ctx.restore();
 function drawYoshiBody(yx,yy,facing,mounted){
 ctx.save();
 if(facing===-1){ctx.translate(yx+30,0);ctx.scale(-1,1);yx=0}else{ctx.translate(yx,0);yx=0}
-// Boots
-ctx.fillStyle='#d35400';ctx.fillRect(yx-1,yy+33,14,7);ctx.fillRect(yx+17,yy+33,14,7);
-ctx.fillStyle='#e67e22';ctx.fillRect(yx+1,yy+30,11,8);ctx.fillRect(yx+18,yy+30,11,8);
+// 歩行アニメ（接地して動いている時だけ脚を交互に）
+const _wo=(yoshi.onGround&&Math.abs(yoshi.vx)>0.2)?(yoshi.walkFrame===0?[-2,2]:[2,-2]):[0,0];
+// Boots（2トーン + ハイライト）
+ctx.fillStyle='#a04000';ctx.fillRect(yx-1+_wo[0],yy+37,14,3);ctx.fillRect(yx+17+_wo[1],yy+37,14,3);
+ctx.fillStyle='#d35400';ctx.fillRect(yx-1+_wo[0],yy+33,14,5);ctx.fillRect(yx+17+_wo[1],yy+33,14,5);
+ctx.fillStyle='#f39c12';ctx.fillRect(yx+1+_wo[0],yy+30,11,4);ctx.fillRect(yx+18+_wo[1],yy+30,11,4);
 // Legs
-ctx.fillStyle='#27ae60';ctx.fillRect(yx+3,yy+22,9,12);ctx.fillRect(yx+18,yy+22,9,12);
-// Body (round)
+ctx.fillStyle='#27ae60';ctx.fillRect(yx+3+_wo[0],yy+22,9,12);ctx.fillRect(yx+18+_wo[1],yy+22,9,12);
+ctx.fillStyle='#1e8449';ctx.fillRect(yx+3+_wo[0],yy+22,2,12);ctx.fillRect(yx+18+_wo[1],yy+22,2,12);
+// Body (round) + 下部シェーディング
 ctx.fillStyle='#27ae60';ctx.beginPath();ctx.arc(yx+14,yy+19,13,0,Math.PI*2);ctx.fill();ctx.fillRect(yx+2,yy+15,24,14);
-// White belly
+ctx.fillStyle='#1e8449';ctx.fillRect(yx+3,yy+27,22,3);
+// White belly + ハイライト
 ctx.fillStyle='#ecf0f1';ctx.beginPath();ctx.arc(yx+12,yy+22,7,0,Math.PI*2);ctx.fill();
-// Saddle
-if(mounted){ctx.fillStyle='#e74c3c';ctx.fillRect(yx+2,yy+9,26,8);ctx.fillStyle='#c0392b';ctx.fillRect(yx+4,yy+11,22,4);}
+ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(yx+10,yy+20,3,0,Math.PI*2);ctx.fill();
+// 前腕（小さな腕）
+ctx.fillStyle='#2ecc71';ctx.fillRect(yx+23,yy+17,6,7);ctx.fillStyle='#1e8449';ctx.fillRect(yx+27,yy+22,2,2);
+// Saddle（常時。騎乗中はマリオが上に乗る）
+ctx.fillStyle='#e74c3c';ctx.fillRect(yx+2,yy+9,26,8);ctx.fillStyle='#c0392b';ctx.fillRect(yx+4,yy+11,22,4);
+ctx.fillStyle='#fff';ctx.fillRect(yx+2,yy+15,26,2);
 // Back spike
 ctx.fillStyle='#1e8449';ctx.beginPath();ctx.arc(yx+9,yy+11,7,Math.PI,0);ctx.fill();ctx.fillStyle='#145a14';ctx.fillRect(yx+4,yy+11,10,3);
 ctx.restore();
@@ -2929,29 +2938,52 @@ if(bowser.phase===2&&bowser.state!=='dead'){
   ctx.fillStyle=`rgba(255,40,0,${_aura})`;
   ctx.beginPath();ctx.arc(bx+bowser.w/2,by+bowser.h/2,50+Math.sin(G.frame*0.1)*6,0,Math.PI*2);ctx.fill();
 }
-// Shell spikes
-ctx.fillStyle='#8fbc8f';
-for(let s=0;s<3;s++){ctx.beginPath();ctx.moveTo(bx+14+s*14,by+18);ctx.lineTo(bx+20+s*14,by+4);ctx.lineTo(bx+26+s*14,by+18);ctx.fill()}
-// Back/shell
-ctx.fillStyle='#1e5c1e';ctx.fillRect(bx+8,by+18,48,42);
-// Belly
-ctx.fillStyle='#3a8a3a';ctx.fillRect(bx+14,by+32,36,24);
-// Head
+// Tail（背中側に揺れる尻尾＋トゲ）
+{const _tb=bowser.facing>0?bx-2:bx+66;const _td=bowser.facing>0?-1:1;const _tw=Math.sin(G.frame*0.1)*3;
+ctx.fillStyle='#1e5c1e';ctx.beginPath();ctx.moveTo(_tb,by+46);ctx.lineTo(_tb+_td*16,by+50+_tw);ctx.lineTo(_tb,by+56);ctx.closePath();ctx.fill();
+ctx.fillStyle='#f5f0dc';ctx.beginPath();ctx.moveTo(_tb+_td*12,by+47+_tw);ctx.lineTo(_tb+_td*20,by+50+_tw);ctx.lineTo(_tb+_td*12,by+53+_tw);ctx.closePath();ctx.fill();}
+// Shell spikes（骨白＋根本の影）
+for(let s=0;s<3;s++){
+ctx.fillStyle='#d8d0b0';ctx.beginPath();ctx.moveTo(bx+14+s*14,by+18);ctx.lineTo(bx+20+s*14,by+4);ctx.lineTo(bx+26+s*14,by+18);ctx.fill();
+ctx.fillStyle='#f5f0dc';ctx.beginPath();ctx.moveTo(bx+16+s*14,by+18);ctx.lineTo(bx+20+s*14,by+7);ctx.lineTo(bx+24+s*14,by+18);ctx.fill();}
+// Back/shell（縁取り＋内側）
+ctx.fillStyle='#143d14';ctx.fillRect(bx+8,by+18,48,42);
+ctx.fillStyle='#1e5c1e';ctx.fillRect(bx+10,by+20,44,38);
+// Belly（タン色＋節ライン）
+ctx.fillStyle='#e8c87a';ctx.fillRect(bx+14,by+32,36,26);
+ctx.fillStyle='#c8a050';ctx.fillRect(bx+14,by+40,36,2);ctx.fillRect(bx+14,by+48,36,2);
+// Head（タン＋下部シェード）
 ctx.fillStyle='#c8a050';ctx.fillRect(bx+10,by,44,26);
+ctx.fillStyle='#a8843c';ctx.fillRect(bx+10,by+23,44,3);
+// 赤毛（クラウンの後ろから覗くたてがみ）
+ctx.fillStyle='#e74c3c';
+ctx.beginPath();ctx.moveTo(bx+10,by+2);ctx.lineTo(bx+4,by-8);ctx.lineTo(bx+14,by-1);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(bx+50,by-1);ctx.lineTo(bx+60,by-8);ctx.lineTo(bx+54,by+2);ctx.closePath();ctx.fill();
+// 白い角（頭の左右・先端に影）
+ctx.fillStyle='#f5f0dc';
+ctx.beginPath();ctx.moveTo(bx+12,by+6);ctx.lineTo(bx+1,by-5);ctx.lineTo(bx+16,by+1);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(bx+52,by+6);ctx.lineTo(bx+63,by-5);ctx.lineTo(bx+48,by+1);ctx.closePath();ctx.fill();
+ctx.fillStyle='#bbb';ctx.fillRect(bx+2,by-5,3,3);ctx.fillRect(bx+59,by-5,3,3);
 // Crown
 ctx.fillStyle='#FFD700';
 ctx.beginPath();ctx.moveTo(bx+12,by);ctx.lineTo(bx+17,by-11);ctx.lineTo(bx+22,by);ctx.fill();
 ctx.beginPath();ctx.moveTo(bx+28,by);ctx.lineTo(bx+33,by-16);ctx.lineTo(bx+38,by);ctx.fill();
 ctx.beginPath();ctx.moveTo(bx+42,by);ctx.lineTo(bx+47,by-11);ctx.lineTo(bx+52,by);ctx.fill();
-// Eyes (face direction)
+// Eyes（怒り眉付き・向きに追従）
 const ex=bowser.facing>0?bx+18:bx+30;
+ctx.fillStyle='#8a1500';ctx.fillRect(ex-2,by+3,15,4);
 ctx.fillStyle='#cc1100';ctx.fillRect(ex,by+6,12,9);ctx.fillStyle='#000';ctx.fillRect(ex+2,by+8,8,6);ctx.fillStyle='#fff';ctx.fillRect(ex+5,by+8,3,3);
-// Nose
+// Nose（鼻面＋鼻孔＋牙）
 ctx.fillStyle='#a06820';ctx.fillRect(bx+18,by+17,28,6);ctx.fillStyle='#000';ctx.fillRect(bx+21,by+18,5,4);ctx.fillRect(bx+38,by+18,5,4);
-// Arms
-ctx.fillStyle='#3a8a3a';
-ctx.fillRect(bx+(bowser.facing>0?-6:60),by+28,16,20);
-ctx.fillRect(bx+(bowser.facing>0?54:2),by+30,16,16);
+ctx.fillStyle='#fff';
+ctx.beginPath();ctx.moveTo(bx+18,by+26);ctx.lineTo(bx+21,by+19);ctx.lineTo(bx+24,by+26);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(bx+40,by+26);ctx.lineTo(bx+43,by+19);ctx.lineTo(bx+46,by+26);ctx.closePath();ctx.fill();
+// Arms（タン色＋トゲ腕輪）
+ctx.fillStyle='#e8c87a';
+const _a1x=bx+(bowser.facing>0?-6:60),_a2x=bx+(bowser.facing>0?54:2);
+ctx.fillRect(_a1x,by+28,16,20);ctx.fillRect(_a2x,by+30,16,16);
+ctx.fillStyle='#555';ctx.fillRect(_a1x,by+38,16,4);ctx.fillRect(_a2x,by+38,16,4);
+ctx.fillStyle='#f5f0dc';ctx.fillRect(_a1x+3,by+37,3,6);ctx.fillRect(_a1x+10,by+37,3,6);ctx.fillRect(_a2x+3,by+37,3,6);ctx.fillRect(_a2x+10,by+37,3,6);
 // Legs with walk animation
 ctx.fillStyle='#1e5c1e';
 const lf=bowser.onGround?(G.frame%18<9?-2:2):0;
@@ -2987,32 +3019,47 @@ for(const bf of bowserFire){if(!bf.alive||bf.delay>0||bf.x+bf.w<G.cam-10||bf.x>G
 if(peach.alive&&peach.x+peach.w>G.cam-10&&peach.x<G.cam+W+10){
 const px=Math.round(peach.x),py=Math.round(peach.y);
 const wo=peach.caught?0:(peach.walkFrame===0?-2:2);
-// Dress (pink)
+// Dress (pink) ベル型 + 裾シェーディング + フリル
 ctx.fillStyle='#f48fb1';ctx.fillRect(px+2,py+22,26,30);
 ctx.fillStyle='#f06292';ctx.fillRect(px+4,py+38,22,14);
-// White apron
-ctx.fillStyle='#fff';ctx.fillRect(px+8,py+26,14,20);
+ctx.fillStyle='#d81b60';ctx.fillRect(px+2,py+49,26,3);
+ctx.fillStyle='#f8bbd0';ctx.beginPath();for(let i=0;i<4;i++)ctx.arc(px+6+i*6,py+52,3,0,Math.PI);ctx.fill();
+// パニエの白ライン
+ctx.fillStyle='#fff';ctx.fillRect(px+8,py+26,14,18);
+ctx.fillStyle='#f8bbd0';ctx.fillRect(px+8,py+42,14,2);
+// 胸元のブローチ（青い宝石）
+ctx.fillStyle='#1565c0';ctx.beginPath();ctx.arc(px+15,py+24,2.6,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#64b5f6';ctx.beginPath();ctx.arc(px+14,py+23,1,0,Math.PI*2);ctx.fill();
 // Body
 ctx.fillStyle='#ffcc99';ctx.fillRect(px+8,py+14,14,14);
-// Arms
-ctx.fillStyle='#f48fb1';ctx.fillRect(px+1,py+16,8,10);ctx.fillRect(px+21,py+16,8,10);
-// Hands
-ctx.fillStyle='#ffcc99';ctx.fillRect(px+1,py+24,7,6);ctx.fillRect(px+22,py+24,7,6);
-// Hair (blonde)
+// パフスリーブ + 腕
+ctx.fillStyle='#f8bbd0';ctx.beginPath();ctx.arc(px+6,py+18,5,0,Math.PI*2);ctx.arc(px+24,py+18,5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#f48fb1';ctx.fillRect(px+1,py+18,8,8);ctx.fillRect(px+21,py+18,8,8);
+// 白手袋
+ctx.fillStyle='#fff';ctx.fillRect(px+1,py+24,7,6);ctx.fillRect(px+22,py+24,7,6);
+// Hair (blonde) シェーディング入り
 ctx.fillStyle='#FFD700';ctx.fillRect(px+6,py+4,18,12);
-ctx.fillRect(px+4,py+8,4,14);ctx.fillRect(px+22,py+8,4,14);
+ctx.fillRect(px+4,py+8,4,16);ctx.fillRect(px+22,py+8,4,16);
+ctx.fillStyle='#e6b800';ctx.fillRect(px+4,py+18,4,6);ctx.fillRect(px+22,py+18,4,6);ctx.fillRect(px+6,py+5,3,8);
 // Face
 ctx.fillStyle='#ffcc99';ctx.fillRect(px+8,py+8,14,10);
-// Eyes
-ctx.fillStyle='#1a0080';ctx.fillRect(px+10,py+11,3,3);ctx.fillRect(px+17,py+11,3,3);
-// Crown
+// 前髪
+ctx.fillStyle='#FFD700';ctx.fillRect(px+8,py+6,14,3);ctx.fillRect(px+8,py+8,4,3);
+// Eyes（青い瞳 + まつげ）+ 頬 + 唇
+ctx.fillStyle='#000';ctx.fillRect(px+10,py+10,3,1);ctx.fillRect(px+17,py+10,3,1);
+ctx.fillStyle='#1565c0';ctx.fillRect(px+10,py+11,3,3);ctx.fillRect(px+17,py+11,3,3);
+ctx.fillStyle='#f8a5b0';ctx.fillRect(px+8,py+14,3,2);ctx.fillRect(px+19,py+14,3,2);
+ctx.fillStyle='#e53935';ctx.fillRect(px+13,py+16,4,2);
+// Crown + 宝石
 ctx.fillStyle='#FFD700';ctx.fillRect(px+7,py+2,16,6);
 ctx.beginPath();ctx.moveTo(px+8,py+2);ctx.lineTo(px+10,py-4);ctx.lineTo(px+12,py+2);ctx.fill();
 ctx.beginPath();ctx.moveTo(px+13,py+2);ctx.lineTo(px+15,py-8);ctx.lineTo(px+17,py+2);ctx.fill();
 ctx.beginPath();ctx.moveTo(px+18,py+2);ctx.lineTo(px+20,py-4);ctx.lineTo(px+22,py+2);ctx.fill();
 ctx.fillStyle='#ff0000';ctx.beginPath();ctx.arc(px+15,py-6,2.5,0,Math.PI*2);ctx.fill();
-// Legs
-ctx.fillStyle='#ffcc99';ctx.fillRect(px+8+wo,py+50,9,6);ctx.fillRect(px+17-wo,py+50,9,6);
+ctx.fillStyle='#42a5f5';ctx.beginPath();ctx.arc(px+10,py+5,1.5,0,Math.PI*2);ctx.arc(px+20,py+5,1.5,0,Math.PI*2);ctx.fill();
+// Legs（ピンクの靴）
+ctx.fillStyle='#ffcc99';ctx.fillRect(px+8+wo,py+50,9,4);ctx.fillRect(px+17-wo,py+50,9,4);
+ctx.fillStyle='#e91e63';ctx.fillRect(px+7+wo,py+53,10,3);ctx.fillRect(px+17-wo,py+53,10,3);
 // Caught heart
 if(peach.caught&&G.peachChase&&G.peachChase.catchT<80){
 ctx.fillStyle=`rgba(255,100,150,${1-(G.peachChase.catchT/80)})`;
