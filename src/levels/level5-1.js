@@ -74,6 +74,15 @@ export function buildLevel_5_1(){
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:1816+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:4416+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:6916+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
+  // ★ ルール⑦対応の増量（水中遊泳ライン5本 + 縦列5本、岩礁と非重複）
+  for(let x=600;x<=1600;x+=64) coinItems.push({x,y:H-5*TILE,collected:false,pop:false});
+  for(let x=2200;x<=4300;x+=64) if(x<3376||x>3524) coinItems.push({x,y:H-7*TILE,collected:false,pop:false}); // 岩礁3400-3524を回避
+  for(let x=2900;x<=4000;x+=64) coinItems.push({x,y:H-3*TILE,collected:false,pop:false});
+  for(let x=400;x<=6800;x+=96) coinItems.push({x,y:H-10*TILE,collected:false,pop:false});
+  for(let x=5100;x<=6800;x+=64) coinItems.push({x,y:H-4*TILE,collected:false,pop:false});
+  [1100,2400,3600,5550,6600].forEach(cx=>
+    [H-4*TILE,H-5*TILE,H-6*TILE,H-7*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false,pop:false})));
+  [H-3*TILE,H-4*TILE,H-5*TILE,H-6*TILE].forEach(cy=>coinItems.push({x:6100,y:cy,collected:false,pop:false}));
 
   // はてなブロック（特殊ブロックはpushのみ）
   platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});

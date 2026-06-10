@@ -54,15 +54,21 @@ function estimateCoinCount(content) {
   let count = 0;
   // ベタ書きの coinItems.push
   count += (content.match(/coinItems\.push\(/g) || []).length;
-  // for ループによる N 個生成（簡易）
-  const forLoops = [...content.matchAll(/for\s*\(\s*let\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*(\d+)[^)]*\)\s*coinItems\.push/g)];
+  // for ループによる N 個生成（i=0;i<N 形式）
+  const forLoops = [...content.matchAll(/for\s*\(\s*let\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*(\d+)\s*;[^)]*\)\s*coinItems\.push/g)];
   forLoops.forEach(m => {
     count += parseInt(m[1], 10) - 1; // .push 自体は既にカウント済みなので追加分のみ
   });
-  // forEach 内 coinItems.push（配列リテラル要素数）
+  // for ループによる生成（x=A;x<=B;x+=S 形式、if フィルタ付き可）
+  const xLoops = [...content.matchAll(/for\s*\(\s*let\s+(\w+)\s*=\s*(\d+)\s*;\s*\1\s*<=?\s*(\d+)\s*;\s*\1\s*\+=\s*(\d+)\s*\)\s*(?:if\s*\([^)]*\)\s*)?coinItems\.push/g)];
+  xLoops.forEach(m => {
+    const n = Math.floor((parseInt(m[3], 10) - parseInt(m[2], 10)) / parseInt(m[4], 10)) + 1;
+    count += Math.max(0, n - 1);
+  });
+  // forEach 内 coinItems.push（配列リテラル要素数: オブジェクト配列は{}数、スカラー配列はカンマ区切り数）
   const fe = [...content.matchAll(/\[([^\]]+)\]\.forEach\([^)]*coinItems\.push/g)];
   fe.forEach(m => {
-    const elems = (m[1].match(/\{/g) || []).length;
+    const elems = m[1].includes('{') ? (m[1].match(/\{/g) || []).length : m[1].split(',').length;
     count += Math.max(0, elems - 1); // 同様
   });
   return count;
@@ -72,8 +78,10 @@ function checkFlagPoleSet(content, expectShortStage) {
   return /flagPole\.x\s*=/.test(content);
 }
 function isCastleStage(content) {
-  // bowser.alive=true や lavaFlames が多いと城ステージ
-  return /bowser\.alive\s*=\s*true/.test(content) || (content.match(/lavaFlames\.push/g) || []).length > 5;
+  // bowser.alive=true / Object.assign(bowser,{...alive:true}) や lavaFlames が多いと城ステージ
+  return /bowser\.alive\s*=\s*true/.test(content) ||
+    /Object\.assign\(\s*bowser\s*,/.test(content) ||
+    (content.match(/lavaFlames\.push/g) || []).length > 5;
 }
 
 // メイン

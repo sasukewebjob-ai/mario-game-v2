@@ -116,7 +116,14 @@ export function buildLevel_4_1(){
     const m=Math.round((s+e)/2);
     [-80,-48,-16,16,48,80].forEach(dx=>coinItems.push({x:m+dx,y:H-5*TILE,collected:false}));
     [-96,-64,-32,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-7*TILE,collected:false}));
+    // ★ ルール⑦対応の増量: 低空（落下回収）と高空（足場ジャンプ）の2ライン追加
+    [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-3*TILE,collected:false}));
+    [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-9*TILE,collected:false}));
   });
+  // ★ ルール⑦対応の増量: 中空ライン + 最上空ライン（天井土管1700/2500を回避）+ ゴール前縦列
+  for(let i=0;i<25;i++) coinItems.push({x:320+i*145,y:H-6*TILE, collected:false});
+  for(let i=0;i<22;i++) coinItems.push({x:360+i*160,y:H-12*TILE,collected:false});
+  [H-2*TILE,H-3*TILE,H-4*TILE,H-6*TILE,H-7*TILE,H-8*TILE,H-9*TILE].forEach(cy=>coinItems.push({x:3620,y:cy,collected:false}));
 
   // 敵（x<600 はスタート安全圏）
   // クリボー ×5

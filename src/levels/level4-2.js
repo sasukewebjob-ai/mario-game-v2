@@ -84,7 +84,14 @@ export function buildLevel_4_2(){
     const m=Math.round((s+e)/2);
     [-80,-48,-16,16,48,80].forEach(dx=>coinItems.push({x:m+dx,y:H-5*TILE,collected:false}));
     [-96,-64,-32,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-7*TILE,collected:false}));
+    // ★ ルール⑦対応の増量: 低空（落下回収）と高空（足場ジャンプ）の2ライン追加
+    [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-3*TILE,collected:false}));
+    [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-9*TILE,collected:false}));
   });
+  // ★ ルール⑦対応の増量: 中空ライン + 最上空ライン（天井土管1700/2300を回避）+ ゴール前縦列
+  for(let i=0;i<25;i++) coinItems.push({x:320+i*145,y:H-6*TILE, collected:false});
+  for(let i=0;i<22;i++) coinItems.push({x:350+i*160,y:H-12*TILE,collected:false});
+  [H-2*TILE,H-3*TILE,H-4*TILE,H-5*TILE,H-6*TILE,H-8*TILE,H-9*TILE].forEach(cy=>coinItems.push({x:3520,y:cy,collected:false}));
 
   // 動く足場（各ギャップに2個・速め）
   movingPlats.push({x:820, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:820, range:110,spd:1.8,prevX:820});

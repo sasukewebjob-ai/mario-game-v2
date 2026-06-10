@@ -112,7 +112,13 @@ export function buildLevel_3_2(){
   for(let i=0;i<5;i++)coinItems.push({x:2750+i*35,y:H-2*TILE,collected:false});
   for(let i=0;i<5;i++)coinItems.push({x:4150+i*35,y:H-2*TILE,collected:false});
   for(let i=0;i<5;i++)coinItems.push({x:5700+i*35,y:H-2*TILE,collected:false});
-  // Total: 49+110+25+20+15+10+20 = ~319+
+  // ★ ルール⑦対応の増量: ギャップ上空アーチ（大ギャップ4700-5150は2段）
+  gaps.forEach(({s,e})=>{
+    const m=Math.round((s+e)/2);
+    [-96,-64,-32,0,32,64,96].forEach(dx=>coinItems.push({x:m+dx,y:H-9*TILE,collected:false}));
+  });
+  [-64,-32,0,32,64].forEach(dx=>coinItems.push({x:4925+dx,y:H-11*TILE,collected:false}));
+  // Total: 実測303（tools/count-coins.mjs で検証）
 
   // 地上敵 (goomba / koopa / cactus / hammerBro)
   [{x:380,t:'goomba'},{x:520,t:'cactus'},
