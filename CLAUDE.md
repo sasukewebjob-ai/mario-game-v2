@@ -61,10 +61,10 @@ killMario(true)  // 強制死亡: 全保護スキップ（穴落下・タイム�
 ## スキル
 
 ```
-.claude/skills/mario-new-level.md  → /mario-new-level  新ステージ追加
-.claude/skills/mario-feature.md    → /mario-feature    新機能追加
-.claude/skills/mario-boss.md       → /mario-boss       ボス/城ステージ調整
-.claude/skills/mario-review.md     → /mario-review     ステージレビュー
+.claude/skills/mario-new-level/SKILL.md  → /mario-new-level  新ステージ追加
+.claude/skills/mario-feature/SKILL.md    → /mario-feature    新機能追加
+.claude/skills/mario-boss/SKILL.md       → /mario-boss       ボス/城ステージ調整
+.claude/skills/mario-review/SKILL.md     → /mario-review     ステージレビュー
 ```
 
 ## 参照ドキュメント
