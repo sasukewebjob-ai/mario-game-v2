@@ -25,7 +25,7 @@ export const BOWSER_STATS={
   2:{hp:3,fireImmune:false,speed:1.2,fireSpeed:4.5,fireVy:-3.0,fireTimer:140,jumpTimer:300},
   3:{hp:3,fireImmune:false,speed:1.4,fireSpeed:5.0,fireVy:-3.5,fireTimer:120,jumpTimer:290},
   4:{hp:4,fireImmune:false,speed:1.6,fireSpeed:5.5,fireVy:-3.5,fireTimer:105,jumpTimer:280},
-  5:{hp:4,fireImmune:false,speed:1.6,fireSpeed:6.0,fireVy:-4.0,fireTimer:110,jumpTimer:285},
+  5:{hp:4,fireImmune:false,speed:1.7,fireSpeed:6.0,fireVy:-4.0,fireTimer:102,jumpTimer:275},
   6:{hp:4,fireImmune:false,speed:1.8,fireSpeed:6.5,fireVy:-4.0,fireTimer:100,jumpTimer:270},
   7:{hp:5,fireImmune:false,speed:2.0,fireSpeed:7.0,fireVy:-4.5,fireTimer:90,jumpTimer:260},
   8:{hp:5,fireImmune:false,speed:2.2,fireSpeed:7.5,fireVy:-5.0,fireTimer:85,jumpTimer:240}
