@@ -115,5 +115,15 @@ const koopa=(x,y)=>({type:'koopa',x,y,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,
  pipes.push({x:500,y:H-TILE-96,w:64,h:96,bounceOffset:0});coinItems.push({x:510,y:H-TILE-64,collected:false});sanitizeLevel();
  ok(coinItems.length===1&&coinItems[0].y+24<=H-TILE-96,`土管に埋まったコインは上に移される (y=${coinItems[0]?.y})`);}
 
+// ピノキオ部屋: マリオが立っている所に出口土管が出ても、壁との間に閉じ込められない
+{start(stageId(1,3));const wp=pipes.find(p=>p.variant==='pinocchio');
+ mario.x=wp.x+wp.w/2-mario.w/2;mario.y=wp.y-mario.h;mario.vy=0;mario.onGround=true;run(2);press('ArrowDown',2);run(60);
+ const inPino=G.ugMode&&G.pinoRoom;pipes.length=pipes.filter(p=>!p.isExit&&!p.isExWarp).length;
+ mario.x=732;mario.y=H-TILE-mario.h;mario.vx=0;mario.vy=0;mario.onGround=true;mario.inv=999;
+ G.chestOpened=true;G.pinoNeed=0;G.pinoReward=0;run(30);
+ const ex=pipes.find(p=>p.isExit);const onTop=!!ex&&Math.abs(mario.y+mario.h-ex.y)<2&&mario.x+mario.w<=ex.x+ex.w+1;
+ press('ArrowDown',3);run(30);
+ ok(inPino&&onTop&&!G.ugMode,`出口土管が足元に出たら土管の上に乗り、そのまま出られる (on=${onTop} x=${Math.round(mario.x)} ug=${G.ugMode})`);}
+
 console.log(fails?`\n失敗 ${fails} 件`:'\nすべて成功');
 process.exit(fails?1:0);

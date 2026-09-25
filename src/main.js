@@ -406,9 +406,15 @@ function spawnPinoMushroom(){
     });
   }
 }
+// 部屋の中に土管を生やす。マリオが立っている所に出たら土管の上に乗せる
+// （乗せないと横判定で右の壁へ押し出され、土管と壁の間に閉じ込められて出られなくなっていた）
+function _pushRoomPipe(p){
+  pipes.push(p);
+  if(!mario.dead&&overlap(mario.x,mario.y,mario.w,mario.h,p.x,p.y,p.w,p.h)){mario.y=p.y-mario.h;mario.vy=0;mario.onGround=true;}
+}
 function spawnPinoExit(){
   // 出口パイプを画面右端付近に追加（地下の共通出口と同じ位置）
-  pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+  _pushRoomPipe({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
 }
 const _PINO_SPEECHES=[
   'わあ、ラッキー！\n1UPきのこが2個だよ！', // 0: 2x1UP
@@ -469,8 +475,8 @@ function applyPinoReward(reward,cx,cy){
     // EX stage warp pipe（左隅）+ 出口パイプ（右隅）
     G.pinoNeed=0;
     const _exN=G.ex1Cleared?2:1;
-    pipes.push({x:TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExWarp:true,exNum:_exN});
-    pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+    _pushRoomPipe({x:TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExWarp:true,exNum:_exN});
+    _pushRoomPipe({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
   }
 }
 function openChest(chestPlatform){
@@ -1269,7 +1275,7 @@ if(G.pinoRoom){
   if(G.chestOpened&&G.pinoReward===8&&G.pinoSpeechTimer===0&&!G.pinoFlagReady){
     G.pinoFlagReady=true;G.pinoFlagDelay=90; // 1.5秒猶予（選択のため）
     if(!pipes.some(p=>p.isExit))
-      pipes.push({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
+      _pushRoomPipe({x:W-3*TILE,y:H-TILE-3*TILE,w:TILE*2,h:3*TILE,bounceOffset:0,isWarp:false,isExit:true});
   }
   if(G.pinoFlagDelay>0)G.pinoFlagDelay--;
   // フラグポール：猶予後にマリオが左端フラグに触れたらステージクリア（x=48が旗の x）

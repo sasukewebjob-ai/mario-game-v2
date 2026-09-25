@@ -31,7 +31,7 @@ function checkInvariants(){
   const pos={x:mario.x,y:mario.y,ug:G.ugMode,dead:mario.dead,state:G.state,goal:!!G.goalSlide};
   if(prevPos&&!harnessWarp&&!pos.dead&&!prevPos.dead&&pos.ug===prevPos.ug&&pos.state==='play'&&prevPos.state==='play'&&!pos.goal){
     const dx=mario.x-prevPos.x,dy=mario.y-prevPos.y;
-    if(Math.abs(dx)>40||dy<-40||dy>40){const near=platforms.filter(p=>Math.abs(p.x-mario.x)<60&&Math.abs(p.y-mario.y)<140).map(p=>`${p.type[0]}${p.x},${p.y}`).slice(0,10).join(' ');const en=enemies.filter(e=>e.alive&&Math.abs(e.x-mario.x)<80).map(e=>`${e.type}${e.frozen?'(凍)':''}@${Math.round(e.x)},${Math.round(e.y)}`).join(' ');
+    if(Math.abs(dx)>16||dy<-40||dy>40){const near=platforms.filter(p=>Math.abs(p.x-mario.x)<60&&Math.abs(p.y-mario.y)<140).map(p=>`${p.type[0]}${p.x},${p.y}`).slice(0,10).join(' ');const en=enemies.filter(e=>e.alive&&Math.abs(e.x-mario.x)<80).map(e=>`${e.type}${e.frozen?'(凍)':''}@${Math.round(e.x)},${Math.round(e.y)}`).join(' ');
       once('瞬間移動',`(${Math.round(prevPos.x)},${Math.round(prevPos.y)})→(${Math.round(mario.x)},${Math.round(mario.y)}) h=${mario.h} og=${mario.onGround} 周辺[${near}] 敵[${en}] 直前: ${trail.slice(-4).join(' | ')}`);}
   }
   prevPos=pos;harnessWarp=false;
@@ -129,7 +129,10 @@ function pipeRun(st){
     releaseAll();
     if(G.ugMode){
       const ex=pipes.find(p=>p.isExit);
-      if(!ex){once('土管',`地下に出口土管が無い variant=${wp.variant}`);continue;}
+      // ピノキオ部屋は時間で戻り、bowser_final はクッパを倒して終わるので出口土管は無いのが正しい
+      if(!ex){if(!G.pinoRoom&&wp.variant!=='bowser_final')once('土管',`地下に出口土管が無い variant=${wp.variant}`);continue;}
+      // 直前のジャンプ先行入力と横の勢いを消してから土管に乗せる（残っていると置いた瞬間に跳んでしまう）
+      G.jumpBuf=0;mario.vx=0;
       harnessWarp=true;if(ex.horizontal){mario.x=ex.x-mario.w-1;mario.y=ex.y+ex.h-mario.h;mario.vy=0;mario.onGround=true;key('keydown','ArrowRight');key('keydown','ArrowDown');run(4);releaseAll();}
       else{harnessWarp=true;mario.x=ex.x+ex.w/2-mario.w/2;mario.y=ex.y-mario.h;mario.vy=0;mario.onGround=true;run(1);press('ArrowDown',3);}
       run(20);
