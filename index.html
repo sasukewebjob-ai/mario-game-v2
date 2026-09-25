@@ -3,11 +3,18 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="manifest" href="/mario-game-v2/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/mario-game-v2/icon-192.png">
+<link rel="apple-touch-icon" href="/mario-game-v2/apple-touch-icon.png">
 <title>Super Mario Bros - Enhanced</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/mario-game-v2/assets/index-DstvB0yB.js"></script>
-  <link rel="stylesheet" crossorigin href="/mario-game-v2/assets/index-BmoyZHLv.css">
+  <script type="module" crossorigin src="/mario-game-v2/assets/index-Cum_Zel8.js"></script>
+  <link rel="stylesheet" crossorigin href="/mario-game-v2/assets/index-C7fbTDm5.css">
 </head>
 <body>
 <div id="wrap">
@@ -17,6 +24,7 @@
 <span><label>WORLD</label><b id="hWorld">1-1</b></span>
 <span><label>TIME</label><b id="hTime">400</b></span>
 <div id="lives-icons"></div>
+<span class="hud-btns"><button class="hud-btn" id="btn-pause" aria-label="pause">II</button><button class="hud-btn" id="btn-fs" aria-label="fullscreen">&#x26F6;</button></span>
 </div>
 <canvas id="game" width="800" height="450"></canvas>
 <div id="controls">
@@ -25,13 +33,15 @@
 <button class="ctrl-btn" id="btn-right">&#9654;</button>
 <button class="ctrl-btn" id="btn-down" style="font-size:14px">&#9660;</button>
 </div>
-<div class="hint">Arrows:Move Shift:Dash<br>Space/Up:Jump Z:Tongue/Fire</div>
+<div class="hint" id="key-hint">&larr;&rarr;:MOVE SHIFT:DASH SPACE:JUMP<br>Z:FIRE X:YOSHI C:ITEM P:MENU</div>
 <div class="btn-group">
+<button class="ctrl-btn small" id="btn-item" style="font-size:13px">&#127890;</button>
 <button class="ctrl-btn" id="btn-dash" style="font-size:13px">&#128168;</button>
 <button class="ctrl-btn" id="btn-fire" style="font-size:18px">&#128293;</button>
 <button class="ctrl-btn" id="btn-jump">&#8593;</button>
 </div>
 </div>
 </div>
+<div id="rotate-hint"><div>&#128241;&#8635;</div><p>横向きにすると遊びやすくなります</p><small>タップで閉じる</small></div>
 </body>
 </html>
