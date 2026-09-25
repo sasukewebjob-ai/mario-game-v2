@@ -137,7 +137,7 @@ for (const file of files) {
   if (!checkAutoScrollReset(content)) {
     issues.push('④ G.autoScroll=0 のリセット記述なし');
   }
-  if (!checkCheckpoint(content) && !file.includes('1-3') && !file.includes('1-4') && !isCastleStage(content)) {
+  if (!checkCheckpoint(content) && !file.includes('1-3') && !isCastleStage(content)) {
     warnings.push('チェックポイント未設定（短いステージなら可）');
   }
   const early = findEarlyEnemies(content);

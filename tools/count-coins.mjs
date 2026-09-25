@@ -4,7 +4,6 @@ import {coinItems, platforms} from '../src/globals.js';
 
 const LEVELS = [];
 for (let w = 1; w <= 8; w++) for (let l = 1; l <= 3; l++) LEVELS.push(`${w}-${l}`);
-LEVELS.splice(3, 0, '1-4'); // 1-4 が存在する
 
 const rows = [];
 for (const id of LEVELS) {

@@ -7,7 +7,6 @@ const GROUND_TYPES = new Set(['goomba','koopa','buzzy','cactus','hammerBro','chu
 
 const LEVELS = [];
 for (let w = 1; w <= 8; w++) for (let l = 1; l <= 3; l++) LEVELS.push(`${w}-${l}`);
-LEVELS.splice(3, 0, '1-4');
 
 let total = 0;
 for (const id of LEVELS) {
