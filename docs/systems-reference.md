@@ -2,32 +2,28 @@
 
 ## コイン消費ショップ
 
-ステージクリア後（flagPole / pipeGoal / ボス撃破後）に表示。  
-操作: ←→↑↓選択、A/Space購入、B/ESCキャンセル、START/Enter次ステージ
+ステージクリア後（flagPole / pipeGoal / ボス撃破後）に表示。価格・品目の実体は main.js の `_SHOP_ITEMS`（2026-09-25 時点で 13 品）。
+操作: ←→↑↓ で選択、Space/Z/A で購入確認 → もう一度で購入、ESC/B でキャンセル、Enter/START または画面右上の NEXT で次のステージへ。タップでも購入・NEXT できる。
 
 | アイテム | 価格 | key | 効果 | 複数 |
 |---------|------|-----|------|------|
-| きのこ | 30 | mushroom | デカマリオ | × |
-| ファイア | 60 | fire | ファイアマリオ | × |
-| アイス | 60 | ice | アイスマリオ | × |
-| ハンマー | 80 | hammer | ハンマーマリオ | × |
+| MUSHROOM | 50 | mushroom | デカマリオ（大マリオ以上は購入不可） | × |
+| FIRE | 100 | fire | ファイアマリオ | × |
 | 1UP | 100 | 1up | 残機+1 | ○ |
-| 1UP×3 | 200 | 1upSet | 残機+3 | ○ |
-| 1UP×6 | 280 | 1upSet6 | 残機+6 | ○ |
-| STAR 10s | 50 | star10 | 10秒無敵 | ○ |
-| STAR 30s | 500 | star30 | 30秒無敵 | ○ |
-| W-JUMP | 150 | doubleJump | 2段ジャンプ（死ぬまで） | ○ |
-| MAGNET | 300 | magnet | コイン吸引（死ぬまで） | ○ |
-| RETRY | 100 | retryHeart | 死亡時復活（重ね可） | ○ |
-| HI-JUMP | 120 | highJump | ジャンプ高さ×1.25 | × |
-| SHIELD | 80 | shield | ダメージ1回無効 | ○ |
-| WARP | 300 | warp | ステージ1つスキップ | ○ |
-| SET 500 | 500 | bundle | MAGNET+W-JUMP+RETRY | ○ |
-| MEGA START | 250 | megaStart | 開始時メガマリオ8秒 | × |
+| ICE | 100 | ice | アイスマリオ | × |
+| HAMMER | 190 | hammer | ハンマーマリオ | × |
+| RETRY | 200 | retryHeart | やられた時その場で復活（重ね可。時間切れ等の強制死亡では発動しない） | ○ |
+| STAR 10s | 200 | star10 | 10秒無敵 | ○ |
+| 1UP x3 | 250 | 1upSet | 残機+3 | ○ |
+| 1UP x6 | 400 | 1upSet6 | 残機+6 | ○ |
+| W-JUMP | 600 | doubleJump | 2段ジャンプ（やられるまで） | ○ |
+| MAGNET | 650 | magnet | コイン吸引（やられるまで） | ○ |
+| STAR 30s | 1000 | star30 | 30秒無敵 | ○ |
+| SET 1300 | 1300 | bundle | MAGNET+W-JUMP+RETRY | ○ |
 
-- コイン上限: 999枚
-- W-JUMP/MAGNET/RETRY は死亡でリセット
-- アクティブ効果は画面右下に表示
+- コイン上限: 3000枚（updateHUD で丸める。クッパ撃破ボーナスも同じ上限）
+- W-JUMP/MAGNET/RETRY は死亡でリセット（チェックポイント復帰時は継続）。セーブにも保存される
+- ※ 旧ドキュメントにあった HI-JUMP / SHIELD / WARP / MEGA START はショップに存在しない
 
 ---
 
@@ -86,20 +82,61 @@ platforms.push({x, y:H-5*TILE, w:TILE, h:TILE, type:'pswitch', hit:false, bounce
 
 ---
 
-## ゲームパッド（iBUFFALO SNES型）
+## ゲームパッド（設定の PAD LAYOUT で切替）
 
-| ボタン | gpad | 操作 |
-|--------|------|------|
-| B | buttons[0] | ダッシュ |
-| A | buttons[1] | ジャンプ |
-| Y | buttons[2] | ファイア/アイス/ハンマー |
-| X | buttons[3] | ヨッシーの舌/卵 |
-| L | buttons[4] | 音量ダウン |
-| R | buttons[5] | 音量アップ |
-| SELECT | buttons[6] | — |
-| START | buttons[7] | 開始/ポーズ/次ステージ |
+| 操作 | SNES配置（既定・iBUFFALO等） | MODERN配置（Xbox/PS等） |
+|------|------|------|
+| ジャンプ | A = buttons[1] | 下 = buttons[0] |
+| ダッシュ | B = buttons[0] | 左 = buttons[2] |
+| ファイア/アイス/ハンマー | Y = buttons[2] | 右 = buttons[1] |
+| ヨッシーの舌/卵 | X = buttons[3] | 上 = buttons[3] |
+| メニューの決定 / 戻る | A / B | 下 / 右 |
 
-マッピング変更: `main.js` の `pollGamepad()` 内 `gp.buttons[N]` のインデックスを変更。
+共通: L/R = BGM音量、SELECT = ストック使用、START = ポーズメニュー。配置表は main.js の `_PAD_LAYOUT`。
+
+---
+
+## 入力・操作感（2026-09-25〜）
+
+- キーボードの割当は `src/input.js`（アクションごとに最大3キー、localStorage `mario_v2_keys`）。
+  **新しい処理でキーを直接見ない**: 押下中の判定は `act('left'|'right'|'down'|'jump'|'dash')`、ジャンプは `queueJump()`
+- ジャンプは update 内の `_tryJump()` に一本化: 先行入力 8F（`JUMP_BUFFER`）・コヨーテタイム 6F（`COYOTE_FRAMES`）・壁キック・2段ジャンプ
+- 角ずらし: 上昇中に ground/brick の角へ 6px 以内で当たったら横にずらす（?ブロック・中身入りは対象外）
+- 着地補正: 落下中に足先が段差の角に 8px 以内で届かなかったら上に乗せる
+- 頂点付近はジャンプ押しっぱなしで重力 0.55 倍。カメラは `_followCam()` で進行方向を先読み
+- 土管は「土管の上で↓を押している間」に入る（update 内で毎フレーム判定）
+- 重力反転中はブロックの下面に着地し（`_cYFlipped`）、ジャンプは下向き
+
+## メニュー・設定
+
+- `G.menu` = null | {type:'pause'|'settings'|'keys'|'help'|'confirm', …, prev}。プレイ中に開いたときは `G.paused` も true
+- 入力は `menuCmd()` → `_menuInput()` に集約（キーボード・パッド・タッチボタン・画面タップ共通）
+- 設定は localStorage `mario_v2_opts`: v(BGM) / m(ミュート) / se(効果音) / shake / flash / runFire / pad / touch / slot
+- 効果音は audio.js の `seOut`（GainNode）を通るので、BGM とは別の音量になる
+
+## セーブ（3スロット・src/save.js）
+
+- localStorage `mario_v2_slots` = [{progress, records} × 3]。旧 `mario_v2_save` は初回起動時にスロット1へ移行
+- progress（続きから遊ぶためのデータ）: ゲームオーバーで消える。パワーアップ・W-JUMP/MAGNET/RETRY・ストックも保存
+- records（★・ベストタイム）: `_recordClear()` の時点で保存。ゲームオーバーでも消えない
+- ベストタイムはプレイ中のフレーム数（`G.stageFrames`）で計測（ポーズ・開始画面・ゴール演出は含まない）
+
+## タイマー
+
+- 残り時間と死亡後の待ちは、update() 冒頭のフレームカウントで進める（`startLevelTimer()` / `G.deathTimer` → `_afterDeath()`）
+- **ゲーム状態を変える処理に setInterval / setTimeout を使わない**（ポーズ中やタブの裏でもずれるため）
+- ゴール演出・クッパ撃破演出・ピーチ追跡中は残り時間を減らさない
+
+## PWA
+
+- `public/manifest.webmanifest` と `public/sw.js`（本番ビルドのときだけ登録）。HTML はネット優先、ハッシュ付きの資産とフォントはキャッシュ優先
+- 公開後に古い画面が残るときは、sw.js の `CACHE` の名前を上げる
+- アイコンは `node tools/make-icons.mjs` で再生成できる
+
+## テスト
+
+`npm test` = controls-test（操作性）→ regression-test（過去の不具合）→ menu-test（メニュー/セーブ）→ smoke-test（全ステージを実際のゲームループで走らせ、例外・NaN を検出）。
+どれも `tools/smoke/env.mjs` のブラウザ用スタブの上で main.js をそのまま動かす。開発サーバーでは `window.__game` からコマ送り・キー入力ができる。
 
 ---
 

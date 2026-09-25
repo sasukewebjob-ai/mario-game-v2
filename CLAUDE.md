@@ -5,6 +5,7 @@
 npm run dev     # 開発サーバー（ホットリロード）http://localhost:5173/mario-game-v2/
 npm run build   # ビルド確認
 npm run deploy  # GitHub Pages デプロイ（masterにpushしただけでは反映されない）
+npm test        # 操作性・回帰・メニュー/セーブ・全ステージのスモークテスト（変更後は必ず実行）
 ```
 公開URL: https://sasukewebjob-ai.github.io/mario-game-v2/
 
@@ -13,7 +14,12 @@ npm run deploy  # GitHub Pages デプロイ（masterにpushしただけでは反
 src/
 ├── globals.js    ← 定数・配列・G オブジェクト・ゲームオブジェクト
 ├── builders.js   ← addB, addRow, addStair, addStairD
-├── main.js       ← ゲームループ・update・draw・audio・入力
+├── main.js       ← ゲームループ・update・draw・メニュー・入力処理
+├── audio.js      ← 効果音・BGMデータ（効果音は seOut 経由）
+├── input.js      ← キー割当（キーコンフィグ）
+├── save.js       ← セーブ3スロット（進行と記録）
+├── layout.js     ← 画面の縮小・タッチ用レイアウト
+├── stages.js     ← ステージ登録
 ├── style.css
 └── levels/
     ├── underground.js         ← buildUnderground(variant)
@@ -49,11 +55,17 @@ src/
 | ⑨ | ドッスン（thwomp）の x〜x+64 の真下にブロックを置かない |
 | ⑩ | 新配列を globals.js に追加したら enterUnderground/exitUnderground の savedOW にも追加 |
 
+## 入力・タイマーのルール
+
+- キーを直接見ない: 押下中は `act('jump')` など、ジャンプは `queueJump()`（キーコンフィグ・タッチ・パッドが共通で効く）
+- ゲーム状態を変える処理に setInterval / setTimeout を使わない（フレームで数える。`startLevelTimer()` / `G.deathTimer`）
+- 詳細は `docs/systems-reference.md` の「入力・操作感」「メニュー・設定」「セーブ」「タイマー」
+
 ## killMario(force) — 使い分けに注意
 
 ```javascript
 killMario()      // 通常死亡: star/inv/パワーアップ/retryHeart の保護あり
-killMario(true)  // 強制死亡: 全保護スキップ（穴落下・タイムアウト・追いかけ壁 専用）
+killMario(true)  // 強制死亡: 全保護スキップ（リトライハートも無効。穴落下・タイムアウト・追いかけ壁・ポーズのRETRY）
 ```
 ⚠️ タイムアウト・追いかけ壁では必ず `killMario(true)` を使うこと。  
 `killMario()` を使うと inv>0 のとき死なず、タイマーがマイナスになり続ける。
