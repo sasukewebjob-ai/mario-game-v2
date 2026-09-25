@@ -16,6 +16,7 @@ import {AC,beep,sfx,playGameOverJingle,playVictoryFanfare,playStageClearFanfare,
   CASTLE_P2_NOTES,WATER_NOTES,PSWITCH_NOTES,FINAL_BOSS_NOTES,
   SHOP_NOTES,PINO_NOTES} from './audio.js';
 import {canvasPoint} from './layout.js';
+import {keys,held,isBound,ACTIONS,mainKey} from './input.js';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 
 // === AUDIO ===
@@ -45,7 +46,7 @@ function _defeatBowser(){
 function resetMario(){
 const bh=mario.power!=='none'?48:32;
 Object.assign(mario,{x:80,y:H-3*TILE,w:26,h:bh,vx:0,vy:0,onGround:false,facing:1,walkFrame:0,walkTimer:0,inv:0,dead:false,crouching:false,heldShell:null});
-G.cam=0;
+G.cam=0;G.camLead=0;G.camDir=1;G.jumpBuf=0;G.jumpFresh=false;G.coyote=0;
 }
 function upgradeMario(type,_fromStock=false){
 // アイテムストック: すでに特殊パワー(fire/hammer/ice)持ちかつスロット空きがあれば保存
@@ -81,58 +82,125 @@ function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=partic
 // BGM音量・ミュートの永続化（リロードしても設定が残るように）
 function saveAudioOpts(){try{localStorage.setItem('mario_v2_opts',JSON.stringify({v:G.bgmVolume,m:G.bgmMuted}));}catch(e){}}
 (function(){try{const _o=JSON.parse(localStorage.getItem('mario_v2_opts'));if(_o){if(typeof _o.v==='number')G.bgmVolume=Math.min(1,Math.max(0,_o.v));G.bgmMuted=!!_o.m;}}catch(e){}})();
-const keys={},btn={left:false,right:false,jump:false,dash:false,down:false};
-document.addEventListener('keydown',e=>{keys[e.code]=true;
-if(G.state==='start'){
-  const _exId=STAGES.length+1,_exId2K=STAGES.length+2,_contId=STAGES.length+3;
-  if(e.code==='ArrowLeft'){if(G.selectedStage===_exId2K)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=STAGES.length;else if(G.selectedStage>1&&G.selectedStage!==_contId)G.selectedStage--;e.preventDefault();}
-  if(e.code==='ArrowRight'){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=_exId2K;e.preventDefault();}
-  if(e.code==='ArrowUp'){if(G.selectedStage===_contId)G.selectedStage=_exId;else if(G.selectedStage===_exId||G.selectedStage===_exId2K)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;e.preventDefault();}
-  if(e.code==='ArrowDown'){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId;}else if((G.selectedStage===_exId||G.selectedStage===_exId2K)&&hasSave())G.selectedStage=_contId;e.preventDefault();}
-  const _dm={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};
-  if(_dm[e.code]&&_dm[e.code]<=STAGES.length)G.selectedStage=_dm[e.code];
-  if(e.code==='Space'||e.code==='Enter'){if(G.selectedStage===_contId&&hasSave()){loadSave();}else if(G.selectedStage===_exId){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId2K){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
-  if(e.code==='KeyL'||e.code==='KeyR'){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
-}
-// ショップ操作
-if(G.state==='shop'){
-  if(e.code==='ArrowLeft'||e.code==='KeyA'){G.shopCursor=(G.shopCursor+12)%13;e.preventDefault();}
-  if(e.code==='ArrowRight'||e.code==='KeyD'){G.shopCursor=(G.shopCursor+1)%13;e.preventDefault();}
-  if(e.code==='ArrowUp'){const _u=G.shopCursor-5;G.shopCursor=_u<0?Math.min(12,G.shopCursor+10):_u;e.preventDefault();}
-  if(e.code==='ArrowDown'){const _d=G.shopCursor+5;G.shopCursor=_d>=13?_d%5:_d;e.preventDefault();}
-  if(G.shopConfirm!=null){
-    if(e.code==='Space'||e.code==='KeyZ'||e.code==='Enter'){_gpShopBuy(G.shopConfirm);}
-    if(e.code==='Escape'||e.code==='KeyN'||e.code==='KeyX'){G.shopConfirm=null;}
-    e.preventDefault();return;
+const btn={left:false,right:false,jump:false,dash:false,down:false,fire:false};
+// アクション入力（キーボード割当＋タッチボタン＋ゲームパッド）が押されているか
+function act(a){
+  if(held(a))return true;
+  switch(a){
+    case'left':return btn.left||gpad.left;
+    case'right':return btn.right||gpad.right;
+    case'down':return btn.down||gpad.down;
+    case'jump':return btn.jump||gpad.a;
+    // SMB式（ダッシュ＋ファイア一体化）ならファイアボタン押しっぱなしでもダッシュ
+    case'dash':return btn.dash||gpad.b||(G.runFire&&(held('fire')||btn.fire||gpad.y));
   }
-  if(e.code==='Space'||e.code==='KeyZ'){
-    const _it=_SHOP_ITEMS[G.shopCursor];if(!_it){e.preventDefault();return;}
-    const _single=_SINGLE_ONLY.has(_it.key);
-    if(G.coins>=_it.cost&&(!_single||!G.shopBought?.[_it.key])){G.shopConfirm=G.shopCursor;}
-  }
-  if(e.code==='Enter'){_gpShopNext();}
-  e.preventDefault();return;
+  return false;
 }
-if((G.state==='dead'||G.state==='over'||G.state==='win')&&(e.code==='Space'||e.code==='Enter')){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}
-if(G.state==='play'&&(e.code==='Space'||e.code==='ArrowUp')&&!mario.dead){if(mario.onGround||G.waterMode&&G.swimCooldown<=0){G.doubleJumpUsed=false;doJump();}else if(mario.wallContact!==0&&!mario.onGround){mario.vy=G.highJump?-16:-13;mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}else if(G.doubleJump&&!G.doubleJumpUsed&&!mario.onGround){G.doubleJumpUsed=true;mario.vy=G.highJump?-16:-13;mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}}
-if(G.state==='play'&&e.code==='KeyP'&&(G.paused||!mario.dead)){G.paused=!G.paused;}
-if(G.state==='play'&&G.paused&&G.isExStage&&e.code==='KeyQ'){giveUpExStage();}
-if(G.state==='play'&&e.code==='KeyZ'&&!mario.dead){if(mario.power==='fire')shootFireball();else if(mario.power==='ice')shootIceBall();else if(mario.power==='hammer')throwMarioHammer()}
-if(G.state==='play'&&e.code==='KeyC'&&!mario.dead)useHeldItem();
-if(G.state==='play'&&e.code==='KeyX'&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction()}
-if(G.state==='play'&&(e.code==='ArrowDown'||e.code==='KeyS')&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry();
+// 攻撃（パワーアップに応じてファイア/アイス/ハンマー）
+function marioAttack(){if(mario.power==='fire')shootFireball();else if(mario.power==='ice')shootIceBall();else if(mario.power==='hammer')throwMarioHammer();}
+function toggleCharacter(){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
+// ミス/ゲームオーバー/全クリア画面からの続行
+function continueAfterEnd(){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else if(G.state==='dead'){restartCurrentLevel()}}
+
+// === メニュー操作（キーボード・ゲームパッド・タッチ共通） ===
+// c: 'left'|'right'|'up'|'down'|'ok'|'back'|'start'|'char'
+function _titleNav(c){
+  const S=STAGES.length,_exId=S+1,_exId2=S+2,_contId=S+3;
+  if(c==='left'){if(G.selectedStage===_exId2)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=S;else if(G.selectedStage>1&&G.selectedStage!==_contId)G.selectedStage--;}
+  if(c==='right'){if(G.selectedStage<S)G.selectedStage++;else if(G.selectedStage===S)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=_exId2;}
+  if(c==='up'){if(G.selectedStage===_contId)G.selectedStage=_exId;else if(G.selectedStage===_exId||G.selectedStage===_exId2)G.selectedStage=S-1;else if(G.selectedStage>3)G.selectedStage-=3;}
+  if(c==='down'){if(G.selectedStage<=S){if(G.selectedStage+3<=S)G.selectedStage+=3;else G.selectedStage=_exId;}else if((G.selectedStage===_exId||G.selectedStage===_exId2)&&hasSave())G.selectedStage=_contId;}
+}
+function _titleStart(){
+  const S=STAGES.length;
+  if(G.selectedStage===S+3){if(hasSave())loadSave();}
+  else if(G.selectedStage===S+1){G.isExStage=false;G.exStageFrom=null;startExStage(1);}
+  else if(G.selectedStage===S+2){G.isExStage=false;G.exStageFrom=null;startExStage(2);}
+  else startFromStage(G.selectedStage);
+}
+// 購入可能なら確認ダイアログを開く
+function _shopSelect(i){const it=_SHOP_ITEMS[i];if(!it)return;const single=_SINGLE_ONLY.has(it.key);if(G.coins>=it.cost&&(!single||!G.shopBought?.[it.key]))G.shopConfirm=i;}
+function _shopCmd(c){
+  const N=_SHOP_ITEMS.length,rows=Math.ceil(N/5);
+  if(G.shopConfirm!=null){if(c==='ok'||c==='start')_gpShopBuy(G.shopConfirm);else if(c==='back')G.shopConfirm=null;return;}
+  if(c==='left')G.shopCursor=(G.shopCursor+N-1)%N;
+  if(c==='right')G.shopCursor=(G.shopCursor+1)%N;
+  if(c==='up'){const u=G.shopCursor-5;G.shopCursor=u>=0?u:Math.min(N-1,G.shopCursor+(rows-1)*5);}
+  if(c==='down'){const d=G.shopCursor+5;G.shopCursor=d<N?d:G.shopCursor%5;}
+  if(c==='ok')_shopSelect(G.shopCursor);
+  if(c==='start')_gpShopNext();
+}
+// ショップ画面の配置（描画とタップ/クリック判定で共通）
+const _SHOP_NEXT={x:W-124,y:30,w:108,h:26};
+function _shopItemRect(i){const x0=(W-(120*5+10*4))/2;return{x:x0+(i%5)*130,y:86+Math.floor(i/5)*110,w:120,h:100};}
+const _SHOP_DLG={x:(W-360)/2,y:(H-140)/2-10,w:360,h:140};
+const _SHOP_BUY={x:_SHOP_DLG.x+30,y:_SHOP_DLG.y+68,w:140,h:32},_SHOP_CANCEL={x:_SHOP_DLG.x+190,y:_SHOP_DLG.y+68,w:140,h:32};
+function _inRect(x,y,r){return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;}
+function _shopTap(x,y){
+  if(G.frame-(G._stateFrame||0)<20)return;
+  if(G.shopConfirm!=null){if(_inRect(x,y,_SHOP_BUY))_gpShopBuy(G.shopConfirm);else G.shopConfirm=null;return;}
+  if(_inRect(x,y,_SHOP_NEXT)){_gpShopNext();return;}
+  for(let i=0;i<_SHOP_ITEMS.length;i++)if(_inRect(x,y,_shopItemRect(i))){G.shopCursor=i;_shopSelect(i);return;}
+}
+function menuCmd(c){
+  // 画面が切り替わった直後の入力は無視（ボタン連打でゲームオーバー画面や購入を飛ばさないように）
+  const _since=G.frame-(G._stateFrame||0);
+  if(G.state!=='start'&&_since<(G.state==='over'||G.state==='win'?45:20))return;
+  if(G.state==='start'){if(c==='ok'||c==='start')_titleStart();else if(c==='char')toggleCharacter();else _titleNav(c);return;}
+  if(G.state==='shop'){_shopCmd(c);return;}
+  if(G.state==='dead'||G.state==='over'||G.state==='win'){if(c==='ok'||c==='start')continueAfterEnd();}
+}
+// メニュー画面でのキー → メニュー操作
+function _menuCmdOfKey(code){
+  if(code==='ArrowLeft'||isBound(code,'left'))return'left';
+  if(code==='ArrowRight'||isBound(code,'right'))return'right';
+  if(code==='ArrowUp'||code==='KeyW')return'up';
+  if(code==='ArrowDown'||isBound(code,'down'))return'down';
+  if(code==='Enter')return'start';
+  if(code==='Space'||code==='KeyZ'||isBound(code,'jump'))return'ok';
+  if(code==='Escape'||code==='KeyX'||code==='KeyN'||code==='Backspace')return'back';
+  if(G.state==='start'&&(code==='KeyL'||code==='KeyR'))return'char';
+  return null;
+}
+// ゲームで使うキーだけブラウザの既定動作を止める（F5・F11・Ctrl+R などは効くように）
+const _GAME_KEYS=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','Escape','Backspace','Tab','KeyZ','KeyX','KeyN','KeyW','KeyA','KeyS','KeyD','KeyL','KeyR','KeyQ','KeyM','Equal','Minus','NumpadAdd','NumpadSubtract']);
+const _DIGIT_STAGE={'Digit1':1,'Digit2':2,'Digit3':3,'Digit4':4,'Digit5':5,'Digit6':6,'Digit7':7,'Digit8':8,'Digit9':9,'Digit0':10};
+document.addEventListener('keydown',e=>{
+if(e.ctrlKey||e.metaKey||e.altKey)return;
+keys[e.code]=true;
+if(_GAME_KEYS.has(e.code)||_DIGIT_STAGE[e.code]||ACTIONS.some(a=>isBound(e.code,a)))e.preventDefault();
+if(G.state!=='play'){
+  if(G.state==='start'&&_DIGIT_STAGE[e.code]&&_DIGIT_STAGE[e.code]<=STAGES.length)G.selectedStage=_DIGIT_STAGE[e.code];
+  // 方向キーは押しっぱなしで連続移動、決定系はキーリピートを無視
+  const _mc=_menuCmdOfKey(e.code);
+  if(_mc&&(!e.repeat||['left','right','up','down'].includes(_mc)))menuCmd(_mc);
+}else{
+  if(!G.paused&&!mario.dead&&!e.repeat){
+    if(isBound(e.code,'jump'))queueJump();
+    if(isBound(e.code,'fire')||(G.runFire&&isBound(e.code,'dash')))marioAttack();
+    if(isBound(e.code,'item'))useHeldItem();
+    if(isBound(e.code,'yoshi')&&yoshi.mounted&&yoshi.alive)yoshiAction();
+  }
+  if(isBound(e.code,'pause')&&!e.repeat&&(G.paused||!mario.dead))G.paused=!G.paused;
+  if(G.paused&&G.isExStage&&e.code==='KeyQ')giveUpExStage();
+}
 // BGM音量操作
-if(e.code==='KeyM'){G.bgmMuted=!G.bgmMuted;if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;saveAudioOpts();}
+if(e.code==='KeyM'&&!e.repeat){G.bgmMuted=!G.bgmMuted;if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;saveAudioOpts();}
 if(e.code==='Equal'||e.code==='NumpadAdd'){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
 if(e.code==='Minus'||e.code==='NumpadSubtract'){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
-e.preventDefault()});
+});
 document.addEventListener('keyup',e=>{keys[e.code]=false});
+// 画面下の操作説明を現在のキー割当から生成（キーコンフィグ変更時にも呼ぶ）
+function updateKeyHint(){const el=document.getElementById('key-hint');if(!el)return;const k=mainKey;el.innerHTML=`${k('left')}${k('right')}:MOVE ${k('dash')}:DASH ${k('jump')}:JUMP<br>${k('fire')}:FIRE ${k('yoshi')}:YOSHI ${k('item')}:ITEM ${k('pause')}:MENU`;}
+updateKeyHint();
+// ウィンドウのフォーカスが外れたら押下状態をクリア（キーが押しっぱなし扱いになるのを防ぐ）
+window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 // タブが非アクティブになったら自動ポーズ（バックグラウンドでタイマーだけ進む問題の防止）
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&G.state==='play'&&!mario.dead)G.paused=true;});
 
 function doJump(){
 if(G.waterMode){mario.vy=-3.5;G.swimCooldown=14;for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');return}
-const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
+const isDash=act('dash');
 const speedBonus=Math.min(Math.abs(mario.vx)*0.15,1.5);
 const _hj=G.highJump?1.25:1;
 if(yoshi.mounted&&yoshi.alive){mario.vy=(isDash?-16:-14.5)*_hj-speedBonus;yoshi.flutterTimer=12}
@@ -140,6 +208,47 @@ else{mario.vy=(isDash?-15.5:-14)*_hj-speedBonus}
 mario.onGround=false;mario.hipDrop=false;sfx('jump');
 for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h,isDash?'star':'dust');
 }
+// === ジャンプ入力（キーボード・タッチ・パッド共通） ===
+// 押した瞬間を最大 JUMP_BUFFER フレーム覚えておき（着地直前の入力を拾う）、
+// 足場から落ちても COYOTE_FRAMES フレーム以内ならジャンプできる
+const JUMP_BUFFER=8,COYOTE_FRAMES=6;
+function queueJump(){if(G.state!=='play'||G.paused||mario.dead)return;G.jumpBuf=JUMP_BUFFER;G.jumpFresh=true;}
+function _wallKick(){mario.vy=G.highJump?-16:-13;mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
+function _airJump(){G.doubleJumpUsed=true;mario.vy=G.highJump?-16:-13;mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
+// fresh: このフレームで押されたばかりか（2段ジャンプは先行入力では出さない）
+function _tryJump(fresh){
+  const _coyote=!G.waterMode&&!G.gravityFlipped&&G.coyote>0&&mario.vy>=0;
+  if(mario.onGround||_coyote||(G.waterMode&&G.swimCooldown<=0)){G.doubleJumpUsed=false;G.coyote=0;doJump();return true;}
+  if(mario.wallContact!==0){_wallKick();return true;}
+  if(fresh&&G.doubleJump&&!G.doubleJumpUsed){_airJump();return true;}
+  return false;
+}
+// === 角ずらし・着地補正 ===
+// 上昇中に頭がブロックの角に数pxだけ当たった→横にずらして通す／落下中に足先が段差の角に数pxだけ届かなかった→上に乗せる
+const CORNER_PX=6,LEDGE_PX=8;
+// 中身入りブロック・?ブロックは角でも叩けるように対象外
+function _nudgeable(p){return(p.type==='ground'||p.type==='brick')&&!p.coinBlock&&!p.hasMush&&!p.hasStar&&!p.has1UP&&!p.hasHammer&&!p.hasMega;}
+function _spaceFree(x,y,w,h){for(const p of platforms){if(p.type==='hidden'&&!p.hit)continue;if(Math.abs(p.x-x)>96)continue;if(overlap(x,y,w,h,p.x,p.y-(p.bounceOffset||0),p.w,p.h))return false;}for(const p of pipes){if(Math.abs(p.x-x)>160)continue;if(overlap(x,y,w,h,p.x,p.y,p.w,p.h))return false;}return true;}
+function _cornerNudge(){
+  for(const p of platforms){if(!_nudgeable(p)||Math.abs(p.x-mario.x)>64)continue;const py=p.y-(p.bounceOffset||0);
+    if(!overlap(mario.x+1,mario.y,mario.w-2,mario.h,p.x,py,p.w,p.h)||mario.y<py+p.h/2)continue;
+    // 重なり量（縦判定は左右1px内側なので -1）が CORNER_PX 以下なら、フル幅で重ならない位置までずらす
+    const oL=mario.x+mario.w-p.x,oR=p.x+p.w-mario.x;
+    const dx=oL-1<=CORNER_PX?-oL:oR-1<=CORNER_PX?oR:0;
+    if(dx&&_spaceFree(mario.x+dx,mario.y,mario.w,mario.h))mario.x+=dx;
+    return;
+  }
+}
+function _ledgeAssist(p){
+  if(mario.vy<0||G.gravityFlipped||G.waterMode||p.ceiling||(p.type==='hidden'&&!p.hit))return false;
+  const py=p.y-(p.bounceOffset||0);
+  if(!overlap(mario.x,mario.y+2,mario.w,mario.h-4,p.x,py,p.w,p.h))return false;
+  const dy=mario.y+mario.h-py;if(dy<=0||dy>LEDGE_PX)return false;
+  if(!_spaceFree(mario.x,py-mario.h,mario.w,mario.h))return false;
+  mario.y=py-mario.h;return true;
+}
+// === カメラ: 進行方向の先を多めに見せる（左へ走るときはマリオを画面右寄りに） ===
+function _followCam(limit){if(Math.abs(mario.vx)>1.5)G.camDir=mario.vx>0?1:-1;const lead=G.camDir<0?W*0.27:0;G.camLead+=(lead-G.camLead)*0.05;G.cam=Math.max(0,Math.min(mario.x-W/3-G.camLead,limit-W));}
 
 function checkPipeEntry(){
 if(G.ugMode){
@@ -346,18 +455,43 @@ yoshi.mounted=false;yoshi.tongueOut=0;yoshi.tongueLen=0;yoshi.eatTarget=null;yos
 if(hurt){yoshi.runAway=true;yoshi.runTimer=180;yoshi.vx=mario.facing*3;sfx('yoshi_dismount')}
 }
 
-function setupBtn(id,key){const el=document.getElementById(id);
-const press=e=>{e.preventDefault();btn[key]=true;el.classList.add('pressed');
-if(key==='jump'){if(G.state==='play'&&mario.onGround&&!mario.dead)doJump();if(G.state==='start'){const _kc=STAGES.length+3;if(G.selectedStage===_kc&&hasSave())loadSave();else if(G.selectedStage===STAGES.length+1){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===STAGES.length+2){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}if(G.state==='dead'||G.state==='over'||G.state==='win'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}}else{if(G.state==='start')startGame()}};
-const release=e=>{e.preventDefault();btn[key]=false;el.classList.remove('pressed')};
-el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false});
-el.addEventListener('mouseup',release);el.addEventListener('touchend',release);el.addEventListener('mouseleave',release)}
-setupBtn('btn-left','left');setupBtn('btn-right','right');setupBtn('btn-jump','jump');setupBtn('btn-dash','dash');setupBtn('btn-down','down');
-(function(){const el=document.getElementById('btn-fire');if(!el)return;
-const press=e=>{e.preventDefault();if(G.state==='play'&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction();else if(mario.power==='fire')shootFireball();else if(mario.power==='ice')shootIceBall();else if(mario.power==='hammer')throwMarioHammer()}el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),150)};
-el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false})})();
-document.getElementById('btn-down').addEventListener('mousedown',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()});
-document.getElementById('btn-down').addEventListener('touchstart',e=>{e.preventDefault();if(G.state==='play'&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry()},{passive:false});
+// === タッチ/マウスのボタン操作 ===
+// 指ごとに「今どのボタンの上にあるか」を追跡（ボタン間を指でスライドしても反応・マルチタッチ対応）
+const _BTN_KEY={'btn-left':'left','btn-right':'right','btn-down':'down','btn-jump':'jump','btn-dash':'dash','btn-fire':'fire','btn-item':'item','btn-pause':'pause'};
+function _btnPress(k){
+  if(k in btn)btn[k]=true;
+  // メニュー画面: ◀▶▼=選択 / ジャンプ=決定 / ファイア=戻る / ポーズ=次へ
+  if(G.state!=='play'){const m={left:'left',right:'right',down:'down',jump:'ok',fire:'back',pause:'start'}[k];if(m)menuCmd(m);return;}
+  if(k==='jump')queueJump();
+  else if(k==='pause'){if(G.paused||!mario.dead)G.paused=!G.paused;}
+  else if(G.paused||mario.dead)return;
+  else if(k==='fire'){if(yoshi.mounted&&yoshi.alive)yoshiAction();else marioAttack();}
+  else if(k==='dash'){if(G.runFire)marioAttack();}
+  else if(k==='item')useHeldItem();
+}
+function _btnRelease(k){if(k in btn)btn[k]=false;}
+let _touchOn=new Set();
+function _touchTrack(ev){
+  ev.preventDefault();
+  const now=new Set();
+  for(const t of ev.touches){const el=document.elementFromPoint(t.clientX,t.clientY);const b=el&&el.closest?el.closest('.ctrl-btn'):null;if(b&&_BTN_KEY[b.id])now.add(b.id);}
+  for(const id of now)if(!_touchOn.has(id)){document.getElementById(id).classList.add('pressed');_btnPress(_BTN_KEY[id]);}
+  for(const id of _touchOn)if(!now.has(id)){document.getElementById(id).classList.remove('pressed');_btnRelease(_BTN_KEY[id]);}
+  _touchOn=now;
+}
+{const _ctl=document.getElementById('controls');
+if(_ctl)for(const t of ['touchstart','touchmove','touchend','touchcancel'])_ctl.addEventListener(t,_touchTrack,{passive:false});
+for(const id in _BTN_KEY){const el=document.getElementById(id);if(!el)continue;
+  // HUD上のボタン（ポーズ）は #controls の外なので個別にタッチを拾う
+  if(!_ctl||!_ctl.contains(el))el.addEventListener('touchstart',e=>{e.preventDefault();_btnPress(_BTN_KEY[id]);setTimeout(()=>_btnRelease(_BTN_KEY[id]),50);},{passive:false});
+  // PCでボタンをマウスでクリックした場合
+  el.addEventListener('mousedown',e=>{e.preventDefault();el.classList.add('pressed');_btnPress(_BTN_KEY[id]);});
+  const up=()=>{if(el.classList.contains('pressed')){el.classList.remove('pressed');_btnRelease(_BTN_KEY[id]);}};
+  el.addEventListener('mouseup',up);el.addEventListener('mouseleave',up);}
+// 全画面ボタン（タッチ端末のみ表示）
+const _fs=document.getElementById('btn-fs');
+if(_fs){if(!document.fullscreenEnabled)_fs.style.display='none';
+  _fs.addEventListener('click',()=>{try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().then(()=>{try{screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}).catch(()=>{});}catch(e){}});}}
 canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const {x:cx,y:cy}=canvasPoint(canvas,ev.clientX,ev.clientY);
 // キャラクターボタン（大きめ判定エリア）
 {const _ccW=120,_ccH=52,_ccY=42,_ccGap=8;const _ccMx=W/2-_ccW-_ccGap/2,_ccLx=W/2+_ccGap/2;
@@ -374,7 +508,7 @@ if(cx>=W/2-82&&cx<=W/2-6&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStag
 if(cx>=W/2+6&&cx<=W/2+82&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStageFrom=null;startExStage(2);return;}
 // CONTINUEボタン
 if(hasSave()){const _ctY=_cExY+_cExH+6;if(cx>=W/2-90&&cx<=W/2+90&&cy>=_ctY&&cy<=_ctY+20){loadSave();return;}}
-return;}if(G.state!=='play'){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else if(G.state==='dead'){restartCurrentLevel()}}});
+return;}if(G.state==='shop'){const {x:cx,y:cy}=canvasPoint(canvas,ev.clientX,ev.clientY);_shopTap(cx,cy);return;}if(G.state!=='play')menuCmd('ok');});
 // タッチでキャラクター選択（モバイル対応・即時反応）
 canvas.addEventListener('touchstart',(ev)=>{if(G.state==='start'){const t=ev.touches[0];const {x:cx,y:cy}=canvasPoint(canvas,t.clientX,t.clientY);
 const _tcW=120,_tcH=52,_tcY=42,_tcGap=8;const _tcMx=W/2-_tcW-_tcGap/2,_tcLx=W/2+_tcGap/2;
@@ -384,7 +518,7 @@ if(cy>=_tcY&&cy<=_tcY+_tcH){
 }}},{passive:false});
 
 // === GAMEPAD ===
-const gpad={left:false,right:false,up:false,down:false,a:false,b:false,x:false,y:false,start:false,select:false,l:false,r:false};
+const gpad={ok:false,back:false,left:false,right:false,up:false,down:false,a:false,b:false,x:false,y:false,start:false,select:false,l:false,r:false};
 const _gpPrev={};let _gpConnected=false,_gpName='';
 const _SHOP_ITEMS=[
   {key:'mushroom',cost:50},
@@ -432,72 +566,40 @@ function _gpShopNext(){
   G.stageDamaged=false;G.shopBought=null;G.nextStage=null;updateHUD();stopBGM();try{startBGM()}catch(e){}
   saveGame();
 }
-function _gpDoJump(){
-  if(G.state!=='play'||mario.dead)return;
-  if(mario.onGround||(G.waterMode&&G.swimCooldown<=0)){G.doubleJumpUsed=false;doJump();}
-  else if(mario.wallContact!==0&&!mario.onGround){mario.vy=(G.highJump?-16:-13);mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
-  else if(G.doubleJump&&!G.doubleJumpUsed&&!mario.onGround){G.doubleJumpUsed=true;mario.vy=(G.highJump?-16:-13);mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
-}
+// ゲームパッドのボタン配置（設定で切替）
+// snes  : スーファミ配置 下=B(ダッシュ) 右=A(ジャンプ) 左=Y(ファイア) 上=X(ヨッシー)
+// modern: 現行機配置   下=ジャンプ 左=ダッシュ 右=ファイア 上=ヨッシー（決定=下/戻る=右）
+const _PAD_LAYOUT={snes:{jump:1,dash:0,fire:2,yoshi:3,ok:1,back:0},modern:{jump:0,dash:2,fire:1,yoshi:3,ok:0,back:1}};
 function pollGamepad(){
-  const gps=navigator.getGamepads();let gp=null;
+  const gps=navigator.getGamepads?navigator.getGamepads():[];let gp=null;
   for(let i=0;i<4;i++){if(gps[i]){gp=gps[i];break;}}
-  if(!gp){_gpConnected=false;gpad.left=gpad.right=gpad.up=gpad.down=gpad.a=gpad.b=gpad.x=gpad.y=gpad.start=gpad.select=gpad.l=gpad.r=false;return;}
+  if(!gp){_gpConnected=false;for(const k in gpad)gpad[k]=false;return;}
   _gpConnected=true;_gpName=gp.id||'';
-  // D-pad: axes + standard d-pad buttons (12-15)
-  const dz=0.5;
-  gpad.left=(gp.axes[0]<-dz)||(gp.buttons[14]?.pressed||false);
-  gpad.right=(gp.axes[0]>dz)||(gp.buttons[15]?.pressed||false);
-  gpad.up=(gp.axes[1]<-dz)||(gp.buttons[12]?.pressed||false);
-  gpad.down=(gp.axes[1]>dz)||(gp.buttons[13]?.pressed||false);
-  // Face buttons: 0=B(bottom), 1=A(right), 2=Y(left), 3=X(top) — SNES layout
-  gpad.b=gp.buttons[0]?.pressed||false;
-  gpad.a=gp.buttons[1]?.pressed||false;
-  gpad.y=gp.buttons[2]?.pressed||false;
-  gpad.x=gp.buttons[3]?.pressed||false;
-  gpad.l=gp.buttons[4]?.pressed||false;
-  gpad.r=gp.buttons[5]?.pressed||false;
-  gpad.select=gp.buttons[6]?.pressed||gp.buttons[8]?.pressed||false;
-  gpad.start=gp.buttons[7]?.pressed||gp.buttons[9]?.pressed||false;
-  // Just-pressed helper
-  const jp=k=>gpad[k]&&!_gpPrev[k];
-  // === Per-state event handling ===
-  if(G.state==='start'){
-    const _exId2=STAGES.length+1,_exId3=STAGES.length+2,_gpContId=STAGES.length+3;
-    if(jp('left')){if(G.selectedStage===_exId3)G.selectedStage=_exId2;else if(G.selectedStage===_exId2)G.selectedStage=STAGES.length;else if(G.selectedStage>1&&G.selectedStage!==_gpContId)G.selectedStage--;}
-    if(jp('right')){if(G.selectedStage<STAGES.length)G.selectedStage++;else if(G.selectedStage===STAGES.length)G.selectedStage=_exId2;else if(G.selectedStage===_exId2)G.selectedStage=_exId3;}
-    if(jp('up')){if(G.selectedStage===_gpContId)G.selectedStage=_exId2;else if(G.selectedStage===_exId2||G.selectedStage===_exId3)G.selectedStage=STAGES.length-1;else if(G.selectedStage>3)G.selectedStage-=3;}
-    if(jp('down')){if(G.selectedStage<STAGES.length){if(G.selectedStage+3<=STAGES.length)G.selectedStage+=3;else G.selectedStage=_exId2;}else if((G.selectedStage===_exId2||G.selectedStage===_exId3)&&hasSave())G.selectedStage=_gpContId;}
-    if(jp('l')||jp('r')){G.character=G.character==='luigi'?'mario':'luigi';try{localStorage.setItem('mario_v2_char',G.character);}catch(_le){}}
-    else if(jp('a')||jp('start')){if(G.selectedStage===_gpContId&&hasSave()){loadSave();}else if(G.selectedStage===_exId2){G.isExStage=false;G.exStageFrom=null;startExStage(1);}else if(G.selectedStage===_exId3){G.isExStage=false;G.exStageFrom=null;startExStage(2);}else startFromStage(G.selectedStage);}
-  }
-  else if(G.state==='shop'){
-    if(G.shopConfirm!=null){
-      if(jp('a'))_gpShopBuy(G.shopConfirm);
-      if(jp('b'))G.shopConfirm=null;
-    }else{
-      if(jp('left'))G.shopCursor=(G.shopCursor+12)%13;
-      if(jp('right'))G.shopCursor=(G.shopCursor+1)%13;
-      if(jp('up')){const _u=G.shopCursor-5;G.shopCursor=_u<0?Math.min(12,G.shopCursor+10):_u;}
-      if(jp('down')){const _d=G.shopCursor+5;G.shopCursor=_d>=13?_d%5:_d;}
-      if(jp('a')){const _it=_SHOP_ITEMS[G.shopCursor];if(_it){const _s=_SINGLE_ONLY.has(_it.key);if(G.coins>=_it.cost&&(!_s||!G.shopBought?.[_it.key]))G.shopConfirm=G.shopCursor;}}
-      if(jp('start'))_gpShopNext();
+  const dz=0.5,B=i=>gp.buttons[i]?.pressed||false;
+  // 十字キー: アナログスティック + 標準配置の十字ボタン(12-15)
+  gpad.left=(gp.axes[0]<-dz)||B(14);gpad.right=(gp.axes[0]>dz)||B(15);
+  gpad.up=(gp.axes[1]<-dz)||B(12);gpad.down=(gp.axes[1]>dz)||B(13);
+  const P=_PAD_LAYOUT[G.padLayout]||_PAD_LAYOUT.snes;
+  gpad.a=B(P.jump);gpad.b=B(P.dash);gpad.y=B(P.fire);gpad.x=B(P.yoshi);gpad.ok=B(P.ok);gpad.back=B(P.back);
+  gpad.l=B(4);gpad.r=B(5);gpad.select=B(6)||B(8);gpad.start=B(7)||B(9);
+  const jp=k=>gpad[k]&&!_gpPrev[k]; // 押した瞬間
+  if(G.state==='play'){
+    if(jp('a'))queueJump();
+    if(!G.paused&&!mario.dead){
+      if(jp('y')||(G.runFire&&jp('b')))marioAttack();
+      if(jp('x')&&yoshi.mounted&&yoshi.alive)yoshiAction();
+      if(jp('select'))useHeldItem();
     }
-  }
-  else if(G.state==='play'){
-    if(jp('a'))_gpDoJump();
-    if(jp('y')&&!mario.dead){if(mario.power==='fire')shootFireball();else if(mario.power==='ice')shootIceBall();else if(mario.power==='hammer')throwMarioHammer();}
-    if(jp('x')&&!mario.dead){if(yoshi.mounted&&yoshi.alive)yoshiAction();}
-    if(jp('start')&&(G.paused||!mario.dead)){G.paused=!G.paused;}
-    if(G.paused&&G.isExStage&&jp('b')){giveUpExStage();}
-    if(jp('select')&&!mario.dead)useHeldItem();
-    if(jp('down')&&(mario.onGround||G.waterMode)&&!mario.dead)checkPipeEntry();
+    if(jp('start')&&(G.paused||!mario.dead))G.paused=!G.paused;
+    if(G.paused&&G.isExStage&&jp('back'))giveUpExStage();
     if(jp('l')){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
     if(jp('r')){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
+  }else{
+    for(const d of ['left','right','up','down'])if(jp(d))menuCmd(d);
+    if(jp('ok'))menuCmd('ok');else if(jp('back'))menuCmd('back');
+    if(jp('start'))menuCmd('start');
+    if(G.state==='start'&&(jp('l')||jp('r')))menuCmd('char');
   }
-  else if(G.state==='dead'||G.state==='over'||G.state==='win'){
-    if(jp('a')||jp('start')){if(G.state==='over'||G.state==='win'){G.score=0;G.coins=0;G.lives=3;mario.big=false;mario.power='none';startGame()}else{restartCurrentLevel()}}
-  }
-  // Save previous state
   for(const k in gpad)_gpPrev[k]=gpad[k];
 }
 window.addEventListener('gamepadconnected',e=>{_gpConnected=true;_gpName=e.gamepad.id||'';});
@@ -637,7 +739,7 @@ function loadSave(){if(!_saveInfo)return;G.score=_saveInfo.score||0;G.coins=Math
 
 // === UPDATE ===
 function update(){
-G.frame++;if(G.swimCooldown>0)G.swimCooldown--;
+G.frame++;if(G.state!==G._prevState){G._prevState=G.state;G._stateFrame=G.frame;}if(G.swimCooldown>0)G.swimCooldown--;
 // 残り時間・ベストタイム・死亡演出はフレーム数で進める（setInterval/setTimeoutだとポーズ中やタブ裏でもずれるため）
 if(G.deathTimer>0&&--G.deathTimer===0)_afterDeath();
 if(G.timerTick&&G.state==='play'){if(!G.goalSlide&&!mario.dead)G.stageFrames++;if(++G.timerFrames>=60){G.timerFrames=0;G.timeLeft--;if(G.timeLeft===99)sfx('timeWarning');if(G.timeLeft<=0){G.timerTick=null;killMario(true);}updateHUD();}}
@@ -752,12 +854,17 @@ for(let i=pipos.length-1;i>=0;i--){
 
 if(G.state!=='play'&&!mario.dead){updateParticles();return}
 if(!mario.dead){
+// ジャンプ入力の処理（先行入力＋コヨーテタイム）
+if(mario.onGround)G.coyote=COYOTE_FRAMES;else if(G.coyote>0)G.coyote--;
+if(G.jumpBuf>0){G.jumpBuf--;if(_tryJump(G.jumpFresh))G.jumpBuf=0;G.jumpFresh=false;}
+// 土管に入る（土管の上で↓を押している間。キーボード/タッチ/パッド共通）
+if(act('down')&&(mario.onGround||G.waterMode))checkPipeEntry();
 // 壁キック猶予タイマー
 if(mario.wallContactTimer>0){mario.wallContactTimer--;}else{mario.wallContact=0;}
 // ヒップドロップ（空中＋下キー）
-if(!mario.onGround&&!mario.hipDrop&&!G.waterMode&&(keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down)&&mario.vy>0){mario.hipDrop=true;mario.vy=16;mario.vx=0;try{beep(200,.08,'square',.15);beep(150,.1,'square',.1,.05);}catch(ex){}}
+if(!mario.onGround&&!mario.hipDrop&&!G.waterMode&&act('down')&&mario.vy>0){mario.hipDrop=true;mario.vy=16;mario.vx=0;try{beep(200,.08,'square',.15);beep(150,.1,'square',.1,.05);}catch(ex){}}
 // しゃがみ
-{const _isDown=keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down;
+{const _isDown=act('down');
 const _wantCrouch=mario.onGround&&_isDown&&!mario.sliding&&!mario.hipDrop&&!G.waterMode&&!mario.dead;
 const _nH=mario.big?48:32,_cH=mario.big?24:20;
 if(_wantCrouch){
@@ -771,14 +878,14 @@ if(_wantCrouch){
   if(!_bl){mario.y=_testY;mario.h=_nH;mario.crouching=false;}
 }}
 // スライディング
-const isDash=keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b;
+const isDash=act('dash');
 // Shell投げ（持っている shell を離すと前方に投げる）
 if(mario.heldShell&&(!isDash||mario.dead||!mario.heldShell.alive)){
   const _sh=mario.heldShell;
   if(_sh.alive){_sh.vx=mario.facing*9;_sh.shellTimer=300;sfx('stomp');}
   mario.heldShell=null;
 }
-if(!mario.sliding&&isDash&&mario.onGround&&(keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down)&&Math.abs(mario.vx)>3&&!G.waterMode){
+if(!mario.sliding&&isDash&&mario.onGround&&act('down')&&Math.abs(mario.vx)>3&&!G.waterMode){
   mario.sliding=true;mario.crouching=false;mario.slideTimer=30;const _oldH=mario.h;mario.h=mario.big?24:20;mario.y+=_oldH-mario.h;
   sfx('stomp');for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');
 }
@@ -800,19 +907,20 @@ if(mario.sliding){
 }
 let spd=G.waterMode?(isDash?3.5:2.2):(isDash?6.5:3.8);
 if(G.megaTimer>0)spd*=0.7;
-const goL=keys['ArrowLeft']||keys['KeyA']||btn.left||gpad.left;const goR=keys['ArrowRight']||keys['KeyD']||btn.right||gpad.right;
+const goL=act('left');const goR=act('right');
 const _af=G.iceMode?0.042:0.25,_ff=G.iceMode?0.9895:0.78;
 if(mario.crouching){mario.vx*=_ff;}else if(goL){mario.vx+=(-spd-mario.vx)*_af;mario.facing=-1}else if(goR){mario.vx+=(spd-mario.vx)*_af;mario.facing=1}else mario.vx*=_ff;
 if(G.ugMode&&mario.x<0)mario.x=0;{const _ugW=G.pipeDungeon?3200:W;if(G.ugMode&&mario.x+mario.w>_ugW)mario.x=_ugW-mario.w;}if(G.ugMode&&!G.pipeDungeon)G.cam=0;
 // Flutter jump (Yoshi)
-if(yoshi.mounted&&yoshi.alive&&yoshi.flutterTimer>0&&(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy>0){mario.vy*=0.6;yoshi.flutterTimer--;if(G.frame%2===0)spawnParticle(mario.x+13,mario.y+mario.h,'dust')}
-if(!G.waterMode&&!(keys['Space']||keys['ArrowUp']||btn.jump||gpad.a)&&mario.vy<-4)mario.vy+=1.2;
-mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else if(G.ugMode&&G.pipeDungeon){if(mario.x<0)mario.x=0;if(mario.x+mario.w>3200)mario.x=3200-mario.w;G.cam=Math.max(0,Math.min(mario.x-W/3,3200-W));}else if(G.ugMode){G.cam=0;}else{if(mario.x<0)mario.x=0;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
-for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;if(p.type==='hidden'&&!p.hit)continue;cX(mario,p)}
-for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;cX(mario,p)}
-const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);mario.vy+=_grav;
+if(yoshi.mounted&&yoshi.alive&&yoshi.flutterTimer>0&&act('jump')&&mario.vy>0){mario.vy*=0.6;yoshi.flutterTimer--;if(G.frame%2===0)spawnParticle(mario.x+13,mario.y+mario.h,'dust')}
+if(!G.waterMode&&!act('jump')&&mario.vy<-4)mario.vy+=1.2;
+mario.x+=mario.vx;if(G.autoScroll>0){G.cam=Math.min(G.cam+G.autoScroll,LW-W);if(mario.x<G.cam+20)mario.x=G.cam+20;if(mario.x+mario.w>G.cam+W-10)mario.x=G.cam+W-10-mario.w;}else if(G.ugMode&&G.pipeDungeon){if(mario.x<0)mario.x=0;if(mario.x+mario.w>3200)mario.x=3200-mario.w;_followCam(3200);}else if(G.ugMode){G.cam=0;}else{if(mario.x<0)mario.x=0;_followCam(LW);}
+for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;if(p.type==='hidden'&&!p.hit)continue;if(_ledgeAssist(p))continue;cX(mario,p)}
+for(const p of pipes){if(Math.abs((p.x+32)-mario.x)>260)continue;if(_ledgeAssist(p))continue;cX(mario,p)}
+const _grav=G.gravityFlipped?-GRAVITY:(G.waterMode?0.10:G.lowGravity?GRAVITY*0.42:GRAVITY);const _apex=!G.gravityFlipped&&!G.waterMode&&Math.abs(mario.vy)<1.2&&act('jump');mario.vy+=_apex?_grav*0.55:_grav;
 if(G.gravityFlipped){if(mario.vy<-15)mario.vy=-15;}else{const _maxVy=G.waterMode?3.5:G.lowGravity?9:(mario.hipDrop?20:15);if(mario.vy>_maxVy)mario.vy=_maxVy;}
 mario.y+=mario.vy;mario.onGround=false;
+if(mario.vy<0&&!G.gravityFlipped)_cornerNudge();
 if(G.gravityFlipped&&mario.y<0){mario.y=0;mario.vy=0;mario.onGround=true;}
 if(G.waterMode&&mario.y<TILE){mario.y=TILE;mario.vy=0;}
 for(const p of platforms){if(Math.abs((p.x+16)-mario.x)>260)continue;
@@ -1477,7 +1585,7 @@ else if(mario.vy<0){mario.y=e.y+e.h+1;mario.vy=0;}}
 // 凍結敵を足場として使う
 if(e.frozen&&mario.vy>=0&&!mario.onGround){const prevBot=mario.y-mario.vy+mario.h;if(prevBot<=e.y+4&&overlap(mario.x+2,mario.y,mario.w-4,mario.h,e.x,e.y,e.w,e.h)){mario.y=e.y-mario.h;mario.vy=0;mario.onGround=true;}}
 // ↓キーで踏みつけ→コイン化
-if(e.frozen&&mario.onGround&&!mario.dead&&mario.y+mario.h>=e.y-2&&mario.y+mario.h<=e.y+6&&mario.x+mario.w>e.x&&mario.x<e.x+e.w){const _isDown=keys['ArrowDown']||keys['KeyS']||btn.down||gpad.down;if(_isDown){e.alive=false;e.frozen=false;e.shakeX=0;mario.vy=-6;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});}}}
+if(e.frozen&&mario.onGround&&!mario.dead&&mario.y+mario.h>=e.y-2&&mario.y+mario.h<=e.y+6&&mario.x+mario.w>e.x&&mario.x<e.x+e.w){const _isDown=act('down');if(_isDown){e.alive=false;e.frozen=false;e.shakeX=0;mario.vy=-6;G.score+=200;G.stageKills++;G.totalKills++;sfx('stomp');updateHUD();spawnScorePopup(e.x+8,e.y-8,200,'#44bbff');spawnParticle(e.x+16,e.y+16,'star');coinItems.push({x:e.x+8,y:e.y+4,type:'firecoin',vx:(Math.random()-0.5)*2,vy:-4-Math.random()*2,gravity:0.35,timer:180,collected:false});}}}
 // === Mega Timer ===
 if(G.megaTimer>0){G.megaTimer--;if(G.frame%6===0)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');
 // メガ状態: 敵に触れると即死
@@ -3141,7 +3249,7 @@ if(G.starTimer>0){const hue=(G.frame*12)%360;ctx.fillStyle=`hsla(${hue},100%,60%
 if(yoshi.alive)drawYoshiBody(yoshi.x,yoshi.y,yoshi.facing,yoshi.mounted)
 // 残像エフェクト
 {const _my=yoshi.mounted&&yoshi.alive?mario.y-12:mario.y;
-const _isDash2=(keys['ShiftLeft']||keys['ShiftRight']||btn.dash||gpad.b)&&Math.abs(mario.vx)>4;
+const _isDash2=act('dash')&&Math.abs(mario.vx)>4;
 if(G.starTimer>0||_isDash2){G.afterimages.push({x:mario.x,y:_my,facing:mario.facing,wf:mario.walkFrame,big:mario.big,alpha:0.35});if(G.afterimages.length>5)G.afterimages.shift();}else{G.afterimages.length=0;}
 for(const _ai of G.afterimages){ctx.globalAlpha=_ai.alpha;_ai.alpha*=0.8;if(G.starTimer>0){const _hue=(G.frame*8+G.afterimages.indexOf(_ai)*50)%360;ctx.fillStyle=`hsl(${_hue},100%,60%)`;}drawMario(_ai.x,_ai.y,_ai.facing,_ai.wf,false,_ai.big);ctx.globalAlpha=1;}}
 // Mario (Mega aura)
@@ -3501,6 +3609,8 @@ const _stCoins=G.coins-G.stageCoinsStart;
 ctx.fillText(`TIME:${G.timeLeft}  COINS:${_stCoins}  KO:${G.stageKills}  MAX COMBO:${G.stageMaxCombo}`,W/2,20);
 ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';ctx.fillText('COIN SHOP',W/2,46);
 ctx.fillStyle='#FFD700';ctx.font='bold 14px "Press Start 2P",monospace';ctx.fillText(`COINS: ${G.coins}`,W/2,70);
+// NEXTボタン（タップ/クリックで次のステージへ）
+{const r=_SHOP_NEXT;ctx.fillStyle='#1e6b30';ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle='#6f6';ctx.lineWidth=2;ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineWidth=1;ctx.fillStyle='#fff';ctx.font='bold 9px "Press Start 2P",monospace';ctx.fillText('NEXT ▶',r.x+r.w/2,r.y+r.h/2+4);}
 const _shopItems=[
   {name:'MUSHROOM',cost:50,  key:'mushroom', icon:'🍄', desc:'デカマリオ'},
   {name:'FIRE',    cost:100, key:'fire',     icon:'🔥', desc:'ファイアマリオ'},
@@ -3547,22 +3657,21 @@ if(_totalRetry>0)_activeEffects.push(`❤️RETRY x${_totalRetry}`);
 if(G.heldItem){const _hI2=G.heldItem==='flower'?'🔥':G.heldItem==='hammer'?'🔨':'🍄';_activeEffects.push(`HOLD:${_hI2}`);}
 if(_activeEffects.length>0){ctx.fillStyle='#66ffaa';ctx.font='7px "Press Start 2P",monospace';ctx.fillText('ACTIVE: '+_activeEffects.join('  '),W/2,_aeShopY);_aeShopY+=14;}
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
-ctx.fillText(_gpConnected?'A:購入  B:キャンセル  START:次へ':'← → SELECT    SPACE:BUY    ENTER:NEXT',W/2,_aeShopY);
+ctx.fillText(_gpConnected?'A:購入  B:キャンセル  START:次へ':'← → SELECT    SPACE:BUY    ENTER:NEXT    (タップでも購入できます)',W/2,_aeShopY);
 // 購入確認ダイアログ
 if(G.shopConfirm!=null&&_shopItems[G.shopConfirm]){
   const _ci=_shopItems[G.shopConfirm];
   ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(0,0,W,H);
-  const _bw=360,_bh=120,_bx=(W-_bw)/2,_by=(H-_bh)/2-10;
+  const _bw=_SHOP_DLG.w,_bh=_SHOP_DLG.h,_bx=_SHOP_DLG.x,_by=_SHOP_DLG.y;
   ctx.fillStyle='#1a1a3a';ctx.fillRect(_bx,_by,_bw,_bh);
   ctx.strokeStyle='#FFD700';ctx.lineWidth=3;ctx.strokeRect(_bx,_by,_bw,_bh);ctx.lineWidth=1;
   ctx.fillStyle='#fff';ctx.font='bold 11px "Press Start 2P",monospace';
   ctx.fillText(`${_ci.icon} ${_ci.name}`,W/2,_by+30);
   ctx.fillStyle='#FFD700';ctx.font='9px "Press Start 2P",monospace';
-  ctx.fillText(`${_ci.cost} COINS で購入しますか？`,W/2,_by+56);
-  ctx.fillStyle='#2ecc71';ctx.font='8px "Press Start 2P",monospace';
-  ctx.fillText(_gpConnected?'A : 購入':'SPACE / ENTER : 購入',W/2,_by+82);
-  ctx.fillStyle='#e74c3c';
-  ctx.fillText(_gpConnected?'B : キャンセル':'ESC / N : キャンセル',W/2,_by+100);
+  ctx.fillText(`${_ci.cost} COINS で購入しますか？`,W/2,_by+52);
+  for(const [r,label,c1,c2] of [[_SHOP_BUY,'購入する','#1e7a3a','#2ecc71'],[_SHOP_CANCEL,'やめる','#6b1f1f','#e74c3c']]){ctx.fillStyle=c1;ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle=c2;ctx.lineWidth=2;ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineWidth=1;ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.fillText(label,r.x+r.w/2,r.y+r.h/2+5);}
+  ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
+  ctx.fillText(_gpConnected?'A : 購入    B : やめる':'SPACE / ENTER : 購入    ESC : やめる',W/2,_by+124);
 }
 ctx.textAlign='left';
 }
@@ -3675,7 +3784,7 @@ ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';ctx.textAlign='ce
 ctx.fillText(`← → ↑ ↓ or 1-${STAGES.length} key : SELECT`,W/2,_hintY);
 ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+14);
 ctx.fillStyle='#888';ctx.font='6px "Press Start 2P",monospace';
-ctx.fillText('M : MUTE       +/- : VOLUME       P : PAUSE',W/2,_hintY+28);
+ctx.fillText(`M : MUTE       +/- : VOLUME       ${mainKey('pause')} : MENU`,W/2,_hintY+28);
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
 if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→↑↓:SELECT',W/2,_hintY+42);}
 ctx.textAlign='left';}

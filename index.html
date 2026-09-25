@@ -15,6 +15,7 @@
 <span><label>WORLD</label><b id="hWorld">1-1</b></span>
 <span><label>TIME</label><b id="hTime">400</b></span>
 <div id="lives-icons"></div>
+<span class="hud-btns"><button class="hud-btn" id="btn-pause" aria-label="pause">II</button><button class="hud-btn" id="btn-fs" aria-label="fullscreen">&#x26F6;</button></span>
 </div>
 <canvas id="game" width="800" height="450"></canvas>
 <div id="controls">
@@ -23,14 +24,16 @@
 <button class="ctrl-btn" id="btn-right">&#9654;</button>
 <button class="ctrl-btn" id="btn-down" style="font-size:14px">&#9660;</button>
 </div>
-<div class="hint">Arrows:Move Shift:Dash<br>Space/Up:Jump Z:Tongue/Fire</div>
+<div class="hint" id="key-hint">&larr;&rarr;:MOVE SHIFT:DASH SPACE:JUMP<br>Z:FIRE X:YOSHI C:ITEM P:MENU</div>
 <div class="btn-group">
+<button class="ctrl-btn small" id="btn-item" style="font-size:13px">&#127890;</button>
 <button class="ctrl-btn" id="btn-dash" style="font-size:13px">&#128168;</button>
 <button class="ctrl-btn" id="btn-fire" style="font-size:18px">&#128293;</button>
 <button class="ctrl-btn" id="btn-jump">&#8593;</button>
 </div>
 </div>
 </div>
+<div id="rotate-hint"><div>&#128241;&#8635;</div><p>横向きにすると遊びやすくなります</p><small>タップで閉じる</small></div>
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>

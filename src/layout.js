@@ -30,6 +30,9 @@ export function canvasPoint(canvas,clientX,clientY){
   return{x:(clientX-r.left-b)*W/(r.width-2*b),y:(clientY-r.top-b)*H/(r.height-2*b)};
 }
 
+// 縦向きの案内はタップで閉じられる
+{const _rh=document.getElementById('rotate-hint');if(_rh)_rh.addEventListener('click',()=>document.body.classList.add('hint-closed'));}
+
 window.addEventListener('resize',fitScreen);
 window.addEventListener('orientationchange',()=>setTimeout(fitScreen,200));
 if(window.visualViewport)window.visualViewport.addEventListener('resize',fitScreen);

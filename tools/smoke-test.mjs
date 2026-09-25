@@ -14,7 +14,7 @@ process.on('uncaughtException',e=>errors.push({where:'async',msg:e.message,stack
 const g=await import('../src/globals.js');
 const {G,mario,enemies,pipes,platforms,flagPole}=g;
 const {STAGES}=await import('../src/stages.js');
-await import('../src/main.js');
+try{await import('../src/main.js');}catch(e){console.log('main.js の読み込みに失敗:',e.stack);process.exit(1);}
 
 const FRAMES=Number(process.argv[2])||2400;
 const only=process.argv.slice(3).map(Number).filter(Boolean);

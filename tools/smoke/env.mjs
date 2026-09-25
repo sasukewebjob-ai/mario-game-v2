@@ -29,7 +29,7 @@ function makeEl(id){
     width:800,height:450,offsetWidth:806,offsetHeight:456,clientWidth:800,clientHeight:450,
     classList:{_s:new Set(),add(c){this._s.add(c)},remove(c){this._s.delete(c)},toggle(c,f){const on=f===undefined?!this._s.has(c):f;on?this._s.add(c):this._s.delete(c);return on},contains(c){return this._s.has(c)}},
     addEventListener(t,f){(listeners[t]||=[]).push(f)},removeEventListener(){},
-    appendChild(c){this.children.push(c);return c},removeChild(){},append(){},remove(){},
+    appendChild(c){this.children.push(c);return c},contains(c){return c===this||this.children.includes(c)},closest(){return null},removeChild(){},append(){},remove(){},
     setAttribute(){},getAttribute(){return null},querySelector:()=>makeEl('q'),querySelectorAll:()=>[],
     getBoundingClientRect:()=>({left:0,top:0,width:806,height:456,right:806,bottom:456,x:0,y:0}),
     getContext:()=>makeCtx(),focus:noop,blur:noop,requestFullscreen:()=>Promise.resolve(),
@@ -59,7 +59,7 @@ export const gamepads=[null,null,null,null];
 export function installEnv(){
   register('./css-loader.mjs',import.meta.url);
   const document={
-    getElementById:el,querySelector:()=>el('q'),querySelectorAll:()=>[],createElement:t=>makeEl(t),
+    getElementById:el,elementFromPoint:()=>null,querySelector:()=>el('q'),querySelectorAll:()=>[],createElement:t=>makeEl(t),
     addEventListener(t,f){(handlers.document[t]||=[]).push(f)},removeEventListener(){},
     body:el('body'),documentElement:el('html'),hidden:false,fonts:{ready:Promise.resolve()},
     fullscreenElement:null,exitFullscreen:()=>Promise.resolve(),
@@ -85,7 +85,7 @@ export function installEnv(){
 // 1フレーム(1000/60ms)進めて rAF コールバックを実行
 export function step(){clock.t+=1000/60;const cb=rafCb;rafCb=null;if(cb)cb(clock.t);}
 
-export function key(type,code){
-  const e={code,key:code,type,repeat:false,preventDefault:noop,stopPropagation:noop};
+export function key(type,code,repeat=false){
+  const e={code,key:code,type,repeat,preventDefault:noop,stopPropagation:noop};
   for(const f of handlers.document[type]||[])f(e);
 }
