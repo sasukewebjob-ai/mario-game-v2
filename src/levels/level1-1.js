@@ -31,18 +31,18 @@ addRow(3300,H-5*TILE,2,'g');addRow(3400,H-7*TILE,2,'g');addRow(3550,H-5*TILE,2,'
 addRow(3750,H-5*TILE,1,'q');addRow(3900,H-5*TILE,2,'brick');addRow(4050,H-7*TILE,2,'q',true);
 addRow(4250,H-5*TILE,2,'brick');
 // Zone 6 (after gap 2)
-addRow(5050,H-5*TILE,2,'q');addRow(5100,H-5*TILE,3,'brick');addRow(5250,H-7*TILE,2,'q',true);
+addRow(5050,H-5*TILE,2,'q');addRow(5114,H-5*TILE,3,'brick');addRow(5250,H-7*TILE,2,'q',true); // レンガは?(5082)の右隣から（重なり防止）
 addRow(5450,H-5*TILE,2,'brick');addRow(5650,H-5*TILE,3,'brick');addRow(5800,H-7*TILE,2,'q');
 // Zone 7 - final
 addRow(6000,H-5*TILE,2,'q',true);addRow(6150,H-5*TILE,3,'brick');
 addRow(6350,H-5*TILE,2,'brick');addRow(6500,H-7*TILE,2,'q');addStair(6700,8);
 // Block height variety
-addRow(500,H-4*TILE,3,'brick');addRow(3000,H-8*TILE,2,'q');
+addRow(500,H-6*TILE,3,'brick');addRow(3000,H-8*TILE,2,'q'); // x=500のレンガはパックン土管の真上→パックンの届かない高さ(H-6)に
 addRow(5500,H-6*TILE,3,'brick');addRow(6200,H-3*TILE,2,'g');
 
-// Pipes
+// Pipes（x=3000のパックン土管は、ピノキオ天井土管(3200)から戻ったマリオが真上に落ちないよう3200→3000へ）
 
-[[500,2,false],[1350,3,'pipeGrass1'],[3200,2,false],[4100,3,'yoshi1'],[5500,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
+[[500,2,false],[1350,3,'pipeGrass1'],[3000,2,false],[4100,3,'yoshi1'],[5500,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
 pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
 
@@ -55,25 +55,25 @@ pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y
 [{x:1400,y:H-11*TILE},{x:1430,y:H-11*TILE},{x:1460,y:H-11*TILE}].forEach(c=>coinItems.push({...c,collected:false})); // risk coins high
 // Trail coins near pipes
 for(let j=0;j<4;j++)coinItems.push({x:470+j*30,y:H-3*TILE,collected:false});
-for(let j=0;j<4;j++)coinItems.push({x:3170+j*30,y:H-3*TILE,collected:false});
+for(let j=0;j<4;j++)coinItems.push({x:2970+j*30,y:H-3*TILE,collected:false});
 // Spread coins across level
 for(let i=0;i<40;i++)coinItems.push({x:200+i*180,y:H-8*TILE,collected:false});
 // Gap arches
 gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
 // Extra scattered coins to reach 300+
-for(let i=0;i<220;i++)coinItems.push({x:100+i*35,y:H-6*TILE,collected:false});
+for(let i=0;i<220;i++)coinItems.push({x:100+i*33,y:H-6*TILE,collected:false}); // 間隔33で最後(x=7327)も旗(7500)の手前
 
-// Enemies - goombas & few koopas only, well spaced
-[{x:350,t:'goomba'},{x:450,t:'goomba'},{x:550,t:'goomba'},{x:700,t:'goomba'},{x:820,t:'goomba'},
-{x:1050,t:'koopa'},{x:1150,t:'goomba'},{x:1250,t:'goomba'},{x:1370,t:'goomba'},{x:1480,t:'goomba'},{x:1580,t:'goomba'},
-{x:1700,t:'goomba'},{x:1800,t:'goomba'},{x:1900,t:'goomba'},{x:2000,t:'goomba'},
+// Enemies - goombas & few koopas only, well spaced（土管・最終階段(6700-6956)の中には置かない）
+[{x:350,t:'goomba'},{x:450,t:'goomba'},{x:580,t:'goomba'},{x:700,t:'goomba'},{x:820,t:'goomba'},
+{x:1050,t:'koopa'},{x:1150,t:'goomba'},{x:1250,t:'goomba'},{x:1430,t:'goomba'},{x:1480,t:'goomba'},{x:1580,t:'goomba'},
+{x:1700,t:'goomba'},{x:1750,t:'goomba'},{x:1900,t:'goomba'},{x:2000,t:'goomba'},
 {x:2050,t:'koopa'},{x:2500,t:'goomba'},{x:2600,t:'goomba'},{x:2700,t:'goomba'},{x:2820,t:'goomba'},
 {x:2900,t:'goomba'},{x:3100,t:'koopa'},{x:3250,t:'goomba'},{x:3280,t:'goomba'},{x:3200,t:'goomba'},
-{x:3920,t:'goomba'},{x:4020,t:'goomba'},{x:4120,t:'goomba'},{x:4050,t:'goomba'},{x:4200,t:'koopa'},
+{x:3920,t:'goomba'},{x:4020,t:'goomba'},{x:4270,t:'goomba'},{x:4050,t:'goomba'},{x:4200,t:'koopa'},
 {x:4350,t:'goomba'},{x:4450,t:'goomba'},{x:4550,t:'goomba'},{x:4792,t:'goomba'},{x:5100,t:'goomba'},{x:5200,t:'goomba'},
 {x:5450,t:'koopa'},{x:5600,t:'goomba'},{x:5700,t:'goomba'},{x:5820,t:'goomba'},
 {x:5950,t:'goomba'},{x:6100,t:'goomba'},{x:6200,t:'goomba'},{x:6300,t:'goomba'},{x:6450,t:'koopa'},
-{x:6600,t:'goomba'},{x:6700,t:'goomba'},{x:6800,t:'goomba'},{x:6900,t:'goomba'},{x:7050,t:'goomba'},{x:7200,t:'goomba'},{x:7350,t:'goomba'},
+{x:6520,t:'goomba'},{x:6600,t:'goomba'},{x:6990,t:'goomba'},{x:7120,t:'goomba'},{x:7050,t:'goomba'},{x:7300,t:'goomba'},{x:7350,t:'goomba'},
 {x:2800,t:'parakoopa'},{x:5300,t:'parakoopa'}
 ].forEach(({x,t})=>{
 if(t==='parakoopa'){const by=H-5*TILE;enemies.push({x,y:by,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:by,phase:Math.random()*Math.PI*2,shellTimer:0,walkFrame:0,walkTimer:0})}
@@ -82,11 +82,11 @@ else enemies.push({x,y:H-2*TILE,w:TILE,h:t==='koopa'?TILE*1.2:TILE,vx:-1.5,vy:0,
 
 // Moving platforms (over gaps)
 movingPlats.push(
-{x:2330,y:H-5*TILE,w:TILE*3,h:12,type:'h',ox:2330,range:50,spd:1.5},
+{x:2300,y:H-5*TILE,w:TILE*3,h:12,type:'h',ox:2300,range:50,spd:1.5}, // 右端2446 < ?ブロック(2450)
 {x:4820,y:H-5*TILE,w:TILE*3,h:12,type:'h',ox:4820,range:50,spd:1.5});
 
 // Springs
-springs.push({x:850,y:H-TILE-24,w:24,h:24,compressed:0},{x:4100,y:H-TILE-24,w:24,h:24,compressed:0});
+springs.push({x:850,y:H-TILE-24,w:24,h:24,compressed:0},{x:3990,y:H-TILE-24,w:24,h:24,compressed:0}); // 2個目はヨッシー土管(4100)の左隣
 
 // Checkpoint
 G.checkpoint={x:3600,y:H-TILE,reached:false};
@@ -115,7 +115,7 @@ enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
 // ★ 新敵（CP後）
-enemies.push({x:5500,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+enemies.push({x:5400,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 enemies.push({x:4650,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'red',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）

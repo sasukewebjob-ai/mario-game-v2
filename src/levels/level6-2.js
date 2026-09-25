@@ -76,7 +76,7 @@ export function buildLevel_6_2(){
   // Z2
   platforms.push({x:748, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 748<780 ✓
   platforms.push({x:920, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 920>908 ✓
-  platforms.push({x:1100,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1100>1096 ✓
+  platforms.push({x:1100,y:H-11*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★H-9T→H-11T: 真下の addRow(1100,H-8T) に乗っていて下から叩けなかった
   // Z3
   platforms.push({x:1690,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1690<1740 ✓
   platforms.push({x:2090,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 2090>2076 ✓
@@ -87,19 +87,19 @@ export function buildLevel_6_2(){
   // Z5
   platforms.push({x:4300,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4300>4288 ✓
   platforms.push({x:4510,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4510>4496 ✓
-  platforms.push({x:4810,y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4810>4796 ✓
+  platforms.push({x:4810,y:H-11*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★H-9T→H-11T: 真下の addRow(4800,H-8T) に乗っていて下から叩けなかった
   platforms.push({x:5140,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 5140>5128 ✓
   // Z6
   platforms.push({x:5800,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 5800>5788(addRow末端) ✓
   platforms.push({x:6010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6010>5996 ✓
   // Z7
-  platforms.push({x:6640,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6640<6660 ✓
+  platforms.push({x:6624,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★6640→6624: addRow(6660,H-5T)と20px重なっていた（6624+32=6656<6660 ✓）
   platforms.push({x:7010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 7010>6996 ✓
 
   // 隠し1UP
   platforms.push({x:100, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   platforms.push({x:2400,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:4900,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:4960,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0}); // ★4900→4960: 天井土管4880に埋まっていた
   platforms.push({x:6850,y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0}); // ★ was 7000 (pit:7050直前) → 6850へ
 
   // ヨッシーブロック
@@ -107,7 +107,7 @@ export function buildLevel_6_2(){
   platforms.push({x:3660,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0}); // チェックポイント近く(3660>3624 addRow末端 ✓)
 
   // 土管（グラウンドゾーン内）
-  pipes.push({x:300, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  pipes.push({x:330, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0}); // ★300→330: パックン(x+24)がスポーン帯(x<350)に入っていた → 354
   pipes.push({x:2100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:5130,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:6980,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
@@ -122,7 +122,7 @@ export function buildLevel_6_2(){
   cannons.push({x:4600,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:100});
 
   // 移動足場（落下型・スリル感）
-  movingPlats.push({x:560, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:560, range:90, spd:1.4,prevX:560});
+  movingPlats.push({x:560, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:560, range:60, /* ★90→60: 左端でレンガ464を通り抜けていた */ spd:1.4,prevX:560});
   movingPlats.push({x:1430,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1430,range:100,spd:1.6,prevX:1430});
   movingPlats.push({x:2580,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:2580,range:90, spd:1.5,prevX:2580});
   // 落下足場（ギャップ4・5の中）
@@ -132,7 +132,8 @@ export function buildLevel_6_2(){
   // ── 敵配置 ──
   // ペンギン（グラウンドゾーンのみ）
   // チェックポイント x=3600 から±300px: 3300〜3900 には敵を置かない
-  [800,1100,1760,2050,2360,2950,3050,3100,
+  // ★3100→3250: ワープ土管(3100-3164)の中にスポーンしていた（CP3600から350px ✓）
+  [800,1100,1760,2050,2360,2950,3050,3250,
    4380,4820,5740,5950,6200,6710,7200
   ].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE,vx:-2.0,vy:0,alive:true,
@@ -188,7 +189,7 @@ export function buildLevel_6_2(){
   for(let j=0;j<22;j++) coinItems.push({x:2900+j*32,y:H-3*TILE,collected:false}); // Z4
   for(let j=0;j<27;j++) coinItems.push({x:4150+j*32,y:H-3*TILE,collected:false}); // Z5
   for(let j=0;j<15;j++) coinItems.push({x:5730+j*32,y:H-3*TILE,collected:false}); // Z6 (starts 5720)
-  for(let j=0;j<32;j++) coinItems.push({x:6640+j*32,y:H-3*TILE,collected:false}); // Z7
+  for(let j=0;j<32;j++) coinItems.push({x:6640+j*28,y:H-3*TILE,collected:false}); // Z7（★間隔32→28: 末尾4枚が旗7500の先で取れなかった）
   // ④ スカイライン
   for(let j=0;j<25;j++) coinItems.push({x:200+j*300,y:H-9*TILE,collected:false});
 

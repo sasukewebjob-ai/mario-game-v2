@@ -70,11 +70,12 @@ export function buildLevel_5_3(){
   );
 
   // 敵
+  // ★1550→1610（装飾土管1500-1564の中にスポーンしていた）、6770のノコノコは大階段(6600-6920)の中だったので削除
   [{x:700, t:'koopa'},{x:950, t:'goomba'},{x:1300,t:'koopa'},
-   {x:1550,t:'goomba'},{x:2350,t:'koopa'},{x:2600,t:'goomba'},
+   {x:1610,t:'goomba'},{x:2350,t:'koopa'},{x:2600,t:'goomba'},
    {x:2850,t:'koopa'},{x:3150,t:'goomba'},{x:4320,t:'koopa'},
    {x:4350,t:'goomba'},{x:4600,t:'koopa'},{x:4850,t:'goomba'},
-   {x:5750,t:'koopa'},{x:6000,t:'goomba'},{x:6770,t:'koopa'}
+   {x:5750,t:'koopa'},{x:5900,t:'goomba'} /* ★6000→5900: カロン・大砲と重なっていた */
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba') e={x,y:H-2*TILE,w:TILE,h:TILE,       vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -111,7 +112,7 @@ export function buildLevel_5_3(){
   platforms.push({x:750, y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:1900,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:3600,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:5500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:5840,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★5500→5840: 溶岩穴(5408-5632)の真ん中で下から叩けず、キノコも溶岩へ落ちていた（5840>5828 addRow末端 ✓）
 
   // ハンマーブロス（1体）
   enemies.push({x:3400,y:H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5+Math.random(),vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:60+Math.floor(Math.random()*60),jumpTimer:120+Math.floor(Math.random()*80),onGround:false});
@@ -131,7 +132,7 @@ export function buildLevel_5_3(){
   [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:5900,y:cy,collected:false}));
 
   // カロン（城内守護者・チェックポイント±300外）
-  [600, 1200, 2000, 2800, 4500, 5200, 6000].forEach(ex=>{
+  [600, 1200, 2000, 2800, 4500, 5200, 6120].forEach(ex=>{ // ★6000→6120: クリボー・大砲(6000)と重なっていた
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
   });
 
@@ -153,7 +154,7 @@ export function buildLevel_5_3(){
     {x:2230,w:22,maxH:200,period:160,phase:110},
     // 地面火柱（中盤）
     {x:2400,w:20,maxH:130,period:190,phase:20},
-    {x:2600,w:22,maxH:140,period:185,phase:80},
+    {x:2500,w:20,maxH:140,period:185,phase:80}, // ★2600→2500: 天井ピノキオ土管(2600-2664)の真下だと戻り落下で直撃していた（土管から80px離す）
     {x:2800,w:20,maxH:130,period:195,phase:140},
     {x:3100,w:22,maxH:150,period:180,phase:40},
     {x:3300,w:20,maxH:140,period:185,phase:100},

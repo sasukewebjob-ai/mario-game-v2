@@ -63,7 +63,7 @@ export function buildLevel_8_3(){
   addRow(5350,H-5*TILE, 3,'brick'); // 5350-5446
 
   // ── 氷城追加構造物（高度バリエーション）──
-  addRow(1300, H-4*TILE, 3,'brick'); // 1300-1396（Z1内・低層）
+  addRow(1300, H-7*TILE, 3,'brick'); // 1300-1396（Z1内。以前の H-4T はパックン土管1350のフタに乗っていて、パックンがレンガを突き抜けた）
   addRow(2700, H-6*TILE, 2,'brick'); // 2700-2764（Z2内・中層。既存2600 H-7Tと干渉なし）
   addRow(4700, H-8*TILE, 2,'brick'); // 4700-4764（Z3内・上層）
   addRow(5300, H-4*TILE, 3,'brick'); // 5300-5396（Z3内・低層）
@@ -90,7 +90,7 @@ export function buildLevel_8_3(){
   platforms.push({x:1940,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1940>1928 ✓
   // Z2
   platforms.push({x:2460,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2460>2446 ✓
-  platforms.push({x:2710,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2710>2696 ✓
+  platforms.push({x:2780,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 旧2710は真下にaddRow(2700,H-6T)(〜2764)があり叩けなかった → 2780（真下は地面まで空き）
   platforms.push({x:3040,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3040>3028 ✓
   platforms.push({x:3310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3310>3296 ✓
   platforms.push({x:3610,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3610>3596 ✓
@@ -113,7 +113,8 @@ export function buildLevel_8_3(){
   // ══════════════════════════════════════
   // 土管（パックン付き）
   // ══════════════════════════════════════
-  pipes.push({x:300,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  // 1本目は以前 x=300（スポーン地点0〜350内・ルール⑤違反）→ 734 へ移動（ドッスン650-714の右・地面コイン700/800の間）
+  pipes.push({x:734,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:1350, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:2700, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:4700, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
@@ -150,18 +151,21 @@ export function buildLevel_8_3(){
   // ══════════════════════════════════════
 
   // カロン（氷城の守護者・チェックポイント±300外）
-  [600, 1200, 2000, 2800, 4200, 5000, 6008, 6300].forEach(ex=>{
+  // 1150: 旧1200 は装飾土管(1200-1264)の中 / 6150: 旧6300 はCP2(6500)から200px（ルール⑥）→ 350px離す
+  [600, 1150, 2000, 2800, 4200, 5000, 6008, 6150].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
   });
 
   // ノコノコ（城内巡回）×8
-  [550, 900, 1400, 1900, 2500, 3100, 4200, 5200].forEach(ex=>{
+  // 1440: 旧1400 は土管(1350-1414)の中 / 4280: 旧4200 はカロン4200と同じ位置に重なっていた
+  [550, 900, 1440, 1900, 2500, 3100, 4280, 5200].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // メット（buzzy）×4
-  [700, 1600, 2800, 5100].forEach(ex=>{
+  // 1540/2880: 旧1600/2800 はハンマーブロス1600・カロン2800と同じ位置に重なっていた
+  [700, 1540, 2880, 5100].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });

@@ -154,6 +154,14 @@ flagPole.x = stairX + n*32 + 60;
 
 修正後、`npm run build` が通ることを確認する（ビルドフックが自動実行されるため、エラーがなければ成功）。
 
+あわせて以下の自動検査を実行し、該当ステージが 0 件になるまで直す（目視チェックでは見落としやすい部分重なり・土管内の配置・CP近くの危険物・移動足場の通り道などを検出する）：
+
+```bash
+node tools/check-geometry.mjs <ステージ番号 例: 3-2>
+node tools/check-levels.js && node tools/check-overlap.js && node tools/check-spawns.mjs
+npm test
+```
+
 ## ステップ4: レビュー結果のサマリー
 
 以下の形式で報告する：

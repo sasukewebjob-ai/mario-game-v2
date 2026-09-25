@@ -56,7 +56,7 @@ export function buildLevel_4_3(){
 
   // 移動足場（溶岩穴）
   movingPlats.push({x:1950,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:1950,range:80,spd:1.5,prevX:1950});
-  movingPlats.push({x:3450,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3450,range:90,spd:1.7,prevX:3450});
+  movingPlats.push({x:3480,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:3480,range:80,spd:1.7,prevX:3480}); // ★ ox3450/range90→ox3480/range80: 左端3400でレンガ(3300-3396)を貫通しない
   movingPlats.push({x:5250,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:5250,range:90,spd:1.8,prevX:5250});
 
   // キャノン
@@ -70,10 +70,10 @@ export function buildLevel_4_3(){
 
   // 敵
   [{x:650,t:'koopa'},{x:900,t:'goomba'},{x:1200,t:'koopa'},
-   {x:1500,t:'goomba'},{x:2250,t:'koopa'},{x:2450,t:'goomba'},
+   {x:1450,t:'goomba'},{x:2250,t:'koopa'},{x:2450,t:'goomba'},  // ★ goomba 1500→1450: 土管(1500)の中＋チャックと同座標だった
    {x:2700,t:'koopa'},{x:3000,t:'goomba'},{x:3416,t:'koopa'},
-   {x:4120,t:'goomba'},{x:4300,t:'koopa'},{x:4550,t:'goomba'},
-   {x:5600,t:'koopa'},{x:5850,t:'goomba'},{x:6570,t:'koopa'}
+   {x:4260,t:'goomba'},{x:4300,t:'koopa'},{x:4550,t:'goomba'},  // ★ goomba 4120→4260: CP(3800)で放置すると約5秒で接触していた
+   {x:5600,t:'koopa'},{x:5850,t:'goomba'}  // ★ x=6570のノコノコは大階段(6400-6720)の中に埋まりアリーナへ押し出されるため撤去
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba') e={x,y:H-2*TILE,w:TILE,h:TILE,    vx:-1,vy:0,alive:true,type:'goomba',  state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -84,9 +84,10 @@ export function buildLevel_4_3(){
   // 特殊ブロック（addRow座標と重複しないように配置）
   // addRow H-5T: 0-64, 350-446, 1100-1228, 2200-2296, 2900-3028, 3700-3796, 4500-4596, 5500-5596, 6200-6296
   // addRow H-7T: 800-864, 1550-1614, 2600-2664, 4100-4164, 4900-4964, 5900-5964
+  // ※上の範囲は「最後のレンガの左端」。実際の右端は +32（例: 1100-1228 のレンガは 1260 まで）
   platforms.push({x:500, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:900, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-  platforms.push({x:1250,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:1260,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★ 1250→1260: レンガ(1228-1260)との重なり解消
   platforms.push({x:2330,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:2700,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:3060,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
@@ -115,7 +116,9 @@ export function buildLevel_4_3(){
   [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:5800,y:cy,collected:false}));
 
   // チャージングチャック（チェックポイント±300外・アリーナ手前除外）
-  [{x:700,facing:-1},{x:1500,facing:-1},{x:2300,facing:-1},{x:4200,facing:-1},{x:5500,facing:-1}
+  // ★ 4200→4800: チャックは420px以内で突進するため、CP(3800)から400pxだと復帰直後に突っ込んできた
+  // ★ 1500→1580: 土管(1500-1564)の中＋クリボーと同座標だった
+  [{x:700,facing:-1},{x:1580,facing:-1},{x:2300,facing:-1},{x:4800,facing:-1},{x:5500,facing:-1}
   ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
 
   // チェックポイント
@@ -124,7 +127,7 @@ export function buildLevel_4_3(){
   // 火柱地獄（lavaFlames）— 前半は短め・後半は激しく
   [
     // 地面火柱（前半：穏やか）
-    {x:250, w:18,maxH:100,period:240,phase:0},
+    {x:400, w:18,maxH:100,period:240,phase:0},   // ★ 250→400: スタート地点(x<350)から外す
     {x:550, w:18,maxH:110,period:220,phase:60},
     {x:750, w:18,maxH:90, period:200,phase:120},
     {x:1050,w:18,maxH:110,period:230,phase:30},
@@ -154,7 +157,7 @@ export function buildLevel_4_3(){
     {x:5700,w:20,maxH:170,period:160,phase:100},
     {x:5900,w:22,maxH:190,period:150,phase:30},
     {x:6050,w:20,maxH:170,period:155,phase:80},
-    {x:6200,w:22,maxH:180,period:145,phase:15},
+    {x:6150,w:22,maxH:180,period:145,phase:15},  // ★ 6200→6150: CP2(6250)の50px隣で噴いていた
     // クッパ直前の巨大火柱
     {x:6900,w:24,maxH:200,period:140,phase:0},
     {x:6980,w:20,maxH:180,period:145,phase:45},
@@ -166,7 +169,7 @@ export function buildLevel_4_3(){
   platforms.push({x:6860,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:7100,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   // ★ アリーナ特色: 2段アリーナ（中段足場）+ 山岳の暴風
-  platforms.push({x:6870,y:H-8*TILE,w:TILE*4,h:TILE,type:'brick',bounceOffset:0}); // 上段足場
+  addRow(6870,H-8*TILE,4,'brick'); // 上段足場（★ 旧: w=TILE*4の1枚 → 描画は32pxだけで残り96pxが見えない床だった）
   addRow(7200,H-6*TILE,2,'brick');   // 中段足場（右側追加）
   windZones.push({x:6786,y:0,w:1100,h:H,force:-1.5}); // アリーナ内暴風（右→左）
   // クッパ — 階段頂上をマリオが越えたとき画面右端から登場、HP=5
@@ -188,7 +191,7 @@ enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'
 enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 // 風ゾーン（2廊下：前半向かい風・後半強風）
 windZones.push({x:500,y:0,w:900,h:H,force:-1.5});  // Z1廊下（向かい風）
-windZones.push({x:3600,y:0,w:1400,h:H,force:-2.0}); // Z3廊下（強風）
+windZones.push({x:3900,y:0,w:1100,h:H,force:-2.0}); // Z3廊下（強風）★ 開始3600→3900: CP(3800)を風の外に出す（放置で左の溶岩穴へ飛ばされていた）
 
 // クッパアリーナ前廊下の雑魚敵は撤去
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）

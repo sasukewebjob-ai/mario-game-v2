@@ -92,7 +92,7 @@ export function buildLevel_6_1(){
   pipes.push({x:4500,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:6800,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   // ワープ土管（地下へ）
-  pipes.push({x:1100,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice1'});
+  pipes.push({x:1160,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'ice1'}); // ★1100→1160: 割れ目(実穴1088-1152)の上で支え12pxしかなかった
   pipes.push({x:3400,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0,isWarp:true,variant:'pipeIce1'});
   // パックンフラワー
   pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5});});
@@ -142,7 +142,7 @@ export function buildLevel_6_1(){
   // Z1 clusters (gap edge + vertical columns)
   [100,130,165,200,240].forEach(cx=>coinItems.push({x:cx,y:H-4*TILE,collected:false}));
   [380,420,460,500,540].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
-  [H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:300,y:cy,collected:false}));
+  [H-3*TILE,H-4*TILE].forEach(cy=>coinItems.push({x:300,y:cy,collected:false})); // ★H-5T は Q(300,H-5T) の中だった（⑤ライン j=0 と二重）ので削除
   // Z2 clusters
   [880,920,960,1000,1040].forEach(cx=>coinItems.push({x:cx,y:H-4*TILE,collected:false}));
   [1200,1250,1300,1350,1400].forEach(cx=>coinItems.push({x:cx,y:H-6*TILE,collected:false}));
@@ -159,7 +159,7 @@ export function buildLevel_6_1(){
   // ④ H-9T スカイライン（27枚）
   for(let j=0;j<27;j++) coinItems.push({x:200+j*280,y:H-9*TILE,collected:false});
   // ⑤ 中高度ライン（H-5T・ブロック間空き地）
-  for(let j=0;j<20;j++) coinItems.push({x:300+j*340,y:H-5*TILE,collected:false});
+  for(let j=1;j<20;j++) coinItems.push({x:300+j*340,y:H-5*TILE,collected:false}); // ★j=0 (300,H-5T) は Q(300,H-5T) の中なので除外
 
   // チェックポイント（Z4の安全地帯・周辺200px以内に敵なし）
   // x=3600: 敵配置は 3100,3450,3650 → 3600-3450=150 < 200 なので 3450→3400 に変更済

@@ -11,7 +11,7 @@ chainChomps.length=0;jumpBlocks.length=0;pipos.length=0;
 const _isPipe=variant&&variant.indexOf('pipe')===0;
 const W=_isPipe?3200:800; // 土管ミニダンジョンは4倍長
 // 天井（全variant共通）
-for(let x=TILE;x<W-TILE;x+=TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
+for(let x=0;x<W;x+=TILE)platforms.push({x,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0}); // 角まで塞ぐ（角の隙間から部屋の外へ出られた）
 // 床（通常variantのみ全面。土管ミニダンジョンは各variantで穴付き床を設置する）
 if(!_isPipe){
   for(let x=0;x<W;x+=TILE)platforms.push({x,y:H-TILE,w:TILE,h:TILE,type:'ground',bounceOffset:0});
@@ -25,7 +25,6 @@ const _isPino=(variant==='pinocchio'||variant==='pinocchio_fail');
 const _wallBottom=_isPino?H-TILE:H-4*TILE;
 for(let wy=TILE;wy<_wallBottom;wy+=TILE)platforms.push({x:W-TILE,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 if(_isPino){
-  platforms.push({x:0,y:0,w:TILE,h:TILE,type:'ground',bounceOffset:0});
   for(let wy=TILE;wy<H-TILE;wy+=TILE)platforms.push({x:0,y:wy,w:TILE,h:TILE,type:'ground',bounceOffset:0});
 }
 
@@ -85,7 +84,8 @@ enemies.push(bz(150));enemies.push(kp(300));enemies.push(gm(420));enemies.push(g
 }else if(variant==='yoshi1'){
 // ★ ヨッシーの秘密基地 ★ 1-1: ヨッシーの卵が眠る草原の隠し部屋
 addRow(200,H-4*TILE,2,'brick');addRow(400,H-5*TILE,3,'brick');addRow(590,H-4*TILE,2,'brick');
-platforms.push({x:464,y:H-6*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+// ヨッシーブロックはレンガ列(400-496)の右端に同じ高さで並べる（以前は(464,H-6T)でレンガの真上に乗っていて、小さいマリオは下から叩けなかった）
+platforms.push({x:496,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 platforms.push(qM(300,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
@@ -138,7 +138,8 @@ lavaFlames.push(lf(420,0));
 }else if(variant==='yoshi2'){
 // ★ 砂漠のヨッシー巣 ★ 2-1: 砂の奥に眠るヨッシーの卵
 addRow(180,H-5*TILE,2,'brick');addRow(380,H-4*TILE,3,'brick');addRow(570,H-5*TILE,2,'brick');
-platforms.push({x:432,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+// ヨッシーブロックはレンガ列(380-476)の右端に同じ高さで並べる（以前は(432,H-5T)でレンガ2個の真上に乗っていて、小さいマリオは下から叩けなかった）
+platforms.push({x:476,y:H-4*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 platforms.push(qM(280,H-6*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
@@ -188,7 +189,8 @@ enemies.push(gm(150));enemies.push(kp(300));enemies.push(gm(400));enemies.push(g
 }else if(variant==='yoshi3'){
 // ★ 川辺のヨッシー ★ 3-1: 水の音が聞こえる秘密の部屋
 addRow(190,H-4*TILE,2,'brick');addRow(390,H-6*TILE,3,'brick');addRow(580,H-4*TILE,2,'brick');
-platforms.push({x:448,y:H-7*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
+// ヨッシーブロックはレンガ列(390-486)の右端に同じ高さで並べる（以前は(448,H-7T)でレンガ2個の真上に乗っていて、小さいマリオは下から叩けなかった）
+platforms.push({x:486,y:H-6*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
 platforms.push(qM(300,H-5*TILE));
 platforms.push(rh1());
 ci(55,H-7*TILE,22,34);ci(60,H-9*TILE,18,38);
@@ -517,9 +519,10 @@ platforms.push(qC(1300,H-9*TILE,10),qM(2350,H-9*TILE),h1(2950,H-10*TILE),pB(720,
 ci(80,H-9*TILE,26,40);
 ci(240,H-5*TILE,3,30);ci(560,H-5*TILE,3,30);ci(920,H-6*TILE,3,30);ci(1260,H-5*TILE,3,30);
 ci(1560,H-6*TILE,3,30);ci(1900,H-5*TILE,3,30);ci(2220,H-6*TILE,3,30);ci(2560,H-5*TILE,3,30);ci(2860,H-5*TILE,3,30);
-ci(720,H-8*TILE,4,32);ci(1320,H-8*TILE,4,32);ci(2320,H-8*TILE,4,32);
+// 列(700-796)上のコイン・メットはPスイッチ(720,H-8T)を避けて右へ（以前は720でPスイッチと同じ位置に重なっていた）
+ci(752,H-8*TILE,4,32);ci(1320,H-8*TILE,4,32);ci(2320,H-8*TILE,4,32);
 ci(120,H-3*TILE,4,30);ci(620,H-3*TILE,4,30);ci(1300,H-3*TILE,4,30);ci(1980,H-3*TILE,4,30);ci(2620,H-3*TILE,4,30);
-enemies.push(bz(720,H-8*TILE),bz(1320,H-8*TILE),bz(2320,H-8*TILE));
+enemies.push(bz(764,H-8*TILE),bz(1320,H-8*TILE),bz(2320,H-8*TILE));
 enemies.push(kp(150),kp(620),kp(1080),kp(1480),kp(1780),kp(2080),kp(2480),kp(2780));
 }
 // ──────── pipeGrass3: タイミング「シンクロノトーム」（位相同期） ────────
@@ -619,9 +622,12 @@ flr([[700,2],[1200,2],[1900,3],[2400,2]]);
 addRow(550,H-4*TILE,2,'brick');addRow(550,H-7*TILE,4,'brick');
 addRow(1300,H-5*TILE,3,'brick');addRow(1500,H-7*TILE,3,'brick');addRow(1700,H-5*TILE,3,'brick');
 addRow(2100,H-4*TILE,3,'brick');addRow(2200,H-7*TILE,4,'brick');addRow(2600,H-4*TILE,3,'brick');
-platforms.push(qM(580,H-8*TILE),qC(1530,H-8*TILE,8),h1(2230,H-9*TILE),pB(1400,H-6*TILE),qH(1900,H-9*TILE));
+// qM/qC は H-10T（以前は H-8T でレンガ列(H-7T)の真上に乗っていて小さいマリオが叩けず、
+// さらに同じ (580|1530, H-8T) のメット・コインがブロックの中に埋まっていた）。列の上から跳んで叩ける
+platforms.push(qM(580,H-10*TILE),qC(1530,H-10*TILE,8),h1(2230,H-9*TILE),pB(1400,H-6*TILE),qH(1900,H-9*TILE));
 ci(80,H-9*TILE,24,42);
-ci(220,H-3*TILE,5,30);ci(900,H-3*TILE,5,30);ci(1330,H-6*TILE,4,32);ci(1530,H-8*TILE,4,32);
+// レンガ列(1300-1396,H-5T)上のコイン: 旧 ci(1330,H-6T,4,32) は後ろ2枚がPスイッチ(1400,H-6T)に食い込んでいた → 列の上3枚＋スイッチの真上1枚
+ci(220,H-3*TILE,5,30);ci(900,H-3*TILE,5,30);ci(1300,H-6*TILE,3,32);ci(1408,H-7*TILE,1);ci(1530,H-8*TILE,4,32);
 ci(1730,H-6*TILE,4,32);ci(2230,H-8*TILE,5,32);ci(2700,H-3*TILE,5,30);
 ci(560,H-5*TILE,4,32);ci(560,H-8*TILE,4,32);ci(2110,H-5*TILE,4,32);ci(2610,H-5*TILE,4,32);
 enemies.push(hb(800),hb(2200),hb(2700));
@@ -653,7 +659,9 @@ addRow(1300,H-7*TILE,2,'brick');addRow(1500,H-6*TILE,2,'brick');addRow(1700,H-7*
 addRow(1900,H-6*TILE,2,'brick');addRow(2100,H-7*TILE,2,'brick');addRow(2300,H-6*TILE,2,'brick');
 addRow(2500,H-7*TILE,2,'brick');addRow(2700,H-6*TILE,2,'brick');addRow(2900,H-7*TILE,2,'brick');
 platforms.push(qM(560,H-9*TILE),qC(1530,H-9*TILE,8),h1(2710,H-9*TILE),pB(180,H-9*TILE),qH(1700,H-9*TILE));
-ci(60,H-9*TILE,24,40);
+// H-9T のコイン列（旧 ci(60,H-9T,24,40)）は x=180 がPスイッチ(180,H-9T)と同じ位置、x=580 が?ブロック(560)に食い込んでいた
+// → その2枚だけ1段上(H-10T)のブロック真上へ移す（枚数24は同じ）
+ci(60,H-9*TILE,3,40);ci(188,H-10*TILE,1);ci(220,H-9*TILE,9,40);ci(568,H-10*TILE,1);ci(620,H-9*TILE,10,40);
 ci(190,H-8*TILE,3,28);ci(370,H-7*TILE,3,28);ci(550,H-8*TILE,3,28);ci(710,H-7*TILE,3,28);
 ci(910,H-8*TILE,3,28);ci(1110,H-7*TILE,3,28);ci(1310,H-8*TILE,3,28);ci(1510,H-7*TILE,3,28);
 ci(1710,H-8*TILE,3,28);ci(1910,H-7*TILE,3,28);ci(2110,H-8*TILE,3,28);ci(2310,H-7*TILE,3,28);

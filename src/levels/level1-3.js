@@ -45,14 +45,14 @@ G.stairSealX=6456;
 [{x:4500,y:H-4*TILE},{x:4500,y:H-5*TILE},{x:4500,y:H-6*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
 // Remaining spread coins
 for(let i=0;i<14;i++)coinItems.push({x:350+i*400,y:H-9*TILE,collected:false});
-// Enemies
+// Enemies（土管の中・最終階段(6200-6520)には置かない＝アリーナ前廊下は敵なし）
 [{x:620,t:'goomba'},{x:880,t:'koopa'},
 {x:1100,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},{x:1600,t:'goomba'},
-{x:2050,t:'koopa'},{x:2180,t:'goomba'},{x:2300,t:'goomba'},{x:2600,t:'koopa'},{x:2700,t:'goomba'},
+{x:2050,t:'koopa'},{x:2180,t:'goomba'},{x:2300,t:'goomba'},{x:2600,t:'koopa'},{x:2660,t:'goomba'},
 {x:3172,t:'koopa'},{x:4020,t:'goomba'},{x:4140,t:'koopa'},
 {x:4100,t:'goomba'},{x:4200,t:'goomba'},{x:4600,t:'goomba'},{x:4720,t:'koopa'},
 {x:5350,t:'koopa'},{x:5480,t:'goomba'},{x:5600,t:'goomba'},
-{x:5730,t:'koopa'},{x:6370,t:'goomba'}
+{x:5730,t:'koopa'}
 ].forEach(({x,t})=>{
 let e;
 if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -72,7 +72,7 @@ cannons.push(
 {x:1550,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:60},
 {x:2800,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:100},
 {x:4300,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:140},
-{x:5680,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:40}
+{x:5540,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:40} // CP2(6050)復帰直後に背後から撃たれないよう 5680→5540
 );
 // Checkpoint
 G.checkpoint={x:3700,y:H-TILE,reached:false};
@@ -109,14 +109,14 @@ platforms.push({x:4672,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,coinBl
   {x:2150,w:16,maxH:90,period:205,phase:50},
   {x:2560,w:16,maxH:90,period:200,phase:80},
   {x:2950,w:16,maxH:80,period:185,phase:160},
-  {x:3600,w:16,maxH:85,period:195,phase:30},
+  {x:4450,w:16,maxH:85,period:195,phase:30}, // CP(3700)±300の外へ（3600→4450。?(4400)の真下は避ける）
   {x:4020,w:16,maxH:85,period:180,phase:110},
   {x:4180,w:16,maxH:75,period:210,phase:170},
   {x:4550,w:16,maxH:85,period:190,phase:60},
   {x:4870,w:16,maxH:90,period:175,phase:20},
   {x:5480,w:16,maxH:80,period:200,phase:100},
   {x:5620,w:16,maxH:85,period:195,phase:150},
-  {x:5800,w:16,maxH:75,period:185,phase:40}
+  {x:5740,w:16,maxH:75,period:185,phase:40} // CP2(6050)±300の外へ（5800→5740）
 ].forEach(f=>lavaFlames.push({...f,curH:0}));
 // アリーナ壁（7ブロック高・Bowserジャンプ144px < 壁高224px）
 for(let wy=H-8*TILE;wy<H-TILE;wy+=TILE){addB(6520,wy,'brick');addB(6552,wy,'brick');}

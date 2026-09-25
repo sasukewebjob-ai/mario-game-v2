@@ -43,7 +43,7 @@ export function buildLevel_6_3(){
   addRow(2380,H-9*TILE, 3,'brick'); // 2380,2412,2444 → 末端2476  (y異なるので重複なし)
   addRow(2750,H-7*TILE, 3,'brick'); // 2750,2782,2814 → 末端2846
   addRow(3100,H-5*TILE, 4,'brick'); // 3100,3132,3164,3196 → 末端3228
-  addRow(3450,H-7*TILE, 3,'brick'); // 3450,3482,3514 → 末端3546
+  addRow(3464,H-7*TILE, 3,'brick'); // 3464,3496,3528 → 末端3560（★天井ピノキオ土管 3400-3464 と重ならないよう 3450→3464）
   // Z3: 後半
   addRow(4060,H-5*TILE, 4,'brick'); // 4060,4092,4124,4156 → 末端4188
   addRow(4060,H-9*TILE, 3,'brick'); // 同x・y異なる ✓
@@ -77,7 +77,7 @@ export function buildLevel_6_3(){
   // ── ? ブロック（addRowと座標重複なし確認済み）──
   // Z1
   platforms.push({x:100, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 100>96 ✓
-  platforms.push({x:440, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 440>428 ✓
+  platforms.push({x:440, y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★H-5T→H-7T: 真下の addRow(400,H-4T) に乗っていて下から叩けなかった
   platforms.push({x:660, y:H-9*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 660>646 ✓
   platforms.push({x:1010,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1010>996 ✓
   platforms.push({x:1370,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 1370>1360 ✓
@@ -85,8 +85,8 @@ export function buildLevel_6_3(){
   // Z2
   platforms.push({x:2520,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2520>2508 ✓
   platforms.push({x:2860,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2860>2846 ✓
-  platforms.push({x:3240,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3240>3228 ✓
-  platforms.push({x:3560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3560>3546 ✓
+  platforms.push({x:3240,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★H-5T→H-7T: 真下の addRow(3200,H-4T) に乗っていて下から叩けなかった
+  platforms.push({x:3560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // 3560>=3560 ✓
   // Z3
   platforms.push({x:4200,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4200>4188 ✓
   platforms.push({x:4560,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4560>4546 ✓
@@ -96,9 +96,7 @@ export function buildLevel_6_3(){
   // Z4
   platforms.push({x:6000,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6000>5988 ✓
   platforms.push({x:6310,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 6310>6296 ✓
-  // アリーナ内 ? ブロック（壁右側）
-  platforms.push({x:7160,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:7400,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  // アリーナ内 ? ブロックは上（7150/7390）で定義済み。★10pxずれの重複定義(7160/7400)は削除（1個に見えて2回アイテムが出ていた）
 
   // 隠し1UP
   platforms.push({x:800, y:H-9*TILE, w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
@@ -112,13 +110,14 @@ export function buildLevel_6_3(){
   pipes.push({x:3600,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:5200,y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   // 城はパックン2本のみ（難度調整）
+  // ★2本目は pipes[2](3600) → pipes[1](1800) へ: 3600 はチェックポイント(3500)から124pxでルール⑥違反
   piranhas.push({x:pipes[0].x+24,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
-  piranhas.push({x:pipes[2].x+24,baseY:pipes[2].y,y:pipes[2].y,w:16,h:TILE,phase:1.8,alive:true,maxUp:TILE*1.5});
+  piranhas.push({x:pipes[1].x+24,baseY:pipes[1].y,y:pipes[1].y,w:16,h:TILE,phase:1.8,alive:true,maxUp:TILE*1.5});
 
   // キャノン（4基）
   cannons.push({x:500, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:320,timer:20});
   cannons.push({x:1450,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:80});
-  cannons.push({x:3000,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:280,timer:50});
+  cannons.push({x:3104,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:280,timer:50}); // ★3000→3104: 穴(3000-3096)の上で支え8pxしかなかった
   cannons.push({x:5000,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:120});
 
   // 移動足場（氷の深淵越え）
@@ -128,21 +127,24 @@ export function buildLevel_6_3(){
 
   // ── 敵配置 ──
   // カロン（氷城の守護者・チェックポイント±300外）
-  [600, 1200, 2000, 4000, 4700, 5476, 6300].forEach(ex=>{
+  // ★6300→6150: CP2(6550)から250pxだった
+  [600, 1200, 2000, 4000, 4700, 5476, 6150].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
   });
 
   // ペンギン（グラウンドゾーンのみ）
-  // チェックポイント x=3500 から±300px: 3200〜3800 には敵を置かない
-  [750,1250,1350,1700,2400,2700,2950,3150,
-   4300,4550,4950,5200,5950,6230,6870
+  // チェックポイント x=3500 から±300px: 3200〜3800 には敵を置かない（CP2=6550 も同様: 6250〜）
+  // ★750→790 / 5200→5300（土管の中にスポーンしていた）、6870 は大階段の中だったので削除
+  [790,1250,1350,1700,2400,2700,2950,3150,
+   4300,4550,4950,5300,5950,6230
   ].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE,vx:-2.0,vy:0,alive:true,
       type:'penguin',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // コンバット（ノコノコ）
-  [{x:600},{x:1200},{x:2500},{x:2900},{x:4400},{x:5100},{x:6230}].forEach(({x})=>{
+  // ★600→650 / 1200→1560 / 6230→6050（カロン・ペンギンと同座標だった）、2500→2600（装飾土管の中だった）
+  [{x:650},{x:1560},{x:2600},{x:2900},{x:4400},{x:5100},{x:6050}].forEach(({x})=>{
     enemies.push({x,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });

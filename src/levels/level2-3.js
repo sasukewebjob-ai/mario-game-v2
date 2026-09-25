@@ -68,7 +68,7 @@ export function buildLevel_2_3(){
   platforms.push({x:3550,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:4200,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   platforms.push({x:4620,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0}); // ★ was 4750 (pit:4800直前) → 4620へ
-  platforms.push({x:5300,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:5330,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 真下のレンガ(5250-5314)を避ける
   platforms.push({x:5950,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 
   // パイプ（すべて通常、ワープなし）
@@ -86,15 +86,15 @@ export function buildLevel_2_3(){
   for(let i=0;i<5;i++)coinItems.push({x:3020+i*55,y:H-3*TILE,collected:false});
   for(let i=0;i<4;i++)coinItems.push({x:4820+i*50,y:H-3*TILE,collected:false});
 
-  // 通常敵
-  [{x:620,t:'goomba'},{x:880,t:'koopa'},
-   {x:1100,t:'goomba'},{x:1250,t:'goomba'},{x:1380,t:'koopa'},{x:1480,t:'goomba'},
+  // 通常敵（土管の中・最終階段(6000-6320)には置かない＝アリーナ前廊下は敵なし）
+  [{x:680,t:'goomba'},{x:880,t:'koopa'},
+   {x:1100,t:'goomba'},{x:1250,t:'goomba'},{x:1380,t:'koopa'},{x:1440,t:'goomba'},
    {x:1900,t:'koopa'},{x:2050,t:'goomba'},{x:2200,t:'goomba'},{x:2400,t:'koopa'},
    {x:2600,t:'goomba'},{x:2700,t:'hammerBro'},
    {x:2980,t:'koopa'},{x:3820,t:'goomba'},{x:3920,t:'goomba'},
-   {x:4100,t:'goomba'},{x:4200,t:'koopa'},{x:4350,t:'hammerBro'},{x:4600,t:'goomba'},
+   {x:4100,t:'goomba'},{x:4200,t:'koopa'},{x:4350,t:'hammerBro'},{x:4680,t:'goomba'},
    {x:5100,t:'koopa'},{x:5250,t:'goomba'},{x:5400,t:'goomba'},
-   {x:5530,t:'koopa'},{x:6170,t:'goomba'}
+   {x:5530,t:'koopa'}
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -127,8 +127,8 @@ export function buildLevel_2_3(){
     {x:1350,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:60},
     {x:2600,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:100},
     {x:4100,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:140},
-    {x:5650,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:30},
-    {x:5900,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:90}
+    {x:5340,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:30},
+    {x:5200,y:H-TILE*2,w:TILE,h:TILE*2,fireRate:300,timer:90} // 終盤2門はCP2(5850)から離す（放置で被弾しない）
   );
 
   // チェックポイント
@@ -144,7 +144,7 @@ export function buildLevel_2_3(){
     {x:4865,w:22,maxH:220,period:140,phase:0},
     {x:4960,w:18,maxH:180,period:140,phase:40},
     // 地上の火柱（15本）
-    {x:300,w:16,maxH:85,period:220,phase:70},
+    {x:400,w:16,maxH:85,period:220,phase:70}, // スタート地点(x<350)の外
     {x:650,w:16,maxH:90,period:210,phase:40},
     {x:950,w:16,maxH:80,period:200,phase:130},
     {x:1200,w:16,maxH:85,period:190,phase:0},
@@ -153,8 +153,8 @@ export function buildLevel_2_3(){
     {x:2100,w:16,maxH:90,period:195,phase:110},
     {x:2450,w:16,maxH:85,period:185,phase:30},
     {x:2800,w:16,maxH:80,period:205,phase:170},
-    {x:3350,w:16,maxH:90,period:195,phase:60},
-    {x:3600,w:16,maxH:85,period:185,phase:20},
+    {x:3850,w:16,maxH:90,period:195,phase:60}, // CP(3500)±300の外へ（3350→3850）
+    {x:4000,w:16,maxH:85,period:185,phase:20}, // 同（3600→4000）
     {x:4150,w:16,maxH:90,period:175,phase:80},
     {x:4500,w:16,maxH:85,period:200,phase:150},
     {x:5100,w:16,maxH:90,period:190,phase:40},
@@ -171,7 +171,7 @@ export function buildLevel_2_3(){
   addRow(6850,H-6*TILE,3,'brick');   // 中段足場（右側）
   // ★ アリーナ特色: 砂嵐向かい風 + 動く砂岩足場
   windZones.push({x:6386,y:0,w:1200,h:H,force:-1.5}); // 向かい風（マリオを押し戻す）
-  movingPlats.push({x:6600,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:6600,range:90,spd:1.0,prevX:6600});
+  movingPlats.push({x:6584,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:6584,range:64,spd:1.0,prevX:6584}); // ?ブロック(6480/6720)の間だけを往復・上のレンガ(6530)と挟まない高さ
   // クッパ — 階段頂上をマリオが越えたとき画面右端から登場
   G.bowserArenaX=6255;G.checkpoint2={x:5850,y:H-TILE,reached:false};
   G.bowserLeftX=6386;

@@ -110,16 +110,16 @@ export function buildLevel_2_1(){
   for(let i=0;i<25;i++)coinItems.push({x:200+i*280,y:H-8*TILE,collected:false});
   gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
   // Extra coins to reach 300+
-  for(let i=0;i<230;i++)coinItems.push({x:100+i*33,y:H-6*TILE,collected:false});
+  for(let i=0;i<230;i++)coinItems.push({x:100+i*32,y:H-6*TILE,collected:false}); // 間隔32で最後(x=7428)も旗(7500)の手前
 
-  // 通常敵（低密度）
-  [{x:350,t:'goomba'},{x:480,t:'goomba'},
+  // 通常敵（低密度・土管の中には置かない）
+  [{x:350,t:'goomba'},{x:440,t:'goomba'},
    {x:900,t:'koopa'},{x:1050,t:'goomba'},{x:1200,t:'goomba'},
    {x:1700,t:'goomba'},{x:1900,t:'koopa'},
    {x:2200,t:'goomba'},{x:2400,t:'goomba'},{x:2600,t:'koopa'},
-   {x:3100,t:'goomba'},{x:3300,t:'goomba'},
+   {x:3180,t:'goomba'},{x:3300,t:'goomba'},
    {x:3600,t:'koopa'},{x:3680,t:'goomba'},
-   {x:4320,t:'goomba'},{x:4500,t:'koopa'},
+   {x:4380,t:'goomba'},{x:4500,t:'koopa'},
    {x:4700,t:'goomba'},
    {x:5400,t:'goomba'},{x:5550,t:'goomba'},{x:5750,t:'koopa'},
    {x:6000,t:'goomba'},{x:6200,t:'goomba'},{x:6400,t:'koopa'},
@@ -134,12 +134,12 @@ export function buildLevel_2_1(){
   ].forEach(d=>enemies.push({x:d.x,y:d.y,w:32,h:32,vx:0,vy:0,type:'angrySun',alive:true,state:'orbit'}));
 
   // 飛び跳ねるブロック（Zone 1-6、増量）
-  [{x:700},{x:1100},{x:1800},{x:2300},{x:3400},{x:4200},{x:5000},{x:5650},{x:6500}].forEach(({x})=>{
+  [{x:700},{x:1100},{x:1800},{x:2300},{x:3400},{x:3650},{x:5000},{x:5650},{x:6500}].forEach(({x})=>{ // CP(4000)±300には置かない
     jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60+Math.floor(Math.random()*40),alive:true});
   });
 
   // パイポ（Zone 2-6、増量）
-  [{x:1500},{x:2200},{x:2700},{x:3300},{x:3800},{x:4400},{x:4800},{x:5500},{x:5900},{x:6300},{x:6700}].forEach(({x})=>{
+  [{x:1500},{x:2200},{x:2700},{x:3300},{x:3600},{x:4400},{x:4800},{x:5500},{x:5900},{x:6300},{x:6700}].forEach(({x})=>{
     pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy:-6,alive:true,bounceCount:0});
   });
 

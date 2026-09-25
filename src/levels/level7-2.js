@@ -47,7 +47,7 @@ export function buildLevel_7_2(){
   addRow(6950, H-7*TILE, 3,'brick'); // 6950,6982,7014 → 末端7046
   addRow(7200, H-5*TILE, 3,'brick'); // 7200,7232,7264 → 末端7296
   // ── 砦ダンジョン追加層 ──
-  addRow(1350, H-4*TILE, 3,'brick'); // 1350,1382,1414 → 末端1446（Z2内・低層）
+  addRow(1060, H-4*TILE, 3,'brick'); // 1060,1092,1124 → 末端1156（Z2内・低層。以前は1350でワープ土管1400のフタを72%ふさいでいた）
   addRow(2550, H-6*TILE, 3,'brick'); // 2550,2582,2614 → 末端2646（Z3内・中層）
   addRow(4150, H-8*TILE, 2,'brick'); // 4150,4182 → 末端4214（Z4内・上層）
   addRow(5900, H-4*TILE, 3,'brick'); // 5900,5932,5964 → 末端5996（Z5内・低層）
@@ -120,13 +120,16 @@ export function buildLevel_7_2(){
   // チェックポイント x=4200 から±300px離す: 3900〜4500 には敵を置かない
 
   // メット（ブロック上にも配置可能）
-  [500, 700, 1280, 1700, 2500, 3000, 3300, 4600, 4900, 5500, 6000, 6600, 7100].forEach(ex=>{
+  // 580/1240: 旧500/1280 は土管(500-564 / 装飾1300-1364)の中にスポーンしていたので土管の外へ
+  // 640: 旧700 はカロン700と同じ位置に重なっていた
+  [580, 640, 1240, 1700, 2500, 3000, 3300, 4600, 4900, 5500, 6000, 6600, 7100].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.6,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // ノコノコ
-  [550, 1350, 1950, 2600, 3100, 4700, 5400, 6100, 6800].forEach(ex=>{
+  // 440/1560/6130: 旧550/1350/6100 は土管(500-564 / 装飾1300-1364 / 6050-6114)の中にスポーンしていたので土管の外へ
+  [440, 1560, 1950, 2600, 3100, 4700, 5400, 6130, 6800].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
@@ -140,7 +143,8 @@ export function buildLevel_7_2(){
     hammerTimer:70+Math.floor(Math.random()*60),jumpTimer:110+Math.floor(Math.random()*80),onGround:false});
 
   // カロン（砦の深部・チェックポイント±300外）
-  [{x:700},{x:1500},{x:2100},{x:2700},{x:4000},{x:5000},{x:6180},{x:7200}
+  // 2780: 旧2700 はワープ土管(2700-2764)の中 / 4540: 旧4000 はCP(4200)から200px（ルール⑥）→ 340px離す
+  [{x:700},{x:1500},{x:2100},{x:2780},{x:4540},{x:5000},{x:6180},{x:7200}
   ].forEach(({x})=>enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*1.2,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false}));
 
   // テレサ×5（砦内を漂う幽霊）
@@ -151,7 +155,9 @@ export function buildLevel_7_2(){
 
   // ドッスン×3（天井から落下）
   enemies.push({x:1500,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
-  enemies.push({x:3000,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
+  // 3280: 旧3000 はピノキオ天井土管(3000-3064)の中で待機し、土管を突き抜けて入ろうとするマリオに落ちてきた
+  //       3280-3344 の真下はブロックなし（?3240は3272まで・天井土管3350の手前）
+  enemies.push({x:3280,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
   enemies.push({x:4600,y:TILE,w:TILE*2,h:TILE*2,vx:0,vy:0,alive:true,type:'thwomp',state:'idle',waitTimer:0});
 
   // ── コイン（300枚以上）──
@@ -169,14 +175,14 @@ export function buildLevel_7_2(){
   for(let j=0;j<15;j++) coinItems.push({x:2430+j*70,y:H-3*TILE,collected:false}); // Z3
   for(let j=0;j<14;j++) coinItems.push({x:4030+j*68,y:H-3*TILE,collected:false}); // Z4(gap3拡大→開始位置調整)
   for(let j=0;j<13;j++) coinItems.push({x:5330+j*70,y:H-3*TILE,collected:false}); // Z5
-  for(let j=0;j<22;j++) coinItems.push({x:6530+j*65,y:H-3*TILE,collected:false}); // Z6
+  for(let j=0;j<22;j++) coinItems.push({x:6530+j*50,y:H-3*TILE,collected:false}); // Z6（旗7600より手前で終わる間隔）
   // ④ クラスター：ギャップ際コイン群（旧④の退屈ラインを置換）
   // gap2(2100-2400)際：左端縦列クラスター
   [2060,2070,2080].forEach(cx=>[H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 9枚
   // gap3(3500-4000)際：右端クラスター
   [4010,4020,4030,4040].forEach(cx=>[H-2*TILE,H-3*TILE,H-4*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 12枚
   // ⑤ ダンジョン層コイン（新ブロック上のご褒美）
-  for(let j=0;j<3;j++) coinItems.push({x:1350+j*32,y:H-6*TILE,collected:false}); // H-4T addRow上
+  for(let j=0;j<3;j++) coinItems.push({x:1060+j*32,y:H-6*TILE,collected:false}); // H-4T addRow(1060)上
   for(let j=0;j<3;j++) coinItems.push({x:2550+j*32,y:H-8*TILE,collected:false}); // H-6T addRow上
   for(let j=0;j<3;j++) coinItems.push({x:5900+j*32,y:H-6*TILE,collected:false}); // H-4T addRow上
   // ⑥ リスクコイン（H-10T, H-11T）
@@ -188,8 +194,8 @@ export function buildLevel_7_2(){
   // チェックポイント（Z4入口・周辺300px以内に敵なし: 3900〜4500禁止済み）
   G.checkpoint={x:4200,y:H-TILE,reached:false};
 
-  // フラッグポール: デフォルト LW-500=7500（stair終端 7350+5*32=7510 の後 ✓）
-  flagPole.x=7500;
+  // フラッグポール: 階段 addStair(7350,6) は x=7350〜7542（最後の段は7510〜7542）。その後ろ 58px 空けて 7600
+  flagPole.x=7600; // 以前は7500で旗が階段に埋まり、ゴール時にマリオが階段ブロックへめり込んでいた
   // ★ ハンマースーツ
   platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管
@@ -202,10 +208,13 @@ export function buildLevel_7_2(){
   pipes.push({x:3350,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   // ★ 上空パタパタ（2段JMP対策）
   enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
-  enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
+  // 4550: 旧4300 はCP(4200)から100px（ルール⑥）→ 350px離す
+  enemies.push({x:4550,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
 // ★ スパイクトップ（CP後・天井）
-enemies.push({x:5000,y:2*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'spikeTop',state:'walk',baseX:5000,range:120,walkFrame:0,walkTimer:0,facing:-1});
+// 7-2 には天井の列がなく、旧 (5000, y=64) は空中を歩いていた → レンガ列 addRow(5750,H-7T,3)(5750-5846) の下面にぶら下げる
+// 重力なしで baseX±range を往復するだけなので、往復範囲 5750〜5814(+32=5846) を列の幅に収める
+enemies.push({x:5782,y:H-6*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'spikeTop',state:'walk',baseX:5782,range:32,walkFrame:0,walkTimer:0,facing:-1});
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:3000,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});

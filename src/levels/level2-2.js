@@ -45,7 +45,7 @@ export function buildLevel_2_2(){
   // x=2900: hasStar（pushのみ）, x=2932-2964: addRow
   addRow(2932,H-7*TILE,2,'q');
   addRow(3200,H-5*TILE,3,'brick');
-  addRow(3450,H-9*TILE,4,'brick');
+  addRow(3464,H-9*TILE,4,'brick'); // ピノキオ天井土管(3400-3464)の右隣
   addRow(3700,H-5*TILE,3,'brick');
   // Gap: 4200-4400
 
@@ -98,13 +98,13 @@ export function buildLevel_2_2(){
   for(let i=0;i<30;i++)coinItems.push({x:180+i*240,y:H-8*TILE,collected:false});
   gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
   // Extra coins to reach 300+
-  for(let i=0;i<230;i++)coinItems.push({x:100+i*34,y:H-6*TILE,collected:false});
+  for(let i=0;i<230;i++)coinItems.push({x:100+i*32,y:H-6*TILE,collected:false}); // 間隔32で最後(x=7428)も旗(7500)の手前
 
-  // 通常敵（2-1より密度高め）
+  // 通常敵（2-1より密度高め・土管の中には置かない）
   [{x:350,t:'goomba'},{x:500,t:'goomba'},{x:750,t:'koopa'},
    {x:1000,t:'goomba'},{x:1100,t:'goomba'},{x:1350,t:'koopa'},
    {x:1550,t:'goomba'},{x:1650,t:'goomba'},{x:1850,t:'koopa'},{x:2050,t:'goomba'},{x:2250,t:'goomba'},
-   {x:2700,t:'goomba'},{x:2800,t:'goomba'},{x:3000,t:'koopa'},{x:3250,t:'goomba'},{x:3300,t:'goomba'},{x:3550,t:'koopa'},{x:3680,t:'goomba'},{x:4392,t:'goomba'},
+   {x:2700,t:'goomba'},{x:2800,t:'goomba'},{x:3000,t:'koopa'},{x:3250,t:'goomba'},{x:3380,t:'goomba'},{x:3550,t:'koopa'},{x:3680,t:'goomba'},{x:4392,t:'goomba'},
    {x:4500,t:'goomba'},{x:4650,t:'goomba'},{x:4750,t:'koopa'},{x:5050,t:'goomba'},{x:5150,t:'goomba'},{x:5300,t:'koopa'},{x:5650,t:'goomba'},{x:5800,t:'goomba'},
    {x:6200,t:'goomba'},{x:6350,t:'goomba'},{x:6500,t:'koopa'},{x:6600,t:'goomba'},{x:6750,t:'goomba'},{x:6900,t:'koopa'},{x:7050,t:'goomba'}
   ].forEach(({x,t})=>{
@@ -114,13 +114,13 @@ export function buildLevel_2_2(){
 
   // パラクーパは削除（敵密度調整）
 
-  // 飛び跳ねるブロック（12体、2-1より多め）
-  [{x:450},{x:900},{x:1450},{x:2000},{x:2700},{x:3300},{x:4000},{x:4600},{x:5100},{x:5700},{x:6300},{x:6800}].forEach(({x})=>{
+  // 飛び跳ねるブロック（12体、2-1より多め・CP(4000)±300には置かない＝復帰直後の即死防止）
+  [{x:450},{x:900},{x:1450},{x:2000},{x:2700},{x:3300},{x:3650},{x:4600},{x:5100},{x:5700},{x:6300},{x:6800}].forEach(({x})=>{
     jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,jumpTimer:60+Math.floor(Math.random()*40),alive:true});
   });
 
-  // パイポ（14体、2-1より多め）
-  [{x:600},{x:1100},{x:1600},{x:2300},{x:2850},{x:3150},{x:3600},{x:4050},{x:4550},{x:5050},{x:5450},{x:5850},{x:6250},{x:6750}].forEach(({x})=>{
+  // パイポ（14体、2-1より多め・CP(4000)±300には置かない）
+  [{x:600},{x:1100},{x:1600},{x:2300},{x:2850},{x:3150},{x:3600},{x:3550},{x:4550},{x:5050},{x:5450},{x:5850},{x:6250},{x:6750}].forEach(({x})=>{
     pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy:-6,alive:true,bounceCount:0});
   });
 
@@ -156,10 +156,10 @@ pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 
 // ★ 新敵（CP後・赤パタパタ水平飛行）
 enemies.push({x:5150,y:H-5*TILE,w:TILE,h:TILE*1.2,vx:1.8,vy:0,alive:true,type:'parakoopaR',state:'walk',flying:true,baseX:5150,baseY:H-5*TILE,range:100,shellTimer:0,walkFrame:0,walkTimer:0,facing:1});
-// ★ ボム兵（CP後）
-enemies.push({x:4400,y:H-2*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'bobomb',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1,litTimer:0});
-// ★ ポケッキー（CP後・砂漠サボテン）
-enemies.push({x:5700,y:H-4*TILE,w:TILE,h:TILE*3,vx:-0.8,vy:0,alive:true,type:'pokey',state:'walk',segments:3,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+// ★ ボム兵（CP後・クリボー4392と重ならない位置）
+enemies.push({x:4580,y:H-2*TILE,w:TILE,h:TILE,vx:-1.2,vy:0,alive:true,type:'bobomb',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1,litTimer:0});
+// ★ ポケッキー（CP後・砂漠サボテン。土管5700の左）
+enemies.push({x:5560,y:H-4*TILE,w:TILE,h:TILE*3,vx:-0.8,vy:0,alive:true,type:'pokey',state:'walk',segments:3,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:3400,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});

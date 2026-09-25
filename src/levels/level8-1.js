@@ -88,7 +88,7 @@ export function buildLevel_8_1(){
 
   // 隠し1UP
   platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:2000, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:2100, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0}); // 旧2000は浮きキャノン(2000,H-9T)と同位置。レンガ列2100(H-5T)の上から叩ける位置へ（高空コイン2060/2180の間）
   platforms.push({x:3700, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 
   // ── 移動足場（ギャップ越え）──
@@ -100,7 +100,7 @@ export function buildLevel_8_1(){
   // 高台キャノン: addRow(350,H-5T)上 と addRow(900,H-5T)上
   cannons.push({x:390,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:280,timer:40});  // Ship A 高台(H-5T列の上)
   cannons.push({x:940,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:260,timer:100}); // Ship A 高台(H-5T列の上)
-  cannons.push({x:2000, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:250,timer:60}); // CP手前:上部配置
+  cannons.push({x:2540, y:H-TILE*9,w:TILE,h:TILE*2,fireRate:250,timer:60}); // Ship B addRow(2500,H-7T)上（旧2000はCP(2200)から200px・ルール⑥ → 340px）
   cannons.push({x:2800, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:130});
   cannons.push({x:4000, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:260,timer:80});
   // +5基
@@ -112,7 +112,7 @@ export function buildLevel_8_1(){
 
   // ── 土管（パックン付き）──
   pipes.push({x:800,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
-  pipes.push({x:2300, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  pipes.push({x:2520, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0}); // 旧2300はパックンがCP(2200)から124px（ルール⑥）→ パックン2544でCPから344px
   pipes.push({x:3600, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   piranhas.push({x:pipes[0].x+24,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
   piranhas.push({x:pipes[1].x+24,baseY:pipes[1].y,y:pipes[1].y,w:16,h:TILE,phase:1.5,alive:true,maxUp:TILE*1.5});
@@ -131,13 +131,15 @@ export function buildLevel_8_1(){
   });
 
   // ノコノコ ×5
-  [650, 1700, 2700, 3500, 4300].forEach(ex=>{
+  // 560: 旧650 は装飾土管(600-664)の中にスポーンしていたので土管の左へ
+  [560, 1700, 2700, 3500, 4300].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // メット（buzzy）×4
-  [850, 1880, 3200, 4050].forEach(ex=>{
+  // 880: 旧850 は土管(800-864)の中にスポーンしていたので土管の右へ
+  [880, 1880, 3200, 4050].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
@@ -159,7 +161,7 @@ export function buildLevel_8_1(){
   for(let j=0;j<5;j++)  coinItems.push({x:800+j*76,  y:H-3*TILE,collected:false});  // Ship A後半(780-1200)
   for(let j=0;j<18;j++) coinItems.push({x:1470+j*78, y:H-3*TILE,collected:false}); // Ship B
   for(let j=0;j<16;j++) coinItems.push({x:3170+j*76, y:H-3*TILE,collected:false}); // Ship C
-  for(let j=0;j<8;j++)  coinItems.push({x:4620+j*70, y:H-3*TILE,collected:false}); // Landing
+  for(let j=0;j<8;j++)  coinItems.push({x:4620+j*58, y:H-3*TILE,collected:false}); // Landing（旗5040より手前）
   // ③ クラスター：ギャップ際コイン群（旧③の退屈ラインを一部置換）
   // gap1(1200-1450)際：左端縦列
   [1160,1170,1180].forEach(cx=>[H-3*TILE,H-4*TILE,H-5*TILE].forEach(cy=>coinItems.push({x:cx,y:cy,collected:false}))); // 9枚

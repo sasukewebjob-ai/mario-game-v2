@@ -6,6 +6,8 @@ npm run dev     # 開発サーバー（ホットリロード）http://localhost:
 npm run build   # ビルド確認
 npm run deploy  # GitHub Pages デプロイ（masterにpushしただけでは反映されない）
 npm test        # 操作性・回帰・メニュー/セーブ・全ステージのスモークテスト（変更後は必ず実行）
+node tools/check-geometry.mjs   # 配置検査（部分重なり・土管/ブロック内の敵やアイテム・CP近くの危険物など）
+node tools/deep-test.mjs        # 無敵走破・全土管・モンキー・長時間（瞬間移動・部屋の外・めり込み等を検知）
 ```
 公開URL: https://sasukewebjob-ai.github.io/mario-game-v2/
 
@@ -54,11 +56,21 @@ src/
 | ⑧ | ステージが短い場合 `flagPole.x` をレベルファイル内で明示的に設定 |
 | ⑨ | ドッスン（thwomp）の x〜x+64 の真下にブロックを置かない |
 | ⑩ | 新配列を globals.js に追加したら enterUnderground/exitUnderground の savedOW にも追加 |
+| ⑪ | 敵を階段・ブロック・土管の中に置かない（押し出されてワープする。城の大階段の敵はアリーナへ侵入した） |
+| ⑫ | ?ブロック・隠しブロックの真下に足場を置かない（下から叩けない）。土管（天井土管含む）の中にも置かない |
+| ⑬ | 移動足場の往復範囲にブロック・土管を入れない（乗っているマリオが挟まる） |
+| ⑭ | 旗竿の位置に階段などを重ねない（addStair(x,n) は x〜x+n*32 を占める。最後の段の右端に注意） |
 
-## 入力・タイマーのルール
+⑪〜⑭と①⑤⑥は `node tools/check-geometry.mjs` で検出できる（変更後は 0 件を確認）。
+
+## 入力・タイマー・敵処理のルール
 
 - キーを直接見ない: 押下中は `act('jump')` など、ジャンプは `queueJump()`（キーコンフィグ・タッチ・パッドが共通で効く）
 - ゲーム状態を変える処理に setInterval / setTimeout を使わない（フレームで数える。`startLevelTimer()` / `G.deathTimer`）
+- 敵・弾と地形の当たり判定は `_solidsNear(x)` で近くの足場だけを取る（`[...platforms,...pipes]` を毎回コピーしない）
+- 新しい攻撃手段で敵を倒すときは `_enemyHit(e,'種類')` を通す（ドッスン/テレサ無効・チャックはHP制・カロンは崩れる等の耐性が共通）
+- ステージ・地下・EX は組み立て直後に `sanitizeLevel()` が埋まったコインを取れる位置へ移す（データ側の検査は tools で）
+- main.js は1行が長いので、スクリプトで書き換えるとき行の途中に `//` コメントを入れない（行の残りがコメントになり壊れる。`/* */` を使う）
 - 詳細は `docs/systems-reference.md` の「入力・操作感」「メニュー・設定」「セーブ」「タイマー」
 
 ## killMario(force) — 使い分けに注意

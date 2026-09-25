@@ -86,7 +86,7 @@ export function buildLevel_8_2(){
   // Ship C
   platforms.push({x:2580,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2580>2560 ✓
   platforms.push({x:2810,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 2810>2796 ✓
-  platforms.push({x:3170,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3170>3164(pipe right edge) — pipe右端より後ろに移動(stuck防止)
+  platforms.push({x:3170,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3170>3164(旧pipe3100の右端)。pipeは3280へ移設済み・真下は地面のみ
   // Ship D
   platforms.push({x:3890,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 3890>3878 ✓
   platforms.push({x:4110,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // 4110>4096 ✓
@@ -105,7 +105,7 @@ export function buildLevel_8_2(){
   // ── キャノン（11基：うち4基は中段高台設置）──
   // 高台キャノン: addRow(350,H-5T)上 と addRow(1150,H-5T)上
   cannons.push({x:380,  y:H-TILE*7,w:TILE,h:TILE*2,fireRate:260,timer:30});  // Ship A 高台
-  cannons.push({x:800,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:100});
+  cannons.push({x:872,  y:H-TILE*2,w:TILE,h:TILE*2,fireRate:240,timer:100}); // 旧800は装飾土管(800-864)の中 → 土管の右・船Aの端(〜928)へ
   cannons.push({x:1200, y:H-TILE*7,w:TILE,h:TILE*2,fireRate:230,timer:50});  // Ship B 高台
   cannons.push({x:2600, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:220,timer:80});
   cannons.push({x:3400, y:H-TILE*2,w:TILE,h:TILE*2,fireRate:230,timer:120});
@@ -120,7 +120,7 @@ export function buildLevel_8_2(){
   // ── 土管（パックン付き）──
   pipes.push({x:650,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:1800, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
-  pipes.push({x:3100, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  pipes.push({x:3280, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0}); // 旧3100はパックンがCP(3000)から124px（ルール⑥）→ パックン3304でCPから304px
   pipes.push({x:4100, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   piranhas.push({x:pipes[0].x+24,baseY:pipes[0].y,y:pipes[0].y,w:16,h:TILE,phase:0,  alive:true,maxUp:TILE*1.5});
   piranhas.push({x:pipes[1].x+24,baseY:pipes[1].y,y:pipes[1].y,w:16,h:TILE,phase:1.5,alive:true,maxUp:TILE*1.5});
@@ -134,13 +134,17 @@ export function buildLevel_8_2(){
   // チェックポイント x=3000 から±300px: 2700〜3300 には敵を置かない
 
   // ノコノコ ×6
-  [500, 1200, 1500, 2500, 3400, 4200].forEach(ex=>{
+  // 2650: 旧2500 はチャック2500・キャノン2510と同じ場所に重なっていたので分離（CP3000から350px）
+  // 740: 旧500 は低いレンガ段 addRow(500,H-3T,2) に16px埋まっていた → 土管650-714と装飾土管800の間
+  [740, 1200, 1500, 2650, 3400, 4200].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });
 
   // メット（buzzy）×5
-  [600, 1400, 2104, 3350, 4400].forEach(ex=>{
+  // 2040: 旧2104 は穴(2112-2464)の縁で足場8pxだけだったので船Bの甲板の上へ
+  // 1600: 旧1400 はチャック1380と重なっていた
+  [600, 1600, 2040, 3350, 4400].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
@@ -198,7 +202,8 @@ export function buildLevel_8_2(){
   // ★ ハンマースーツ
   platforms.push({x:4400,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // チャージングチャック ×3（checkpoint±300: 2700〜3300禁止 ✓）
-  [{x:1380,facing:-1},{x:2500,facing:-1},{x:3450,facing:-1}].forEach(d=>{
+  // 2560: 旧2500 はノコノコ・キャノン2510と重なっていたので、キャノン2510と2600の間へ
+  [{x:1380,facing:-1},{x:2560,facing:-1},{x:3450,facing:-1}].forEach(d=>{
     enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,
       type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0});
   });

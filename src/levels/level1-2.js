@@ -22,15 +22,15 @@ addRow(800,H-7*TILE,3,'brick');addRow(864,H-11*TILE,2,'q');
 // Zone 2
 addRow(1024,H-5*TILE,1,'q');addRow(1152,H-9*TILE,1,'q');
 addRow(1280,H-5*TILE,2,'brick');
-addRow(1440,H-3*TILE,3,'g');addRow(1600,H-5*TILE,3,'g');
+addRow(1464,H-3*TILE,3,'g');addRow(1600,H-5*TILE,3,'g'); // 1464: ワープ土管(1400-1464)と重ねない
 addRow(1920,H-7*TILE,2,'q');addRow(2000,H-5*TILE,3,'brick');
 // Zone 3
 addRow(2200,H-5*TILE,1,'q');addRow(2300,H-9*TILE,2,'brick');
-addRow(2500,H-5*TILE,3,'brick');addRow(2600,H-9*TILE,1,'q');
+addRow(2500,H-5*TILE,3,'brick');addRow(2560,H-9*TILE,1,'q'); // ?はピノキオ天井土管(2600-2664)の外へ
 addRow(2800,H-3*TILE,3,'g');addRow(2900,H-5*TILE,3,'g');addRow(3000,H-7*TILE,3,'g');
 addRow(3100,H-5*TILE,2,'q');
 // Zone 4
-addRow(3500,H-5*TILE,3,'brick');addRow(3700,H-9*TILE,2,'q',true);addStairD(3900,5);
+addRow(3500,H-5*TILE,3,'brick');addRow(3700,H-9*TILE,2,'q',true);addStairD(3900,4); // 下り階段4段(3900-4028)。5段だとワープ土管(4050)に重なる
 // Zone 5
 addRow(4100,H-5*TILE,4,'brick');addRow(4200,H-9*TILE,2,'q');
 addRow(4500,H-9*TILE,3,'brick');addStair(4700,6);
@@ -42,11 +42,11 @@ addRow(5900,H-5*TILE,2,'q',true);addRow(6050,H-9*TILE,2,'brick');
 addRow(6200,H-5*TILE,3,'brick');addRow(6300,H-9*TILE,2,'q');
 addStair(6700,8);addRow(7000,H-5*TILE,2,'q');
 // Block height variety
-addRow(400,H-4*TILE,2,'brick');addRow(1800,H-6*TILE,3,'brick');
+addRow(352,H-4*TILE,2,'brick');addRow(1800,H-6*TILE,3,'brick'); // x=352: ?(416)の真下をふさがない位置
 addRow(3800,H-8*TILE,2,'q');addRow(5000,H-6*TILE,2,'brick');
 
-// Pipes
-[[700,2,false],[1400,3,'pipeGrass2'],[2200,2,false],[4050,3,'mushroom'],[5700,2,false],[6300,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
+// Pipes（先頭のパックン土管は階段(640-768)に埋まらないよう 700→840）
+[[840,2,false],[1400,3,'pipeGrass2'],[2200,2,false],[4050,3,'mushroom'],[5700,2,false],[6300,2,false],[7200,4,false]].forEach(([px,ph,warp])=>{
 pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
 // Piranhas
 pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
@@ -59,32 +59,32 @@ pipes.forEach((p,i)=>{if(p.isWarp)return;piranhas.push({x:p.x+24,baseY:p.y,y:p.y
 [{x:5000,y:H-3*TILE},{x:5000,y:H-4*TILE},{x:5000,y:H-5*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
 // Risk coins
 [{x:6000,y:H-2*TILE},{x:6050,y:H-2*TILE},{x:6100,y:H-11*TILE},{x:6150,y:H-11*TILE}].forEach(c=>coinItems.push({...c,collected:false}));
-// Trail coins near pipe
-for(let j=0;j<4;j++)coinItems.push({x:670+j*30,y:H-3*TILE,collected:false});
+// Stair coins（階段640の各段の上）
+for(let j=0;j<4;j++)coinItems.push({x:648+j*32,y:H-(3+j)*TILE,collected:false});
 // Spread coins + gap arches
 for(let i=0;i<30;i++)coinItems.push({x:200+i*230,y:H-10*TILE,collected:false});
 gaps.forEach(g=>{const cx=(g.s+g.e)/2;for(let j=0;j<8;j++){const a=Math.PI*j/7;coinItems.push({x:cx-50+j*14,y:H-5*TILE-Math.sin(a)*60,collected:false})}});
 // Extra coins to reach 300+
-for(let i=0;i<220;i++)coinItems.push({x:120+i*34,y:H-6*TILE,collected:false});
-// Enemies（密度バランス調整: 89→60前後、CLAUDE.md⑤遵守でx>=350）
+for(let i=0;i<220;i++)coinItems.push({x:120+i*33,y:H-6*TILE,collected:false}); // 間隔33で最後(x=7347)も旗(7500)の手前
+// Enemies（密度バランス調整: 89→60前後、CLAUDE.md⑤遵守でx>=350。土管・階段(640/4700/6700)の中には置かない）
 [{x:400,t:'goomba'},{x:480,t:'koopa'},
-{x:550,t:'goomba'},{x:680,t:'koopa'},{x:780,t:'goomba'},
+{x:550,t:'goomba'},{x:600,t:'koopa'},{x:780,t:'goomba'},
 {x:1050,t:'goomba'},{x:1150,t:'koopa'},
-{x:1300,t:'koopa'},{x:1350,t:'goomba'},{x:1450,t:'koopa'},
-{x:1650,t:'koopa'},{x:1750,t:'goomba'},{x:1950,t:'hammerBro'},
-{x:2050,t:'goomba'},{x:2150,t:'koopa'},{x:2250,t:'goomba'},{x:2350,t:'koopa'},
+{x:1300,t:'koopa'},{x:1350,t:'goomba'},{x:1470,t:'koopa'},
+{x:1600,t:'koopa'},{x:1750,t:'goomba'},{x:1950,t:'hammerBro'},
+{x:2050,t:'goomba'},{x:2150,t:'koopa'},{x:2270,t:'goomba'},{x:2350,t:'koopa'},
 {x:2450,t:'buzzy'},{x:2650,t:'koopa'},{x:2800,t:'buzzy'},
 {x:2900,t:'koopa'},{x:3100,t:'buzzy'},
 {x:3200,t:'hammerBro'},{x:3480,t:'goomba'},
 {x:4120,t:'goomba'},{x:4312,t:'buzzy'},
-{x:4292,t:'goomba'},{x:4720,t:'buzzy'},
-{x:4540,t:'hammerBro'},{x:4600,t:'koopa'},{x:4750,t:'buzzy'},{x:4800,t:'koopa'},
+{x:4250,t:'goomba'},{x:4910,t:'buzzy'},
+{x:4540,t:'hammerBro'},{x:4600,t:'koopa'},{x:5010,t:'buzzy'},{x:4660,t:'koopa'},
 {x:5350,t:'koopa'},{x:5500,t:'koopa'},{x:5600,t:'goomba'},
-{x:5700,t:'hammerBro'},{x:5850,t:'koopa'},
+{x:5780,t:'hammerBro'},{x:5850,t:'koopa'},
 {x:6100,t:'koopa'},
 {x:6200,t:'goomba'},{x:6400,t:'koopa'},{x:6500,t:'buzzy'},
-{x:6700,t:'goomba'},{x:6850,t:'buzzy'},{x:6900,t:'goomba'},
-{x:7100,t:'goomba'},{x:7200,t:'buzzy'},{x:7300,t:'koopa'},
+{x:6980,t:'goomba'},{x:7040,t:'buzzy'},{x:7380,t:'goomba'},
+{x:7100,t:'goomba'},{x:7150,t:'buzzy'},{x:7300,t:'koopa'},
 {x:400,t:'parakoopa'},{x:2500,t:'parakoopa'},{x:5800,t:'parakoopa'},{x:7000,t:'parakoopa'}
 ].forEach(({x,t})=>{
 if(t==='hammerBro'){enemies.push({x,y:H-2.5*TILE,w:TILE,h:TILE*1.3,vx:-0.5+Math.random(),vy:0,alive:true,type:'hammerBro',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,hammerTimer:60+Math.floor(Math.random()*60),jumpTimer:120+Math.floor(Math.random()*80)})}
@@ -95,12 +95,12 @@ else{enemies.push({x,y:H-2*TILE,w:TILE,h:t==='koopa'?TILE*1.2:t==='buzzy'?TILE*0
 // Moving platforms
 movingPlats.push(
 {x:1850,y:H-4*TILE,w:TILE*2.5,h:12,type:'h',ox:1850,range:60,spd:1.8},
-{x:3350,y:H-4*TILE,w:TILE*2.5,h:12,type:'h',ox:3350,range:120,spd:1.5},
+{x:3350,y:H-4*TILE,w:TILE*2.5,h:12,type:'h',ox:3350,range:50,spd:1.5}, // 右端3480: レンガ(3500)の下に潜らない
 {x:4350,y:H-4*TILE,w:TILE*2,h:12,type:'h',ox:4350,range:60,spd:2.0},
 {x:5100,y:H-5*TILE,w:TILE*2.5,h:12,type:'h',ox:5100,range:100,spd:1.8},
 {x:6550,y:H-3*TILE,w:TILE*2,h:12,type:'h',ox:6550,range:100,spd:1.6},
 {x:1700,y:H-7*TILE,w:TILE*2,h:12,type:'v',oy:H-7*TILE,range:80,spd:1.2},
-{x:4600,y:H-4*TILE,w:TILE*2,h:12,type:'v',oy:H-4*TILE,range:100,spd:1.3},
+{x:4520,y:H-4*TILE,w:TILE*2,h:12,type:'v',oy:H-4*TILE,range:80,spd:1.3}, // 天井土管/パックン(4600-4664)の真下を避け、地面にも沈まない範囲
 {x:2400,y:H-8*TILE,w:TILE*2,h:12,type:'fall',fallTimer:0,falling:false,oy:H-8*TILE,vy:0},
 {x:3100,y:H-6*TILE,w:TILE*1.5,h:12,type:'fall',fallTimer:0,falling:false,oy:H-6*TILE,vy:0},
 {x:5400,y:H-6*TILE,w:TILE*1.5,h:12,type:'fall',fallTimer:0,falling:false,oy:H-6*TILE,vy:0},
@@ -136,8 +136,8 @@ pipes.push({x:3350,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 // ★ 上空パタパタ（2段JMP対策、密度調整で2→1）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
 
-// ★ モンテ（CP後・地面突撃）
-enemies.push({x:4800,y:H-2*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,type:'montyMole',state:'hidden',walkFrame:0,walkTimer:0,onGround:false,facing:-1,emergeT:0});
+// ★ モンテ（CP後・地面突撃。階段4700-4892の右）
+enemies.push({x:4960,y:H-2*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,type:'montyMole',state:'hidden',walkFrame:0,walkTimer:0,onGround:false,facing:-1,emergeT:0});
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:2600,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});

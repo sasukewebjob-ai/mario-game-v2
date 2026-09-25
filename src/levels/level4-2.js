@@ -128,13 +128,13 @@ export function buildLevel_4_2(){
 
   // 動く足場（各ギャップに2個・速め）
   movingPlats.push({x:820, y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:820, range:110,spd:1.8,prevX:820});
-  movingPlats.push({x:950, y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:950, range:80, spd:2.2,prevX:950});
+  movingPlats.push({x:950, y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:950, range:65, spd:2.2,prevX:950});  // ★ range 80→65: 右端1111で?ブロック(1115)を貫通しない
   movingPlats.push({x:1270,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1270,range:110,spd:1.8,prevX:1270});
   movingPlats.push({x:1430,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:1430,range:90, spd:2.2,prevX:1430});
   movingPlats.push({x:1870,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:1870,range:110,spd:2.0,prevX:1870});
   movingPlats.push({x:2040,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:2040,range:90, spd:2.4,prevX:2040});
   movingPlats.push({x:2470,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:2470,range:110,spd:2.0,prevX:2470});
-  movingPlats.push({x:2630,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:2630,range:90, spd:2.4,prevX:2630});
+  movingPlats.push({x:2630,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:2630,range:70, spd:2.4,prevX:2630});  // ★ range 90→70: 右端2796でレンガ(2800)を貫通しない
   movingPlats.push({x:3070,y:H-4*TILE,w:TILE*3,h:12,type:'h',ox:3070,range:120,spd:2.0,prevX:3070});
   movingPlats.push({x:3250,y:H-7*TILE,w:TILE*3,h:12,type:'h',ox:3250,range:90, spd:2.6,prevX:3250});
   // ★ 長い動く足場（TILE*5）はユーザー指示で撤去
@@ -148,19 +148,19 @@ export function buildLevel_4_2(){
   movingPlats.push({x:6660,y:H-7*TILE,w:TILE*2,h:12,type:'h',ox:6660,range:60, spd:2.5,prevX:6660});
 
   // 敵（スタート直後 x<600 は安全）
-  // クリボー ×5
-  [700,1150,1272,2300,2900].forEach(x=>{
+  // クリボー ×4（★ 同座標の重なり解消: 700→620 / 2300→2336、96px小島の1150は撤去）
+  [620,1272,2336,2900].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // メット（buzzy）×13（地面10 + ブロック上3）
-  [760,1176,1848,2370,2970, 720,1150,1272,2250,2850].forEach(x=>{
+  // メット（buzzy）×9（地面7 + ブロック上2）
+  // ★ 1848はCP(1700)±300内のため撤去、1150/1272は他の敵と同座標のため撤去
+  [760,1176,2370,2970, 720,2250,2850].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // ブロック上メット×3（Z1@150/Z2@650の2行を削除済み）
+  // ブロック上メット×2（Z1@150/Z2@650の2行を削除済み、1576はCP±300内のため撤去）
   [
-    {x:1576,y:H-8*TILE},  // addRow(1650,H-7T)上付近の足場へ(ギャップ上スポーン修正)
     {x:2232,y:H-6*TILE},  // addRow(2200,H-5T)上
     {x:2832,y:H-8*TILE},  // addRow(2800,H-7T)上
   ].forEach(({x,y})=>{
@@ -213,7 +213,8 @@ export function buildLevel_4_2(){
   G.checkpoint2={x:4600,y:H-TILE,reached:false};
 
   // チェックポイント（Z4地面上）
-  G.checkpoint={x:1800,y:H-TILE,reached:false};
+  // ★ 1800→1700: 右隣の穴(1856〜)まで56pxしかなく、強制スクロールで復帰直後(約4.5秒)に押し出されていた
+  G.checkpoint={x:1700,y:H-TILE,reached:false};
   // ★ ハンマースーツ（★ was x=1200 micro-gap内で取れない → Z5地面x=2370へ移動）
   platforms.push({x:2370,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
   // ★ 装飾土管

@@ -55,7 +55,7 @@ export function buildLevel_5_2(){
   // 移動足場（難易度UP）
   movingPlats.push({x:550, y:H-6*TILE,w:TILE*2,h:12,type:'h',ox:550, range:80, spd:1.4,prevX:550});
   movingPlats.push({x:1500,y:H-7*TILE,w:TILE*2,h:12,type:'v',ox:1500,range:70, spd:1.5,prevX:1500,oy:H-7*TILE});
-  movingPlats.push({x:2700,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:2700,range:90, spd:1.6,prevX:2700});
+  movingPlats.push({x:2700,y:H-5*TILE,w:TILE*2,h:12,type:'h',ox:2700,range:38, /* ★90→38: 左端で岩礁(2596-2660)を通り抜けていた */ spd:1.6,prevX:2700});
   movingPlats.push({x:3500,y:H-8*TILE,w:TILE*2,h:12,type:'v',ox:3500,range:80, spd:1.8,prevX:3500,oy:H-8*TILE});
   movingPlats.push({x:4200,y:H-6*TILE,w:TILE*2,h:12,type:'h',ox:4200,range:75, spd:1.7,prevX:4200});
   movingPlats.push({x:5500,y:H-7*TILE,w:TILE*2,h:12,type:'h',ox:5500,range:100,spd:2.0,prevX:5500});
@@ -85,7 +85,7 @@ export function buildLevel_5_2(){
   // 土管アーチ
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:2016+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:4816+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
-  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:7216+i*32,y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
+  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:7120+i*32, /* ★7216→7120: 右2枚が旗(7200)の先で取れなかった */y:H-10*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   // ★ ルール⑦対応の増量（水中遊泳ライン4本 + 縦列4本 + アーチ2基、岩礁と非重複）
   for(let x=400;x<=6900;x+=96) coinItems.push({x,y:H-12*TILE,collected:false,pop:false});
   for(let x=600;x<=1900;x+=64) coinItems.push({x,y:H-6*TILE,collected:false,pop:false});
@@ -105,7 +105,7 @@ export function buildLevel_5_2(){
   platforms.push({x:6300,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
   // かくし1UP
   platforms.push({x:900, y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:4000,y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:4100,y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0}); // ★4000→4100: 天井土管(4000-4064, y0-192)の中に埋まっていた
   platforms.push({x:6700,y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 
   // キノコブロック追加
@@ -116,8 +116,8 @@ export function buildLevel_5_2(){
   // チェックポイント
   G.checkpoint={x:3800,y:H-TILE,reached:false};
 
-  // ぷくぷく横
-  [{x:300, y:H-3*TILE,vx:-1.5},{x:600, y:H-5*TILE,vx:-1.75},
+  // ぷくぷく横（★先頭 300→450: スポーン帯 x<350 に置かない）
+  [{x:450, y:H-3*TILE,vx:-1.5},{x:600, y:H-5*TILE,vx:-1.75},
    {x:900, y:H-4*TILE,vx:-1.4},{x:1300,y:H-6*TILE,vx:-1.6},
    {x:1900,y:H-3*TILE,vx:-1.75},{x:2400,y:H-5*TILE,vx:-1.5},
    {x:2900,y:H-4*TILE,vx:-1.9},{x:3400,y:H-6*TILE,vx:-1.5},
@@ -148,7 +148,7 @@ export function buildLevel_5_2(){
 
   // ファイアフラワー（固定設置・一定間隔でファイア）
   [{x:450, y:H-6*TILE},{x:1100,y:H-5*TILE},
-   {x:2200,y:H-9*TILE},{x:3000,y:H-8*TILE},
+   {x:2296,y:H-9*TILE},{x:3096,y:H-8*TILE}, // ★2200/3000→2296/3096: 天井土管の中にあった
    {x:4120,y:H-5*TILE},{x:4700,y:H-7*TILE},
    {x:5400,y:H-9*TILE},{x:6100,y:H-6*TILE},
    {x:7000,y:H-5*TILE}
@@ -163,13 +163,14 @@ platforms.push({x:1000,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHa
 platforms.push({x:2500,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 platforms.push({x:3500,y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
 platforms.push({x:5500,y:H-10*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
-platforms.push({x:4500,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0});
+platforms.push({x:4450,y:H-7*TILE, w:TILE,h:TILE,type:'question',hit:false,hasMega:true,bounceOffset:0}); // ★4500→4450: addRow(4500,H-6T)の真上に乗っていて下から叩けなかった（水中はヒップドロップ不可）
 // ★ 装飾土管
 pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
 pipes.push({x:4000,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:2200,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:5800,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
-piranhas.push({x:4024,baseY:6*TILE,y:6*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
+// ★天井パックンは 4000(4024) → 5800(5824) の土管へ: 4024 はチェックポイント(3800)から224pxでルール⑥違反
+piranhas.push({x:5824,baseY:5*TILE,y:5*TILE,w:16,h:TILE,phase:piranhas.length*0.7,alive:true,maxUp:TILE*1.5,ceiling:true});
 pipes.push({x:1050,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 pipes.push({x:3350,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 // ★ 上空パタパタ（2段JMP対策）

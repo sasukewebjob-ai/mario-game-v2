@@ -29,7 +29,7 @@ export function buildLevel_3_1(){
   // Zone 1 (0-2000) — wave-like height profile
   addRow(300,H-5*TILE,3,'brick');           // x:300,332,364
   addRow(500,H-4*TILE,2,'brick');           // low wave crest
-  addRow(650,H-7*TILE,2,'q');               // x:650,682 (620はpush)
+  addRow(650,H-7*TILE,2,'q');               // x:650,682 (618はpush)
   addRow(850,H-6*TILE,2,'brick');           // mid wave
   addRow(1050,H-5*TILE,4,'brick');          // x:1050..1146
   addRow(1250,H-8*TILE,2,'brick');          // high wave peak
@@ -43,12 +43,12 @@ export function buildLevel_3_1(){
   addRow(3000,H-6*TILE,2,'brick');          // mid wave
   addRow(3150,H-5*TILE,3,'brick');          // x:3150,3182,3214
   addRow(3350,H-8*TILE,2,'brick');          // high wave peak
-  addRow(3500,H-8*TILE,1,'q');              // x:3500 (3470はpush)
+  addRow(3500,H-8*TILE,1,'q');              // x:3500 (3468はpush)
 
   // Zone 3 (4150-5300) — wave-like height profile
   addRow(4220,H-5*TILE,4,'brick');          // x:4220..4316
   addRow(4420,H-4*TILE,2,'brick');          // low wave crest
-  addRow(4650,H-7*TILE,2,'q');              // x:4650,4682 (4620はpush)
+  addRow(4650,H-7*TILE,2,'q');              // x:4650,4682 (4618はpush)
   addRow(4800,H-6*TILE,2,'brick');          // mid wave
   addRow(4980,H-5*TILE,3,'brick');          // x:4980,5012,5044
   addRow(5150,H-8*TILE,2,'brick');          // high wave peak
@@ -56,7 +56,7 @@ export function buildLevel_3_1(){
   // Zone 4 (5650-6700) — wave-like height profile
   addRow(5720,H-5*TILE,4,'brick');          // x:5720..5816
   addRow(5900,H-4*TILE,2,'brick');          // low wave crest
-  addRow(6050,H-8*TILE,1,'q');              // x:6050 (6020はpush)
+  addRow(6050,H-8*TILE,1,'q');              // x:6050 (6018はpush)
   addRow(6200,H-6*TILE,2,'brick');          // mid wave
   addRow(6400,H-5*TILE,3,'brick');          // x:6400,6432,6464
 
@@ -65,12 +65,13 @@ export function buildLevel_3_1(){
   addStair(7250,6);
 
   // 特殊ブロック (pushのみ、addRowと座標重複なし)
+  // ★ 620/3470/4620/6020 は隣のaddRowブロックと2px重なっていたため 2px 左へ（618/3468/4618/6018）
   platforms.push({x:250,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
-  platforms.push({x:620,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:618,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:1370,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:3470,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-  platforms.push({x:4620,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:6020,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:3468,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  platforms.push({x:4618,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:6018,y:H-8*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
   // チェックポイント(x=4200)周辺 — gap終端(x=4150)直後にきのこ×2、スター×1
   // x=4155: gap end直後の地面上、addRow(4220,H-5T)とは別y
   // x=4350: addRow(4220,H-5T)終端x=4316より右、addRow(4420,H-4T)のx=4420,4452とは別
@@ -79,7 +80,9 @@ export function buildLevel_3_1(){
   platforms.push({x:4250,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
 
   // パイプ (ワープ×2: river1/river2、通常×1)
-  [[700,2,'river1'],[2600,2,'pipeRiver1'],[4700,2,false],[5300,3,'yoshi3']].forEach(([px,ph,warp])=>{
+  // ★ yoshi3 は x=5300 だと右側がギャップ(5312-)上に浮き、支えが12pxしかなかった → 地面上の x=4900 へ
+  //    （5000-5300 は重力反転ゾーンなので、その中に置くと土管の上に立てない）
+  [[700,2,'river1'],[2600,2,'pipeRiver1'],[4700,2,false],[4900,3,'yoshi3']].forEach(([px,ph,warp])=>{
     pipes.push({x:px,y:H-TILE-ph*TILE,w:TILE*2,h:ph*TILE,bounceOffset:0,isWarp:!!warp,variant:warp||null})});
   pipes.forEach((p,i)=>{if(p.isWarp)return;
     piranhas.push({x:p.x+24,baseY:p.y,y:p.y,w:16,h:TILE,phase:i*1.5,alive:true,maxUp:TILE*1.5})});
@@ -117,15 +120,16 @@ export function buildLevel_3_1(){
   // Total: 実測302（tools/count-coins.mjs で検証）
 
   // 地上敵 (goomba / koopa / cactus)
-  [{x:400,t:'goomba'},{x:560,t:'cactus'},
+  // ★ サボテン(高さ4マス)が低いレンガに埋まっていたので横へ: 560→568 / 2660→2720 / 5760→5856 / 6460→6500
+  [{x:400,t:'goomba'},{x:568,t:'cactus'},
    {x:900,t:'koopa'},{x:1100,t:'goomba'},{x:1260,t:'cactus'},{x:1560,t:'koopa'},
-   {x:2500,t:'goomba'},{x:2660,t:'cactus'},{x:2900,t:'koopa'},
+   {x:2500,t:'goomba'},{x:2720,t:'cactus'},{x:2900,t:'koopa'},
    {x:3200,t:'goomba'},{x:3420,t:'cactus'},
    {x:4520,t:'goomba'},{x:4620,t:'cactus'},{x:4780,t:'koopa'},
    {x:5060,t:'goomba'},
-   {x:5760,t:'cactus'},{x:5920,t:'koopa'},{x:6060,t:'goomba'},
-   {x:6460,t:'cactus'},{x:6600,t:'goomba'},
-   {x:6692,t:'goomba'},{x:7160,t:'koopa'},{x:7310,t:'cactus'}
+   {x:5856,t:'cactus'},{x:5920,t:'koopa'},{x:6060,t:'goomba'},
+   {x:6500,t:'cactus'},{x:6600,t:'goomba'},
+   {x:6692,t:'goomba'},{x:7160,t:'koopa'},{x:7210,t:'cactus'}  // ★ cactus 7310→7210: 旧位置はゴール前の階段(7250-)に埋まっていた
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0};
@@ -164,11 +168,11 @@ pipes.push({x:1050,y:0,w:TILE*2,h:6*TILE,bounceOffset:0,isWarp:false,ceiling:tru
 pipes.push({x:2700,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
 // ★ 上空パタパタ（2段JMP対策）
 enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
-enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
+enemies.push({x:4550,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0}); // ★ 4300→4550（CP4200±300外へ）
 
-// ★ 新敵（CP後・ヘイホー×2）
-enemies.push({x:4450,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'red',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
-enemies.push({x:5050,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'blue',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+// ★ 新敵（CP後・ヘイホー×2）※ 4450→4840（CP4200±300外へ）/ 5050→5150（クリボー5060との重なり解消）
+enemies.push({x:4840,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'red',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+enemies.push({x:5150,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'shyGuy',state:'walk',variant:'blue',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 
 // ピノキオ部屋ワープ天井パイプ（1ステージに1本）
 pipes.push({x:3600,y:0,w:TILE*2,h:8*TILE,bounceOffset:0,isWarp:true,ceiling:true,variant:'pinocchio'});

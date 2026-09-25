@@ -28,7 +28,7 @@ export function buildLevel_5_1(){
   // 岩礁（水中のプラットフォーム）
   addRow(320,  H-4*TILE, 5, 'g');   // x=320〜448
   addRow(900,  H-6*TILE, 4, 'g');   // x=900〜1024
-  addRow(1650, H-5*TILE, 5, 'g');   // x=1650〜1778
+  addRow(1650, H-5*TILE, 4, 'g');   // x=1650〜1778（★5個だと末端1778-1810がワープ土管1800に10px重なっていた）
   addRow(2600, H-4*TILE, 6, 'g');   // x=2600〜2760
   addRow(3400, H-7*TILE, 4, 'g');   // x=3400〜3524
   addRow(4050, H-5*TILE, 5, 'g');   // x=4050〜4178
@@ -73,7 +73,7 @@ export function buildLevel_5_1(){
   // 土管周りのコインアーチ
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:1816+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   [-2,-1,0,1,2].forEach(i=>coinItems.push({x:4416+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
-  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:6916+i*32,y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
+  [-2,-1,0,1,2].forEach(i=>coinItems.push({x:6820+i*32, /* ★6916→6820: 右2枚が旗(6900)の先で取れなかった */y:H-9*TILE+Math.abs(i)*TILE,collected:false,pop:false}));
   // ★ ルール⑦対応の増量（水中遊泳ライン5本 + 縦列5本、岩礁と非重複）
   for(let x=600;x<=1600;x+=64) coinItems.push({x,y:H-5*TILE,collected:false,pop:false});
   for(let x=2200;x<=4300;x+=64) if(x<3376||x>3524) coinItems.push({x,y:H-7*TILE,collected:false,pop:false}); // 岩礁3400-3524を回避
@@ -87,7 +87,7 @@ export function buildLevel_5_1(){
   // はてなブロック（特殊ブロックはpushのみ）
   platforms.push({x:600,  y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:2300, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:3600, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
+  platforms.push({x:3700, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0}); // ★3600→3700: 天井ピノキオ土管(3600-3664, y0-256)の中にあり、泳いで近づくと先に土管へ吸い込まれていた
   platforms.push({x:5200, y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   // かくし1UP
   platforms.push({x:6100,y:H-12*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
@@ -121,7 +121,8 @@ export function buildLevel_5_1(){
    {x:5800,baseY:H-5*TILE,range:55,phase:0.4},
   ].forEach(d=>enemies.push({x:d.x,y:d.baseY,baseY:d.baseY,range:d.range,phase:d.phase,w:24,h:20,type:'cheepV',alive:true,activated:true}));
   // ゲッソー（水中追跡・チェックポイント±300外）
-  [{x:1500,y:H-5*TILE},{x:2600,y:H-7*TILE},{x:3700,y:H-5*TILE},
+  // ★3700→4250: チェックポイント(3500)から200pxだった
+  [{x:1500,y:H-5*TILE},{x:2600,y:H-7*TILE},{x:4250,y:H-5*TILE},
    {x:4700,y:H-8*TILE},{x:5600,y:H-6*TILE},{x:6400,y:H-4*TILE}
   ].forEach(d=>enemies.push({x:d.x,y:d.y,w:24,h:20,vx:0,vy:0,type:'blooper',alive:true}));
 

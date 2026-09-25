@@ -69,7 +69,7 @@ export function buildLevel_4_1(){
 
   // Zone 6 (2880-3180): レンガ@2900-2932, Q@3000(H-5T), hidden@3100(H-9T)
   addRow(2900, H-7*TILE, 2,'brick');
-  platforms.push({x:3000, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true, bounceOffset:0});
+  platforms.push({x:3120, y:H-5*TILE, w:TILE,h:TILE,type:'question',hit:false,hasStar:true, bounceOffset:0}); // ★ 3000→3120: 土管(2960-3024)の真上で下から叩けなかった
   platforms.push({x:3060, y:H-9*TILE, w:TILE,h:TILE,type:'hidden', hit:false,has1UP:true, bounceOffset:0}); // ★ was 3100 (pit:3180直前) → 3060へ
 
   // Zone 7 (3500-3760): レンガ + コインブロック（★長尺化で階段を撤去し続行）
@@ -108,7 +108,7 @@ export function buildLevel_4_1(){
   mp(1540, H-6*TILE, TILE*2, 55,  2.2);
   mp(1980, H-3*TILE, TILE*6, 85,  1.3);
   mp(2110, H-6*TILE, TILE*2, 50,  2.1);
-  mp(2600, H-4*TILE, TILE*3, 100, 1.7);
+  mp(2600, H-4*TILE, TILE*3, 96,  1.7);  // ★ range 100→96: 左端が土管(2440-2504)に食い込んでいた
   mp(2740, H-7*TILE, TILE*2, 60,  2.3);
   mp(3200, H-4*TILE, TILE*3, 88,  1.5);
   mp(3310, H-6*TILE, TILE*2, 65,  2.1);
@@ -164,19 +164,22 @@ export function buildLevel_4_1(){
 
   // 敵（x<600 はスタート安全圏）
   // クリボー ×5
-  [690,1240,1400,2350,3060].forEach(x=>{
+  [690,1240,1400,2400,3060].forEach(x=>{  // ★ 2350→2400: チャック2350と同座標だった
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,
       type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // メット（buzzy）×15（地面10 + ブロック上5）
-  [810,1254,2240,2520,3130, 650,1200,1400,2280,2960].forEach(x=>{
+  // メット（buzzy）×15（地面9 + ブロック上6）
+  // ★ 同座標の重なり解消: 650→850（チャック650）/ 1400→7150（クリボー1400）/ 1200→レンガ上1136へ（チャック1200）
+  // ★ 2960→2900: 土管(2960-3024)の中に埋まっていた
+  [810,1254,2240,2520,3130, 850,2280,2900,7150].forEach(x=>{
     enemies.push({x,y:H-2*TILE,w:TILE,h:TILE*0.85,vx:-1.8,vy:0,alive:true,
       type:'buzzy',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false});
   });
-  // ブロック上メット×5
+  // ブロック上メット×6
   [
-    {x:192, y:H-6*TILE},  // addRow(160,H-5T)上
+    {x:5366,y:H-6*TILE},  // addRow(5350,H-5T)上 ★ was 192（addRow(160,H-5T)上＝スポーン地点0-350内）
     {x:632, y:H-7*TILE},  // addRow(600,H-6T)上
+    {x:1136,y:H-6*TILE},  // addRow(1120,H-5T)上 ★ 地上1200（チャックと同座標）から移動
     {x:2292,y:H-6*TILE},  // addRow(2260,H-5T)上
     {x:2932,y:H-8*TILE},  // addRow(2900,H-7T)上
     {x:3556,y:H-6*TILE},  // addRow(3540,H-5T)上
@@ -196,7 +199,8 @@ export function buildLevel_4_1(){
   });
 
   // チャージングチャック（チェックポイント±300外）
-  [{x:650,facing:-1},{x:1200,facing:-1},{x:2350,facing:-1},{x:3000,facing:-1},{x:3550,facing:-1}
+  // ★ 土管に埋まっていたので横へ: 650→656（土管590）/ 1200→1216（土管1150）/ 3000→3166（土管2960）
+  [{x:656,facing:-1},{x:1216,facing:-1},{x:2350,facing:-1},{x:3166,facing:-1},{x:3550,facing:-1}
   ].forEach(d=>enemies.push({x:d.x,y:H-2*TILE-4,w:TILE,h:TILE*1.4,vx:d.facing*1.5,vy:0,alive:true,type:'chuck',state:'idle',facing:d.facing,hp:3,walkFrame:0,walkTimer:0,onGround:false,stunTimer:0}));
 
   // ★ 長尺化エリアの敵（ギャップ外・CP2±300(3920-4520)外）
@@ -241,6 +245,6 @@ export function buildLevel_4_1(){
   pipes.push({x:4750,y:0,w:TILE*2,h:5*TILE,bounceOffset:0,isWarp:false,ceiling:true});
   // 上空パタパタ削減（2体→0）
 
-  // ★ 新敵（CP後・ブル）
-  enemies.push({x:2460,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+  // ★ 新敵（CP後・ブル）※ 2460→2556: 土管(2440-2504)の中に埋まっていた
+  enemies.push({x:2556,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 }

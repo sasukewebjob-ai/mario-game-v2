@@ -27,11 +27,10 @@ windZones.push({x:500, y:0, w:900, h:H, force:-1.5}); // 負=左風（向かい�
 
 ---
 
-## W5 水中城（waterMode + 城）
+## W5 城（5-3）
 
-```javascript
-G.waterMode=true; // 水中城では lavaFlames を全削除する
-```
+実装は `G.waterMode=false`（通常の城）で溶岩の火柱あり。以前の「水中城・火柱全削除」の記述は実装と違っていた。
+火柱は真上にあるブロックの下端で止まる（エンジン側で `capH` を計算）。
 
 ---
 
@@ -95,21 +94,17 @@ bgTheme:'airship' / bgmTheme:'castle'
 
 リセット時（startFromStage/restart/CP復帰）に自動で false に戻る。
 
-### ゴールパイプ方式（8-1, 8-2）
+### ゴール（8-1, 8-2）
 
-```javascript
-pipes.push({x:XXXX, y:H-TILE-3*TILE, w:TILE*2, h:3*TILE,
-  bounceOffset:0, isWarp:true, variant:'airship_goal1'});
-flagPole.x = LW+1000; // flagPole 無効化
-```
-underground.js の `airship_goal1` / `airship_goal2` にゴールパイプ（`isGoalPipe:true`）あり。
+現在は旗ゴール（8-1: `flagPole.x=5040`、8-2: `flagPole.x=5232`）。
+underground.js の `airship_goal1` / `airship_goal2`（ゴールパイプ `isGoalPipe:true`）は現在どのステージからも使われていない。
 
 ### 最終決戦（8-3）
 
 ```javascript
 pipes.push({...isWarp:true, variant:'bowser_final'});
 ```
-- `bowser_final` バリアント: `bowser.state='walk'`（即戦闘）, hp=7, `G.bowserRightX=W-TILE*3`
+- `bowser_final` バリアント: `bowser.state='walk'`（即戦闘）, HP は `BOWSER_STATS[8]`（=5）, `G.bowserRightX=W-TILE*3`
 
 ---
 

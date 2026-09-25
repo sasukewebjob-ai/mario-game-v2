@@ -60,8 +60,8 @@ export function buildLevel_3_3(){
   platforms.push({x:1050,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:2500,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:3200,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:3900,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:4550,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:3932,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★ 3900→3932: レンガ(3896-3928)との重なり解消
+  platforms.push({x:4582,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0}); // ★ 4550→4582: レンガ(4546-4578)との重なり解消
   platforms.push({x:5050,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:5650,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:6000,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
@@ -80,12 +80,12 @@ export function buildLevel_3_3(){
 
   // 地上敵（サボテンはW2テーマのため削除→koopa/goombaに置換）
   [{x:620,t:'goomba'},{x:880,t:'koopa'},
-   {x:1100,t:'koopa'},{x:1380,t:'koopa'},{x:1490,t:'goomba'},{x:1600,t:'goomba'},
+   {x:1100,t:'koopa'},{x:1380,t:'koopa'},{x:1460,t:'goomba'},{x:1600,t:'goomba'},  // ★ goomba 1490→1460: 土管(1500)に埋まっていた
    {x:2200,t:'koopa'},{x:2380,t:'koopa'},{x:2600,t:'hammerBro'},{x:2700,t:'goomba'},
    {x:3416,t:'koopa'},{x:4120,t:'koopa'},{x:4220,t:'koopa'},
    {x:4200,t:'goomba'},{x:4300,t:'goomba'},{x:4700,t:'goomba'},{x:4820,t:'koopa'},
    {x:5500,t:'koopa'},{x:5620,t:'hammerBro'},{x:5740,t:'goomba'},
-   {x:5930,t:'koopa'},{x:6570,t:'koopa'}
+   {x:5930,t:'koopa'}  // ★ x=6570のノコノコは大階段(6400-6720)の中に埋まるため撤去
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1,vy:0,alive:true,type:'goomba',state:'walk',squishT:0,walkFrame:0,walkTimer:0,onGround:false};
@@ -133,7 +133,7 @@ export function buildLevel_3_3(){
     {x:2250,w:16,maxH:90,period:205,phase:50},
     {x:2650,w:16,maxH:80,period:200,phase:80},
     {x:3050,w:16,maxH:85,period:185,phase:160},
-    {x:3760,w:16,maxH:80,period:195,phase:30},
+    {x:4460,w:16,maxH:80,period:195,phase:30},  // ★ 3760→4460: CP(3800)の40px隣で噴いていた
     {x:4150,w:16,maxH:85,period:180,phase:110},
     {x:4650,w:16,maxH:75,period:210,phase:170},
     {x:4980,w:16,maxH:85,period:190,phase:60}
@@ -151,8 +151,9 @@ export function buildLevel_3_3(){
   addRow(6900,H-7*TILE,2,'brick');   // 中段足場（左側）
   addRow(7150,H-6*TILE,2,'brick');   // 中段足場（右側）
   // ★ アリーナ特色: 潮に浮かぶ岩島（垂直移動足場 × 2）
-  movingPlats.push({x:6950,y:H-5*TILE,w:TILE*2,h:12,type:'v',ox:6950,oy:H-5*TILE,range:TILE*2,spd:0.7,prevX:6950});
-  movingPlats.push({x:7200,y:H-6*TILE,w:TILE*2,h:12,type:'v',ox:7200,oy:H-6*TILE,range:TILE*2,spd:0.9,prevX:7200});
+  // ★ x 6950→6968 / 7200→7218: 上下移動の途中でレンガ(6932-6964 / 7182-7214)を貫通していたので右へずらす
+  movingPlats.push({x:6968,y:H-5*TILE,w:TILE*2,h:12,type:'v',ox:6968,oy:H-5*TILE,range:TILE*2,spd:0.7,prevX:6968});
+  movingPlats.push({x:7218,y:H-6*TILE,w:TILE*2,h:12,type:'v',ox:7218,oy:H-6*TILE,range:TILE*2,spd:0.9,prevX:7218});
   // クッパ — 階段頂上をマリオが越えたとき画面右端から登場
   G.bowserArenaX=6655;G.checkpoint2={x:6250,y:H-TILE,reached:false};
   G.bowserLeftX=6786;
@@ -160,7 +161,7 @@ export function buildLevel_3_3(){
     vx:-_bs.speed,vy:0,facing:-1,hurtTimer:0,fireTimer:_bs.fireTimer,jumpTimer:_bs.jumpTimer,
     onGround:false,state:'offscreen',deadTimer:0,fireImmune:_bs.fireImmune,phase:1,phaseTransition:0});
   // ★ ハンマースーツ
-  platforms.push({x:4700,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0});
+  platforms.push({x:4772,y:H-5*TILE,w:TILE,h:TILE,type:'question',hit:false,hasHammer:true,bounceOffset:0}); // ★ 4700→4772: 真下のレンガ(4700,H-4T)で下から叩けなかった
   // ★ 装飾土管
   pipes.push({x:1500,y:H-TILE-2*TILE,w:TILE*2,h:2*TILE,bounceOffset:0,isWarp:false});
   // 城の天井土管は撤去（落とし穴上の火柱との競合回避）

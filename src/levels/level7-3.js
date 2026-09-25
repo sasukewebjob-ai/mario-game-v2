@@ -39,7 +39,7 @@ export function buildLevel_7_3(){
   addRow(2350,H-5*TILE, 3,'brick'); // 2350,2382,2414 → 末端2446（ドッスン2450-2514の下にブロック置かない）
   addRow(2750,H-7*TILE, 3,'brick'); // 2750,2782,2814 → 末端2846
   addRow(3050,H-5*TILE, 4,'brick'); // 3050,3082,3114,3146 → 末端3178
-  addRow(3400,H-7*TILE, 3,'brick'); // 3400,3432,3464 → 末端3496
+  addRow(3300,H-7*TILE, 3,'brick'); // 3300,3332,3364 → 末端3396（以前は3400で天井土管x=3400の口をふさいで入れなかった）
   // Z3: 後半（gap2拡大→Z3開始は4100）
   addRow(4250,H-5*TILE, 2,'brick'); // 4250,4282 → 末端4314（ドッスン4150-4214の右側に退避）
   addRow(4450,H-7*TILE, 3,'brick'); // 4450,4482,4514 → 末端4546
@@ -94,7 +94,8 @@ export function buildLevel_7_3(){
   platforms.push({x:6100, y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
 
   // 土管（パックン付き）
-  pipes.push({x:300,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
+  // 1本目は以前 x=300（スポーン地点0〜350内・ルール⑤違反）→ 720 へ移動（ドッスン650-714の右・地面コイン700/800の間）
+  pipes.push({x:720,  y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:1350, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:2500, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
   pipes.push({x:4500, y:H-3*TILE,w:TILE*2,h:TILE*2,bounceOffset:0});
@@ -123,12 +124,16 @@ export function buildLevel_7_3(){
   // チェックポイント x=3600 から±300px: 3300〜3900 には敵を置かない
 
   // カロン（砦の守護者・チェックポイント±300外）
-  [600, 1200, 2000, 2800, 4200, 5000, 5800, 6200].forEach(ex=>{
+  // 1150: 装飾土管(1200-1264)の中に埋まっていたので左へ / 5840: 旧5800は穴(〜5824)の縁で足場8pxだけ
+  // 6040: 旧6200はCP2(6350)から150px（ルール⑥）→ 310px離す
+  [600, 1150, 2000, 2800, 4200, 5000, 5840, 6040].forEach(ex=>{
     enemies.push({x:ex,y:H-2*TILE,w:TILE,h:TILE*0.9,vx:-1.2,vy:0,alive:true,type:'dryBones',state:'walk',walkFrame:0,walkTimer:0,onGround:false,collapseTimer:0});
   });
 
   // ノコノコ（城内巡回）
-  [550, 900, 1400, 1900, 2500, 3000, 4124, 4700, 5100, 5900, 6670].forEach(ex=>{
+  // 1440/2580: 旧1400/2500 は土管(1350-1414 / 2500-2564)の中にスポーンしていたので土管の右へ
+  // 旧6670 は大階段 addStair(6500,10) の中に埋まり、押し出されてクッパアリーナへ入り込むため撤去
+  [550, 900, 1440, 1900, 2580, 3000, 4124, 4700, 5100, 5900].forEach(ex=>{
     enemies.push({x:ex,y:H-2.5*TILE,w:TILE,h:TILE*1.25,vx:-1.3,vy:0,alive:true,
       type:'koopa',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,onGround:false,facing:-1});
   });

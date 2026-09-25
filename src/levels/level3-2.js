@@ -30,10 +30,10 @@ export function buildLevel_3_2(){
   addRow(300,H-5*TILE,3,'brick');           // x:300,332,364
   addRow(500,H-4*TILE,2,'brick');           // low wave crest
   addRow(632,H-7*TILE,2,'q');               // x:632,664 (600はpush)
-  addRow(800,H-6*TILE,2,'brick');           // mid wave
+  addRow(800,H-7*TILE,2,'brick');           // mid wave ★ H-6T→H-7T: 真下のワープ土管(800,H-4T)との隙間が32pxでデカマリオが乗れなかった
   addRow(950,H-5*TILE,4,'brick');           // x:950..1046
   addRow(1100,H-8*TILE,2,'brick');          // high wave peak
-  addRow(1250,H-8*TILE,1,'q');              // x:1250 (1220はpush)
+  addRow(1250,H-8*TILE,1,'q');              // x:1250 (1218はpush)
   addRow(1400,H-5*TILE,3,'brick');          // x:1400,1432,1464
 
   // Zone 2 (1680-3100) — gap1 now micro, more room
@@ -48,35 +48,36 @@ export function buildLevel_3_2(){
   // Zone 3 (3450-4700) — wave-like height profile
   addRow(3520,H-5*TILE,4,'brick');          // x:3520..3616
   addRow(3700,H-4*TILE,2,'brick');          // low wave crest
-  addRow(3832,H-8*TILE,1,'q');              // x:3832 (3800はpush)
+  addRow(3712,H-8*TILE,1,'q');              // x:3712 ★ was 3832（天井土管3800-3864の中に埋まっていた）
   addRow(3950,H-6*TILE,2,'brick');          // mid wave
   addRow(4100,H-5*TILE,3,'brick');          // x:4100,4132,4164
   addRow(4300,H-8*TILE,2,'brick');          // high wave peak
-  addRow(4450,H-7*TILE,2,'q');              // x:4450,4482 (4420はpush)
+  addRow(4450,H-7*TILE,2,'q');              // x:4450,4482 (4418はpush)
 
   // Zone 4 (5150-5900) — gap3 widened, zone shifted
   addRow(5220,H-5*TILE,4,'brick');          // x:5220..5316
   addRow(5420,H-4*TILE,2,'brick');          // low wave crest
-  addRow(5532,H-9*TILE,1,'q');              // x:5532 (5500はpush)
+  addRow(5464,H-9*TILE,1,'q');              // x:5464 (5432はpush) ★ was 5532/5500（天井土管5500-5564の中に埋まっていた）
   addRow(5650,H-6*TILE,2,'brick');          // mid wave
   addRow(5800,H-5*TILE,2,'brick');          // x:5800,5832
 
   // Zone 5 (6200-6800)
   addRow(6280,H-5*TILE,3,'brick');          // x:6280,6312,6344
-  addRow(6550,H-7*TILE,2,'q');              // x:6550,6582 (6520はpush)
+  addRow(6550,H-7*TILE,2,'q');              // x:6550,6582 (6518はpush)
 
   // Zone 6 (7050-8000)
   addRow(7100,H-5*TILE,4,'brick');          // x:7100..7196
   addStair(7280,6);
 
   // 特殊ブロック (pushのみ)
+  // ★ 1220/4420/6520 は隣のaddRowブロックと2px重なっていたため 2px 左へ（1218/4418/6518）
   platforms.push({x:260,y:H-5*TILE,w:TILE,h:TILE,type:'yoshiEgg',hit:false,bounceOffset:0});
   platforms.push({x:600,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:1220,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:1218,y:H-8*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
   platforms.push({x:2950,y:H-9*TILE,w:TILE,h:TILE,type:'question',hit:false,hasStar:true,bounceOffset:0});
-  platforms.push({x:4420,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
-  platforms.push({x:5500,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
-  platforms.push({x:6520,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:4418,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
+  platforms.push({x:5432,y:H-9*TILE,w:TILE,h:TILE,type:'hidden',hit:false,has1UP:true,bounceOffset:0});
+  platforms.push({x:6518,y:H-7*TILE,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0});
 
   // パイプ (ワープ×2: forest1/forest2、通常×2 — 高さをバラバラにしてオリジナリティを演出)
   // ph=3の巨大ワープ管(x=800)、ph=2の通常管(x=2500)、ph=4の超高ワープ管(x=4200)、ph=2の通常管(x=6400)
@@ -99,7 +100,7 @@ export function buildLevel_3_2(){
   for(let j=0;j<18;j++) coinItems.push({x:3520+j*32,y:H-3*TILE,collected:false});  // Z3: 18
   for(let j=0;j<14;j++) coinItems.push({x:5220+j*32,y:H-3*TILE,collected:false});  // Z4: 14
   for(let j=0;j<10;j++) coinItems.push({x:6280+j*32,y:H-3*TILE,collected:false});  // Z5: 10
-  for(let j=0;j<14;j++) coinItems.push({x:7100+j*32,y:H-3*TILE,collected:false});  // Z6: 14
+  for(let j=0;j<14;j++) coinItems.push({x:7068+j*32,y:H-3*TILE,collected:false});  // Z6: 14 ★ 開始7100→7068（最後の1枚が旗7500の先に出ていた）
   // High scattered coins
   for(let j=0;j<25;j++) coinItems.push({x:200+j*280,y:H-9*TILE,collected:false});  // 25
   // Mid-height wave clusters
@@ -121,16 +122,18 @@ export function buildLevel_3_2(){
   // Total: 実測303（tools/count-coins.mjs で検証）
 
   // 地上敵 (goomba / koopa / cactus / hammerBro)
-  [{x:380,t:'goomba'},{x:520,t:'cactus'},
-   {x:800,t:'koopa'},{x:1000,t:'cactus'},{x:1150,t:'goomba'},{x:1380,t:'hammerBro'},
-   {x:2100,t:'goomba'},{x:2500,t:'koopa'},  // ★ x=2250サボテンはピノキオ部屋パイプ(x=2200)真下のため撤去
+  // ★ 固い物に埋まっていた敵を移動: cactus 520→568・1000→916（レンガ）/ koopa 800→872（ワープ土管）・2500→2580（土管）
+  //    goomba 3480→3462（ワープ土管3500）/ cactus 4200→4280（ワープ土管4200）
+  [{x:380,t:'goomba'},{x:568,t:'cactus'},
+   {x:872,t:'koopa'},{x:916,t:'cactus'},{x:1150,t:'goomba'},{x:1380,t:'hammerBro'},
+   {x:2100,t:'goomba'},{x:2580,t:'koopa'},  // ★ x=2250サボテンはピノキオ部屋パイプ(x=2200)真下のため撤去
    {x:2800,t:'cactus'},{x:2960,t:'hammerBro'},
-   {x:3480,t:'goomba'},{x:3076,t:'cactus'},{x:4120,t:'koopa'},
-   {x:4200,t:'cactus'},{x:4380,t:'hammerBro'},{x:4580,t:'goomba'},
+   {x:3462,t:'goomba'},{x:3076,t:'cactus'},{x:4120,t:'koopa'},
+   {x:4280,t:'cactus'},{x:4380,t:'hammerBro'},{x:4580,t:'goomba'},
    {x:5180,t:'cactus'},{x:5350,t:'koopa'},{x:5600,t:'goomba'},
    {x:5760,t:'cactus'},
    {x:6340,t:'goomba'},{x:6480,t:'cactus'},{x:6680,t:'koopa'},
-   {x:7150,t:'goomba'},{x:7300,t:'cactus'},{x:7420,t:'koopa'}
+   {x:7150,t:'goomba'},{x:7248,t:'cactus'},{x:7200,t:'koopa'}  // ★ cactus 7300→7248 / koopa 7420→7200: ゴール前の階段(7280-)に埋まっていた
   ].forEach(({x,t})=>{
     let e;
     if(t==='goomba')e={x,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'goomba',state:'walk',shellTimer:0,walkFrame:0,walkTimer:0};
@@ -154,14 +157,14 @@ export function buildLevel_3_2(){
       type:'lakitu',state:'fly',baseY:bY,phase:Math.random()*Math.PI*2,dropTimer:130});
   });
 
-  // 飛び跳ねるブロック
-  [{x:450},{x:1100},{x:2200},{x:3600},{x:4350},{x:5250},{x:6350},{x:7150}].forEach(({x})=>{
+  // 飛び跳ねるブロック（★ 3600→4160: CP3800±300外へ）
+  [{x:450},{x:1100},{x:2200},{x:4160},{x:4350},{x:5250},{x:6350},{x:7150}].forEach(({x})=>{
     jumpBlocks.push({x,y:H-2*TILE,w:28,h:28,vx:-1.5,vy:0,onGround:true,
       jumpTimer:60+Math.floor(Math.random()*40),alive:true});
   });
 
-  // パイポ
-  [{x:1400},{x:2300},{x:3550},{x:4500},{x:5200},{x:6050},{x:6900},{x:7300}].forEach(({x})=>{
+  // パイポ（★ 3550→4410: CP3800±300外へ）
+  [{x:1400},{x:2300},{x:4410},{x:4500},{x:5200},{x:6050},{x:6900},{x:7300}].forEach(({x})=>{
     pipos.push({x,y:H-2*TILE-22,w:22,h:22,vx:-1.8,vy:-6,alive:true,bounceCount:0});
   });
 
@@ -193,8 +196,8 @@ export function buildLevel_3_2(){
   enemies.push({x:800,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:0.0,shellTimer:0,walkFrame:0,walkTimer:0});
   enemies.push({x:4300,y:H-11*TILE,w:TILE,h:TILE*1.2,vx:-1.5,vy:0,alive:true,type:'parakoopa',state:'walk',flying:true,baseY:H-11*TILE,phase:1.6,shellTimer:0,walkFrame:0,walkTimer:0});
 
-// ★ 新敵（CP後・ブル）
-enemies.push({x:4050,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
+// ★ 新敵（CP後・ブル）※ 4050→4520（CP3800±300外へ）
+enemies.push({x:4520,y:H-2*TILE,w:TILE,h:TILE,vx:-1.3,vy:0,alive:true,type:'rex',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 // ★ トゲゾー（CP後）
 enemies.push({x:4600,y:H-2*TILE,w:TILE,h:TILE,vx:-1.5,vy:0,alive:true,type:'spiny',state:'walk',walkFrame:0,walkTimer:0,onGround:false,facing:-1});
 
