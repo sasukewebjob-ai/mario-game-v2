@@ -12,6 +12,7 @@
  * selFg: スタート画面ボタンの選択色
  */
 
+import {sanitizeLevel}   from './sanitize.js';
 import {buildLevel}      from './levels/level1-1.js';
 import {buildLevel2}     from './levels/level1-2.js';
 import {buildLevel3}     from './levels/level1-3.js';
@@ -71,6 +72,9 @@ export const STAGES = [
   {world:8,level:2,id:23, build:buildLevel_8_2, bgTheme:'airship',     bgmTheme:'castle', selBg:'#040610',selFg:'#6080c0'},
   {world:8,level:3,id:24, build:buildLevel_8_3, bgTheme:'ice_castle',  bgmTheme:'castle', selBg:'#030d1c',selFg:'#e04040'},
 ];
+
+// 各ステージの組み立て直後に sanitizeLevel()（ブロックや土管に埋まったコインを取れる位置へ）を通す
+for(const s of STAGES){const b=s.build;s.build=()=>{b();sanitizeLevel();};}
 
 /** world + level → ステージ取得 */
 export function getStage(world, level){

@@ -82,8 +82,13 @@ export function installEnv(){
   def('cancelAnimationFrame',noop);
 }
 
-// 1フレーム(1000/60ms)進めて rAF コールバックを実行
-export function step(){clock.t+=1000/60;const cb=rafCb;rafCb=null;if(cb)cb(clock.t);}
+// ゲームループは例外を console.error('[game loop]', err) で報告して動き続けるので、テストでは拾って投げ直す
+const loopErrors=[];
+const _consoleError=console.error;
+console.error=(...a)=>{if(String(a[0]).includes('[game loop]'))loopErrors.push(a[1]);else _consoleError(...a);};
+
+// 1フレーム(1000/60ms)進めて rAF コールバックを実行（ループ内で例外が出ていたら投げる）
+export function step(){clock.t+=1000/60;const cb=rafCb;rafCb=null;if(cb)cb(clock.t);if(loopErrors.length){const e=loopErrors.shift();loopErrors.length=0;throw e;}}
 
 export function key(type,code,repeat=false){
   const e={code,key:code,type,repeat,preventDefault:noop,stopPropagation:noop};

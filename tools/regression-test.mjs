@@ -63,5 +63,57 @@ const stageId=(w,l)=>STAGES.find(s=>s.world===w&&s.level===l).id;
   ok(platforms.filter(p=>p.type==='brick').length===4,'重力反転: 下面に張り付いてもレンガを壊し続けない');}
  else ok(false,'3-1 に重力ゾーンが無い');}
 
+// ===== 2回目の徹底調査で直した不具合 =====
+const {coinItems,mushrooms,lavaFlames,yoshi,movingPlats,springs,G:_G}=g;
+const releaseKeys=()=>{for(const c of ['ArrowRight','ArrowLeft','ShiftLeft','ArrowDown','Space'])key('keyup',c);};
+const koopa=(x,y)=>({type:'koopa',x,y,w:TILE,h:TILE*1.2,vx:-1.3,vy:0,alive:true,state:'walk',shellTimer:0,walkFrame:0,walkTimer:0,activated:true});
+// 地面に数pxめり込んだノコノコが押し出されてワープしない
+{start(1);enemies.length=0;flat();mario.x=100;enemies.push(koopa(600,H-2*TILE));run(60);
+ ok(enemies[0].alive&&Math.abs(enemies[0].x-600)<120&&Math.abs(enemies[0].y+enemies[0].h-(H-TILE))<1,`めり込み配置のノコノコがワープしない (x 600→${Math.round(enemies[0].x)})`);}
+// スライディングで敵を倒せる（先にやられない）
+{start(1);enemies.length=0;flat();mario.power='big';mario.big=true;mario.h=48;mario.y=H-TILE-48;mario.x=200;mario.inv=0;
+ enemies.push({type:'goomba',x:480,y:H-2*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,state:'walk',activated:true});
+ key('keydown','ArrowRight');key('keydown','ShiftLeft');let _n=0;while(mario.x<400&&_n++<120)step();
+ key('keydown','ArrowDown');run(2);const _slid=mario.sliding;run(30);releaseKeys();
+ ok(_slid&&enemies[0].state==='dead'&&!mario.dead&&mario.power==='big',`スライディングでクリボーを倒せる（マリオは無傷: slide=${_slid} power=${mario.power}）`);}
+// 動く甲羅でドッスンは倒れない・チャックはファイア1発で倒れない
+{start(1);enemies.length=0;flat();mario.x=100;
+ const tw={type:'thwomp',x:700,y:H-TILE-64,w:64,h:64,vx:0,vy:0,alive:true,state:'idle',waitTimer:0,activated:true};
+ enemies.push(tw,{type:'koopa',x:600,y:H-TILE-TILE*0.7,w:TILE,h:TILE*0.7,vx:8,vy:0,alive:true,state:'shell',shellTimer:300,activated:true});run(20);
+ ok(tw.alive&&tw.state!=='dead','動く甲羅でドッスンは倒れない');
+ enemies.length=0;const ch={type:'chuck',x:mario.x+120,y:H-TILE-TILE*1.4,w:TILE,h:TILE*1.4,vx:0,vy:0,alive:true,state:'idle',facing:-1,hp:3,activated:true,onGround:true};enemies.push(ch);
+ mario.power='fire';mario.big=true;mario.h=48;mario.y=H-TILE-48;mario.facing=1;press('KeyZ');run(20);
+ ok(ch.alive&&ch.state!=='dead'&&ch.hp===2,`チャックはファイア1発で倒れずHPが減る (hp=${ch.hp}, state=${ch.state})`);}
+// Pスイッチ中にコイン磁石で「足場に変わったコイン」を拾わない
+{start(1);enemies.length=0;flat();coinItems.length=0;G.coinMagnet=true;mario.x=100;
+ for(let i=0;i<4;i++)coinItems.push({x:220+i*32,y:H-4*TILE,collected:false});
+ platforms.push({x:400,y:H-2*TILE,w:TILE,h:TILE,type:'pswitch',hit:false,bounceOffset:0});
+ mario.x=400;mario.y=H-2*TILE-mario.h-4;mario.vy=1;run(10);const c0=G.coins;run(60);
+ ok(G.pswitchTimer>0&&G.coins===c0,`Pスイッチ中は隠れたコインを磁石で拾わない (coins ${c0}→${G.coins})`);G.coinMagnet=false;}
+// ?ブロックの真上がふさがっていたらアイテムは下に出る（埋まらない）
+{start(1);enemies.length=0;flat();mushrooms.length=0;const qx=400,qy=H-TILE-128;
+ platforms.push({x:qx,y:qy,w:TILE,h:TILE,type:'question',hit:false,hasMush:true,bounceOffset:0},{x:qx,y:qy-TILE,w:TILE,h:TILE,type:'brick',hit:false,bounceOffset:0});
+ mario.x=qx+3;mario.y=H-TILE-mario.h;run(2);key('keydown','Space');run(12);key('keyup','Space');run(5);
+ const m=mushrooms[0];ok(m&&m.y>=qy,`上がふさがった?ブロックのアイテムは下に出る (item y=${m?Math.round(m.y):'なし'} ブロック=${qy})`);}
+// ヨッシーが敵を食べるとタマゴがたまる
+{start(1);enemies.length=0;flat();Object.assign(yoshi,{alive:true,mounted:true,eggsReady:0,eatCount:0,tongueOut:0,tongueLen:0,eatTarget:null,chewTimer:0,x:mario.x,y:mario.y,facing:1});mario.facing=1;
+ enemies.push({type:'goomba',x:mario.x+60,y:H-2*TILE,w:TILE,h:TILE,vx:0,vy:0,alive:true,state:'walk',activated:true});
+ press('KeyX');run(60);ok(yoshi.eggsReady===1,`ヨッシーが食べるとタマゴが1個たまる (eggsReady=${yoshi.eggsReady})`);yoshi.alive=false;yoshi.mounted=false;}
+// 火柱は上のブロックで止まり、ブロックの上に立つマリオを焼かない
+{start(1);enemies.length=0;flat();lavaFlames.length=0;lavaFlames.push({x:400,w:22,maxH:200,period:60,phase:0,curH:0});
+ for(let i=0;i<3;i++)platforms.push({x:380+i*TILE,y:H-TILE-4*TILE,w:TILE,h:TILE,type:'brick',hit:false,bounceOffset:0});
+ mario.x=400;mario.y=H-TILE-5*TILE-mario.h;mario.vy=0;mario.inv=0;const lv=G.lives;run(240);
+ ok(!mario.dead&&G.lives===lv,'火柱はブロックで止まり、上に立つマリオを焼かない');lavaFlames.length=0;}
+// 中間地点から復帰した直後は無敵時間がある
+{start(STAGES.find(s=>s.world===2&&s.level===2).id);const cp=G.checkpoint;G.checkpointReached=true;cp.reached=true;mario.y=H+100;run(150);
+ ok(G.state==='play'&&!mario.dead&&mario.inv>0,`中間地点から復帰した直後は無敵時間がある (inv=${mario.inv})`);}
+// ゲームループは例外が出ても止まらない
+{start(1);const f0=G.frame;let threw=false;enemies.push({get alive(){throw new Error('test');}});
+ try{step();}catch(e){threw=true;}enemies.length=0;run(5);ok(threw&&G.frame>f0+3,`ループ内の例外で止まらない (frame ${f0}→${G.frame})`);}
+// ブロックや土管に埋まったコインは取れる位置へ移される
+{const {sanitizeLevel}=await import('../src/sanitize.js');coinItems.length=0;pipes.length=0;platforms.length=0;
+ pipes.push({x:500,y:H-TILE-96,w:64,h:96,bounceOffset:0});coinItems.push({x:510,y:H-TILE-64,collected:false});sanitizeLevel();
+ ok(coinItems.length===1&&coinItems[0].y+24<=H-TILE-96,`土管に埋まったコインは上に移される (y=${coinItems[0]?.y})`);}
+
 console.log(fails?`\n失敗 ${fails} 件`:'\nすべて成功');
 process.exit(fails?1:0);

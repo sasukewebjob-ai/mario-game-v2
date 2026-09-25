@@ -97,6 +97,8 @@ function godRun(st){
     if(st.world===8&&st.level===3&&!G.ugMode&&mario.x>6700&&!mario.dead){harnessWarp=true;const p=pipes.find(q=>q.variant==='bowser_final');if(p){mario.x=p.x+16;mario.y=p.y-mario.h;mario.vy=0;mario.onGround=true;hold('ArrowDown',true);run(3);hold('ArrowDown',false);}}
     // 穴に落ちたら引き上げ（最後に立っていた場所から少しずつ前へ）
     if(!mario.dead&&mario.y>H-40&&mario.vy>0){rescueHere++;safeWarp(Math.min(cap(),lastGround+48*rescueHere));teleports++;}
+    // 地下の部屋で詰まったら出口土管から出る（ボットは出口に入る操作をしないため）
+    if(G.ugMode&&stall>150&&!mario.dead){const ex=pipes.find(p=>p.isExit&&!p.horizontal);if(ex){harnessWarp=true;mario.x=ex.x+ex.w/2-mario.w/2;mario.y=ex.y-mario.h;mario.vy=0;mario.onGround=true;hold('ArrowDown',true);run(3);hold('ArrowDown',false);stall=0;}}
     if(mario.dead||G.state!=='play'||boss){stall=0;}else if(mario.x>bestX+4){bestX=mario.x;stall=0;}else stall++;
     if(stall>240&&!G.goalSlide&&!G.peachChase){stallCount[label]=(stallCount[label]||0)+1;if(stallCount[label]<=3){const near=platforms.filter(p=>Math.abs(p.x-mario.x)<70&&Math.abs(p.y-mario.y)<90).map(p=>`${p.type[0]}${p.x},${p.y}`).slice(0,12).join(' ');once('詰まり',`前に進めない x=${Math.round(mario.x)} y=${Math.round(mario.y)} vx=${mario.vx.toFixed(1)} og=${mario.onGround} ug=${G.ugMode} water=${G.waterMode} 周辺[${near}]`);}safeWarp(Math.min(cap(),Math.max(mario.x,bestX)+96));bestX=mario.x;stall=0;skips++;}
     if(G.state==='shop'){res='ショップ到達';return false;}
