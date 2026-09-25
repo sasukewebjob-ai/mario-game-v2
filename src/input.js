@@ -28,8 +28,12 @@ export function held(action){for(const c of binds[action])if(keys[c])return true
 
 // action の slot 番目にキーを割り当てる。他アクションで使われていたら外す（二重割当防止）
 export function setBind(action,slot,code){
-  for(const a of ACTIONS){const i=binds[a].indexOf(code);if(i>=0)binds[a].splice(i,1);}
-  const list=binds[action];
+  const list=binds[action],cur=list.indexOf(code);
+  if(cur>=0){ // 同じアクションの別の欄にある → 入れ替え
+    if(slot<list.length&&slot!==cur){const old=list[slot];list[slot]=code;list[cur]=old;}
+    saveBinds();return;
+  }
+  for(const a of ACTIONS){if(a===action)continue;const i=binds[a].indexOf(code);if(i>=0)binds[a].splice(i,1);}
   if(slot<list.length)list[slot]=code;else list.push(code);
   saveBinds();
 }

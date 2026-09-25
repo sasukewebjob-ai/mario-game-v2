@@ -43,7 +43,8 @@ input.resetAndSaveBinds();
 // --- ポーズ → RETRY（確認 → 残機-1で再開） ---
 {const lv=G.lives;press('KeyP');press('ArrowDown');press('Space');ok(G.menu?.type==='confirm','RETRY で確認ダイアログ');
  press('ArrowLeft');press('Space');run(10);ok(mario.dead&&!G.menu,'「はい」でミス扱いになる');
- press('Space');run(5);ok(G.state==='intro'||G.state==='play','ミス演出はジャンプで早送りでき、ミス画面を挟まず再開する');
+ run(30);const dt=G.deathTimer;press('Space');
+ ok(dt>1&&G.deathTimer===0&&G.state==='intro',`ミス演出はキーボードのジャンプで早送りでき、ミス画面を挟まず開始画面へ (deathTimer ${dt}→${G.deathTimer}, state=${G.state})`);
  ok(G.lives===lv-1,`残機が1減る (${lv}→${G.lives})`);}
 
 // --- ポーズ → TITLE ---

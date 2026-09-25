@@ -4,7 +4,8 @@
 import {W,H} from './globals.js';
 
 const wrap=document.getElementById('wrap');
-export const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+// 主な入力が指（pointer: coarse）の端末だけをタッチ端末とみなす（タッチ対応PCはPC表示のまま）
+export const isTouch=!!(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches);
 
 export function fitScreen(){
   const vv=window.visualViewport;
