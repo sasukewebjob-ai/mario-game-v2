@@ -16,7 +16,7 @@ description: mario-game-v2に城・ボス戦ステージ（X-3/X-4）を追加�
 
 - `src/stages.js` の末尾（最後の id 番号・最後の world/level 確認）
 - `src/main.js` の Bowser 更新ループ（`bowser.state==='offscreen'` の処理があるか）
-- `src/main.js` の `drawBG()` に新 bgTheme が必要か確認
+- `src/draw.js` の `drawBG()` に新 bgTheme が必要か確認
 - 直前の城ステージファイル（座標・難易度の参考）
 
 ## ステップ2: 城ステージ設計

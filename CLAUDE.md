@@ -5,7 +5,7 @@
 npm run dev     # 開発サーバー（ホットリロード）http://localhost:5173/mario-game-v2/
 npm run build   # ビルド確認
 npm run deploy  # GitHub Pages デプロイ（masterにpushしただけでは反映されない）
-npm test        # 操作性・回帰・メニュー/セーブ・全ステージのスモークテスト（変更後は必ず実行）
+npm test        # 未定義の名前の参照・操作性・回帰・メニュー/セーブ・全ステージのスモークテスト（変更後は必ず実行）
 node tools/check-geometry.mjs   # 配置検査（部分重なり・土管/ブロック内の敵やアイテム・CP近くの危険物など）
 node tools/deep-test.mjs        # 無敵走破・全土管・モンキー・長時間（瞬間移動・部屋の外・めり込み等を検知）
 ```
@@ -16,7 +16,8 @@ node tools/deep-test.mjs        # 無敵走破・全土管・モンキー・長�
 src/
 ├── globals.js    ← 定数・配列・G オブジェクト・ゲームオブジェクト
 ├── builders.js   ← addB, addRow, addStair, addStairD
-├── main.js       ← ゲームループ・update・draw・メニュー・入力処理
+├── main.js       ← ゲームループ・update・メニュー・入力処理
+├── draw.js       ← 描画（背景 drawBG・地形・敵・マリオ・ボス・タイトル/ショップ/メニュー画面）
 ├── audio.js      ← 効果音・BGMデータ（効果音は seOut 経由）
 ├── input.js      ← キー割当（キーコンフィグ）
 ├── save.js       ← セーブ3スロット（進行と記録）
@@ -70,7 +71,10 @@ src/
 - 敵・弾と地形の当たり判定は `_solidsNear(x)` で近くの足場だけを取る（`[...platforms,...pipes]` を毎回コピーしない）
 - 新しい攻撃手段で敵を倒すときは `_enemyHit(e,'種類')` を通す（ドッスン/テレサ無効・チャックはHP制・カロンは崩れる等の耐性が共通）
 - ステージ・地下・EX は組み立て直後に `sanitizeLevel()` が埋まったコインを取れる位置へ移す（データ側の検査は tools で）
-- main.js は1行が長いので、スクリプトで書き換えるとき行の途中に `//` コメントを入れない（行の残りがコメントになり壊れる。`/* */` を使う）
+- main.js / draw.js は1行が長いので、スクリプトで書き換えるとき行の途中に `//` コメントを入れない（行の残りがコメントになり壊れる。`/* */` を使う）
+- 描画は draw.js に書き、draw.js ではゲームの状態を書き換えない（描画用キャッシュと演出用の G の値だけ）
+- draw.js が main.js の定数・関数を使うときは main.js 側で `export` して draw.js で import する。相互 import なので draw.js の読み込み時（関数の外）には触らない
+- ファイル間でコードを動かしたら `node tools/check-refs.mjs src/*.js` で未定義の名前の参照が無いか確認（npm test にも含む）
 - 詳細は `docs/systems-reference.md` の「入力・操作感」「メニュー・設定」「セーブ」「タイマー」
 
 ## killMario(force) — 使い分けに注意

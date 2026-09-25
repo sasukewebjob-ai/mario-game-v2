@@ -126,7 +126,7 @@ flagPole.x = stairX + n*32 + 60;
 
 1. `src/stages.js` に `import {buildLevel_X_Y} from './levels/...';` があるか
 2. `src/stages.js` の STAGES 配列にエントリが追加されているか（id は連番か）
-3. `bgTheme` が新テーマの場合、`src/main.js` の `drawBG()` にケースが追加されているか
+3. `bgTheme` が新テーマの場合、`src/draw.js` の `drawBG()` にケースが追加されているか
 
 > **注意**: 以前の main.js 手動接続（goalSlide/restart/scheduleBGM）は不要。
 > stages.js への登録のみで自動接続される。

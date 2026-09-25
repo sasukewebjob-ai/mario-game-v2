@@ -19,7 +19,7 @@ description: マリオゲーム（Vite版）に新しいステージを追加す
 
 - `src/stages.js` の末尾（最後の id 番号・最後の world/level 確認）
 - 直前のステージファイル（難易度・ギミック密度の参考）
-- `src/main.js` の `drawBG()` に新 bgTheme が必要か確認
+- `src/draw.js` の `drawBG()` に新 bgTheme が必要か確認
 
 ## ステップ2: ステージ設計
 
@@ -142,7 +142,7 @@ export const STAGES = [
 
 - `id` は前のステージの id+1（連番）
 - `build` に関数を設定するだけで goalSlide・restart・BGM がすべて自動動作する
-- 新 bgTheme が必要な場合は `src/main.js` の `drawBG()` にケースを追加する
+- 新 bgTheme が必要な場合は `src/draw.js` の `drawBG()` にケースを追加する
 
 ## ステップ5: ブロック重複チェック（毎回必須・最重要）
 

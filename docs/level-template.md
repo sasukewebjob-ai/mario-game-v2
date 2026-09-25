@@ -47,7 +47,7 @@ export function buildLevel_X_X(){
 2. `src/main.js` の import ブロック先頭に追加
 3. `src/main.js` の `goalSlide` 完了ハンドラを更新
 4. `src/main.js` の `restartCurrentLevel()` にケースを追加
-5. `src/main.js` の `drawBG()` に背景を追加（新テーマの場合）
+5. `src/draw.js` の `drawBG()` に背景を追加（新テーマの場合）
 6. `npm run build` でエラーなし確認
 
 ## main.js 接続ポイント

@@ -8,7 +8,7 @@ description: マリオゲーム（Vite版）に新機能を追加する。Explor
 ## ステップ1: 現状把握（Explore Agent）
 
 Explore サブエージェントで関連コードを調べてください：
-- `src/main.js` の関連する変数・関数を特定する
+- `src/main.js`（処理）と `src/draw.js`（描画）の関連する変数・関数を特定する
 - `src/globals.js` に追加が必要な変数があるか確認
 - どこに追加コードを挿入すべきか把握する
 
@@ -27,7 +27,8 @@ src/
 ├── globals.js    ← 定数・配列・G オブジェクト・ゲームオブジェクト
 ├── builders.js   ← addB, addRow, addStair, addStairD
 ├── stages.js     ← ステージ一覧（新ステージはここに登録）
-├── main.js       ← ゲームループ・update・draw・audio
+├── main.js       ← ゲームループ・update・入力・メニュー処理
+├── draw.js       ← 描画（背景・地形・敵・マリオ・ボス・タイトル/ショップ/メニュー画面）
 └── levels/
     ├── level1-1.js 〜 levelX-Y.js
     └── underground.js
