@@ -71,7 +71,9 @@ export const G={
   // 土管ミニダンジョン（横長3200px、カメラ追従・x制約拡張が必要）
   pipeDungeon:false,
   // キャラクター・タイム
-  character:'mario',stageStartTime:0,stageTimes:{}
+  character:'mario',stageFrames:0,stageTimes:{},
+  // フレーム駆動タイマー（残り時間・死亡演出）
+  timerFrames:0,deathTimer:0
 };
 
 // ピノキオエンティティ（ピノキオ部屋専用NPC）
