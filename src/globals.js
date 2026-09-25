@@ -73,7 +73,11 @@ export const G={
   // キャラクター・タイム
   character:'mario',stageFrames:0,stageTimes:{},
   // フレーム駆動タイマー（残り時間・死亡演出）
-  timerFrames:0,deathTimer:0
+  timerFrames:0,deathTimer:0,
+  // 設定（mario_v2_opts に保存）
+  seVolume:1.0,optShake:true,optReduceFlash:false,runFire:false,padLayout:'snes',touchSize:1,
+  // セーブスロット（0〜2）・開いているメニュー（null | {type:'pause'|'settings'|'keys'|'help'|'confirm',...}）
+  saveSlot:0,menu:null
 };
 
 // ピノキオエンティティ（ピノキオ部屋専用NPC）

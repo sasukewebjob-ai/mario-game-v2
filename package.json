@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "deploy": "vite build && gh-pages -d dist",
     "check": "node tools/check-levels.js",
-    "test": "node tools/controls-test.mjs && node tools/regression-test.mjs && node tools/smoke-test.mjs 1500"
+    "test": "node tools/controls-test.mjs && node tools/regression-test.mjs && node tools/menu-test.mjs && node tools/smoke-test.mjs 1500"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

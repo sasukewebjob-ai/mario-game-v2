@@ -4,10 +4,14 @@
 import {G} from './globals.js';
 
 export const AC = new (window.AudioContext || window.webkitAudioContext)();
+// 効果音・ジングルの音量（BGMとは別に設定できる）
+export const seOut = AC.createGain();
+seOut.connect(AC.destination);
+export function setSeVolume(v){seOut.gain.value=v;}
 
 export function beep(freq,dur,type='square',vol=0.12,delay=0){
 const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
-o.connect(g);g.connect(AC.destination);o.type=type;o.frequency.setValueAtTime(freq,t);
+o.connect(g);g.connect(seOut);o.type=type;o.frequency.setValueAtTime(freq,t);
 g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur+0.01);
 }
 
@@ -34,9 +38,9 @@ if(n==='bossWin'){[523,659,784,1047,659,784,1047,1319,1568].forEach((f,i)=>beep(
 if(n==='hiscore'){[523,784,1047,1319,1568].forEach((f,i)=>beep(f,.08,'sine',.2,i*.05))}
 }catch(e){}}
 
-export function playGameOverJingle(){try{const _n=[[330,0.22],[294,0.22],[262,0.22],[220,0.55],[0,0.12],[196,0.95]];let _t=AC.currentTime+0.3;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(AC.destination);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.12,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.07;}}catch(ex){}}
+export function playGameOverJingle(){try{const _n=[[330,0.22],[294,0.22],[262,0.22],[220,0.55],[0,0.12],[196,0.95]];let _t=AC.currentTime+0.3;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(seOut);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.12,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.07;}}catch(ex){}}
 
-export function playVictoryFanfare(){try{const _n=[[392,0.1],[440,0.1],[494,0.1],[523,0.2],[659,0.15],[784,0.2],[0,0.1],[659,0.1],[784,0.55],[0,0.2],[880,0.7]];let _t=AC.currentTime+0.5;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(AC.destination);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.15,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.05;}}catch(ex){}}
+export function playVictoryFanfare(){try{const _n=[[392,0.1],[440,0.1],[494,0.1],[523,0.2],[659,0.15],[784,0.2],[0,0.1],[659,0.1],[784,0.55],[0,0.2],[880,0.7]];let _t=AC.currentTime+0.5;for(const[_f,_d]of _n){if(_f>0){const _o=AC.createOscillator(),_g=AC.createGain();_o.connect(_g);_g.connect(seOut);_o.type='square';_o.frequency.value=_f;_g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.15,_t);_g.gain.exponentialRampToValueAtTime(0.001,_t+_d-0.02);_o.start(_t);_o.stop(_t+_d);}_t+=_d+0.05;}}catch(ex){}}
 
 // FC版SMB1 "Stage Clear" Course Clear 楽曲再現
 // 3つの上昇アルペジオ(Cmaj→Abmaj→Bbmaj)→C7長音で解決、矩形波
@@ -58,7 +62,7 @@ export function playStageClearFanfare(){try{
   for(const[_f,_d]of _n){
     if(_f>0){
       const _o=AC.createOscillator(),_g=AC.createGain();
-      _o.connect(_g);_g.connect(AC.destination);
+      _o.connect(_g);_g.connect(seOut);
       _o.type='square';_o.frequency.value=_f;
       _g.gain.setValueAtTime(G.bgmMuted?0:G.bgmVolume*0.18,_t);
       _g.gain.exponentialRampToValueAtTime(0.001,_t+Math.max(_d-0.01,0.02));

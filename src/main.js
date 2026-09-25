@@ -14,9 +14,10 @@ import {STAGES,getStage,getNextStage,getStageById,getWorlds,getWorldStages} from
 import {AC,beep,sfx,playGameOverJingle,playVictoryFanfare,playStageClearFanfare,
   THEME_NOTES,BIG_MARIO_NOTES,UG_NOTES,STAR_NOTES,CASTLE_NOTES,
   CASTLE_P2_NOTES,WATER_NOTES,PSWITCH_NOTES,FINAL_BOSS_NOTES,
-  SHOP_NOTES,PINO_NOTES} from './audio.js';
+  SHOP_NOTES,PINO_NOTES,setSeVolume} from './audio.js';
 import {canvasPoint} from './layout.js';
-import {keys,held,isBound,ACTIONS,mainKey} from './input.js';
+import {keys,held,isBound,ACTIONS,mainKey,ACTION_LABEL,ACTION_DESC,SLOTS,RESERVED,binds,setBind,clearBind,resetAndSaveBinds,keyLabel} from './input.js';
+import {SLOT_COUNT,getProgress,getRecords,writeProgress,clearProgress,writeRecords} from './save.js';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 
 // === AUDIO ===
@@ -82,8 +83,13 @@ function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=partic
 // ブラウザの自動再生制限対策: ユーザー操作のたびにAudioContextが止まっていれば再開（iOSは割り込み後に再停止することがある）
 {const _unlockAudio=()=>{try{if(AC.state!=='running')AC.resume();}catch(e){}};['pointerdown','keydown','touchstart'].forEach(_ev=>document.addEventListener(_ev,_unlockAudio,{capture:true,passive:true}));}
 // BGM音量・ミュートの永続化（リロードしても設定が残るように）
-function saveAudioOpts(){try{localStorage.setItem('mario_v2_opts',JSON.stringify({v:G.bgmVolume,m:G.bgmMuted}));}catch(e){}}
-(function(){try{const _o=JSON.parse(localStorage.getItem('mario_v2_opts'));if(_o){if(typeof _o.v==='number')G.bgmVolume=Math.min(1,Math.max(0,_o.v));G.bgmMuted=!!_o.m;}}catch(e){}})();
+// 設定の保存（BGM/効果音の音量・ミュート・画面揺れ・点滅軽減・操作・セーブスロット）
+function saveAudioOpts(){try{localStorage.setItem('mario_v2_opts',JSON.stringify({v:G.bgmVolume,m:G.bgmMuted,se:G.seVolume,shake:G.optShake,flash:G.optReduceFlash,runFire:G.runFire,pad:G.padLayout,touch:G.touchSize,slot:G.saveSlot}));}catch(e){}}
+function applyTouchSize(){try{document.documentElement.style.setProperty('--btn-scale',String(G.touchSize));}catch(e){}}
+(function(){try{const _o=JSON.parse(localStorage.getItem('mario_v2_opts'));if(_o){const num=(x,d,lo,hi)=>typeof x==='number'&&isFinite(x)?Math.min(hi,Math.max(lo,x)):d;
+  G.bgmVolume=num(_o.v,1,0,1);G.bgmMuted=!!_o.m;G.seVolume=num(_o.se,1,0,1);if(typeof _o.shake==='boolean')G.optShake=_o.shake;G.optReduceFlash=!!_o.flash;G.runFire=!!_o.runFire;
+  if(_o.pad==='modern'||_o.pad==='snes')G.padLayout=_o.pad;G.touchSize=[1,1.25,1.5].includes(_o.touch)?_o.touch:1;G.saveSlot=Number.isInteger(_o.slot)&&_o.slot>=0&&_o.slot<3?_o.slot:0;}}catch(e){}
+  setSeVolume(G.seVolume);applyTouchSize();})();
 const btn={left:false,right:false,jump:false,dash:false,down:false,fire:false};
 // アクション入力（キーボード割当＋タッチボタン＋ゲームパッド）が押されているか
 function act(a){
@@ -106,16 +112,28 @@ function continueAfterEnd(){if(G.state==='over'||G.state==='win'){G.score=0;G.co
 
 // === メニュー操作（キーボード・ゲームパッド・タッチ共通） ===
 // c: 'left'|'right'|'up'|'down'|'ok'|'back'|'start'|'char'
+// タイトル下段のボタン配置（描画とクリック判定で共通）
+function _titleBtns(){const y=116+getWorlds().length*30+4+22+6;return{settings:{x:W/2-90-8-112,y,w:112,h:20},cont:{x:W/2-90,y,w:180,h:20},slot:{x:W/2+90+8,y,w:112,h:20}};}
+function _openSettings(){G.menu={type:'settings',cur:0,prev:null};}
 function _titleNav(c){
-  const S=STAGES.length,_exId=S+1,_exId2=S+2,_contId=S+3;
-  if(c==='left'){if(G.selectedStage===_exId2)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=S;else if(G.selectedStage>1&&G.selectedStage!==_contId)G.selectedStage--;}
-  if(c==='right'){if(G.selectedStage<S)G.selectedStage++;else if(G.selectedStage===S)G.selectedStage=_exId;else if(G.selectedStage===_exId)G.selectedStage=_exId2;}
-  if(c==='up'){if(G.selectedStage===_contId)G.selectedStage=_exId;else if(G.selectedStage===_exId||G.selectedStage===_exId2)G.selectedStage=S-1;else if(G.selectedStage>3)G.selectedStage-=3;}
-  if(c==='down'){if(G.selectedStage<=S){if(G.selectedStage+3<=S)G.selectedStage+=3;else G.selectedStage=_exId;}else if((G.selectedStage===_exId||G.selectedStage===_exId2)&&hasSave())G.selectedStage=_contId;}
+  const S=STAGES.length,_exId=S+1,_exId2=S+2,_contId=S+3,_setId=S+4,_slotId=S+5,sel=G.selectedStage;
+  // 下段（SETTINGS / CONTINUE / SLOT）
+  if(sel>=_contId){const row=[_setId,...(hasSave()?[_contId]:[]),_slotId];const i=row.indexOf(sel);
+    if(i<0){G.selectedStage=_setId;return;}
+    if(c==='left'&&i>0)G.selectedStage=row[i-1];
+    if(c==='right'&&i<row.length-1)G.selectedStage=row[i+1];
+    if(c==='up')G.selectedStage=_exId;
+    return;}
+  if(c==='left'){if(sel===_exId2)G.selectedStage=_exId;else if(sel===_exId)G.selectedStage=S;else if(sel>1)G.selectedStage--;}
+  if(c==='right'){if(sel<S)G.selectedStage++;else if(sel===S)G.selectedStage=_exId;else if(sel===_exId)G.selectedStage=_exId2;}
+  if(c==='up'){if(sel===_exId||sel===_exId2)G.selectedStage=S-1;else if(sel>3)G.selectedStage-=3;}
+  if(c==='down'){if(sel<=S){if(sel+3<=S)G.selectedStage+=3;else G.selectedStage=_exId;}else if(sel===_exId||sel===_exId2)G.selectedStage=hasSave()?_contId:_setId;}
 }
 function _titleStart(){
   const S=STAGES.length;
   if(G.selectedStage===S+3){if(hasSave())loadSave();}
+  else if(G.selectedStage===S+4)_openSettings();
+  else if(G.selectedStage===S+5)switchSlot();
   else if(G.selectedStage===S+1){G.isExStage=false;G.exStageFrom=null;startExStage(1);}
   else if(G.selectedStage===S+2){G.isExStage=false;G.exStageFrom=null;startExStage(2);}
   else startFromStage(G.selectedStage);
@@ -146,11 +164,14 @@ function _shopTap(x,y){
   for(let i=0;i<_SHOP_ITEMS.length;i++)if(_inRect(x,y,_shopItemRect(i))){G.shopCursor=i;_shopSelect(i);return;}
 }
 function menuCmd(c){
+  if(G.menu){_menuInput(c);return;}
   // 画面が切り替わった直後の入力は無視（ボタン連打でゲームオーバー画面や購入を飛ばさないように）
   const _since=G.frame-(G._stateFrame||0);
   if(G.state!=='start'&&_since<(G.state==='over'||G.state==='win'?45:20))return;
   if(G.state==='start'){if(c==='ok'||c==='start')_titleStart();else if(c==='char')toggleCharacter();else _titleNav(c);return;}
   if(G.state==='shop'){_shopCmd(c);return;}
+  // ステージ開始画面はジャンプ/決定で飛ばせる
+  if(G.state==='intro'){if((c==='ok'||c==='start')&&G.introTimer<100)G.introTimer=1;return;}
   if(G.state==='dead'||G.state==='over'||G.state==='win'){if(c==='ok'||c==='start')continueAfterEnd();}
 }
 // メニュー画面でのキー → メニュー操作
@@ -172,7 +193,14 @@ document.addEventListener('keydown',e=>{
 if(e.ctrlKey||e.metaKey||e.altKey)return;
 keys[e.code]=true;
 if(_GAME_KEYS.has(e.code)||_DIGIT_STAGE[e.code]||ACTIONS.some(a=>isBound(e.code,a)))e.preventDefault();
-if(G.state!=='play'){
+// キーコンフィグの入力待ち／キー消去
+if(G.menu&&G.menu.type==='keys'&&G.menu.waiting){if(!e.repeat)_keyCapture(e.code);return;}
+if(G.menu&&G.menu.type==='keys'&&(e.code==='Delete'||e.code==='Backspace')){_keyClear();return;}
+if(G.menu){
+  const _mc=_menuCmdOfKey(e.code)||(isBound(e.code,'pause')?'back':null);
+  if(_mc&&(!e.repeat||['left','right','up','down'].includes(_mc)))menuCmd(_mc);
+  if(G.menu&&G.menu.type==='pause'&&G.isExStage&&e.code==='KeyQ'){G.menu=null;giveUpExStage();}
+}else if(G.state!=='play'){
   if(G.state==='start'&&_DIGIT_STAGE[e.code]&&_DIGIT_STAGE[e.code]<=STAGES.length)G.selectedStage=_DIGIT_STAGE[e.code];
   // 方向キーは押しっぱなしで連続移動、決定系はキーリピートを無視
   const _mc=_menuCmdOfKey(e.code);
@@ -184,8 +212,7 @@ if(G.state!=='play'){
     if(isBound(e.code,'item'))useHeldItem();
     if(isBound(e.code,'yoshi')&&yoshi.mounted&&yoshi.alive)yoshiAction();
   }
-  if(isBound(e.code,'pause')&&!e.repeat&&(G.paused||!mario.dead))G.paused=!G.paused;
-  if(G.paused&&G.isExStage&&e.code==='KeyQ')giveUpExStage();
+  if(isBound(e.code,'pause')&&!e.repeat&&!mario.dead)openPause();
 }
 // BGM音量操作
 if(e.code==='KeyM'&&!e.repeat){G.bgmMuted=!G.bgmMuted;if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;saveAudioOpts();}
@@ -199,7 +226,7 @@ updateKeyHint();
 // ウィンドウのフォーカスが外れたら押下状態をクリア（キーが押しっぱなし扱いになるのを防ぐ）
 window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 // タブが非アクティブになったら自動ポーズ（バックグラウンドでタイマーだけ進む問題の防止）
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&G.state==='play'&&!mario.dead)G.paused=true;});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G.state==='play'&&!mario.dead)openPause();});
 
 function doJump(){
 if(G.waterMode){mario.vy=-3.5;G.swimCooldown=14;for(let i=0;i<4;i++)spawnParticle(mario.x+13,mario.y+mario.h,'dust');return}
@@ -216,7 +243,8 @@ for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h,isDash?'star':'dust
 // 押した瞬間を最大 JUMP_BUFFER フレーム覚えておき（着地直前の入力を拾う）、
 // 足場から落ちても COYOTE_FRAMES フレーム以内ならジャンプできる
 const JUMP_BUFFER=8,COYOTE_FRAMES=6;
-function queueJump(){if(G.state!=='play'||G.paused||mario.dead)return;G.jumpBuf=JUMP_BUFFER;G.jumpFresh=true;}
+function queueJump(){if(G.state!=='play'||G.paused)return;if(mario.dead){if(G.deathTimer>0&&G.deathTimer<100)G.deathTimer=1;return;} // 死亡演出はジャンプで飛ばせる
+G.jumpBuf=JUMP_BUFFER;G.jumpFresh=true;}
 function _wallKick(){mario.vy=G.highJump?-16:-13;mario.vx=-mario.wallContact*5;mario.facing=-mario.wallContact;mario.wallContact=0;mario.wallContactTimer=0;mario.hipDrop=false;G.doubleJumpUsed=false;sfx('jump');for(let i=0;i<6;i++)spawnParticle(mario.x+13,mario.y+mario.h/2,'star');}
 function _airJump(){G.doubleJumpUsed=true;mario.vy=G.highJump?-16:-13;mario.hipDrop=false;sfx('jump');for(let i=0;i<8;i++)spawnParticle(mario.x+13,mario.y+mario.h,'star');}
 // fresh: このフレームで押されたばかりか（2段ジャンプは先行入力では出さない）
@@ -468,10 +496,11 @@ if(hurt){yoshi.runAway=true;yoshi.runTimer=180;yoshi.vx=mario.facing*3;sfx('yosh
 const _BTN_KEY={'btn-left':'left','btn-right':'right','btn-down':'down','btn-jump':'jump','btn-dash':'dash','btn-fire':'fire','btn-item':'item','btn-pause':'pause'};
 function _btnPress(k){
   if(k in btn)btn[k]=true;
+  if(G.menu){const m={left:'left',right:'right',down:'down',jump:'ok',fire:'back',dash:'back',pause:'back'}[k];if(m)menuCmd(m);return;}
   // メニュー画面: ◀▶▼=選択 / ジャンプ=決定 / ファイア=戻る / ポーズ=次へ
   if(G.state!=='play'){const m={left:'left',right:'right',down:'down',jump:'ok',fire:'back',pause:'start'}[k];if(m)menuCmd(m);return;}
   if(k==='jump')queueJump();
-  else if(k==='pause'){if(G.paused||!mario.dead)G.paused=!G.paused;}
+  else if(k==='pause'){if(!mario.dead)openPause();}
   else if(G.paused||mario.dead)return;
   else if(k==='fire'){if(yoshi.mounted&&yoshi.alive)yoshiAction();else marioAttack();}
   else if(k==='dash'){if(G.runFire)marioAttack();}
@@ -500,7 +529,7 @@ for(const id in _BTN_KEY){const el=document.getElementById(id);if(!el)continue;
 const _fs=document.getElementById('btn-fs');
 if(_fs){if(!document.fullscreenEnabled)_fs.style.display='none';
   _fs.addEventListener('click',()=>{try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().then(()=>{try{screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}).catch(()=>{});}catch(e){}});}}
-canvas.addEventListener('click',(ev)=>{if(G.state==='start'){const {x:cx,y:cy}=canvasPoint(canvas,ev.clientX,ev.clientY);
+canvas.addEventListener('click',(ev)=>{if(G.menu){const _p=canvasPoint(canvas,ev.clientX,ev.clientY);_menuTap(_p.x,_p.y);return;}if(G.state==='start'){const {x:cx,y:cy}=canvasPoint(canvas,ev.clientX,ev.clientY);
 // キャラクターボタン（大きめ判定エリア）
 {const _ccW=120,_ccH=52,_ccY=42,_ccGap=8;const _ccMx=W/2-_ccW-_ccGap/2,_ccLx=W/2+_ccGap/2;
 if(cy>=_ccY&&cy<=_ccY+_ccH){
@@ -515,15 +544,98 @@ const _cExY=_cstY+_cws.length*_crowH+4,_cExH=22;
 if(cx>=W/2-82&&cx<=W/2-6&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStageFrom=null;startExStage(1);return;}
 if(cx>=W/2+6&&cx<=W/2+82&&cy>=_cExY&&cy<=_cExY+_cExH){G.isExStage=false;G.exStageFrom=null;startExStage(2);return;}
 // CONTINUEボタン
-if(hasSave()){const _ctY=_cExY+_cExH+6;if(cx>=W/2-90&&cx<=W/2+90&&cy>=_ctY&&cy<=_ctY+20){loadSave();return;}}
+{const _tb=_titleBtns();if(_inRect(cx,cy,_tb.cont)){if(hasSave())loadSave();return;}if(_inRect(cx,cy,_tb.settings)){G.selectedStage=STAGES.length+4;_openSettings();return;}if(_inRect(cx,cy,_tb.slot)){G.selectedStage=STAGES.length+5;switchSlot();return;}}
 return;}if(G.state==='shop'){const {x:cx,y:cy}=canvasPoint(canvas,ev.clientX,ev.clientY);_shopTap(cx,cy);return;}if(G.state!=='play')menuCmd('ok');});
 // タッチでキャラクター選択（モバイル対応・即時反応）
-canvas.addEventListener('touchstart',(ev)=>{if(G.state==='start'){const t=ev.touches[0];const {x:cx,y:cy}=canvasPoint(canvas,t.clientX,t.clientY);
+canvas.addEventListener('touchstart',(ev)=>{if(G.state==='start'&&!G.menu){const t=ev.touches[0];const {x:cx,y:cy}=canvasPoint(canvas,t.clientX,t.clientY);
 const _tcW=120,_tcH=52,_tcY=42,_tcGap=8;const _tcMx=W/2-_tcW-_tcGap/2,_tcLx=W/2+_tcGap/2;
 if(cy>=_tcY&&cy<=_tcY+_tcH){
   if(cx>=_tcMx&&cx<=_tcMx+_tcW){G.character='mario';try{localStorage.setItem('mario_v2_char','mario');}catch(e){}ev.preventDefault();return;}
   if(cx>=_tcLx&&cx<=_tcLx+_tcW){G.character='luigi';try{localStorage.setItem('mario_v2_char','luigi');}catch(e){}ev.preventDefault();return;}
 }}},{passive:false});
+
+// === メニュー（ポーズ・設定・キーコンフィグ・操作説明・確認） ===
+// G.menu に開いている画面を持つ（prev=戻り先）。プレイ中に開いたときは G.paused でゲームを止める
+function openPause(){if(G.state!=='play'||mario.dead||G.menu)return;G.paused=true;G.menu={type:'pause',cur:0};try{beep(660,.05,'square',.08);beep(990,.08,'square',.08,.05)}catch(e){}}
+function closeMenus(){G.menu=null;G.paused=false;}
+function _menuBack(){const m=G.menu;if(!m)return;if(m.type==='pause')closeMenus();else G.menu=m.prev||null;}
+function _confirm(text,sub,onYes){G.menu={type:'confirm',text,sub,cur:1,onYes,prev:G.menu};}
+function _pauseItems(){
+  const it=[{label:'RESUME',desc:'ゲームにもどる',act:closeMenus}];
+  if(G.isExStage)it.push({label:'GIVE UP',desc:G.exStageFrom?'EXステージをあきらめてピノキオ部屋へ':'EXステージをやめてタイトルへ',act:()=>{G.menu=null;giveUpExStage();}});
+  else it.push({label:'RETRY',desc:'ミス扱いでやりなおす（中間地点から・残機-1）',act:()=>_confirm('やりなおしますか？',G.lives<=1?'残機が0になりゲームオーバーです':`残機が1減ります（のこり ${G.lives-1}）`,()=>{closeMenus();killMario(true);})});
+  it.push({label:'SETTINGS',desc:'音量・操作・画面の設定',act:()=>{G.menu={type:'settings',cur:0,prev:G.menu};}});
+  it.push({label:'HOW TO PLAY',desc:'操作説明',act:()=>{G.menu={type:'help',prev:G.menu};}});
+  it.push({label:'TITLE',desc:'タイトル画面にもどる',act:()=>_confirm('タイトルにもどりますか？','最後にセーブしてからの進行は失われます',returnToTitle)});
+  return it;
+}
+const _pct=v=>Math.round(v*100)+'%',_onoff=b=>b?'ON':'OFF';
+function _applyAudio(){if(bgmGain)bgmGain.gain.value=G.bgmMuted?0:G.bgmVolume;setSeVolume(G.seVolume);}
+function _settingsItems(){const m=G.menu;const cyc=(arr,v,d)=>arr[(arr.indexOf(v)+d+arr.length)%arr.length];const step=(v,d)=>Math.round(Math.min(1,Math.max(0,v+d*0.1))*10)/10;return[
+  {label:'BGM VOLUME',desc:'BGMの音量（Mキーでミュート）',val:()=>G.bgmMuted?'MUTE':_pct(G.bgmVolume),adj:d=>{G.bgmMuted=false;G.bgmVolume=step(G.bgmVolume,d);_applyAudio();}},
+  {label:'SE VOLUME',desc:'効果音の音量',val:()=>_pct(G.seVolume),adj:d=>{G.seVolume=step(G.seVolume,d);_applyAudio();sfx('coin');}},
+  {label:'SCREEN SHAKE',desc:'画面の揺れ',val:()=>_onoff(G.optShake),adj:()=>{G.optShake=!G.optShake;}},
+  {label:'REDUCE FLASH',desc:'稲光などの画面の点滅をおさえる',val:()=>_onoff(G.optReduceFlash),adj:()=>{G.optReduceFlash=!G.optReduceFlash;}},
+  {label:'RUN + FIRE',desc:'ダッシュとファイアを同じボタンにする（SMB式）',val:()=>_onoff(G.runFire),adj:()=>{G.runFire=!G.runFire;}},
+  {label:'PAD LAYOUT',desc:G.padLayout==='modern'?'下=ジャンプ 左=ダッシュ 右=ファイア 上=ヨッシー':'下=B(ダッシュ) 右=A(ジャンプ) 左=Y(ファイア) 上=X(ヨッシー)',val:()=>G.padLayout==='modern'?'MODERN':'SNES',adj:()=>{G.padLayout=G.padLayout==='modern'?'snes':'modern';}},
+  {label:'TOUCH BUTTONS',desc:'タッチ操作ボタンの大きさ',val:()=>_pct(G.touchSize),adj:d=>{G.touchSize=cyc([1,1.25,1.5],G.touchSize,d);applyTouchSize();}},
+  {label:'KEY CONFIG',desc:'キーボードの割り当てを変える',act:()=>{G.menu={type:'keys',row:0,col:0,msg:'',prev:m};}},
+  {label:'HOW TO PLAY',desc:'操作説明',act:()=>{G.menu={type:'help',prev:m};}},
+  {label:'BACK',desc:'',act:_menuBack},
+];}
+function _menuItems(){const m=G.menu;return m.type==='pause'?_pauseItems():m.type==='settings'?_settingsItems():[];}
+function _menuInput(c){const m=G.menu;if(!m)return;
+  if(m.type==='confirm'){if(c==='left'||c==='right'||c==='up'||c==='down')m.cur=1-m.cur;else if(c==='ok'||c==='start'){G.menu=m.prev;if(m.cur===0)m.onYes();}else if(c==='back')G.menu=m.prev;return;}
+  if(m.type==='help'){if(c==='ok'||c==='back'||c==='start')G.menu=m.prev;return;}
+  if(m.type==='keys'){_keysInput(c);return;}
+  const items=_menuItems(),n=items.length;
+  if(c==='up')m.cur=(m.cur+n-1)%n;else if(c==='down')m.cur=(m.cur+1)%n;
+  else if(c==='back')_menuBack();
+  else{const it=items[m.cur];if(!it)return;
+    if((c==='left'||c==='right')&&it.adj){it.adj(c==='left'?-1:1);saveAudioOpts();}
+    else if(c==='ok'||c==='start'){if(it.act)it.act();else if(it.adj){it.adj(1);saveAudioOpts();}}}
+  if(c==='up'||c==='down')try{beep(520,.03,'square',.05)}catch(e){}
+}
+// キーコンフィグ: 行=アクション(+初期化/もどる)、列=キー1〜3
+const _KEY_ROWS=ACTIONS.length+2;
+function _keysInput(c){const m=G.menu;
+  if(m.waiting){if(c==='back'){m.waiting=false;m.msg='';}return;}
+  if(c==='up')m.row=(m.row+_KEY_ROWS-1)%_KEY_ROWS;
+  else if(c==='down')m.row=(m.row+1)%_KEY_ROWS;
+  else if(c==='left'&&m.row<ACTIONS.length)m.col=(m.col+SLOTS-1)%SLOTS;
+  else if(c==='right'&&m.row<ACTIONS.length)m.col=(m.col+1)%SLOTS;
+  else if(c==='back')_menuBack();
+  else if(c==='ok'||c==='start'){
+    if(m.row===ACTIONS.length){resetAndSaveBinds();updateKeyHint();m.msg='初期設定にもどしました';}
+    else if(m.row===ACTIONS.length+1)_menuBack();
+    else{m.waiting=true;m.msg='';}}
+}
+// 入力待ち中に押されたキーを割り当てる（ESCで取り消し。他アクションの唯一のキーは奪わない）
+function _keyCapture(code){const m=G.menu,a=ACTIONS[m.row];
+  if(code==='Escape'){m.waiting=false;m.msg='';return;}
+  if(RESERVED.has(code)){m.msg='そのキーは使えません';return;}
+  for(const o of ACTIONS)if(o!==a&&binds[o].length===1&&binds[o][0]===code){m.msg=`${ACTION_LABEL[o]} のただ1つのキーなので使えません`;return;}
+  setBind(a,m.col,code);m.waiting=false;m.msg=`${ACTION_LABEL[a]} に ${keyLabel(code)} を割り当てました`;updateKeyHint();
+}
+function _keyClear(){const m=G.menu;if(m.row>=ACTIONS.length)return;const a=ACTIONS[m.row];if(m.col>=binds[a].length)return;
+  if(binds[a].length<=1){m.msg='キーが無くなるため消せません';return;}clearBind(a,m.col);m.msg='';updateKeyHint();}
+// メニューの配置（描画とタップ判定で共通）
+const _MP={x:(W-500)/2,y:34,w:500,h:382};
+function _menuRowRects(n){const top=_MP.y+62,rh=Math.min(30,Math.floor(270/n)),r=[];for(let i=0;i<n;i++)r.push({x:_MP.x+24,y:top+i*rh,w:_MP.w-48,h:rh-3});return r;}
+const _CF={x:(W-420)/2,y:(H-170)/2,w:420,h:170};
+function _confirmBtns(){return[{x:_CF.x+50,y:_CF.y+110,w:140,h:36},{x:_CF.x+230,y:_CF.y+110,w:140,h:36}];}
+function _keysLayout(){const top=_MP.y+62,rh=24,x0=_MP.x+30,labelW=150,cw=96;return{top,cell:(r,c)=>({x:x0+labelW+c*(cw+6),y:top+r*rh,w:cw,h:rh-4}),row:r=>({x:x0,y:top+r*rh,w:_MP.w-60,h:rh-4})};}
+function _menuTap(x,y){const m=G.menu;
+  if(m.type==='confirm'){const b=_confirmBtns();if(_inRect(x,y,b[0])){m.cur=0;_menuInput('ok');}else if(_inRect(x,y,b[1])){m.cur=1;_menuInput('ok');}return;}
+  if(m.type==='help'){_menuInput('back');return;}
+  if(m.type==='keys'){if(m.waiting)return;const L=_keysLayout();
+    for(let r=0;r<ACTIONS.length;r++)for(let c=0;c<SLOTS;c++)if(_inRect(x,y,L.cell(r,c))){m.row=r;m.col=c;_keysInput('ok');return;}
+    for(const r of [ACTIONS.length,ACTIONS.length+1])if(_inRect(x,y,L.row(r))){m.row=r;_keysInput('ok');return;}
+    return;}
+  const items=_menuItems(),rows=_menuRowRects(items.length);
+  for(let i=0;i<rows.length;i++){if(!_inRect(x,y,rows[i]))continue;m.cur=i;const it=items[i];
+    if(it.adj){it.adj(x<rows[i].x+rows[i].w-80?-1:1);saveAudioOpts();}else if(it.act)it.act();return;}
+}
 
 // === GAMEPAD ===
 const gpad={ok:false,back:false,left:false,right:false,up:false,down:false,a:false,b:false,x:false,y:false,start:false,select:false,l:false,r:false};
@@ -589,15 +701,17 @@ function pollGamepad(){
   gpad.a=B(P.jump);gpad.b=B(P.dash);gpad.y=B(P.fire);gpad.x=B(P.yoshi);gpad.ok=B(P.ok);gpad.back=B(P.back);
   gpad.l=B(4);gpad.r=B(5);gpad.select=B(6)||B(8);gpad.start=B(7)||B(9);
   const jp=k=>gpad[k]&&!_gpPrev[k]; // 押した瞬間
-  if(G.state==='play'){
+  if(G.menu){
+    for(const d of ['left','right','up','down'])if(jp(d))menuCmd(d);
+    if(jp('ok'))menuCmd('ok');else if(jp('back')||jp('start'))menuCmd('back');
+  }else if(G.state==='play'){
     if(jp('a'))queueJump();
     if(!G.paused&&!mario.dead){
       if(jp('y')||(G.runFire&&jp('b')))marioAttack();
       if(jp('x')&&yoshi.mounted&&yoshi.alive)yoshiAction();
       if(jp('select'))useHeldItem();
     }
-    if(jp('start')&&(G.paused||!mario.dead))G.paused=!G.paused;
-    if(G.paused&&G.isExStage&&jp('back'))giveUpExStage();
+    if(jp('start')&&!mario.dead)openPause();
     if(jp('l')){G.bgmVolume=Math.max(0,G.bgmVolume-0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
     if(jp('r')){G.bgmVolume=Math.min(1,G.bgmVolume+0.1);if(bgmGain&&!G.bgmMuted)bgmGain.gain.value=G.bgmVolume;saveAudioOpts();}
   }else{
@@ -680,7 +794,7 @@ else if(p.type==='brick'){if(mario.big){sfx('break');G.score+=50;updateHUD();spa
 
 // === GAME MANAGEMENT ===
 function startFromStage(id){G.deathTimer=0;bowser.alive=false;bowserFire.length=0;bowserShockwaves.length=0;peach.alive=false;G.peachChase=null;G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;G.usedUndergrounds=new Set();yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;const _ss=getStageById(id);if(!_ss)return;G.currentWorld=_ss.world;G.currentLevel=_ss.level;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.swimCooldown=0;G.darkMode=false;G.megaTimer=0;G.chasingWall=null;G.gravityFlipped=false;G.checkpoint2=null;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.bowserRightX=0;G.lowGravity=false;G.pipeDungeon=false;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;_ss.build();mario.big=false;mario.power='none';fireballs.length=0;resetMario();G.timeLeft=400;G.stageKills=0;G.stageMaxCombo=0;G.stageCoinsStart=G.coins;G.stageFrames=0;G.coinMagnet=false;G.doubleJump=false;G.doubleJumpUsed=false;G.retryHeart=0;G.highJump=false;G.heldItem=null;G.stageDamaged=false;G.state='intro';G.introTimer=120;G.timerTick=null;updateHUD();try{AC.resume()}catch(e){}}
-function startGame(){G.deathTimer=0;bowser.alive=false;bowserFire.length=0;bowserShockwaves.length=0;peach.alive=false;G.peachChase=null;G.usedUndergrounds=new Set();G.exStageUsed=false;G.ex1Cleared=false;G.ex2Used=false;G.exStageNum=1;G.lowGravity=false;G.pipeDungeon=false;G.clearedStages=[];G.stageTimes={};_saveInfo=null;try{localStorage.removeItem('mario_v2_save');}catch(_e){}
+function startGame(){G.deathTimer=0;bowser.alive=false;bowserFire.length=0;bowserShockwaves.length=0;peach.alive=false;G.peachChase=null;G.usedUndergrounds=new Set();G.exStageUsed=false;G.ex1Cleared=false;G.ex2Used=false;G.exStageNum=1;G.lowGravity=false;G.pipeDungeon=false;clearProgress(G.saveSlot);
 // ゲームオーバー→完全リセット：全モードフラグ/タイマー/特殊配列をクリア
 G.pswitchTimer=0;G._psCoins=null;G._psBricks=null;yoshi.alive=false;yoshi.mounted=false;yoshi.eatCount=0;yoshi.eggsReady=0;yoshi.runAway=false;G.pinoRoom=false;G.isExStage=false;G.exStageFrom=null;pinoObj.alive=false;
 G.currentWorld=1;G.currentLevel=1;flagPole.x=LW-500;
@@ -732,7 +846,7 @@ mario.power='none';mario.big=false;mario.h=32;resetMario();mario.x=_cpx;mario.y=
 // チェックポイント到達状態を復元
 G.checkpointReached=true;G.checkpoint={x:_cpx,y:_cpy,reached:true};
 if(_cp2r&&G.checkpoint2){G.checkpoint2.reached=true;G.checkpoint.x=G.checkpoint2.x;G.checkpoint.y=G.checkpoint2.y;mario.x=G.checkpoint2.x;mario.y=G.checkpoint2.y-mario.h;G.cam=Math.max(0,Math.min(mario.x-W/3,LW-W));}
-G.state='play';startLevelTimer();try{startBGM()}catch(ex){}}else{G.state='dead';G.timerTick=null}}}
+G.state='play';startLevelTimer();try{startBGM()}catch(ex){}}else{G.timerTick=null;restartCurrentLevel();}}}
 // 残り時間カウント開始（1秒=60フレーム。実際の減算は update() 冒頭）
 function startLevelTimer(){G.timerTick=true;G.timerFrames=0;}
 // ステージクリアの記録（★とベストタイム）。旗・土管ゴール・ピーチ救出の全経路から呼ぶ
@@ -747,15 +861,28 @@ yoshi.alive=false;yoshi.mounted=false;bowser.alive=false;bowserFire.length=0;bow
 G.currentWorld=1;G.currentLevel=1;flagPole.x=LW-500;G.waterMode=false;G.iceMode=false;G.darkMode=false;G.sandstormMode=false;G.tideMode=false;G.tideLevel=H;G.airshipMode=false;G.bowserRightX=0;G.checkpoint=null;G.checkpointReached=false;G.checkpoint2=null;iceBalls.length=0;marioHammers.length=0;gravityZones.length=0;windZones.length=0;windParticles.length=0;fireballs.length=0;
 const _s=getStage(1,1);if(_s)_s.build();
 mario.dead=false;mario.big=false;mario.power='none';resetMario();G.state='start';updateHUD();}
-function _recordClear(){const _cId=getStage(G.currentWorld,G.currentLevel)?.id;if(!_cId)return;if(!G.clearedStages.includes(_cId))G.clearedStages.push(_cId);const _et=Math.round(G.stageFrames/60);if(!G.stageTimes[_cId]||_et<G.stageTimes[_cId])G.stageTimes[_cId]=_et;}
+function _recordClear(){const _cId=getStage(G.currentWorld,G.currentLevel)?.id;if(!_cId)return;if(!G.clearedStages.includes(_cId))G.clearedStages.push(_cId);const _et=Math.round(G.stageFrames/60);if(!G.stageTimes[_cId]||_et<G.stageTimes[_cId])G.stageTimes[_cId]=_et;_saveRecords();}
 function updateHUD(){if(G.coins>3000){G.coins=3000;}document.getElementById('hScore').textContent=String(G.score).padStart(6,'0');document.getElementById('hCoins').textContent='x'+String(G.coins).padStart(4,'0');document.getElementById('hTime').textContent=G.timeLeft;document.getElementById('hWorld').textContent=G.isExStage?'EX'+(G.exStageNum||1):G.currentWorld+'-'+G.currentLevel;const li=document.getElementById('lives-icons');li.innerHTML='';for(let i=0;i<Math.max(0,G.lives);i++){const s=document.createElement('span');s.textContent='🍄';s.style.fontSize='14px';li.appendChild(s)}}
 
 // === SAVE / LOAD ===
-let _saveInfo=null;(function(){try{const _r=localStorage.getItem('mario_v2_save');if(_r)_saveInfo=JSON.parse(_r);}catch(e){}}());
+// セーブは3スロット（src/save.js）。G.saveSlot が今のスロット
+// 記録（★・ベストタイム）はスロットごとに保存し、ゲームオーバーでも消えない
 (function(){try{const _c=localStorage.getItem('mario_v2_char');if(_c==='luigi'||_c==='mario')G.character=_c;}catch(e){}})();
-function hasSave(){return!!_saveInfo;}
-function saveGame(){const _sid=getStage(G.currentWorld,G.currentLevel)?.id;const _nid=G.nextStage?G.nextStage.id:(_sid||1);_saveInfo={score:G.score,coins:G.coins,lives:G.lives,nextStageId:_nid,clearedStages:[...G.clearedStages],stageTimes:{...G.stageTimes},character:G.character,ex1Cleared:G.ex1Cleared,ex2Used:G.ex2Used,exStageUsed:G.exStageUsed,savedAt:new Date().toISOString()};try{localStorage.setItem('mario_v2_save',JSON.stringify(_saveInfo));}catch(e){}}
-function loadSave(){if(!_saveInfo)return;G.score=_saveInfo.score||0;G.coins=Math.min(3000,_saveInfo.coins||0);G.lives=Math.max(1,_saveInfo.lives||3);G.clearedStages=Array.isArray(_saveInfo.clearedStages)?[..._saveInfo.clearedStages]:[];G.stageTimes={..._saveInfo.stageTimes||{}};G.character=_saveInfo.character||'mario';try{localStorage.setItem('mario_v2_char',G.character);}catch(_e){}G.ex1Cleared=!!_saveInfo.ex1Cleared;G.ex2Used=!!_saveInfo.ex2Used;G.exStageUsed=!!_saveInfo.exStageUsed;G.exStageNum=1;G.isExStage=false;G.lowGravity=false;G.pipeDungeon=false;updateHUD();startFromStage(getStageById(_saveInfo.nextStageId||1)?(_saveInfo.nextStageId||1):1);}
+function _loadSlotRecords(){const r=getRecords(G.saveSlot);G.clearedStages=[...r.clearedStages];G.stageTimes={...r.stageTimes};}
+function _saveRecords(){writeRecords(G.saveSlot,G.clearedStages,G.stageTimes);}
+_loadSlotRecords();
+function hasSave(){return!!getProgress(G.saveSlot);}
+function switchSlot(){G.saveSlot=(G.saveSlot+1)%SLOT_COUNT;_loadSlotRecords();saveAudioOpts();try{beep(660,.05,'square',.08)}catch(e){}}
+function saveGame(){const _sid=getStage(G.currentWorld,G.currentLevel)?.id;const _nid=G.nextStage?G.nextStage.id:(_sid||1);
+  writeProgress(G.saveSlot,{score:G.score,coins:G.coins,lives:G.lives,nextStageId:_nid,character:G.character,ex1Cleared:G.ex1Cleared,ex2Used:G.ex2Used,exStageUsed:G.exStageUsed,
+    power:mario.power,doubleJump:G.doubleJump,coinMagnet:G.coinMagnet,retryHeart:G.retryHeart,highJump:G.highJump,heldItem:G.heldItem,savedAt:new Date().toISOString()});
+  _saveRecords();}
+function loadSave(){const sv=getProgress(G.saveSlot);if(!sv)return;G.score=sv.score||0;G.coins=Math.min(3000,sv.coins||0);G.lives=Math.max(1,sv.lives||3);G.character=sv.character==='luigi'?'luigi':'mario';try{localStorage.setItem('mario_v2_char',G.character);}catch(_e){}
+  G.ex1Cleared=!!sv.ex1Cleared;G.ex2Used=!!sv.ex2Used;G.exStageUsed=!!sv.exStageUsed;G.exStageNum=1;G.isExStage=false;G.lowGravity=false;G.pipeDungeon=false;updateHUD();
+  startFromStage(getStageById(sv.nextStageId||1)?(sv.nextStageId||1):1);
+  // ショップで買った効果とパワーアップも復元（以前は保存されず失われていた）
+  if(['big','fire','ice','hammer'].includes(sv.power)){mario.power=sv.power;mario.big=true;mario.h=48;mario.y-=16;}
+  G.doubleJump=!!sv.doubleJump;G.coinMagnet=!!sv.coinMagnet;G.retryHeart=sv.retryHeart|0;G.highJump=!!sv.highJump;G.heldItem=['mushroom','flower','hammer'].includes(sv.heldItem)?sv.heldItem:null;}
 
 // === UPDATE ===
 function update(){
@@ -1858,7 +1985,7 @@ if(_bgS?.bgTheme==='airship'){
   ag.addColorStop(0,'#010306');ag.addColorStop(0.35,'#060e1a');ag.addColorStop(0.72,'#0b1520');ag.addColorStop(1,'#03070e');
   ctx.fillStyle=ag;ctx.fillRect(0,0,W,H);
   // 稲光フラッシュ（強め）
-  if(Math.random()<0.005){ctx.fillStyle=`rgba(160,190,255,${0.06+Math.random()*0.1})`;ctx.fillRect(0,0,W,H);}
+  if(!G.optReduceFlash&&Math.random()<0.005){ctx.fillStyle=`rgba(160,190,255,${0.06+Math.random()*0.1})`;ctx.fillRect(0,0,W,H);}
   // 星（嵐で揺らぐ）
   for(let i=0;i<38;i++){const sx=(i*271+(G.cam*0.01|0))%W,sy=(i*173)%(H*0.42);ctx.fillStyle=`rgba(170,195,255,${0.04+Math.abs(Math.sin(G.frame*0.022+i*1.9))*0.65})`;ctx.fillRect(sx,sy,i%8===0?2:1,i%8===0?2:1);}
   // 嵐雲（大型・重厚）
@@ -2957,6 +3084,71 @@ ctx.fillRect(x+5+fo[0],y+TILE-4,7,4);ctx.fillRect(x+TILE-12+fo[1],y+TILE-4,7,4);
 function drawParticles(){for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)}ctx.globalAlpha=1}
 function drawScorePopups(){for(const p of scorePopups){ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.color;ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(p.val,p.x-G.cam,p.y)}ctx.globalAlpha=1;ctx.textAlign='left'}
 
+// === メニュー描画 ===
+function drawMenu(){const m=G.menu;if(!m)return;
+  ctx.save();ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,W,H);
+  if(m.type==='confirm'){_drawConfirm(m);ctx.restore();return;}
+  const P=_MP;ctx.fillStyle='rgba(16,16,40,0.95)';ctx.fillRect(P.x,P.y,P.w,P.h);ctx.strokeStyle='#FFD700';ctx.lineWidth=3;ctx.strokeRect(P.x,P.y,P.w,P.h);ctx.lineWidth=1;
+  ctx.textAlign='center';ctx.fillStyle='#FFD700';ctx.font='bold 16px "Press Start 2P",monospace';
+  ctx.fillText({pause:'PAUSE',settings:'SETTINGS',keys:'KEY CONFIG',help:'HOW TO PLAY'}[m.type]||'',W/2,P.y+32);
+  if(m.type==='pause'){ctx.fillStyle='#bbb';ctx.font='7px "Press Start 2P",monospace';ctx.fillText(`${G.isExStage?'EX-'+(G.exStageNum||1):'WORLD '+G.currentWorld+'-'+G.currentLevel}    TIME ${G.timeLeft}    LIVES ${G.lives}    COIN ${G.coins}`,W/2,P.y+50);}
+  if(m.type==='help')_drawHelp();
+  else if(m.type==='keys')_drawKeys(m);
+  else{const items=_menuItems(),rows=_menuRowRects(items.length);
+    items.forEach((it,i)=>{const r=rows[i],sel=i===m.cur,cy=r.y+r.h/2+4;
+      if(sel){ctx.fillStyle='rgba(255,215,0,0.14)';ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle='#FFD700';ctx.strokeRect(r.x,r.y,r.w,r.h);}
+      ctx.textAlign='left';ctx.fillStyle=sel?'#fff':'#aab';ctx.font=`${sel?'bold ':''}10px "Press Start 2P",monospace`;ctx.fillText((sel?'▶ ':'  ')+it.label,r.x+10,cy);
+      if(it.val){const vx=r.x+r.w-80;ctx.textAlign='center';ctx.fillStyle=sel?'#FFD700':'#ccc';ctx.fillText(it.val(),vx,cy);if(sel){ctx.fillText('◀',vx-62,cy);ctx.fillText('▶',vx+62,cy);}}
+    });
+    const d=items[m.cur]&&items[m.cur].desc;if(d){ctx.textAlign='center';ctx.fillStyle='#9fd';ctx.font='12px sans-serif';ctx.fillText(d,W/2,P.y+P.h-34);}
+    ctx.textAlign='center';ctx.fillStyle='#888';ctx.font='10px sans-serif';
+    ctx.fillText(_gpConnected?'↑↓:選択  ←→:変更  A:決定  B:もどる':'↑↓:選択  ←→:変更  SPACE:決定  ESC:もどる   (タップでも操作できます)',W/2,P.y+P.h-14);}
+  ctx.restore();
+}
+function _drawConfirm(m){const C=_CF;
+  ctx.fillStyle='rgba(20,20,50,0.97)';ctx.fillRect(C.x,C.y,C.w,C.h);ctx.strokeStyle='#FFD700';ctx.lineWidth=3;ctx.strokeRect(C.x,C.y,C.w,C.h);ctx.lineWidth=1;
+  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 16px sans-serif';ctx.fillText(m.text,W/2,C.y+44);
+  if(m.sub){ctx.fillStyle='#fc6';ctx.font='12px sans-serif';ctx.fillText(m.sub,W/2,C.y+74);}
+  _confirmBtns().forEach((r,i)=>{const sel=m.cur===i;ctx.fillStyle=i===0?(sel?'#27ae60':'#1a4a2a'):(sel?'#c0392b':'#4a1a1a');ctx.fillRect(r.x,r.y,r.w,r.h);
+    ctx.strokeStyle=sel?'#fff':'#666';ctx.lineWidth=sel?3:1;ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineWidth=1;ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.fillText(i===0?'はい':'いいえ',r.x+r.w/2,r.y+r.h/2+5);});
+}
+function _drawKeys(m){const L=_keysLayout();
+  ctx.textAlign='center';ctx.fillStyle='#888';ctx.font='7px "Press Start 2P",monospace';
+  for(let c=0;c<SLOTS;c++){const r=L.cell(0,c);ctx.fillText(`KEY ${c+1}`,r.x+r.w/2,L.top-6);}
+  ACTIONS.forEach((a,ri)=>{const rr=L.row(ri),selRow=m.row===ri;
+    ctx.textAlign='left';ctx.fillStyle=selRow?'#fff':'#aab';ctx.font=`${selRow?'bold ':''}8px "Press Start 2P",monospace`;ctx.fillText(ACTION_LABEL[a],rr.x,rr.y+rr.h/2+4);
+    for(let c=0;c<SLOTS;c++){const r=L.cell(ri,c),sel=selRow&&m.col===c,code=binds[a][c];
+      ctx.fillStyle=sel?(m.waiting?'rgba(255,80,80,0.35)':'rgba(255,215,0,0.2)'):'rgba(255,255,255,0.05)';ctx.fillRect(r.x,r.y,r.w,r.h);
+      ctx.strokeStyle=sel?'#FFD700':'#444';ctx.strokeRect(r.x,r.y,r.w,r.h);
+      ctx.textAlign='center';ctx.fillStyle=code?'#fff':'#555';ctx.font='8px "Press Start 2P",monospace';ctx.fillText(sel&&m.waiting?'...':keyLabel(code),r.x+r.w/2,r.y+r.h/2+4);}
+  });
+  [['RESET TO DEFAULT',ACTIONS.length],['BACK',ACTIONS.length+1]].forEach(([lb,ri])=>{const rr=L.row(ri),sel=m.row===ri;
+    if(sel){ctx.fillStyle='rgba(255,215,0,0.14)';ctx.fillRect(rr.x,rr.y,rr.w,rr.h);ctx.strokeStyle='#FFD700';ctx.strokeRect(rr.x,rr.y,rr.w,rr.h);}
+    ctx.textAlign='left';ctx.fillStyle=sel?'#fff':'#aab';ctx.font=`${sel?'bold ':''}8px "Press Start 2P",monospace`;ctx.fillText((sel?'▶ ':'  ')+lb,rr.x+8,rr.y+rr.h/2+4);});
+  const a=ACTIONS[m.row];ctx.textAlign='center';ctx.font='12px sans-serif';ctx.fillStyle=m.msg?'#fc6':'#9fd';
+  ctx.fillText(m.msg||(m.waiting?'割り当てるキーを押してください（ESCで取り消し）':a?ACTION_DESC[a]:''),W/2,_MP.y+_MP.h-34);
+  ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText('↑↓←→:選択   SPACE:変更   DEL:消去   ESC:もどる',W/2,_MP.y+_MP.h-14);
+}
+function _drawHelp(){const P=_MP,k=mainKey,H1='#FFD700';
+  const lines=[
+    [H1,'キーボード'],
+    ['#fff',`移動 ${k('left')} ${k('right')}　ダッシュ ${k('dash')}　ジャンプ ${k('jump')}　しゃがむ ${k('down')}`],
+    ['#fff',`ファイア ${k('fire')}　ヨッシー ${k('yoshi')}　ストック ${k('item')}　メニュー ${k('pause')}　ミュート M`],
+    [H1,'ゲームパッド'],
+    ['#fff',G.padLayout==='modern'?'下:ジャンプ　左:ダッシュ　右:ファイア　上:ヨッシー':'A:ジャンプ　B:ダッシュ　Y:ファイア　X:ヨッシー'],
+    ['#fff','SELECT:ストック　START:メニュー　L/R:BGM音量（配置は設定で変更可）'],
+    [H1,'テクニック'],
+    ['#ddd','・ダッシュ中のジャンプは高く跳べる（ジャンプ長押しでさらに高く）'],
+    ['#ddd','・空中で壁に触れてジャンプ → 壁キック'],
+    ['#ddd','・空中で↓ → ヒップドロップ（着地で周りの敵も倒す）'],
+    ['#ddd','・ダッシュ中に↓ → スライディング'],
+    ['#ddd','・ダッシュを押したまま甲羅に触れると持てる（離すと投げる）'],
+    ['#ddd','・土管の上で↓ → 土管に入る／ミス後はジャンプで早送り'],
+  ];
+  ctx.textAlign='left';let y=P.y+70;
+  for(const [c,t] of lines){ctx.fillStyle=c;ctx.font=c===H1?'bold 13px sans-serif':'12px sans-serif';if(c===H1)y+=4;ctx.fillText(t,P.x+26,y);y+=c===H1?20:19;}
+  ctx.textAlign='center';ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText('SPACE / ESC / タップ : もどる',W/2,P.y+P.h-14);
+}
 function drawOverlay(title,sub,bgColor){
 ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(0,0,W,H);
 const bw=580,bh=200,bx=(W-bw)/2,by=(H-bh)/2-20;
@@ -2969,7 +3161,7 @@ ctx.font='11px "Press Start 2P",monospace';ctx.shadowBlur=4;
 sub.split('\n').forEach((l,i)=>ctx.fillText(l,W/2,by+105+i*28));ctx.shadowBlur=0;ctx.textAlign='left'}
 
 function draw(){
-const sx=G.shakeX*(Math.random()*2-1),sy=G.shakeY*(Math.random()*2-1);ctx.save();ctx.translate(sx,sy);
+const _sk=G.optShake&&!G.paused?1:0;const sx=G.shakeX*_sk*(Math.random()*2-1),sy=G.shakeY*_sk*(Math.random()*2-1);ctx.save();ctx.translate(sx,sy);
 if(G.state==='intro'){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 24px "Press Start 2P",monospace';ctx.textAlign='center';
 const _introTitle=G.isExStage?`EXTRA STAGE-${G.exStageNum||1}`:`WORLD  ${G.currentWorld}-${G.currentLevel}`;
 ctx.fillText(_introTitle,W/2,H/2-40);
@@ -2986,7 +3178,7 @@ if(_wt==='mountain'||_wt==='mountain_castle'||_wt==='airship'){
 }
 if(_wt==='airship'){
   // 稲光フラッシュ（既存BGの補強：まれに画面全体が白くなる）
-  if(G.frame%600<2){ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(0,0,W,H);}
+  if(!G.optReduceFlash&&G.frame%600<2){ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fillRect(0,0,W,H);}
 }}
 ctx.save();ctx.translate(-G.cam,0);
 // Lava flames (draw below blocks)
@@ -3790,37 +3982,39 @@ ctx.fillStyle=_ex2Sel?'#fff':'#88aaff';ctx.font='bold 8px "Press Start 2P",monos
 ctx.fillText('EX-2',_ex2x+_exBw2/2,_exBy+_exBh/2+4);
 if(_ex2Sel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',_ex2x+_exBw2/2,_exBy+_exBh+10);}
 ctx.textAlign='left';}
-// CONTINUEボタン（セーブデータがある場合）
+// 下段: SETTINGS / CONTINUE / SLOT
 const _exEnd=_exBy+_exBh;
-if(hasSave()){
-  const _ctId=STAGES.length+3,_ctSel=G.selectedStage===_ctId;
-  const _ctW=180,_ctH=20,_ctX=W/2-90,_ctY=_exEnd+6;
-  ctx.fillStyle=_ctSel?'#27ae60':'#144a24';ctx.fillRect(_ctX,_ctY,_ctW,_ctH);
-  ctx.strokeStyle=_ctSel?'#88ff88':'#3a8a4a';ctx.lineWidth=_ctSel?2:1;ctx.strokeRect(_ctX,_ctY,_ctW,_ctH);ctx.lineWidth=1;
-  if(_ctSel){ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(_ctX,_ctY,_ctW,_ctH/2);}
-  const _svSt=_saveInfo?getStageById(_saveInfo.nextStageId):null;
-  const _svLbl=_svSt?`W${_svSt.world}-${_svSt.level}`:'?';
-  ctx.fillStyle=_ctSel?'#fff':'#88dd88';ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';
-  ctx.fillText(`▶ CONTINUE  [${_svLbl}]`,W/2,_ctY+_ctH/2+3);
-  if(_ctSel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',W/2,_ctY+_ctH+10);}
-  ctx.textAlign='left';
-}
-const _hintY=_exEnd+(hasSave()?32:8);
+{const _S=STAGES.length,_tb=_titleBtns(),_sv=getProgress(G.saveSlot);
+const _svSt=_sv?getStageById(_sv.nextStageId):null;
+const _defs=[
+  [_tb.settings,_S+4,'SETTINGS',['#1a3a5a','#2980b9'],'#9cf'],
+  [_tb.cont,_S+3,_sv?`▶ CONTINUE  [${_svSt?`W${_svSt.world}-${_svSt.level}`:'?'}]`:'NO SAVE DATA',_sv?['#144a24','#27ae60']:['#1a1a1a','#333'],_sv?'#88dd88':'#555'],
+  [_tb.slot,_S+5,`SLOT ${G.saveSlot+1}  ★${G.clearedStages.length}`,['#3a1a4a','#8e44ad'],'#d9f'],
+];
+for(const [r,id,label,bg,fg] of _defs){const sel=G.selectedStage===id;
+  ctx.fillStyle=sel?bg[1]:bg[0];ctx.fillRect(r.x,r.y,r.w,r.h);
+  ctx.strokeStyle=sel?'#fff':'#555';ctx.lineWidth=sel?2:1;ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineWidth=1;
+  if(sel){ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(r.x,r.y,r.w,r.h/2);}
+  ctx.fillStyle=sel?'#fff':fg;ctx.font='bold 7px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(label,r.x+r.w/2,r.y+r.h/2+3);
+  if(sel){ctx.fillStyle='#FFD700';ctx.font='10px monospace';ctx.fillText('▼',r.x+r.w/2,r.y+r.h+9);}
+}}
+const _hintY=_exEnd+36;
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';ctx.textAlign='center';
-ctx.fillText(`← → ↑ ↓ or 1-${STAGES.length} key : SELECT`,W/2,_hintY);
-ctx.fillText('SPACE / ENTER / CLICK : START',W/2,_hintY+14);
+ctx.fillText(`←→↑↓ / 1-${STAGES.length} : SELECT     SPACE / ENTER / CLICK : START`,W/2,_hintY);
 ctx.fillStyle='#888';ctx.font='6px "Press Start 2P",monospace';
-ctx.fillText(`M : MUTE       +/- : VOLUME       ${mainKey('pause')} : MENU`,W/2,_hintY+28);
+ctx.fillText(`M : MUTE       +/- : VOLUME       ${mainKey('pause')} : MENU`,W/2,_hintY+13);
 ctx.fillStyle='#aaa';ctx.font='7px "Press Start 2P",monospace';
-if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→↑↓:SELECT',W/2,_hintY+42);}
+if(_gpConnected){ctx.fillStyle='#4f4';ctx.fillText('🎮 GAMEPAD OK — A:START  ←→↑↓:SELECT',W/2,_hintY+26);}
 ctx.textAlign='left';}
 if(G.state==='dead')drawOverlay('MISS!',`${G.lives} LEFT\nCLICK or SPACE to CONTINUE`,'#4a1a1a');
 if(G.state==='over'){ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff2222';ctx.font='bold 38px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#ff0000';ctx.shadowBlur=28;ctx.fillText('GAME OVER',W/2,H/2-18);ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='10px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+18);ctx.fillStyle='#bbb';ctx.fillText('CLICK or SPACE to RESTART',W/2,H/2+48);ctx.textAlign='left';}
-if(G.state==='win'){const _curStage=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const _isBoss=_curStage?.bgmTheme==='castle';if(_isFinal){ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(0,0,W,H);const _wh=((G.frame*1.5)%360);ctx.fillStyle=`hsla(${_wh},100%,55%,0.12)`;ctx.fillRect(0,0,W,H);if(G.frame%10===0){const _fx=60+Math.random()*(W-120),_fy=40+Math.random()*200;for(let _fp=0;_fp<14;_fp++)spawnParticle(_fx,_fy,'star');}const _pulse=0.82+0.18*Math.sin(G.frame*0.07);ctx.globalAlpha=_pulse;ctx.fillStyle='#FFD700';ctx.font='bold 24px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#FF8800';ctx.shadowBlur=22;ctx.fillText('CONGRATULATIONS!',W/2,H/2-58);ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.fillStyle='#ff99cc';ctx.font='13px "Press Start 2P",monospace';ctx.fillText('PEACH IS SAVED!',W/2,H/2-18);ctx.fillStyle='#FFD700';ctx.font='11px "Press Start 2P",monospace';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+16);ctx.fillStyle='#aaddff';ctx.font='8px "Press Start 2P",monospace';ctx.fillText('THANK YOU FOR PLAYING!',W/2,H/2+46);ctx.fillStyle='#888';ctx.fillText('CLICK or SPACE',W/2,H/2+72);ctx.textAlign='left';}else{drawOverlay(_isBoss?'THANK YOU!':'COURSE CLEAR!',_isBoss?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');}}
-if(G.paused&&G.state==='play'){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 20px "Press Start 2P"';ctx.textAlign='center';ctx.fillText('PAUSED',W/2,H/2-10);ctx.font='11px "Press Start 2P"';ctx.fillText(_gpConnected?'START / P : RESUME':'P : RESUME',W/2,H/2+24);
-if(G.isExStage){ctx.fillStyle='#ff8888';ctx.font='10px "Press Start 2P"';ctx.fillText(_gpConnected?'B : GIVE UP':'Q : GIVE UP',W/2,H/2+46);}
-ctx.textAlign='left';}
+if(G.state==='win'){const _curStage=getStage(G.currentWorld,G.currentLevel);const _isFinal=G.currentWorld===8&&G.currentLevel===3;const _isBoss=_curStage?.bgmTheme==='castle';if(_isFinal){ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(0,0,W,H);const _wh=((G.frame*1.5)%360);if(!G.optReduceFlash){ctx.fillStyle=`hsla(${_wh},100%,55%,0.12)`;ctx.fillRect(0,0,W,H);}if(G.frame%10===0){const _fx=60+Math.random()*(W-120),_fy=40+Math.random()*200;for(let _fp=0;_fp<14;_fp++)spawnParticle(_fx,_fy,'star');}const _pulse=0.82+0.18*Math.sin(G.frame*0.07);ctx.globalAlpha=_pulse;ctx.fillStyle='#FFD700';ctx.font='bold 24px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#FF8800';ctx.shadowBlur=22;ctx.fillText('CONGRATULATIONS!',W/2,H/2-58);ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.fillStyle='#ff99cc';ctx.font='13px "Press Start 2P",monospace';ctx.fillText('PEACH IS SAVED!',W/2,H/2-18);ctx.fillStyle='#FFD700';ctx.font='11px "Press Start 2P",monospace';ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+16);ctx.fillStyle='#aaddff';ctx.font='8px "Press Start 2P",monospace';ctx.fillText('THANK YOU FOR PLAYING!',W/2,H/2+46);ctx.fillStyle='#888';ctx.fillText('CLICK or SPACE',W/2,H/2+72);ctx.textAlign='left';}else{drawOverlay(_isBoss?'THANK YOU!':'COURSE CLEAR!',_isBoss?`PEACH IS SAVED!\nSCORE: ${G.score}\nCLICK or SPACE`:`SCORE: ${G.score}\nCLICK or SPACE`,'#0a3a0a');}}
+if(G.menu)drawMenu();
 }
 
+// 開発用フック（npm run dev のときだけ有効）: コンソールから状態確認・コマ送り・キー入力ができる
+if(import.meta.env&&import.meta.env.DEV){window.__game={G,mario,step:(n=1)=>{for(let i=0;i<n;i++){pollGamepad();if(!(G.state==='play'&&G.paused))update();}draw();},key:(type,code)=>document.dispatchEvent(new KeyboardEvent(type,{code}))};}
+// PWA: 本番ビルドのときだけ Service Worker を登録（オフラインで遊べる・ホーム画面に追加できる）
+if(import.meta.env&&import.meta.env.PROD&&'serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register(import.meta.env.BASE_URL+'sw.js').catch(()=>{});});}
 let _prevT=performance.now(),_acc=0;const _STEP=1000/60;
 (function _loop(){const _now=performance.now();_acc+=Math.min(_now-_prevT,200);_prevT=_now;while(_acc>=_STEP){pollGamepad();if(!(G.state==='play'&&G.paused))update();_acc-=_STEP;}draw();requestAnimationFrame(_loop)})();
